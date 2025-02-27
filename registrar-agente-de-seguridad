@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Colaboradores</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      max-width: 1200px;
+    }
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #15a086;
+    }
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      flex: 1;
+      margin-right: 1rem;
+    }
+    .form-group:last-child {
+      margin-right: 0;
+    }
+    .form-group label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #2c3e50;
+      color: #fff;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder {
+      color: #aaa;
+    }
+    .upload-button {
+      background-color: #15a086;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+    }
+    .upload-button i {
+      margin-right: 0.5rem;
+    }
+    .upload-button:hover {
+      background-color: #12876f;
+    }
+    .image-preview, .file-preview {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .image-preview img, .file-preview img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border: 2px solid #15a086;
+      border-radius: 10px;
+    }
+    .file-preview a {
+      color: #15a086;
+      text-decoration: none;
+      display: block;
+      margin-top: 0.5rem;
+    }
+    .file-preview a:hover {
+      text-decoration: underline;
+    }
+    button[type="submit"] {
+      background-color: #15a086;
+      color: #fff;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background-color: #12876f;
+    }
+    .back-button {
+      background-color: #15a086;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .back-button:hover {
+      background-color: #12876f;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <button class="back-button" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+    <h2>Registro de Colaboradores</h2>
+    <form id="registerForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fullName">Nombre completo:</label>
+          <input type="text" id="fullName" required>
+        </div>
+        <div class="form-group">
+          <label for="idCard">Cédula de identidad:</label>
+          <input type="text" id="idCard" required>
+        </div>
+        <div class="form-group">
+          <label for="workCode">Código (ID laboral):</label>
+          <input type="text" id="workCode" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Teléfono:</label>
+          <input type="text" id="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="address">Dirección:</label>
+          <input type="text" id="address">
+        </div>
+        <div class="form-group">
+          <label for="department">Departamento:</label>
+          <input type="text" id="department" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="position">Posición:</label>
+          <input type="text" id="position" required>
+        </div>
+        <div class="form-group">
+          <label for="workArea">Área de trabajo:</label>
+          <input type="text" id="workArea" required>
+        </div>
+        <div class="form-group">
+          <label for="profileImage">Imagen de perfil:</label>
+          <button type="button" class="upload-button" onclick="document.getElementById('profileImage').click()">
+            <i class="fas fa-camera"></i> Subir imagen
+          </button>
+          <input type="file" id="profileImage" accept="image/*" style="display: none;">
+          <div class="image-preview">
+            <img id="profilePreview" src="#" alt="Vista previa de la imagen de perfil" style="display: none;">
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="idCardImage">Foto o copia de cédula (jpg, png, pdf):</label>
+          <button type="button" class="upload-button" onclick="document.getElementById('idCardImage').click()">
+            <i class="fas fa-file-upload"></i> Subir archivo
+          </button>
+          <input type="file" id="idCardImage" accept=".jpg, .png, .pdf" style="display: none;">
+          <div class="file-preview">
+            <img id="idCardPreview" src="#" alt="Vista previa de la cédula" style="display: none;">
+            <a id="idCardLink" href="#" target="_blank" style="display: none;">Ver archivo</a>
+          </div>
+        </div>
+      </div>
+      <button type="submit">Registrar Colaborador</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.getElementById('profileImage').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('profilePreview').src = e.target.result;
+          document.getElementById('profilePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('idCardImage').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        if (file.type === 'application/pdf') {
+          document.getElementById('idCardPreview').style.display = 'none';
+          document.getElementById('idCardLink').href = URL.createObjectURL(file);
+          document.getElementById('idCardLink').style.display = 'block';
+        } else {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            document.getElementById('idCardPreview').src = e.target.result;
+            document.getElementById('idCardPreview').style.display = 'block';
+            document.getElementById('idCardLink').style.display = 'none';
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const fullName = document.getElementById('fullName').value;
+      const idCard = document.getElementById('idCard').value;
+      const workCode = document.getElementById('workCode').value;
+      const phone = document.getElementById('phone').value;
+      const address = document.getElementById('address').value;
+      const department = document.getElementById('department').value;
+      const position = document.getElementById('position').value;
+      const workArea = document.getElementById('workArea').value;
+      const profileImage = document.getElementById('profileImage').files[0];
+      const idCardImage = document.getElementById('idCardImage').files[0];
+
+      const idCardQuery = query(collection(db, "FormularioDeSeguridad"), where("idCard", "==", idCard));
+      const idCardSnapshot = await getDocs(idCardQuery);
+
+      if (!idCardSnapshot.empty) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ya existe un colaborador con esta cédula de identidad.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Registrando colaborador...',
+        text: 'Por favor, espera.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        background: '#2c3e50',
+        color: '#fff',
+        confirmButtonColor: '#15a086'
+      });
+
+      try {
+        let profileImageUrl = "";
+        if (profileImage) {
+          const profileImageRef = ref(storage, `profileImages/${profileImage.name}`);
+          const profileSnapshot = await uploadBytes(profileImageRef, profileImage);
+          profileImageUrl = await getDownloadURL(profileSnapshot.ref);
+        }
+
+        let idCardImageUrl = "";
+        if (idCardImage) {
+          const idCardImageRef = ref(storage, `idCardImages/${idCardImage.name}`);
+          const idCardSnapshot = await uploadBytes(idCardImageRef, idCardImage);
+          idCardImageUrl = await getDownloadURL(idCardSnapshot.ref);
+        }
+
+        await addDoc(collection(db, "FormularioDeSeguridad"), {
+          fullName,
+          idCard,
+          workCode,
+          phone,
+          address,
+          department,
+          position,
+          workArea,
+          profileImageUrl,
+          idCardImageUrl
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Colaborador registrado exitosamente.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+        document.getElementById('registerForm').reset();
+        document.getElementById('profilePreview').style.display = 'none';
+        document.getElementById('idCardPreview').style.display = 'none';
+        document.getElementById('idCardLink').style.display = 'none';
+      } catch (error) {
+        console.error("Error al registrar el colaborador:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al registrar el colaborador. Inténtalo de nuevo.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    });
+
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</body>
+</html>
