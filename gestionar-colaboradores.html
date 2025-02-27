@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colaboradores</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #15a086;
+      margin-bottom: 2rem;
+    }
+    .search-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #2c3e50;
+      color: #fff;
+    }
+    .search-container input::placeholder {
+      color: #aaa;
+    }
+    .position-section {
+      margin-bottom: 2rem;
+    }
+    .position-section h2 {
+      color: #15a086;
+      border-bottom: 2px solid #15a086;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .collaborator-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      table-layout: auto;
+    }
+    .collaborator-table th,
+    .collaborator-table td {
+      padding: 0.75rem;
+      border: 1px solid #555;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .collaborator-table th {
+      background-color: #15a086;
+      color: #fff;
+    }
+    .collaborator-table td {
+      background-color: #34495e;
+      white-space: normal; /* Permite que el texto se ajuste */
+      word-wrap: break-word; /* Rompe palabras largas si es necesario */
+    }
+    .collaborator-table img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #15a086;
+      cursor: pointer;
+    }
+    .collaborator-table input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #2c3e50;
+      color: #fff;
+    }
+    .collaborator-table input:focus {
+      outline: none;
+      border-color: #15a086;
+    }
+    .collaborator-table button {
+      background-color: transparent;
+      border: none;
+      color: #15a086;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+      transition: color 0.3s ease;
+    }
+    .collaborator-table button:hover {
+      color: #12876f;
+    }
+    .file-icon {
+      font-size: 24px;
+      cursor: pointer;
+      color: #15a086;
+    }
+    .file-icon:hover {
+      color: #12876f;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 10px;
+    }
+    .modal-content button {
+      background-color: #15a086;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .modal-content button:hover {
+      background-color: #12876f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Colaboradores</h1>
+    <div class="search-container">
+      <input type="text" id="searchByName" placeholder="Buscar por nombre">
+      <input type="text" id="searchByCode" placeholder="Buscar por código (ID laboral)">
+    </div>
+    <div id="collaboratorsList"></div>
+  </div>
+
+  <!-- Modal para la foto de perfil -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <img id="modalImage" src="#" alt="Foto de perfil">
+      <button onclick="downloadImage()">Descargar</button>
+      <button onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Función para cargar colaboradores en tiempo real
+    function loadCollaboratorsRealtime(searchByName = '', searchByCode = '') {
+      const collaboratorsList = document.getElementById('collaboratorsList');
+      collaboratorsList.innerHTML = '';
+
+      let q;
+      if (searchByName) {
+        q = query(collection(db, "FormularioDeSeguridad"), where("fullName", ">=", searchByName), where("fullName", "<=", searchByName + "\uf8ff"));
+      } else if (searchByCode) {
+        q = query(collection(db, "FormularioDeSeguridad"), where("workCode", "==", searchByCode));
+      } else {
+        q = collection(db, "FormularioDeSeguridad");
+      }
+
+      // Escuchar cambios en tiempo real
+      onSnapshot(q, (querySnapshot) => {
+        const collaboratorsByPosition = {};
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (!collaboratorsByPosition[data.position]) {
+            collaboratorsByPosition[data.position] = [];
+          }
+          collaboratorsByPosition[data.position].push({ id: doc.id, ...data });
+        });
+
+        collaboratorsList.innerHTML = ''; // Limpiar la lista antes de agregar nuevos datos
+
+        for (const [position, collaborators] of Object.entries(collaboratorsByPosition)) {
+          const positionSection = document.createElement('div');
+          positionSection.className = 'position-section';
+          positionSection.innerHTML = `<h2>${position}</h2>`;
+
+          const table = document.createElement('table');
+          table.className = 'collaborator-table';
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Departamento</th>
+                <th>Área de trabajo</th>
+                <th>Posición</th>
+                <th>Código (ID laboral)</th>
+                <th>Cédula (archivo)</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${collaborators.map((collaborator) => `
+                <tr>
+                  <td>
+                    ${collaborator.profileImageUrl ? `<img src="${collaborator.profileImageUrl}" alt="Foto de perfil" onclick="openModal('${collaborator.profileImageUrl}')">` : 'Sin foto'}
+                  </td>
+                  <td><input type="text" value="${collaborator.fullName}" data-field="fullName"></td>
+                  <td><input type="text" value="${collaborator.idCard}" data-field="idCard"></td>
+                  <td><input type="text" value="${collaborator.phone}" data-field="phone"></td>
+                  <td><input type="text" value="${collaborator.address || ''}" data-field="address"></td>
+                  <td><input type="text" value="${collaborator.department}" data-field="department"></td>
+                  <td><input type="text" value="${collaborator.workArea}" data-field="workArea"></td>
+                  <td><input type="text" value="${collaborator.position}" data-field="position"></td>
+                  <td>${collaborator.workCode}</td>
+                  <td>
+                    ${collaborator.idCardImageUrl ? `
+                      <a href="${collaborator.idCardImageUrl}" target="_blank">
+                        ${collaborator.idCardImageUrl.endsWith('.pdf') ? 
+                          '<i class="file-icon fas fa-file-pdf"></i>' : 
+                          '<i class="file-icon fas fa-file-image"></i>'
+                        }
+                      </a>
+                    ` : 'Sin archivo'}
+                  </td>
+                  <td>
+                    <button onclick="saveChanges('${collaborator.id}', this)"><i class="fas fa-save"></i></button>
+                    <button onclick="deleteCollaborator('${collaborator.id}')"><i class="fas fa-trash"></i></button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          `;
+
+          positionSection.appendChild(table);
+          collaboratorsList.appendChild(positionSection);
+        }
+      });
+    }
+
+    // Función para abrir el modal de la foto de perfil
+    function openModal(imageUrl) {
+      const modal = document.getElementById('profileModal');
+      const modalImage = document.getElementById('modalImage');
+      modalImage.src = imageUrl;
+      modal.style.display = 'flex';
+    }
+
+    // Función para cerrar el modal
+    function closeModal() {
+      const modal = document.getElementById('profileModal');
+      modal.style.display = 'none';
+    }
+
+    // Función para descargar la imagen
+    function downloadImage() {
+      const modalImage = document.getElementById('modalImage');
+      const link = document.createElement('a');
+      link.href = modalImage.src;
+      link.download = 'foto_de_perfil.png';
+      link.click();
+    }
+
+    // Función para guardar cambios
+    async function saveChanges(collaboratorId, button) {
+      const row = button.closest('tr');
+      const inputs = row.querySelectorAll('input');
+      const updates = {};
+
+      inputs.forEach((input) => {
+        updates[input.dataset.field] = input.value;
+      });
+
+      const confirmResult = await Swal.fire({
+        title: '¿Guardar cambios?',
+        text: '¿Estás seguro de que deseas guardar los cambios?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#15a086',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar',
+        background: '#2c3e50',
+        color: '#fff'
+      });
+
+      if (confirmResult.isConfirmed) {
+        try {
+          await updateDoc(doc(db, "FormularioDeSeguridad", collaboratorId), updates);
+          Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Cambios guardados correctamente.',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        } catch (error) {
+          console.error("Error al guardar cambios:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un error al guardar los cambios.',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        }
+      }
+    }
+
+    // Función para eliminar colaborador
+    async function deleteCollaborator(collaboratorId) {
+      const confirmResult = await Swal.fire({
+        title: '¿Eliminar colaborador?',
+        text: '¿Estás seguro de que deseas eliminar este colaborador?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#15a086',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#2c3e50',
+        color: '#fff'
+      });
+
+      if (confirmResult.isConfirmed) {
+        try {
+          await deleteDoc(doc(db, "FormularioDeSeguridad", collaboratorId));
+          Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Colaborador eliminado correctamente.',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        } catch (error) {
+          console.error("Error al eliminar colaborador:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un error al eliminar el colaborador.',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        }
+      }
+    }
+
+    // Buscador por nombre
+    document.getElementById('searchByName').addEventListener('input', (e) => {
+      loadCollaboratorsRealtime(e.target.value, '');
+    });
+
+    // Buscador por código (ID laboral)
+    document.getElementById('searchByCode').addEventListener('input', (e) => {
+      loadCollaboratorsRealtime('', e.target.value);
+    });
+
+    window.saveChanges = saveChanges;
+    window.deleteCollaborator = deleteCollaborator;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.downloadImage = downloadImage;
+    loadCollaboratorsRealtime(); // Cargar datos en tiempo real al inicio
+  </script>
+</body>
+</html>
