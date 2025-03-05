@@ -181,14 +181,14 @@
     .delivery-modal-content button:hover {
       background-color: #12876f;
     }
-    .highlight {
+    .highlight { 
       background-color: #15a086;
     }
   </style>
 </head>
 <body>
   <div class="table-container">
-    <h2>Objetos Extraviados</h2>
+    <h2>Visualización de Objetos en Tiempo Real</h2>
     <div class="search-container">
       <input type="text" id="searchName" placeholder="Buscar por nombre de objeto" oninput="filterObjects()">
       <input type="date" id="searchDate" oninput="filterObjects()">
@@ -252,6 +252,11 @@
 
     let selectedObjectId = null;
     let allObjects = [];
+
+    // Función para obtener el nombre del usuario (puedes modificarla según tu lógica)
+    function getCurrentUser() {
+      return localStorage.getItem("userName") || "Usuario Anónimo";
+    }
 
     // Función para calcular los días restantes y el estado
     function calculateStatus(meetingDate) {
@@ -435,12 +440,14 @@
       try {
         const now = new Date();
         const deliveryDateTime = now.toLocaleString();
+        const deliveredBy = getCurrentUser(); // Obtener el nombre del usuario que entregó
 
         await updateDoc(doc(db, "ObjetosRegistrados", selectedObjectId), {
           delivered: true,
           deliveredTo,
           deliveryComments,
-          deliveryDateTime
+          deliveryDateTime,
+          deliveredBy // Guardar el nombre del usuario que entregó
         });
 
         Swal.fire({
