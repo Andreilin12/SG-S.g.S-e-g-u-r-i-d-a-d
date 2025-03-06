@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objetos Entregados</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .table-container {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      max-width: 1200px;
+      margin-bottom: 20px;
+    }
+    .table-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #15a086;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table th, table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #555;
+    }
+    table th {
+      background-color: #15a086;
+      color: #fff;
+    }
+    table tr:hover {
+      background-color: #2c3e50;
+    }
+    .expand-button {
+      background-color: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .expand-button:hover {
+      background-color: #12876f;
+    }
+    .details-row {
+      display: none;
+    }
+    .details-row.active {
+      display: table-row;
+    }
+    .details-content {
+      padding: 1rem;
+      background-color: #2c3e50;
+    }
+    .details-content img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    .modal-content img {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .modal-close {
+      background-color: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .modal-close:hover {
+      background-color: #12876f;
+    }
+    .report-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .report-modal.active {
+      display: flex;
+    }
+    .report-modal-content {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      text-align: left;
+    }
+    .report-modal-content h3 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .report-modal-content p {
+      margin-bottom: 0.5rem;
+    }
+    .report-modal-content table {
+      width: 100%;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+    .report-modal-content table th, .report-modal-content table td {
+      padding: 0.5rem;
+      border: 1px solid #555;
+    }
+    .report-modal-content img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin: 0.5rem;
+    }
+    .report-modal-content .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+    .report-modal-content .signatures div {
+      text-align: center;
+    }
+    .report-modal-content button {
+      background-color: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .report-modal-content button:hover {
+      background-color: #12876f;
+    }
+
+    /* Estilos para el reporte en el modal */
+    .report-modal-content {
+      background-color: #fff;
+      color: #000;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      text-align: left;
+    }
+    .report-modal-content h3 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: #15a086;
+    }
+    .report-modal-content p {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .report-modal-content table {
+      width: 100%;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      border-collapse: collapse;
+    }
+    .report-modal-content table th, .report-modal-content table td {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+    }
+    .report-modal-content table th {
+      background-color: #15a086;
+      color: #fff;
+    }
+    .report-modal-content img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin: 0.5rem;
+    }
+    .report-modal-content .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+    .report-modal-content .signatures div {
+      text-align: center;
+    }
+    .report-modal-content .signatures p {
+      border-top: 1px solid #000;
+      width: 200px;
+      margin: 0 auto;
+      padding-top: 0.5rem;
+    }
+    .report-modal-content button {
+      background-color: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .report-modal-content button:hover {
+      background-color: #12876f;
+    }
+    
+    /* Estilos para el buscador */
+    .search-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .search-container input {
+      padding: 0.5rem;
+      border: 1px solid #555;
+      border-radius: 5px;
+      background-color: #2c3e50;
+      color: #fff;
+      width: 100%;
+    }
+
+    /* Estilos para ocultar botones en el PDF */
+    .hide-for-pdf {
+      display: none;
+    }
+
+    /* Estilos para los botones de acción en la tabla */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .action-buttons .btn-icon {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+    }
+    .action-buttons .btn-icon:hover {
+      color: #1abc9c;
+    }
+  </style>
+</head>
+<body>
+  <div class="table-container">
+    <h2>Objetos Entregados</h2>
+    <div class="search-container">
+      <input type="text" id="searchName" placeholder="Buscar por nombre de objeto" oninput="filterObjects()">
+      <input type="date" id="searchDate" oninput="filterObjects()">
+    </div>
+    <table id="objectsTable">
+      <thead>
+        <tr>
+          <th>Nombre del objeto</th>
+          <th>Fecha de entrega</th>
+          <th>Entregado a</th>
+          <th>Entregado por</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Filas de la tabla se generarán dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para ver imágenes -->
+  <div class="modal" id="imageModal">
+    <div class="modal-content">
+      <img id="expandedImage" src="#" alt="Imagen expandida">
+      <button class="modal-close" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para el reporte -->
+  <div class="report-modal" id="reportModal">
+    <div class="report-modal-content" id="pdfContent">
+      <h3 id="reportTitle"></h3>
+      <div id="reportContent"></div>
+      <div class="signatures">
+        <div>
+          <p>_________________________</p>
+          <p>Firma del que recibe</p>
+        </div>
+        <div>
+          <p>_________________________</p>
+          <p>Firma del que entrega</p>
+        </div>
+      </div>
+      <button onclick="generatePDF()">Descargar Reporte</button>
+      <button onclick="closeReportModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allObjects = [];
+
+    // Función para mostrar los objetos entregados
+    function renderObjects(objects) {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      objects.forEach((obj) => {
+        const row = document.createElement("tr");
+
+        // Campos principales
+        row.innerHTML = `
+          <td>${obj.objectName}</td>
+          <td>${obj.deliveryDateTime}</td>
+          <td>${obj.deliveredTo}</td>
+          <td>${obj.deliveredBy}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon" onclick="toggleDetails(this)" title="Ver detalles">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-icon" onclick="openReportModal('${obj.id}')" title="Generar reporte">
+                <i class="fas fa-file-pdf"></i>
+              </button>
+            </div>
+          </td>
+        `;
+
+        // Fila de detalles
+        const detailsRow = document.createElement("tr");
+        detailsRow.classList.add("details-row");
+        detailsRow.innerHTML = `
+          <td colspan="5">
+            <div class="details-content">
+              <p><strong>Cantidad:</strong> ${obj.quantity}</p>
+              <p><strong>Lugar de encuentro:</strong> ${obj.meetingPlace}</p>
+              <p><strong>Hora de encuentro:</strong> ${obj.meetingTime}</p>
+              <p><strong>Informado a:</strong> ${obj.informedTo}</p>
+              <p><strong>Comentarios:</strong> ${obj.comments}</p>
+              <p><strong>Fotos:</strong></p>
+              <div class="image-preview">
+                ${obj.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto" onclick="expandImage('${url}')">`).join("")}
+              </div>
+            </div>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+        tableBody.appendChild(detailsRow);
+      });
+    }
+
+    // Función para filtrar objetos por nombre y fecha
+    window.filterObjects = function () {
+      const searchName = document.getElementById("searchName").value.toLowerCase();
+      const searchDate = document.getElementById("searchDate").value;
+
+      const filteredObjects = allObjects.filter((obj) => {
+        const matchesName = obj.objectName.toLowerCase().includes(searchName);
+        const matchesDate = searchDate ? obj.deliveryDateTime.includes(searchDate) : true;
+        return matchesName && matchesDate;
+      });
+
+      renderObjects(filteredObjects);
+    };
+
+    // Escuchar cambios en tiempo real
+    const unsubscribe = onSnapshot(collection(db, "ObjetosRegistrados"), (querySnapshot) => {
+      allObjects = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.delivered) {
+          allObjects.push({ id: doc.id, ...data });
+        }
+      });
+      filterObjects(); // Aplicar filtro inicial
+    });
+
+    // Función para expandir/colapsar detalles
+    window.toggleDetails = function (button) {
+      const detailsRow = button.closest("tr").nextElementSibling;
+      detailsRow.classList.toggle("active");
+    };
+
+    // Función para expandir una imagen en un modal
+    window.expandImage = function (imageUrl) {
+      const modal = document.getElementById("imageModal");
+      const expandedImage = document.getElementById("expandedImage");
+      expandedImage.src = imageUrl;
+      modal.classList.add("active");
+    };
+
+    // Función para cerrar el modal de imágenes
+    window.closeModal = function () {
+      const modal = document.getElementById("imageModal");
+      modal.classList.remove("active");
+    };
+
+    // Función para abrir el modal de reporte
+    window.openReportModal = function (objectId) {
+      const object = allObjects.find(obj => obj.id === objectId);
+      const reportModal = document.getElementById("reportModal");
+      const reportTitle = document.getElementById("reportTitle");
+      const reportContent = document.getElementById("reportContent");
+
+      // Recuperar el nombre de la empresa desde localStorage
+      const companyName = localStorage.getItem("companyName") || "Nombre de la Empresa";
+
+      // Título del reporte
+      reportTitle.textContent = `Lost And Found - ${companyName}`;
+
+      // Contenido del reporte
+      reportContent.innerHTML = `
+        <p><strong>Reporte de Entrega</strong></p>
+        <p>A ${new Date().toLocaleDateString()}, yo, ${object.deliveredBy}, hago entrega formal al Sr./Sra. ${object.deliveredTo} del siguiente objeto:</p>
+        <table>
+          <tr>
+            <th>Nombre del objeto</th>
+            <td>${object.objectName}</td>
+          </tr>
+          <tr>
+            <th>Cantidad</th>
+            <td>${object.quantity}</td>
+          </tr>
+          <tr>
+            <th>Lugar de encuentro</th>
+            <td>${object.meetingPlace}</td>
+          </tr>
+          <tr>
+            <th>Hora de encuentro</th>
+            <td>${object.meetingTime}</td>
+          </tr>
+          <tr>
+            <th>Informado a</th>
+            <td>${object.informedTo}</td>
+          </tr>
+          <tr>
+            <th>Comentarios</th>
+            <td>${object.comments}</td>
+          </tr>
+        </table>
+        <p>Agradezco la atención prestada y quedo a disposición para cualquier aclaración.</p>
+        <p>Esta entrega se realiza en conformidad con los acuerdos establecidos.</p>
+        <p><strong>Descripción del Objeto:</strong></p>
+        <div class="image-preview">
+          ${object.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto">`).join("")}
+        </div>
+      `;
+
+      reportModal.classList.add("active");
+    };
+
+    // Función para cerrar el modal de reporte
+    window.closeReportModal = function () {
+      const reportModal = document.getElementById("reportModal");
+      reportModal.classList.remove("active");
+    };
+
+    // Función para generar el PDF
+    window.generatePDF = function () {
+      const { jsPDF } = window.jspdf;
+      const pdfContent = document.getElementById("pdfContent");
+
+      // Ocultar botones temporalmente
+      const buttons = pdfContent.querySelectorAll("button");
+      buttons.forEach(button => button.classList.add("hide-for-pdf"));
+
+      html2canvas(pdfContent).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210; // Ancho de A4 en mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("reporte.pdf");
+
+        // Mostrar botones nuevamente
+        buttons.forEach(button => button.classList.remove("hide-for-pdf"));
+      });
+    };
+  </script>
+</body>
+</html>
