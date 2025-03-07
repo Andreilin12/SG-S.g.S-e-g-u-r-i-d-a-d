@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Contactos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .search-container {
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 800px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background-color: #2c3e50;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .contacts-table {
+      width: 100%;
+      max-width: 1200px;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    .contacts-table th, .contacts-table td {
+      padding: 0.75rem;
+      border: 1px solid #444;
+      text-align: left;
+    }
+    .contacts-table th {
+      background-color: #1abc9c;
+      color: #fff;
+    }
+    .contacts-table tr:hover {
+      background-color: #2c3e50;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .action-buttons button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+    }
+    .action-buttons button:hover {
+      color: #1abc9c;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: #2a2a3f;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: left;
+      max-width: 600px;
+      width: 100%;
+      animation: fadeIn 0.5s ease;
+    }
+    .modal-content h3 {
+      margin-bottom: 1rem;
+      color: #1abc9c;
+    }
+    .modal-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #a8a8a8;
+    }
+    .modal-content input, .modal-content select {
+      width: 90%;
+      padding: 0.5rem;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background-color: #2c3e50;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    .modal-content button {
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    .modal-content button:hover {
+      background-color: #16a085;
+    }
+    .photo-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+    }
+    .extension-container {
+      margin-bottom: 1rem;
+    }
+    .extension-container input {
+      margin-bottom: 0.5rem;
+    }
+    .add-extension-button {
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .add-extension-button:hover {
+      background-color: #16a085;
+    }
+    .hide-for-pdf {
+      display: none;
+    }
+    .floating-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+    }
+    .floating-button:hover {
+      background-color: #16a085;
+    }
+    .call-icon {
+      color: #1abc9c;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    .call-icon:hover {
+      color: #16a085;
+    }
+    .blue-text {
+      color: #1abc9c;
+      text-decoration: none; /* Quita el subrayado */
+    }
+    .horizontal-fields {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .horizontal-fields div {
+      flex: 1;
+    }
+    .file-input-container {
+      position: relative;
+      display: inline-block;
+    }
+    .file-input-container input[type="file"] {
+      opacity: 0;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .file-input-container .file-input-icon {
+      background-color: #1abc9c;
+      color: #fff;
+      border-radius: 50%;
+      padding: 0.75rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .file-input-container .file-input-icon:hover {
+      background-color: #16a085;
+    }
+    .loading-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .loading-modal.active {
+      display: flex;
+    }
+    .loading-modal-content {
+      background-color: #2a2a3f;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+    .loading-modal-content h3 {
+      margin-bottom: 1rem;
+      color: #1abc9c;
+    }
+    .loading-spinner {
+      border: 4px solid #1abc9c;
+      border-top: 4px solid transparent;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    .alert-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .alert-modal.active {
+      display: flex;
+    }
+    .alert-modal-content {
+      background-color: #2a2a3f;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+    .alert-modal-content h3 {
+      margin-bottom: 1rem;
+      color: #1abc9c;
+    }
+    .alert-modal-content button {
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .alert-modal-content button:hover {
+      background-color: #16a085;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+
+    .contact-photo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .modal-photo {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 12px;
+    }
+
+    .photo-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .photo-modal.active {
+      display: flex;
+    }
+
+    .photo-modal-content {
+      background-color: #2a2a3f;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+      position: relative;
+    }
+
+    .close-modal-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-modal-button:hover {
+      background-color: #16a085;
+    }
+
+    
+  /* Nuevos estilos para el botón de imprimir */
+  .print-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #1abc9c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 1000;
+  }
+
+  .print-button:hover {
+    background-color: #16a085;
+  }
+
+  /* Estilos para ocultar elementos al imprimir */
+  @media print {
+    .print-button,
+    .floating-button,
+    .action-buttons button,
+    .search-container {
+      display: none !important;
+    }
+  }
+  </style>
+</head>
+<body>
+  <!-- Botón de imprimir -->
+  <button class="print-button" onclick="window.print()">Imprimir</button>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Buscar por nombre, área, departamento, posición, extensión o número" oninput="filterContacts()">
+  </div>
+
+  <table class="contacts-table" id="contactsTable">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Departamento</th>
+        <th>Posición</th>
+        <th>Área</th>
+        <th>Teléfono</th>
+        <th>Extensiones</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="contactsTableBody">
+      <!-- Filas de contactos se generarán dinámicamente -->
+    </tbody>
+  </table>
+
+  <!-- Botón flotante para agregar contacto -->
+  <button class="floating-button" onclick="openModal('addContactModal')">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Modal para agregar contacto -->
+  <div class="modal" id="addContactModal">
+    <div class="modal-content">
+      <h3>Agregar Contacto</h3>
+      <div class="horizontal-fields">
+        <div>
+          <label for="contactName">Nombre:</label>
+          <input type="text" id="contactName" placeholder="Nombre">
+        </div>
+        <div>
+          <label for="contactDepartment">Departamento:</label>
+          <input type="text" id="contactDepartment" placeholder="Departamento">
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="contactPosition">Posición:</label>
+          <input type="text" id="contactPosition" placeholder="Posición">
+        </div>
+        <div>
+          <label for="contactArea">Área de Trabajo:</label>
+          <input type="text" id="contactArea" placeholder="Área de Trabajo">
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="contactPhone">Teléfono:</label>
+          <input type="text" id="contactPhone" placeholder="Teléfono">
+        </div>
+        <div>
+          <label>Extensiones:</label>
+          <div class="extension-container" id="extensionContainer">
+            <input type="text" class="extension-input" placeholder="Extensión 1">
+          </div>
+          <button class="add-extension-button" onclick="addExtensionField()">Agregar Extensión</button>
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="contactPhoto">Foto de Contacto:</label>
+          <div class="file-input-container">
+            <input type="file" id="contactPhoto" accept="image/*" onchange="previewPhoto(event)">
+            <div class="file-input-icon">
+              <i class="fas fa-camera"></i>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img id="photoPreview" class="photo-preview" src="#" alt="Vista previa de la foto" style="display: none;">
+        </div>
+      </div>
+      <button onclick="saveContact()">Guardar</button>
+      <button onclick="closeModal('addContactModal')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal para editar contacto -->
+  <div class="modal" id="editContactModal">
+    <div class="modal-content">
+      <h3>Editar Contacto</h3>
+      <div class="horizontal-fields">
+        <div>
+          <label for="editContactName">Nombre:</label>
+          <input type="text" id="editContactName" placeholder="Nombre">
+        </div>
+        <div>
+          <label for="editContactDepartment">Departamento:</label>
+          <input type="text" id="editContactDepartment" placeholder="Departamento">
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="editContactPosition">Posición:</label>
+          <input type="text" id="editContactPosition" placeholder="Posición">
+        </div>
+        <div>
+          <label for="editContactArea">Área de Trabajo:</label>
+          <input type="text" id="editContactArea" placeholder="Área de Trabajo">
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="editContactPhone">Teléfono:</label>
+          <input type="text" id="editContactPhone" placeholder="Teléfono">
+        </div>
+        <div>
+          <label>Extensiones:</label>
+          <div class="extension-container" id="editExtensionContainer">
+            <input type="text" class="extension-input" placeholder="Extensión 1">
+          </div>
+          <button class="add-extension-button" onclick="addEditExtensionField()">Agregar Extensión</button>
+        </div>
+      </div>
+      <div class="horizontal-fields">
+        <div>
+          <label for="editContactPhoto">Foto de Contacto:</label>
+          <div class="file-input-container">
+            <input type="file" id="editContactPhoto" accept="image/*" onchange="previewEditPhoto(event)">
+            <div class="file-input-icon">
+              <i class="fas fa-camera"></i>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img id="editPhotoPreview" class="photo-preview" src="#" alt="Vista previa de la foto" style="display: none;">
+        </div>
+      </div>
+      <button onclick="updateContact()">Actualizar</button>
+      <button onclick="closeModal('editContactModal')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación para eliminar -->
+  <div class="modal" id="deleteConfirmationModal">
+    <div class="modal-content">
+      <h3>¿Eliminar Contacto?</h3>
+      <p>¿Estás seguro de que deseas eliminar este contacto?</p>
+      <button onclick="confirmDelete()">Eliminar</button>
+      <button onclick="closeModal('deleteConfirmationModal')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal de carga -->
+  <div class="loading-modal" id="loadingModal">
+    <div class="loading-modal-content">
+      <h3>Guardando...</h3>
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Modal de alerta -->
+  <div class="alert-modal" id="alertModal">
+    <div class="alert-modal-content">
+      <h3 id="alertTitle"></h3>
+      <p id="alertMessage"></p>
+      <button onclick="closeModal('alertModal')">Aceptar</button>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar la foto en grande -->
+  <div class="photo-modal" id="photoModal">
+    <div class="photo-modal-content">
+      <button class="close-modal-button" onclick="closeModal('photoModal')">
+        <i class="fas fa-times"></i>
+      </button>
+      <img id="expandedPhoto" class="modal-photo" src="#" alt="Foto expandida">
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let allContacts = [];
+    let currentContactId = null;
+
+    // Función para abrir un modal
+    window.openModal = function (modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add("active");
+    };
+
+    // Función para cerrar un modal
+    window.closeModal = function (modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove("active");
+    };
+
+    // Función para mostrar una alerta
+    function showAlert(title, message) {
+      document.getElementById("alertTitle").textContent = title;
+      document.getElementById("alertMessage").textContent = message;
+      openModal("alertModal");
+    }
+
+    // Función para agregar campos de extensión
+    window.addExtensionField = function () {
+      const extensionContainer = document.getElementById("extensionContainer");
+      const extensionCount = extensionContainer.querySelectorAll(".extension-input").length + 1;
+      const newExtensionInput = document.createElement("input");
+      newExtensionInput.type = "text";
+      newExtensionInput.className = "extension-input";
+      newExtensionInput.placeholder = `Extensión ${extensionCount}`;
+      extensionContainer.appendChild(newExtensionInput);
+    };
+
+    // Función para agregar campos de extensión en el modal de editar
+    window.addEditExtensionField = function () {
+      const extensionContainer = document.getElementById("editExtensionContainer");
+      const extensionCount = extensionContainer.querySelectorAll(".extension-input").length + 1;
+      const newExtensionInput = document.createElement("input");
+      newExtensionInput.type = "text";
+      newExtensionInput.className = "extension-input";
+      newExtensionInput.placeholder = `Extensión ${extensionCount}`;
+      extensionContainer.appendChild(newExtensionInput);
+    };
+
+    // Función para previsualizar la foto
+    window.previewPhoto = function (event) {
+      const photoPreview = document.getElementById("photoPreview");
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          photoPreview.src = e.target.result;
+          photoPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Función para previsualizar la foto en el modal de editar
+    window.previewEditPhoto = function (event) {
+      const photoPreview = document.getElementById("editPhotoPreview");
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          photoPreview.src = e.target.result;
+          photoPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Función para subir una imagen a Firebase Storage
+    async function uploadImage(file) {
+      const storageRef = ref(storage, `contact-photos/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    }
+
+    // Función para guardar un contacto
+    window.saveContact = async function () {
+      const name = document.getElementById("contactName").value;
+      const department = document.getElementById("contactDepartment").value;
+      const position = document.getElementById("contactPosition").value;
+      const area = document.getElementById("contactArea").value;
+      const phone = document.getElementById("contactPhone").value;
+      const extensions = Array.from(document.querySelectorAll(".extension-input")).map(input => input.value);
+      const photoFile = document.getElementById("contactPhoto").files[0];
+
+      let photoUrl = "";
+      if (photoFile) {
+        photoUrl = await uploadImage(photoFile);
+      }
+
+      const contactData = {
+        name,
+        department,
+        position,
+        area,
+        phone,
+        extensions,
+        photoUrl
+      };
+
+      try {
+        openModal("loadingModal");
+        await addDoc(collection(db, "contacts"), contactData);
+        closeModal("loadingModal");
+        showAlert("Éxito", "Contacto agregado con éxito.");
+        closeModal("addContactModal");
+        resetForm();
+      } catch (error) {
+        closeModal("loadingModal");
+        showAlert("Error", "Error al guardar el contacto: " + error.message);
+      }
+    };
+
+    // Función para resetear el formulario
+    function resetForm() {
+      document.getElementById("contactName").value = "";
+      document.getElementById("contactDepartment").value = "";
+      document.getElementById("contactPosition").value = "";
+      document.getElementById("contactArea").value = "";
+      document.getElementById("contactPhone").value = "";
+      document.getElementById("extensionContainer").innerHTML = '<label>Extensiones:</label><input type="text" class="extension-input" placeholder="Extensión 1">';
+      document.getElementById("photoPreview").src = "#";
+      document.getElementById("photoPreview").style.display = "none";
+      document.getElementById("contactPhoto").value = "";
+    }
+
+    // Función para cargar los contactos
+    async function loadContacts() {
+      const querySnapshot = await getDocs(collection(db, "contacts"));
+      allContacts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderContacts(allContacts);
+    }
+
+    // Función para renderizar los contactos
+    function renderContacts(contacts) {
+      const contactsTableBody = document.getElementById("contactsTableBody");
+      contactsTableBody.innerHTML = "";
+
+      contacts.forEach(contact => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${contact.name}</td>
+          <td>${contact.department}</td>
+          <td>${contact.position}</td>
+          <td>${contact.area}</td>
+          <td><a href="tel:${contact.phone}" class="blue-text">${contact.phone}</a></td>
+          <td>${contact.extensions.join(", ")}</td>
+          <td class="action-buttons">
+            ${contact.photoUrl ? `<img src="${contact.photoUrl}" class="contact-photo" onclick="showExpandedPhoto('${contact.photoUrl}')">` : ''}
+            <button onclick="editContact('${contact.id}')"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteContact('${contact.id}')"><i class="fas fa-trash"></i></button>
+            <button onclick="callContact('${contact.phone}')"><i class="fas fa-phone call-icon"></i></button>
+          </td>
+        `;
+        contactsTableBody.appendChild(row);
+      });
+    }
+
+    // Función para mostrar la foto expandida
+    window.showExpandedPhoto = function (photoUrl) {
+      const expandedPhoto = document.getElementById("expandedPhoto");
+      expandedPhoto.src = photoUrl;
+      openModal("photoModal");
+    };
+
+    // Función para editar un contacto
+    window.editContact = async function (contactId) {
+      const contact = allContacts.find(c => c.id === contactId);
+      if (contact) {
+        currentContactId = contact.id;
+        document.getElementById("editContactName").value = contact.name;
+        document.getElementById("editContactDepartment").value = contact.department;
+        document.getElementById("editContactPosition").value = contact.position;
+        document.getElementById("editContactArea").value = contact.area;
+        document.getElementById("editContactPhone").value = contact.phone;
+        const extensionContainer = document.getElementById("editExtensionContainer");
+        extensionContainer.innerHTML = '<label>Extensiones:</label>';
+        contact.extensions.forEach((ext, index) => {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "extension-input";
+          input.placeholder = `Extensión ${index + 1}`;
+          input.value = ext;
+          extensionContainer.appendChild(input);
+        });
+        document.getElementById("editPhotoPreview").src = contact.photoUrl;
+        document.getElementById("editPhotoPreview").style.display = contact.photoUrl ? "block" : "none";
+        openModal("editContactModal");
+      }
+    };
+
+    // Función para actualizar un contacto
+    window.updateContact = async function () {
+      const name = document.getElementById("editContactName").value;
+      const department = document.getElementById("editContactDepartment").value;
+      const position = document.getElementById("editContactPosition").value;
+      const area = document.getElementById("editContactArea").value;
+      const phone = document.getElementById("editContactPhone").value;
+      const extensions = Array.from(document.querySelectorAll("#editExtensionContainer .extension-input")).map(input => input.value);
+      const photoFile = document.getElementById("editContactPhoto").files[0];
+
+      let photoUrl = "";
+      if (photoFile) {
+        photoUrl = await uploadImage(photoFile);
+      }
+
+      const contactData = {
+        name,
+        department,
+        position,
+        area,
+        phone,
+        extensions,
+        photoUrl
+      };
+
+      try {
+        openModal("loadingModal");
+        const contactRef = doc(db, "contacts", currentContactId);
+        await updateDoc(contactRef, contactData);
+        closeModal("loadingModal");
+        showAlert("Éxito", "Contacto actualizado con éxito.");
+        closeModal("editContactModal");
+        loadContacts();
+      } catch (error) {
+        closeModal("loadingModal");
+        showAlert("Error", "Error al actualizar el contacto: " + error.message);
+      }
+    };
+
+    // Función para eliminar un contacto
+    window.deleteContact = function (contactId) {
+      currentContactId = contactId;
+      openModal("deleteConfirmationModal");
+    };
+
+    // Función para confirmar la eliminación
+    window.confirmDelete = async function () {
+      try {
+        openModal("loadingModal");
+        await deleteDoc(doc(db, "contacts", currentContactId));
+        closeModal("loadingModal");
+        showAlert("Éxito", "Contacto eliminado con éxito.");
+        closeModal("deleteConfirmationModal");
+        loadContacts();
+      } catch (error) {
+        closeModal("loadingModal");
+        showAlert("Error", "Error al eliminar el contacto: " + error.message);
+      }
+    };
+
+    // Función para realizar una llamada
+    window.callContact = function (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
+    };
+
+    // Función para filtrar contactos
+    window.filterContacts = function () {
+      const searchText = document.getElementById("searchInput").value.toLowerCase();
+      const filteredContacts = allContacts.filter(contact => {
+        return (
+          contact.name.toLowerCase().includes(searchText) ||
+          contact.department.toLowerCase().includes(searchText) ||
+          contact.position.toLowerCase().includes(searchText) ||
+          contact.area.toLowerCase().includes(searchText) ||
+          contact.phone.includes(searchText) ||
+          contact.extensions.some(ext => ext.includes(searchText))
+        );
+      });
+      renderContacts(filteredContacts);
+    };
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(collection(db, "contacts"), (querySnapshot) => {
+      allContacts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderContacts(allContacts);
+    });
+
+    // Cargar contactos al iniciar
+    loadContacts();
+  </script>
+</body>
+</html>
