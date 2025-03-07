@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte de Colores</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .report-section {
+      background-color: #2a2a3f;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+    .report-section h3 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #1abc9c;
+    }
+    .report-section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    .report-section th, .report-section td {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .report-section th {
+      background-color: #1abc9c;
+      color: #fff;
+    }
+    .report-section button {
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    .report-section button:hover {
+      background-color: #16a085;
+    }
+    .hide-for-pdf {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="report-section" id="pdfContent">
+    <h3>Reporte de Colores</h3>
+    <table id="pdfTable">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Color</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filas se generarán dinámicamente -->
+      </tbody>
+    </table>
+    <button onclick="generatePDF()">Descargar PDF</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allColors = [];
+
+    // Función para actualizar la tabla de reportes
+    function updateReportTable() {
+      const pdfTableBody = document.querySelector("#pdfTable tbody");
+      pdfTableBody.innerHTML = "";
+
+      allColors.forEach(color => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${color.name}</td>
+          <td style="background-color: ${color.color};"></td>
+          <td>${color.description}</td>
+        `;
+        pdfTableBody.appendChild(row);
+      });
+    }
+
+    // Función para generar el PDF
+    window.generatePDF = function () {
+      const { jsPDF } = window.jspdf;
+      const pdfContent = document.getElementById("pdfContent");
+
+      // Ocultar botones temporalmente
+      const buttons = pdfContent.querySelectorAll("button");
+      buttons.forEach(button => button.classList.add("hide-for-pdf"));
+
+      // Capturar el contenido con html2canvas
+      html2canvas(pdfContent, { scale: 3, useCORS: true, logging: true, allowTaint: true }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210; // Ancho de A4 en mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("reporte_colores.pdf");
+
+        // Mostrar botones nuevamente
+        buttons.forEach(button => button.classList.remove("hide-for-pdf"));
+      });
+    };
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(collection(db, "datos"), (querySnapshot) => {
+      allColors = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        allColors.push({ id: doc.id, ...data });
+      });
+      updateReportTable();
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
