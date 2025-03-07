@@ -235,7 +235,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
     const firebaseConfig = {
@@ -255,6 +255,18 @@
     let selectedObjectId = null;
     let allObjects = [];
     let currentUser = null; // Usuario actual autenticado
+
+    // Función para obtener el nombre del usuario desde Firebase
+    async function getCurrentUserName() {
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          return userData.name || currentUser.displayName || "Usuario Desconocido";
+        }
+      }
+      return "Usuario Desconocido";
+    }
 
     // Escuchar cambios en el estado de autenticación
     onAuthStateChanged(auth, (user) => {
@@ -451,12 +463,15 @@
         const now = new Date();
         const deliveryDateTime = now.toLocaleString();
 
+        // Obtener el nombre del usuario actual
+        const userName = await getCurrentUserName();
+
         await updateDoc(doc(db, "ObjetosRegistrados", selectedObjectId), {
           delivered: true,
           deliveredTo,
           deliveryComments,
           deliveryDateTime,
-          deliveredBy: currentUser.email // Guardar el correo del usuario actual
+          deliveredBy: userName // Guardar el nombre del usuario actual
         });
 
         Swal.fire({
