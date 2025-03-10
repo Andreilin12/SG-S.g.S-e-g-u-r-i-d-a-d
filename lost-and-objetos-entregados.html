@@ -6,7 +6,7 @@
   <title>Objetos Entregados</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
+   <style>
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #2c3e50;
@@ -295,7 +295,7 @@
     <h2>Objetos Entregados</h2>
     <div class="search-container">
       <input type="text" id="searchName" placeholder="Buscar por nombre de objeto" oninput="filterObjects()">
-      <input type="date" id="searchDate" oninput="filterObjects()">
+      <input type="text" id="searchDeliveredTo" placeholder="Buscar por Entregado a" oninput="filterObjects()">
     </div>
     <table id="objectsTable">
       <thead>
@@ -346,7 +346,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
@@ -362,6 +362,21 @@
     const db = getFirestore(app);
 
     let allObjects = [];
+    let companyName = "Nombre de la Empresa"; // Valor por defecto
+
+    // Función para recuperar el nombre de la empresa desde Firebase
+    async function getCompanyName() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "DatosDeEmpresa"));
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          companyName = doc.data().nombreEmpresa || companyName;
+          localStorage.setItem("companyName", companyName); // Guardar en localStorage
+        }
+      } catch (error) {
+        console.error("Error al recuperar el nombre de la empresa:", error);
+      }
+    }
 
     // Función para mostrar los objetos entregados
     function renderObjects(objects) {
@@ -413,15 +428,15 @@
       });
     }
 
-    // Función para filtrar objetos por nombre y fecha
+    // Función para filtrar objetos por nombre de objeto y "Entregado a"
     window.filterObjects = function () {
       const searchName = document.getElementById("searchName").value.toLowerCase();
-      const searchDate = document.getElementById("searchDate").value;
+      const searchDeliveredTo = document.getElementById("searchDeliveredTo").value.toLowerCase();
 
       const filteredObjects = allObjects.filter((obj) => {
         const matchesName = obj.objectName.toLowerCase().includes(searchName);
-        const matchesDate = searchDate ? obj.deliveryDateTime.includes(searchDate) : true;
-        return matchesName && matchesDate;
+        const matchesDeliveredTo = obj.deliveredTo.toLowerCase().includes(searchDeliveredTo);
+        return matchesName && matchesDeliveredTo;
       });
 
       renderObjects(filteredObjects);
@@ -467,7 +482,7 @@
       const reportContent = document.getElementById("reportContent");
 
       // Recuperar el nombre de la empresa desde localStorage
-      const companyName = localStorage.getItem("companyName") || "Nombre de la Empresa";
+      companyName = localStorage.getItem("companyName") || companyName;
 
       // Título del reporte
       reportTitle.textContent = `Lost And Found - ${companyName}`;
@@ -541,6 +556,9 @@
         buttons.forEach(button => button.classList.remove("hide-for-pdf"));
       });
     };
+
+    // Inicializar el nombre de la empresa al cargar la página
+    getCompanyName();
   </script>
 </body>
 </html>
