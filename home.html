@@ -369,7 +369,7 @@
     <script type="module">
         // Firebase y otras configuraciones
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -400,7 +400,6 @@
                     document.getElementById('sidebar').style.display = 'flex';
                     document.getElementById('content').style.display = 'flex';
                     document.getElementById('header').style.display = 'block';
-                    document.getElementById('userGreeting').style.display = 'block';
 
                     // Ocultar indicador de carga
                     loadingSpinner.style.display = 'none';
@@ -408,6 +407,9 @@
                     // Mostrar saludo y reloj
                     mostrarSaludo(userData.name);
                     actualizarReloj();
+
+                    // Sincronizar estado del contenedor de hora y fecha
+                    sincronizarEstadoContenedor(user.uid);
                 }
             });
         }
@@ -432,6 +434,20 @@
                 const now = new Date();
                 clock.textContent = now.toLocaleString();
             }, 1000);
+        }
+
+        // Sincronizar estado del contenedor de hora y fecha
+        function sincronizarEstadoContenedor(userId) {
+            const userGreeting = document.getElementById('userGreeting');
+            const userDocRef = doc(db, 'users', userId);
+
+            // Escuchar cambios en tiempo real
+            onSnapshot(userDocRef, (doc) => {
+                const userData = doc.data();
+                if (userData && userData.toggleState !== undefined) {
+                    userGreeting.style.display = userData.toggleState ? 'block' : 'none';
+                }
+            });
         }
 
         // Cargar perfil al inicio
