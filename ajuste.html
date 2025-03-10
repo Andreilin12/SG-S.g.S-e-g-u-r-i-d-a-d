@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de la Cuenta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #34495e;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .config-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+        .config-item:hover {
+            background-color: #16a085;
+        }
+        .config-item:last-child {
+            border-bottom: none; /* Eliminar el borde en el último ítem */
+        }
+        .icon {
+            font-size: 24px;
+            margin-right: 15px;
+            color: #fff;
+        }
+        .config-title {
+            flex: 1; /* Para ocupar el espacio restante */
+            font-size: 18px;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Desactivar la selección de texto y el efecto de arrastre en todos los elementos */
+        * {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* estándar */
+
+            -webkit-user-drag: none; /* Safari */
+            -khtml-user-drag: none; /* Konqueror HTML */
+            -moz-user-drag: none; /* Firefox */
+            -o-user-drag: none; /* Opera */
+            user-drag: none; /* estándar */
+        }
+
+        .back-button {
+            position: fixed;
+            top: 10px; /* Distancia desde la parte superior */
+            left: 10px; /* Distancia desde el borde izquierdo */
+            background-color: #16a085; /* Color de fondo */
+            color: #fff; /* Color del texto y del icono */
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s; /* Transición suave para el color de fondo */
+            z-index: 1000; /* Asegura que el botón esté sobre otros elementos */
+        }
+
+        .back-button i {
+            margin-right: 8px; /* Espacio entre el icono y el texto */
+        }
+
+        .back-button:hover {
+            background-color: #2c2e50; /* Color de fondo al pasar el ratón */
+        }
+
+        /* Estilos para el botón de activación/desactivación */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #1abc9c;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Configuración del sistema</h1>
+</header>
+
+<div class="container">
+    <div class="config-item">
+        <i class="fas fa-user icon"></i>
+        <a href="app-perfil.html" class="config-title">Cuenta</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-search icon"></i>
+        <a href="cofiguracion-del-buscador.html" class="config-title">Configuración del Buscador</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-lock icon"></i>
+        <a href="permisos.html" class="config-title">Configuración de Permisos</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-folder-open icon"></i>
+        <a href="archivos.html" class="config-title">Archivos</a>
+    </div>
+    <div class="config-item">
+        <i class="fa-solid fa-barcode icon"></i>
+        <a href="general-codigo.html" class="config-title">Generador de Códigos</a>
+    </div>
+    <div class="config-item">
+        <i class="fa fa-money-bill-wave icon"></i>
+        <a href="facturas-mes-actual.html" class="config-title">Ingresos del Mes Actual</a>
+    </div> 
+    <div class="config-item">
+        <i class="fa fa-chart-pie icon"></i>
+        <a href="panel-de-facturacion.html" class="config-title">Panel de Facturación</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-headset icon"></i>
+        <a href="soporte.html" class="config-title">Soporte</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-shield-alt icon"></i>
+        <a href="política-de-privacidad.html" class="config-title">Política de privacidad</a>
+    </div>
+    <div class="config-item">
+        <i class="fas fa-lock icon"></i>
+        <a href="política-de-seguridad.html" class="config-title">Política de seguridad</a>
+    </div>
+    <!-- Nuevo ítem para el botón de activación/desactivación -->
+    <div class="config-item">
+        <i class="fas fa-toggle-on icon"></i>
+        <span class="config-title">Mostrar Hora y Fecha</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="toggleButton">
+            <span class="slider"></span>
+        </label>
+    </div>
+</div>
+
+<script type="module">
+    // Firebase y otras configuraciones
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+        authDomain: "inventario-35d6b.firebaseapp.com",
+        projectId: "inventario-35d6b",
+        storageBucket: "inventario-35d6b.appspot.com",
+        messagingSenderId: "266100399659",
+        appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const toggleButton = document.getElementById('toggleButton');
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const toggleState = await cargarEstadoBoton(user.uid);
+            toggleButton.checked = toggleState;
+
+            toggleButton.addEventListener('change', async () => {
+                const estado = toggleButton.checked;
+                await guardarEstadoBoton(user.uid, estado);
+            });
+        }
+    });
+
+    async function cargarEstadoBoton(userId) {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        const userData = userDoc.data();
+        return userData.toggleState || false;
+    }
+
+    async function guardarEstadoBoton(userId, estado) {
+        await setDoc(doc(db, 'users', userId), { toggleState: estado }, { merge: true });
+    }
+</script>
+
+</body>
+</html>
