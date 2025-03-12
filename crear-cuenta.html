@@ -10,7 +10,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #2C3E50;
-      color: #fff;
+      color: #333;
       margin: 0;
       padding: 0;
       display: flex;
@@ -19,7 +19,7 @@
       height: 100vh;
     }
     .register-container {
-      background-color: #2e2e3f;
+      background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       padding: 40px;
@@ -28,7 +28,6 @@
     }
     h2 {
       margin-bottom: 20px;
-      color: #;
     }
     .form-row {
       display: flex;
@@ -36,12 +35,10 @@
       margin-bottom: 10px;
     }
     .form-row input, .form-row select {
-    background-color: #2e3e50;	
       flex: 1;
       padding: 10px;
       border-radius: 5px;
-      border: 1px solid #2e3e50;
-      color: #fff;
+      border: 1px solid #ddd;
     }
     .file-input {
       display: none;
@@ -58,7 +55,7 @@
       transition: background-color 0.3s;
     }
     .file-label:hover {
-      background-color: #16e086;
+      background-color: #2c3e50;
     }
     .file-label i {
       margin-right: 8px;
@@ -83,7 +80,7 @@
       transition: background-color 0.3s;
     }
     .btn:hover {
-      background-color: #16e086;
+      background-color: #2c3e50;
     }
     .modal {
       display: none;
@@ -147,6 +144,10 @@
         <input type="tel" id="registerPhone" placeholder="Teléfono" required>
       </div>
       <div class="form-row">
+        <input type="password" id="registerPassword" placeholder="Contraseña" required>
+        <input type="password" id="registerConfirmPassword" placeholder="Confirmar Contraseña" required>
+      </div>
+      <div class="form-row">
         <label for="registerPhoto" class="file-label">
           <i class="fas fa-image"></i> Seleccionar Foto
         </label>
@@ -168,7 +169,7 @@
   <!-- Modal para carga -->
   <div class="modal" id="loadingModal">
     <div class="modal-content">
-      <p>Subiendo datos...</p>
+      <p>Retom está creando su nueva cuenta...</p>
     </div>
   </div>
 
@@ -267,7 +268,15 @@
       const sexo = document.getElementById('registerSexo').value;
       const email = document.getElementById('registerEmail').value;
       const phone = document.getElementById('registerPhone').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
       const photoFile = document.getElementById('registerPhoto').files[0];
+
+      // Validar que las contraseñas coincidan
+      if (password !== confirmPassword) {
+        showAlert("Error: Las contraseñas no coinciden.");
+        return;
+      }
 
       // Validar duplicados
       const isDuplicate = await validateDuplicates(cedula, codigoLaboral, email);
@@ -280,7 +289,7 @@
 
       try {
         // Crear usuario en Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(auth, email, "password123"); // Contraseña temporal
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         // Subir foto de perfil a Firebase Storage
