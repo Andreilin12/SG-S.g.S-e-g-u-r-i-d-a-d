@@ -148,6 +148,15 @@
         <input type="password" id="registerConfirmPassword" placeholder="Confirmar Contraseña" required>
       </div>
       <div class="form-row">
+        <input type="text" id="registerDepartamento" placeholder="Departamento" required>
+        <input type="text" id="registerAreaTrabajo" placeholder="Área de Trabajo" required>
+      </div>
+      <div class="form-row">
+        <input type="text" id="registerPosicion" placeholder="Posición" required>
+ 
+        <input type="date" id="registerFechaNacimiento" placeholder="Fecha de Nacimiento" required> 
+      </div>
+      <div class="form-row">
         <label for="registerPhoto" class="file-label">
           <i class="fas fa-image"></i> Seleccionar Foto
         </label>
@@ -169,7 +178,7 @@
   <!-- Modal para carga -->
   <div class="modal" id="loadingModal">
     <div class="modal-content">
-      <p>Retom está creando su nueva cuenta...</p>
+      <p>¡Espera! Retom está creando tu cuenta...</p>
     </div>
   </div>
 
@@ -218,7 +227,7 @@
       if (isSuccess) {
         setTimeout(() => {
           closeModal('alertModal');
-        }, 3000); // Cierra el modal automáticamente después de 2 segundos
+        }, 2000); // Cierra el modal automáticamente después de 2 segundos
       }
     }
 
@@ -270,6 +279,10 @@
       const phone = document.getElementById('registerPhone').value;
       const password = document.getElementById('registerPassword').value;
       const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      const departamento = document.getElementById('registerDepartamento').value;
+      const areaTrabajo = document.getElementById('registerAreaTrabajo').value;
+      const posicion = document.getElementById('registerPosicion').value;
+      const fechaNacimiento = document.getElementById('registerFechaNacimiento').value;
       const photoFile = document.getElementById('registerPhoto').files[0];
 
       // Validar que las contraseñas coincidan
@@ -310,6 +323,11 @@
           sexo,
           email,
           phone,
+          password,
+          departamento,
+          areaTrabajo,
+          posicion,
+          fechaNacimiento,
           photoURL,
           createdAt: new Date().toISOString()
         });
