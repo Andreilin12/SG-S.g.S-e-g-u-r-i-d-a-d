@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Códigos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background-color: #34495e;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      padding: 20px;
+      width: 400px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background-color: #15a086;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #2c3e50;
+    }
+    .btn-add {
+      background-color: #15a086;
+      margin-bottom: 15px;
+    }
+    .btn-add:hover {
+      background-color: #2c3e50;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    .modal-close {
+      background-color: #15a086;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .modal-close:hover {
+      background-color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Registro de Códigos</h2>
+    <form id="codigoForm">
+      <div id="inputContainer">
+        <div class="input-group">
+          <input type="text" class="codigoInput" placeholder="Nombre del Código" required>
+        </div>
+      </div>
+      <button type="button" class="btn btn-add" id="addField">+ Agregar más</button>
+      <button type="submit" class="btn">Guardar</button>
+    </form>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <p id="alertMessage"></p>
+      <button class="modal-close" id="closeAlertModal">Cerrar</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Función para mostrar alertas
+    function showAlert(message, isSuccess = false) {
+      const modal = document.getElementById('alertModal');
+      const alertMessage = document.getElementById('alertMessage');
+      alertMessage.textContent = message;
+      modal.style.display = 'flex';
+
+      if (isSuccess) {
+        setTimeout(() => {
+          closeModal('alertModal');
+        }, 2000); // Cierra el modal automáticamente después de 2 segundos
+      }
+    }
+
+    // Función para cerrar el modal
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.style.display = 'none';
+    }
+
+    // Agregar más campos dinámicamente
+    document.getElementById('addField').addEventListener('click', () => {
+      const inputContainer = document.getElementById('inputContainer');
+      const newInput = document.createElement('div');
+      newInput.classList.add('input-group');
+      newInput.innerHTML = `
+        <input type="text" class="codigoInput" placeholder="Nombre del Código" required>
+      `;
+      inputContainer.appendChild(newInput);
+    });
+
+    // Guardar datos en Firebase
+    document.getElementById('codigoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const codigoInputs = document.querySelectorAll('.codigoInput');
+      const codigos = Array.from(codigoInputs).map(input => input.value.trim());
+
+      if (codigos.some(codigo => codigo === "")) {
+        showAlert("Error: Todos los campos deben estar completos.");
+        return;
+      }
+
+      try {
+        // Guardar cada código en Firestore
+        for (const codigo of codigos) {
+          await addDoc(collection(db, "CodigoSgReport"), {
+            nombreCodigo: codigo,
+            createdAt: new Date().toISOString()
+          });
+        }
+
+        showAlert("Códigos guardados exitosamente.", true);
+        document.getElementById('codigoForm').reset(); // Limpiar el formulario
+        document.getElementById('inputContainer').innerHTML = `
+          <div class="input-group">
+            <input type="text" class="codigoInput" placeholder="Nombre del Código" required>
+          </div>
+        `; // Resetear campos dinámicos
+      } catch (error) {
+        console.error(error);
+        showAlert("Error al guardar los códigos: " + error.message);
+      }
+    });
+
+    // Cerrar modales al hacer clic en el botón de cerrar
+    document.getElementById('closeAlertModal').addEventListener('click', () => {
+      closeModal('alertModal');
+    });
+  </script>
+</body>
+</html>
