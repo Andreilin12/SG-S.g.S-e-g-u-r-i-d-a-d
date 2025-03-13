@@ -23,7 +23,7 @@
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       padding: 20px;
-      width: 500px;
+      width: 800px; /* Aumenté el ancho para acomodar los campos en horizontal */
       text-align: center;
     }
     h2 {
@@ -32,6 +32,7 @@
     .input-group {
       margin-bottom: 15px;
       text-align: left;
+      flex: 1; /* Cada campo ocupa el mismo espacio */
     }
     .input-group label {
       display: block;
@@ -47,6 +48,8 @@
     }
     .input-group textarea {
       height: 100px;
+      resize: both; /* Permite redimensionar el campo de texto */
+      overflow: auto; /* Asegura que el scroll aparezca si es necesario */
     }
     .file-input {
       display: none;
@@ -106,12 +109,9 @@
       width: 300px;
       text-align: center;
     }
-    .horizontal-group {
+    .row {
       display: flex;
-      gap: 10px;
-    }
-    .horizontal-group .input-group {
-      flex: 1;
+      gap: 10px; /* Espacio entre los campos */
     }
   </style>
 </head>
@@ -119,21 +119,30 @@
   <div class="form-container" id="formContainer">
     <h2>Reporte de Incidentes</h2>
     <form id="reportForm">
-      <div class="input-group">
-        <label for="nombreCaso">Nombre del Caso</label>
-        <input type="text" id="nombreCaso" placeholder="Nombre del Caso" required>
+      <!-- Fila 1: Nombre del Caso y Tipo de Caso -->
+      <div class="row">
+        <div class="input-group">
+          <label for="nombreCaso">Nombre del Caso</label>
+          <input type="text" id="nombreCaso" placeholder="Nombre del Caso" required>
+        </div>
+        <div class="input-group">
+          <label for="tipoCaso">Tipo de Caso</label>
+          <select id="tipoCaso" required>
+            <option value="" disabled selected>Seleccione el tipo de caso</option>
+          </select>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="tipoCaso">Tipo de Caso</label>
-        <select id="tipoCaso" required>
-          <option value="" disabled selected>Seleccione el tipo de caso</option>
-        </select>
+
+      <!-- Fila 2: Fecha y Hora del Incidente -->
+      <div class="row">
+        <div class="input-group">
+          <label for="fechaHoraIncidente">Fecha y Hora del Incidente</label>
+          <input type="datetime-local" id="fechaHoraIncidente" required>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="fechaHoraIncidente">Fecha y Hora del Incidente</label>
-        <input type="datetime-local" id="fechaHoraIncidente" required>
-      </div>
-      <div class="horizontal-group">
+
+      <!-- Fila 3: Fecha del Reporte y Hora del Reporte -->
+      <div class="row">
         <div class="input-group">
           <label for="fechaReporte">Fecha del Reporte</label>
           <input type="date" id="fechaReporte" required>
@@ -143,19 +152,33 @@
           <input type="time" id="horaReporte" required>
         </div>
       </div>
-      <div class="input-group">
-        <label for="descripcion">Descripción del Incidente</label>
-        <textarea id="descripcion" placeholder="Descripción del incidente" required></textarea>
+
+      <!-- Fila 4: Descripción del Incidente -->
+      <div class="row">
+        <div class="input-group">
+          <label for="descripcion">Descripción del Incidente</label>
+          <textarea id="descripcion" placeholder="Descripción del incidente" required></textarea>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="foto">Seleccionar Foto</label>
-        <label for="foto" class="file-label">
-          <i class="fas fa-image"></i> Seleccionar Foto
-        </label>
-        <input type="file" id="foto" class="file-input" accept="image/*">
+
+      <!-- Fila 5: Seleccionar Foto y Vista Previa -->
+      <div class="row">
+        <div class="input-group">
+          <label for="foto">Seleccionar Foto</label>
+          <label for="foto" class="file-label">
+            <i class="fas fa-image"></i> Seleccionar Foto
+          </label>
+          <input type="file" id="foto" class="file-input" accept="image/*">
+        </div>
+        <div class="input-group">
+          <img id="preview" class="preview-image" src="#" alt="Vista previa de la imagen" style="display: none;">
+        </div>
       </div>
-      <img id="preview" class="preview-image" src="#" alt="Vista previa de la imagen" style="display: none;">
-      <button type="submit" class="btn">Guardar</button>
+
+      <!-- Botón de Guardar -->
+      <div class="row">
+        <button type="submit" class="btn">Guardar</button>
+      </div>
     </form>
   </div>
 
