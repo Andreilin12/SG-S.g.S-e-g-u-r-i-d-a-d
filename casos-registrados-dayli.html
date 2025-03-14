@@ -92,7 +92,7 @@
       color: #fff;
     }
     .reporte-imagen {
-      max-width: 100%;
+      max-width: 50%;
       border-radius: 5px;
       margin-top: 10px;
     }
@@ -246,7 +246,7 @@
             <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
           </div>` : ''}
           <div class="info-registro">
-            <p>Reporte realizado por: ${reporte.nombreUsuario}</p>
+            <p>Reporte realizado por: ${reporte.usuario}</p>
             <p>En la fecha: ${formatearFecha(reporte.createdAt)}</p>
           </div>
           <button class="btn-imprimir" onclick="imprimirAcordeon(this)">Imprimir</button>
