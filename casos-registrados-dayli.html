@@ -74,6 +74,7 @@
     }
     .acordeon-titulo i {
       transition: transform 0.3s;
+      font-size: 24px; /* Ícono más grande */
     }
     .acordeon-titulo.activo i {
       transform: rotate(180deg);
@@ -97,7 +98,7 @@
       margin-top: 10px;
     }
     .btn-imprimir {
-      background-color: #3498db;
+      background-color: #15a086;
       color: white;
       border: none;
       padding: 8px 12px;
@@ -106,7 +107,7 @@
       margin-top: 10px;
     }
     .btn-imprimir:hover {
-      background-color: #2980b9;
+      background-color: #2c3e50;
     }
     @media print {
       body * {
@@ -124,6 +125,20 @@
         color: #000;
         padding: 20px;
       }
+      .titulo-impresion {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #15a086;
+      }
+      .subtitulo-impresion {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #15a086;
+      }
       .reporte-item label {
         color: #15a086;
       }
@@ -137,20 +152,6 @@
         margin-top: 20px;
         font-style: italic;
         color: #555;
-      }
-      .titulo-impresion {
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #15a086;
-      }
-      .subtitulo-impresion {
-        text-align: center;
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #15a086;
       }
     }
   </style>
@@ -193,10 +194,17 @@
       const dia = String(fechaObj.getDate()).padStart(2, '0');
       const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
       const año = fechaObj.getFullYear();
-      const horas = fechaObj.getHours() % 12 || 12;
-      const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
-      const ampm = fechaObj.getHours() >= 12 ? 'p.m.' : 'a.m.';
-      return `${dia}/${mes}/${año} a las ${horas}:${minutos} ${ampm}`;
+      return `${dia}/${mes}/${año}`;
+    }
+
+    // Función para formatear múltiples fechas
+    function formatearFechas(fechas) {
+      if (fechas.length === 1) {
+        return formatearFecha(fechas[0]);
+      } else if (fechas.length > 1) {
+        return `${formatearFecha(fechas[0])} hasta ${formatearFecha(fechas[fechas.length - 1])}`;
+      }
+      return "No disponible";
     }
 
     // Función para cargar los reportes desde Firestore
@@ -221,9 +229,11 @@
         const contenido = document.createElement('div');
         contenido.classList.add('acordeon-contenido');
         contenido.innerHTML = `
+          <div class="titulo-impresion">${reporte.nombreCaso}</div>
+          <div class="subtitulo-impresion">${reporte.tipoCaso}</div>
           <div class="reporte-item">
             <label>Fecha y Hora del Incidente:</label>
-            <p>${reporte.fechaHoraIncidente}</p>
+            <p>${formatearFechas(reporte.fechaHoraIncidente)}</p>
           </div>
           <div class="reporte-item">
             <label>Reportado Por:</label>
@@ -231,7 +241,7 @@
           </div>
           <div class="reporte-item">
             <label>Fecha del Reporte:</label>
-            <p>${reporte.fechaReporte}</p>
+            <p>${formatearFecha(reporte.fechaReporte)}</p>
           </div>
           <div class="reporte-item">
             <label>Hora del Reporte:</label>
@@ -286,12 +296,6 @@
       const contenido = btn.parentElement;
       const contenidoClonado = contenido.cloneNode(true); // Clonar el contenido
       const contenedorTemporal = document.createElement('div');
-      const nombreCaso = contenidoClonado.querySelector('.reporte-item:first-child p').textContent;
-      const tipoCaso = contenidoClonado.querySelector('.reporte-item:nth-child(2) p').textContent;
-      contenedorTemporal.innerHTML = `
-        <div class="titulo-impresion">${nombreCaso}</div>
-        <div class="subtitulo-impresion">${tipoCaso}</div>
-      `;
       contenedorTemporal.appendChild(contenidoClonado);
       document.body.appendChild(contenedorTemporal);
       window.print(); // Lanzar la impresión
