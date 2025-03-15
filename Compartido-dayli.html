@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
+    /* Estilos anteriores (sin cambios) */
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #2c3e50;
@@ -127,6 +128,7 @@
       border-radius: 10px;
       width: 300px;
       text-align: center;
+      position: relative;
     }
     .modal-content button {
       margin: 5px;
@@ -194,7 +196,7 @@
     }
     .icono-notificacion {
       position: fixed;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
       background-color: #15a086;
       color: white;
@@ -230,6 +232,7 @@
       width: 400px;
       max-height: 80vh;
       overflow-y: auto;
+      position: relative;
     }
     .modal-reportes-recibidos .modal-content h3 {
       text-align: center;
@@ -249,8 +252,13 @@
     .modal-reportes-recibidos .modal-content ul li:hover {
       background-color: #2c3e50;
     }
-    .modal-reportes-recibidos .modal-content button {
-      margin-top: 20px;
+    .modal-reportes-recibidos .modal-content .cerrar-modal {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 20px;
     }
     @media print {
       body * {
@@ -321,9 +329,9 @@
   <!-- Modal para reportes recibidos -->
   <div class="modal-reportes-recibidos" id="modalReportesRecibidos" style="display: none;">
     <div class="modal-content">
+      <span class="cerrar-modal" onclick="cerrarModalReportesRecibidos()"><i class="fas fa-times"></i></span>
       <h3>Reportes Recibidos</h3>
       <ul id="listaReportesRecibidos"></ul>
-      <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">Cerrar</button>
     </div>
   </div>
 
