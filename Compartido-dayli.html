@@ -228,7 +228,7 @@
       .reporte-item p {
         color: #000;
       }
-      .btn-imprimir {
+      .btn-accion {
         display: none;
       }
       .info-registro {
@@ -280,6 +280,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     // Configuración de Firebase
     const firebaseConfig = {
@@ -295,10 +296,22 @@
     // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     // Variables globales
     let reporteSeleccionado = null;
     let reporteAEliminar = null;
+    let currentUser = null;
+
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarReportes();
+      } else {
+        window.location.href = "login.html"; // Redirigir si no está logueado
+      }
+    });
 
     // Función para mostrar alerta
     function mostrarAlerta(mensaje) {
@@ -357,69 +370,72 @@
 
       reportesSnapshot.forEach((doc) => {
         const reporte = doc.data();
-        const acordeon = document.createElement('div');
-        acordeon.classList.add('acordeon');
-        if (reporte.compartidoCon) {
-          acordeon.classList.add('compartido');
+        // Mostrar solo si el usuario actual es el creador o si el reporte fue compartido con él
+        if (reporte.userId === currentUser.uid || (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid))) {
+          const acordeon = document.createElement('div');
+          acordeon.classList.add('acordeon');
+          if (reporte.compartidoCon) {
+            acordeon.classList.add('compartido');
+          }
+
+          const titulo = document.createElement('div');
+          titulo.classList.add('acordeon-titulo');
+          titulo.innerHTML = `
+            <span><i class="fas fa-file-alt"></i> ${reporte.nombreCaso} - ${reporte.tipoCaso}</span>
+            <i class="fas fa-chevron-down"></i>
+          `;
+
+          const contenido = document.createElement('div');
+          contenido.classList.add('acordeon-contenido');
+          contenido.innerHTML = `
+            <div class="titulo-impresion">${reporte.nombreCaso}</div>
+            <div class="subtitulo-impresion">${reporte.tipoCaso}</div>
+            <div class="reporte-item">
+              <label>Fecha y Hora del Incidente:</label>
+              <p>${formatearFecha(reporte.fechaHoraIncidente)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Reportado Por:</label>
+              <p>${reporte.reportadoPor}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Fecha del Reporte:</label>
+              <p>${formatearFecha(reporte.fechaReporte)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Hora del Reporte:</label>
+              <p>${reporte.horaReporte}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Descripción:</label>
+              <p>${reporte.descripcion}</p>
+            </div>
+            ${reporte.fotoURL ? `<div class="reporte-item">
+              <label>Foto:</label>
+              <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+            </div>` : ''}
+            <div class="info-registro">
+              <p>Reporte realizado por: ${reporte.usuario}</p>
+              <p>En la fecha: ${formatearFecha(reporte.createdAt)}</p>
+            </div>
+            ${reporte.compartidoCon ? `<div class="compartido-info">
+              <p>Compartido el: ${formatearFecha(reporte.compartidoEl)}</p>
+            </div>` : ''}
+            <button class="btn-accion" onclick="imprimirAcordeon(this)"><i class="fas fa-print"></i></button>
+            ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')"><i class="fas fa-share"></i></button>
+            <button class="btn-accion" onclick="mostrarConfirmModal('${doc.id}')"><i class="fas fa-trash"></i></button>` : ''}
+          `;
+
+          // Agregar evento para abrir/cerrar el acordeón
+          titulo.addEventListener('click', () => {
+            titulo.classList.toggle('activo');
+            contenido.classList.toggle('activo');
+          });
+
+          acordeon.appendChild(titulo);
+          acordeon.appendChild(contenido);
+          acordeonContainer.appendChild(acordeon);
         }
-
-        const titulo = document.createElement('div');
-        titulo.classList.add('acordeon-titulo');
-        titulo.innerHTML = `
-          <span><i class="fas fa-file-alt"></i> ${reporte.nombreCaso} - ${reporte.tipoCaso}</span>
-          <i class="fas fa-chevron-down"></i>
-        `;
-
-        const contenido = document.createElement('div');
-        contenido.classList.add('acordeon-contenido');
-        contenido.innerHTML = `
-          <div class="titulo-impresion">${reporte.nombreCaso}</div>
-          <div class="subtitulo-impresion">${reporte.tipoCaso}</div>
-          <div class="reporte-item">
-            <label>Fecha y Hora del Incidente:</label>
-            <p>${formatearFecha(reporte.fechaHoraIncidente)}</p>
-          </div>
-          <div class="reporte-item">
-            <label>Reportado Por:</label>
-            <p>${reporte.reportadoPor}</p>
-          </div>
-          <div class="reporte-item">
-            <label>Fecha del Reporte:</label>
-            <p>${formatearFecha(reporte.fechaReporte)}</p>
-          </div>
-          <div class="reporte-item">
-            <label>Hora del Reporte:</label>
-            <p>${reporte.horaReporte}</p>
-          </div>
-          <div class="reporte-item">
-            <label>Descripción:</label>
-            <p>${reporte.descripcion}</p>
-          </div>
-          ${reporte.fotoURL ? `<div class="reporte-item">
-            <label>Foto:</label>
-            <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
-          </div>` : ''}
-          <div class="info-registro">
-            <p>Reporte realizado por: ${reporte.usuario}</p>
-            <p>En la fecha: ${formatearFecha(reporte.createdAt)}</p>
-          </div>
-          ${reporte.compartidoCon ? `<div class="compartido-info">
-            <p>Compartido el: ${formatearFecha(reporte.compartidoEl)}</p>
-          </div>` : ''}
-          <button class="btn-accion" onclick="imprimirAcordeon(this)"><i class="fas fa-print"></i></button>
-          <button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')"><i class="fas fa-share"></i></button>
-          <button class="btn-accion" onclick="mostrarConfirmModal('${doc.id}')"><i class="fas fa-trash"></i></button>
-        `;
-
-        // Agregar evento para abrir/cerrar el acordeón
-        titulo.addEventListener('click', () => {
-          titulo.classList.toggle('activo');
-          contenido.classList.toggle('activo');
-        });
-
-        acordeon.appendChild(titulo);
-        acordeon.appendChild(contenido);
-        acordeonContainer.appendChild(acordeon);
       });
 
       // Agregar evento al buscador por nombre
