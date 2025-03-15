@@ -401,6 +401,7 @@
           fotoURL,
           numeroRegistro,
           usuario: userName, // Guardar el nombre del usuario en lugar del correo
+          userId: currentUser.uid, // Guardar el ID del usuario que creó el reporte
           createdAt: new Date().toISOString()
         });
 
