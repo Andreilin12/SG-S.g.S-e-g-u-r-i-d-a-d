@@ -194,7 +194,7 @@
     }
     .icono-notificacion {
       position: fixed;
-      bottom: 20px;
+      top: 20px;
       right: 20px;
       background-color: #15a086;
       color: white;
@@ -642,28 +642,25 @@
           <strong>${reporte.nombreCaso}</strong><br>
           Compartido por: ${reporte.compartidoPor}<br>
           Fecha y hora: ${formatearFecha(reporte.compartidoEl)}
+          ${!reporte.leido ? '<span style="color: red; font-weight: bold;"> (Nuevo)</span>' : ''}
         `;
-        item.onclick = () => {
+        item.onclick = async () => {
           // Mostrar el reporte seleccionado
           const acordeon = document.querySelector(`.acordeon-titulo span:contains('${reporte.nombreCaso}')`).parentElement;
           acordeon.click(); // Abrir el acordeón
           cerrarModalReportesRecibidos();
-        };
-        listaReportesRecibidos.appendChild(item);
-      });
 
-      // Marcar los reportes como leídos
-      reportesRecibidos.forEach(async (reporte) => {
-        if (!reporte.leido) {
+          // Marcar el reporte como leído
           const reporteRef = doc(db, "Reportes", reporte.id);
           await updateDoc(reporteRef, {
             leidoPor: [...(reporte.leidoPor || []), currentUser.uid]
           });
-        }
-      });
 
-      // Ocultar el punto rojo
-      document.getElementById('puntoRojo').style.display = 'none';
+          // Actualizar la lista de reportes recibidos
+          cargarReportesRecibidos();
+        };
+        listaReportesRecibidos.appendChild(item);
+      });
 
       // Mostrar el modal
       document.getElementById('modalReportesRecibidos').style.display = 'flex';
