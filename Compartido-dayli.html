@@ -379,12 +379,24 @@
     let currentUser = null;
     let reportesRecibidos = [];
 
-    // Verificar si el usuario está logueado
-    onAuthStateChanged(auth, (user) => {
+    // Verificar si el usuario está logueado y es admin
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        cargarReportes();
-        cargarReportesRecibidos();
+        const userDoc = await getDocs(collection(db, "users"));
+        let isAdmin = false;
+        userDoc.forEach((doc) => {
+          if (doc.id === user.uid && doc.data().rol === "admin") {
+            isAdmin = true;
+          }
+        });
+
+        if (isAdmin) {
+          cargarReportes();
+          cargarReportesRecibidos();
+        } else {
+          window.location.href = "login.html"; // Redirigir si no es admin
+        }
       } else {
         window.location.href = "login.html"; // Redirigir si no está logueado
       }
@@ -395,7 +407,6 @@
       const alert = document.getElementById('alert');
       alert.textContent = mensaje;
       alert.style.display = 'block';
-      document.getElementById('alertSound').play(); // Reproducir sonido
       setTimeout(() => {
         alert.style.display = 'none';
       }, 3000);
