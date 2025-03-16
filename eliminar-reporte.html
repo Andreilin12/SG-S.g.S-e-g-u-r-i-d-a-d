@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizar Reportes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background-color: #34495e;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .buscadores {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .buscadores input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #2c3e50;
+      color: #fff;
+    }
+    .buscadores input::placeholder {
+      color: #aaa;
+    }
+    .acordeon {
+      margin-bottom: 10px;
+    }
+    .acordeon-titulo {
+      background-color: #15a086;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .acordeon-titulo:hover {
+      background-color: #12816d;
+    }
+    .acordeon-contenido {
+      background-color: #2c3e50;
+      padding: 10px;
+      border-radius: 0 0 5px 5px;
+      display: none;
+    }
+    .acordeon-contenido.activo {
+      display: block;
+    }
+    .acordeon-titulo i {
+      transition: transform 0.3s;
+      font-size: 24px;
+    }
+    .acordeon-titulo.activo i {
+      transform: rotate(180deg);
+    }
+    .reporte-item {
+      margin-bottom: 10px;
+    }
+    .reporte-item label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #15a086;
+    }
+    .reporte-item p {
+      margin: 0;
+      color: #fff;
+    }
+    .reporte-imagen {
+      max-width: 50%;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .btn-accion {
+      background-color: #15a086;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+    .btn-accion:hover {
+      background-color: #2c3e50;
+    }
+    .confirm-modal {
+      display: none; /* Ocultar por defecto */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .confirm-modal.active {
+      display: flex; /* Mostrar cuando sea activo */
+      opacity: 1;
+      visibility: visible;
+    }
+    .confirm-content {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      transform: scale(0.7);
+      transition: transform 0.3s ease;
+    }
+    .confirm-modal.active .confirm-content {
+      transform: scale(1);
+    }
+    .confirm-content button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .confirm-content button.confirm {
+      background-color: #15a086;
+      color: white;
+    }
+    .confirm-content button.cancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .alerta {
+      display: none; /* Oculto por defecto */
+      position: fixed; /* Posicionamiento fijo */
+      z-index: 1000; /* Aparece sobre otros elementos */
+      left: 50%; /* Centrado horizontalmente */
+      top: 20%; /* Margen superior */
+      transform: translateX(-50%); /* Ajusta para centrar completamente */
+      color: white; /* Texto blanco */
+      padding: 15px 20px; /* Espaciado interno */
+      border-radius: 8px; /* Bordes redondeados */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra suave */
+      font-size: 18px; /* Tamaño de fuente */
+      text-align: center; /* Centrar texto */
+      transition: opacity 0.5s; /* Transición suave para la opacidad */
+      opacity: 0; /* Comienza oculto */
+    }
+    .alerta.mostrar {
+      display: block; /* Mostrar cuando se activa */
+      opacity: 1; /* Totalmente visible */
+    }
+    .alerta.success {
+      background-color: #15a086; /* Verde para éxito */
+    }
+    .alerta.error {
+      background-color: #e74c3c; /* Rojo para error */
+    }
+    .boton-eliminar {
+      background-color: #15a086; /* Color */
+      color: white; /* Texto blanco */
+      border: none; /* Sin borde */
+      padding: 10px 20px; /* Espaciado interno */
+      border-radius: 5px; /* Bordes redondeados */
+      cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+      font-size: 16px; /* Tamaño de fuente */
+      transition: background-color 0.3s, transform 0.3s; /* Transiciones suaves */
+    }
+    .boton-eliminar:hover {
+      background-color: #ff0000; /* Color más oscuro al pasar el mouse */
+      transform: scale(1.05); /* Efecto de aumentar al pasar el mouse */
+    }
+    .boton-eliminar:active {
+      transform: scale(0.95); /* Efecto de disminuir al hacer clic */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reportes Registrados</h1>
+    <div class="buscadores">
+      <input type="text" id="buscadorNombre" placeholder="Buscar por nombre del caso">
+    </div>
+    <div id="acordeonContainer"></div>
+  </div>
+
+  <div id="alerta" class="alerta"></div>
+
+  <div id="modal" class="confirm-modal">
+    <div class="confirm-content">
+      <div class="modal-header">
+        <span id="modal-title">Confirmación</span>
+      </div>
+      <div class="modal-body">
+        <p id="modal-message">¿Estás seguro de que quieres eliminar este reporte?</p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-button" class="confirm">Sí</button>
+        <button class="cancel" onclick="cerrarModal()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let idReporteEliminar = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarReportes();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function formatearFecha(fecha) {
+      const fechaObj = new Date(fecha);
+      const dia = String(fechaObj.getDate()).padStart(2, '0');
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+      const año = fechaObj.getFullYear();
+      const horas = String(fechaObj.getHours()).padStart(2, '0');
+      const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+    }
+
+    async function cargarReportes() {
+      const reportesRef = collection(db, "Reportes");
+      const reportesSnapshot = await getDocs(reportesRef);
+      const acordeonContainer = document.getElementById('acordeonContainer');
+      acordeonContainer.innerHTML = "";
+
+      reportesSnapshot.forEach((doc) => {
+        const reporte = doc.data();
+        const id = doc.id;
+        if (reporte.userId === currentUser.uid) {
+          const acordeon = document.createElement('div');
+          acordeon.classList.add('acordeon');
+
+          const titulo = document.createElement('div');
+          titulo.classList.add('acordeon-titulo');
+          titulo.innerHTML = `
+            <span><i class="fas fa-file-alt"></i> ${reporte.nombreCaso} - ${reporte.tipoCaso}</span>
+            <i class="fas fa-chevron-down"></i>
+          `;
+
+          const contenido = document.createElement('div');
+          contenido.classList.add('acordeon-contenido');
+          contenido.innerHTML = `
+            <div class="reporte-item">
+              <label>Fecha y Hora del Incidente:</label>
+              <p>${formatearFecha(reporte.fechaHoraIncidente)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Reportado Por:</label>
+              <p>${reporte.reportadoPor}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Fecha del Reporte:</label>
+              <p>${formatearFecha(reporte.fechaReporte)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Hora del Reporte:</label>
+              <p>${reporte.horaReporte}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Descripción:</label>
+              <p>${reporte.descripcion}</p>
+            </div>
+            ${reporte.fotoURL ? `<div class="reporte-item">
+              <label>Foto:</label>
+              <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+            </div>` : ''}
+            <button class="boton-eliminar" onclick="prepararEliminacion('${id}')">Eliminar Reporte</button>
+          `;
+
+          titulo.addEventListener('click', () => {
+            titulo.classList.toggle('activo');
+            contenido.classList.toggle('activo');
+          });
+
+          acordeon.appendChild(titulo);
+          acordeon.appendChild(contenido);
+          acordeonContainer.appendChild(acordeon);
+        }
+      });
+
+      document.getElementById('buscadorNombre').addEventListener('input', filtrarPorNombre);
+    }
+
+    function filtrarPorNombre() {
+      const texto = this.value.toLowerCase();
+      const acordeones = document.querySelectorAll('.acordeon');
+      acordeones.forEach(acordeon => {
+        const nombre = acordeon.querySelector('.acordeon-titulo span').textContent.toLowerCase();
+        acordeon.style.display = nombre.includes(texto) ? 'block' : 'none';
+      });
+    }
+
+    window.prepararEliminacion = function(id) {
+      idReporteEliminar = id; // Guardar el ID del reporte a eliminar
+      document.querySelector('.confirm-modal').classList.add('active'); // Mostrar el modal
+    }
+
+    window.cerrarModal = function() {
+      document.querySelector('.confirm-modal').classList.remove('active'); // Ocultar el modal
+    }
+
+    function mostrarAlerta(mensaje, tipo) {
+      const alerta = document.getElementById('alerta');
+      alerta.textContent = mensaje;
+      alerta.className = `alerta mostrar ${tipo}`; // Agrega las clases correspondientes
+
+      setTimeout(() => {
+        alerta.classList.remove('mostrar');
+      }, 3000); // Ocultar después de 3 segundos
+    }
+
+    document.getElementById('confirm-button').onclick = async function() {
+      if (idReporteEliminar) {
+        try {
+          await deleteDoc(doc(db, "Reportes", idReporteEliminar));
+          mostrarAlerta("Reporte eliminado con éxito", "success"); // Alerta de éxito
+        } catch (error) {
+          mostrarAlerta("Error al eliminar el reporte", "error"); // Alerta de error
+        }
+        cargarReportes(); // Recargar reportes después de eliminar
+        cerrarModal(); // Cerrar el modal
+      }
+    }
+
+    onSnapshot(collection(db, "Reportes"), () => {
+      cargarReportes();
+    });
+
+    cargarReportes();
+  </script>
+</body>
+</html>
