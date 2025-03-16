@@ -384,23 +384,38 @@
       if (user) {
         currentUser = user;
         const userDoc = await getDocs(collection(db, "users"));
-        let isAdmin = false;
+        let esAdmin = false;
+
         userDoc.forEach((doc) => {
-          if (doc.id === user.uid && doc.data().rol === "admin") {
-            isAdmin = true;
+          if (doc.id === currentUser.uid && doc.data().tipoUsuario === "admin") {
+            esAdmin = true;
           }
         });
 
-        if (isAdmin) {
+        if (esAdmin) {
           cargarReportes();
           cargarReportesRecibidos();
         } else {
-          window.location.href = "login.html"; // Redirigir si no es admin
+          mostrarModalNoAdmin();
         }
       } else {
         window.location.href = "login.html"; // Redirigir si no está logueado
       }
     });
+
+    // Función para mostrar modal de no administrador
+    function mostrarModalNoAdmin() {
+      const modal = document.getElementById('modalNoAdmin');
+      modal.style.display = 'flex';
+      document.getElementById('mensajeNoAdmin').textContent = "No tienes permisos de administrador para usar esta sesión.";
+    }
+
+    // Función para cerrar el modal de no administrador
+    window.cerrarModalNoAdmin = function() {
+      const modal = document.getElementById('modalNoAdmin');
+      modal.style.display = 'none';
+      window.location.href = "login.html"; // Redirigir al login
+    };
 
     // Función para mostrar alerta
     function mostrarAlerta(mensaje) {
