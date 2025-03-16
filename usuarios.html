@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrar Usuarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #2C3E50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .users-container {
+      background-color: #34495E;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-container {
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #2C3E50;
+      color: #fff;
+    }
+    .user-card {
+      background-color: #1F2B38;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .user-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .user-photo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #15a086;
+    }
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .user-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .user-position, .user-type {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .btn-edit {
+      background-color: #15a086;
+      color: white;
+    }
+    .btn-edit:hover {
+      background-color: #12876f;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+    .accordion {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    .accordion.open {
+      max-height: 1000px; /* Ajusta según sea necesario */
+    }
+    .form-row {
+      margin-bottom: 15px;
+    }
+    .form-row label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #aaa;
+    }
+    .form-row input, .form-row select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #2C3E50;
+      color: #fff;
+    }
+    .form-row input:focus, .form-row select:focus {
+      outline: none;
+      border-color: #15a086;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background-color: #34495E;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+      animation: slideIn 0.3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .modal-close:hover {
+      color: #15a086;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-save {
+      background-color: #15a086;
+      color: white;
+    }
+    .btn-save:hover {
+      background-color: #12876f;
+    }
+    .btn-cancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-cancel:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="users-container">
+    <h1>Administrar Usuarios</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Buscar por nombre...">
+    </div>
+    <div id="usersList"></div>
+  </div>
+
+  <!-- Modal para confirmar eliminación -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Confirmar Eliminación</div>
+        <button class="modal-close" id="closeDeleteModal">&times;</button>
+      </div>
+      <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" id="cancelDeleteModal">Cancelar</button>
+        <button type="button" class="btn btn-delete" id="confirmDeleteModal">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="alertTitle"></div>
+        <button class="modal-close" id="closeAlertModal">&times;</button>
+      </div>
+      <p id="alertMessage"></p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-save" id="closeAlertModalBtn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+    authDomain: "inventario-35d6b.firebaseapp.com",
+    databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+    projectId: "inventario-35d6b",
+    storageBucket: "inventario-35d6b.appspot.com",
+    messagingSenderId: "266100399659",
+    appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUserId = null; // Almacena el ID del usuario seleccionado
+
+  // Cargar usuarios
+  async function loadUsers() {
+    const usersList = document.getElementById('usersList');
+    usersList.innerHTML = ''; // Limpiar lista
+
+    const querySnapshot = await getDocs(collection(db, "users"));
+    querySnapshot.forEach((doc) => {
+      const user = doc.data();
+      const userCard = `
+        <div class="user-card" data-id="${doc.id}">
+          <div class="user-info">
+            <img src="${user.photoURL || 'https://via.placeholder.com/50'}" class="user-photo" alt="Foto de perfil">
+            <div class="user-details">
+              <div class="user-name">${user.name}</div>
+              <div class="user-position">${user.posicion}</div>
+              <div class="user-type">${user.tipoUsuario}</div>
+            </div>
+          </div>
+          <div class="user-actions">
+            <button class="btn btn-edit" onclick="toggleAccordion('${doc.id}')">Editar</button>
+            <button class="btn btn-delete" onclick="openDeleteModal('${doc.id}')">Eliminar</button>
+          </div>
+          <div class="accordion" id="accordion-${doc.id}">
+            <form id="editForm-${doc.id}" class="edit-form">
+              <div class="form-row">
+                <label for="editName-${doc.id}">Nombre y Apellido</label>
+                <input type="text" id="editName-${doc.id}" value="${user.name}" required>
+              </div>
+              <div class="form-row">
+                <label for="editCedula-${doc.id}">Cédula de Identidad</label>
+                <input type="text" id="editCedula-${doc.id}" value="${user.cedula}" required>
+              </div>
+              <div class="form-row">
+                <label for="editCodigoLaboral-${doc.id}">Código Laboral (ID)</label>
+                <input type="text" id="editCodigoLaboral-${doc.id}" value="${user.codigoLaboral}" required>
+              </div>
+              <div class="form-row">
+                <label for="editEmpresa-${doc.id}">Empresa</label>
+                <input type="text" id="editEmpresa-${doc.id}" value="${user.empresa}" required>
+              </div>
+              <div class="form-row">
+                <label for="editUbicacion-${doc.id}">Ubicación</label>
+                <input type="text" id="editUbicacion-${doc.id}" value="${user.ubicacion}" required>
+              </div>
+              <div class="form-row">
+                <label for="editSexo-${doc.id}">Sexo</label>
+                <select id="editSexo-${doc.id}" required>
+                  <option value="masculino" ${user.sexo === 'masculino' ? 'selected' : ''}>Masculino</option>
+                  <option value="femenino" ${user.sexo === 'femenino' ? 'selected' : ''}>Femenino</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="editEmail-${doc.id}">Correo Electrónico</label>
+                <input type="email" id="editEmail-${doc.id}" value="${user.email}" required>
+              </div>
+              <div class="form-row">
+                <label for="editPhone-${doc.id}">Teléfono</label>
+                <input type="tel" id="editPhone-${doc.id}" value="${user.phone}" required>
+              </div>
+              <div class="form-row">
+                <label for="editDepartamento-${doc.id}">Departamento</label>
+                <input type="text" id="editDepartamento-${doc.id}" value="${user.departamento}" required>
+              </div>
+              <div class="form-row">
+                <label for="editAreaTrabajo-${doc.id}">Área de Trabajo</label>
+                <input type="text" id="editAreaTrabajo-${doc.id}" value="${user.areaTrabajo}" required>
+              </div>
+              <div class="form-row">
+                <label for="editPosicion-${doc.id}">Posición</label>
+                <input type="text" id="editPosicion-${doc.id}" value="${user.posicion}" required>
+              </div>
+              <div class="form-row">
+                <label for="editFechaNacimiento-${doc.id}">Fecha de Nacimiento</label>
+                <input type="date" id="editFechaNacimiento-${doc.id}" value="${user.fechaNacimiento}" required>
+              </div>
+              <div class="form-row">
+                <label for="editTipoUsuario-${doc.id}">Tipo de Usuario</label>
+                <select id="editTipoUsuario-${doc.id}" required>
+                  <option value="admin" ${user.tipoUsuario === 'admin' ? 'selected' : ''}>Admin</option>
+                  <option value="estandar" ${user.tipoUsuario === 'estandar' ? 'selected' : ''}>Estándar</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <button type="button" class="btn btn-cancel" onclick="toggleAccordion('${doc.id}')">Cancelar</button>
+                <button type="submit" class="btn btn-save">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      usersList.innerHTML += userCard;
+    });
+
+    // Asignar eventos a los formularios de edición
+    querySnapshot.forEach((doc) => {
+      const form = document.getElementById(`editForm-${doc.id}`);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveUserChanges(doc.id);
+      });
+    });
+  }
+
+  // Alternar acordeón
+  window.toggleAccordion = (userId) => {
+    const accordion = document.getElementById(`accordion-${userId}`);
+    accordion.classList.toggle('open');
+  };
+
+  // Guardar cambios en la edición
+  async function saveUserChanges(userId) {
+    const updatedData = {
+      name: document.getElementById(`editName-${userId}`).value,
+      cedula: document.getElementById(`editCedula-${userId}`).value,
+      codigoLaboral: document.getElementById(`editCodigoLaboral-${userId}`).value,
+      empresa: document.getElementById(`editEmpresa-${userId}`).value,
+      ubicacion: document.getElementById(`editUbicacion-${userId}`).value,
+      sexo: document.getElementById(`editSexo-${userId}`).value,
+      email: document.getElementById(`editEmail-${userId}`).value,
+      phone: document.getElementById(`editPhone-${userId}`).value,
+      departamento: document.getElementById(`editDepartamento-${userId}`).value,
+      areaTrabajo: document.getElementById(`editAreaTrabajo-${userId}`).value,
+      posicion: document.getElementById(`editPosicion-${userId}`).value,
+      fechaNacimiento: document.getElementById(`editFechaNacimiento-${userId}`).value,
+      tipoUsuario: document.getElementById(`editTipoUsuario-${userId}`).value
+    };
+
+    try {
+      await updateDoc(doc(db, "users", userId), updatedData);
+      showAlert("Usuario actualizado exitosamente.", true);
+      loadUsers(); // Recargar la lista de usuarios
+    } catch (error) {
+      showAlert("Error al actualizar el usuario: " + error.message);
+    }
+  }
+
+  // Abrir modal de eliminación
+  window.openDeleteModal = (userId) => {
+    currentUserId = userId;
+    document.getElementById('deleteModal').style.display = 'flex';
+  };
+
+  // Confirmar eliminación
+  document.getElementById('confirmDeleteModal').addEventListener('click', async () => {
+    try {
+      await deleteDoc(doc(db, "users", currentUserId));
+      showAlert("Usuario eliminado exitosamente.", true);
+      loadUsers(); // Recargar la lista de usuarios
+      closeModal('deleteModal');
+    } catch (error) {
+      showAlert("Error al eliminar el usuario: " + error.message);
+    }
+  });
+
+  // Mostrar alertas
+  function showAlert(message, isSuccess = false) {
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    alertTitle.textContent = isSuccess ? "Éxito" : "Error";
+    alertMessage.textContent = message;
+    document.getElementById('alertModal').style.display = 'flex';
+
+    if (isSuccess) {
+      setTimeout(() => {
+        closeModal('alertModal');
+      }, 2000);
+    }
+  }
+
+  // Cerrar modales
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  // Eventos para cerrar modales
+  document.getElementById('closeDeleteModal').addEventListener('click', () => closeModal('deleteModal'));
+  document.getElementById('cancelDeleteModal').addEventListener('click', () => closeModal('deleteModal'));
+  document.getElementById('closeAlertModal').addEventListener('click', () => closeModal('alertModal'));
+  document.getElementById('closeAlertModalBtn').addEventListener('click', () => closeModal('alertModal'));
+
+  // Buscar usuarios por nombre
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const userCards = document.querySelectorAll('.user-card');
+    userCards.forEach((card) => {
+      const userName = card.querySelector('.user-name').textContent.toLowerCase();
+      if (userName.includes(searchTerm)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+
+  // Cargar usuarios al iniciar
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Verificar si el usuario es administrador
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists() && userDoc.data().tipoUsuario === 'admin') {
+        loadUsers(); // Cargar usuarios si es admin
+      } else {
+        showAlert("Solo los usuarios administradores pueden acceder a esta página.");
+        setTimeout(() => {
+          window.location.href = "index.html"; // Redirigir si no es admin
+        }, 3000);
+      }
+    } else {
+      window.location.href = "index.html"; // Redirigir si no está autenticado
+    }
+  });
+</script>
+</body>
+</html>
