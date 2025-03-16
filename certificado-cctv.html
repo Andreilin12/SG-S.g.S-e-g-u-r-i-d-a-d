@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificado del Usuario del Mes</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .certificado {
+      position: relative;
+      background-color: white;
+      padding: 40px;
+      border: 15px solid #15a086; /* Borde exterior */
+      border-image: linear-gradient(to right, #15a086, #2c3e50, #15a086) 1;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 800px;
+      width: 90%;
+    }
+    .certificado::before,
+    .certificado::after {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border: 15px solid transparent;
+      border-image: linear-gradient(to right, #15a086, #2c3e50, #15a086) 1;
+      z-index: -1;
+    }
+    .certificado img {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+    .certificado h1 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .certificado p {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .certificado .nombre-usuario {
+      font-size: 16px;
+      color: #15a086;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .certificado .firma {
+      margin-top: 40px;
+      border-top: 2px solid #2c3e50;
+      padding-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .certificado .firma span {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .boton-descargar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #15a086;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .boton-descargar:hover {
+      background-color: #2c3e50;
+    }
+  </style>
+  <!-- Incluir Font Awesome para íconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Incluir html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="certificado" id="certificado">
+    <img src="logo.png" alt="Logo"> <!-- Cambia "logo.png" por la ruta de tu logo -->
+    <h1>CERTIFICADO</h1>
+    <p>
+      En reconocimiento a su excelente desempeño, dedicación y contribución sobresaliente durante el mes,
+      se otorga este certificado como muestra de agradecimiento por su invaluable compromiso con los objetivos
+      de nuestra organización. Su esfuerzo constante, profesionalismo y actitud proactiva han sido fundamentales
+      para el éxito de nuestro equipo y el logro de nuestras metas. Este reconocimiento es un testimonio de su
+      capacidad para superar desafíos, inspirar a sus compañeros y aportar valor en cada tarea que realiza.
+    </p>
+    <p>Con gran orgullo, certificamos a:</p>
+    <div class="nombre-usuario" id="nombreUsuario">[Nombre del Usuario]</div>
+    <p>
+      Esperamos que este reconocimiento sirva como motivación para continuar alcanzando nuevos logros y
+      contribuyendo al crecimiento y éxito de nuestra organización.
+    </p>
+    <div class="firma">
+      ___________________________<br>
+      <span>Firma del Gerente</span>
+    </div>
+  </div>
+  <button class="boton-descargar" id="botonDescargar">
+    <i class="fas fa-download"></i>
+  </button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Variables globales
+    let usuarioMasReportes = "";
+
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        obtenerUsuarioConMasReportes();
+      } else {
+        window.location.href = "login.html"; // Redirigir si no está logueado
+      }
+    });
+
+    // Función para obtener el usuario con más reportes
+    async function obtenerUsuarioConMasReportes() {
+      try {
+        const reportesRef = collection(db, "Reportes");
+        const reportesSnapshot = await getDocs(reportesRef);
+
+        // Objeto para almacenar los reportes por usuario
+        const reportesPorUsuario = {};
+
+        // Recorrer todos los reportes
+        reportesSnapshot.forEach((doc) => {
+          const reporte = doc.data();
+          const usuario = reporte.usuario || "Usuario Desconocido";
+
+          // Contar los reportes por usuario
+          if (reportesPorUsuario[usuario]) {
+            reportesPorUsuario[usuario]++;
+          } else {
+            reportesPorUsuario[usuario] = 1;
+          }
+        });
+
+        // Encontrar el usuario con más reportes
+        let maxReportes = 0;
+        for (const [usuario, cantidad] of Object.entries(reportesPorUsuario)) {
+          if (cantidad > maxReportes) {
+            maxReportes = cantidad;
+            usuarioMasReportes = usuario;
+          }
+        }
+
+        // Mostrar el nombre del usuario en el certificado
+        document.getElementById('nombreUsuario').textContent = usuarioMasReportes;
+      } catch (error) {
+        console.error("Error al obtener los reportes:", error);
+        alert("Hubo un error al cargar los reportes. Revisa la consola para más detalles.");
+      }
+    }
+
+    // Función para descargar el certificado como PNG
+    document.getElementById('botonDescargar').addEventListener('click', () => {
+      const certificado = document.getElementById('certificado');
+
+      html2canvas(certificado).then((canvas) => {
+        const enlace = document.createElement('a');
+        enlace.href = canvas.toDataURL('image/png');
+        enlace.download = 'Certificado_Usuario_del_Mes.png'; // Nombre del archivo
+        enlace.click();
+      });
+    });
+  </script>
+</body>
+</html>
