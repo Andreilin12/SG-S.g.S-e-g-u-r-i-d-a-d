@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes Registrados</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #ecf0f1;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5em;
+    }
+    h2 {
+      font-size: 1.8em;
+      margin-top: 30px;
+    }
+    .total-general {
+      text-align: center;
+      font-size: 1.8em;
+      margin: 20px 0;
+      color: #e74c3c;
+      background-color: #34495e;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: inline-block;
+      margin-left: 50%;
+      transform: translateX(-50%);
+    }
+    .total-general span {
+      font-weight: bold;
+      color: #2ecc71;
+    }
+    .chart-container {
+      width: 80%;
+      margin: 20px auto;
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    canvas {
+      background-color: #2c3e50;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .menu {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .menu button, .menu a {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      color: #ecf0f1;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .modal h3 {
+      margin-top: 0;
+      font-size: 1.8em;
+      color: #2ecc71;
+    }
+    .modal p {
+      font-size: 1.2em;
+      line-height: 1.6;
+    }
+    .modal button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 1em;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    @media print {
+      body {
+        background-color: white;
+        color: black;
+      }
+      h1 {
+        display: block !important; /* Mostrar el título principal */
+        color: black !important;
+        font-size: 2em;
+        margin-top: 10px;
+      }
+      .total-general {
+        background-color: white;
+        color: #2c3e50;
+        box-shadow: none;
+        border: 2px solid #2c3e50;
+      }
+      .total-general span {
+        color: #e74c3c;
+      }
+      .chart-container {
+        width: 100%;
+        margin: 10px 0;
+        box-shadow: none;
+        background-color: white;
+        padding: 10px;
+      }
+      canvas {
+        background-color: white;
+        height: 384px !important; /* Reducir el tamaño de los gráficos */
+        width: 100% !important; /* Asegurar que ocupen el ancho completo */
+      }
+      .menu, h2 {
+        display: none;
+      }
+      .chart-container {
+        page-break-inside: avoid; /* Evita que los gráficos se dividan en varias páginas */
+      }
+      @page {
+        size: auto; /* Ajustar automáticamente a vertical u horizontal */
+        margin: 10mm; /* Reducir márgenes para aprovechar el espacio */
+      }
+      /* Estilos para los títulos y textos de los gráficos */
+      .chartjs-size-monitor,
+      .chartjs-render-monitor {
+        color: black !important;
+      }
+      .chartjs-render-monitor text {
+        fill: black !important;
+      }
+      .chartjs-render-monitor .chartjs-grid-line {
+        stroke: rgba(0, 0, 0, 0.1) !important;
+      }
+      .chartjs-render-monitor .chartjs-tooltip {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid #ccc !important;
+        color: black !important;
+      }
+      .chartjs-render-monitor .chartjs-legend {
+        color: black !important;
+      }
+      .chartjs-render-monitor .chartjs-legend-text {
+        color: black !important;
+      }
+    }
+  </style>
+  <!-- Incluir Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Incluir Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Reportes de CCTV</h1>
+  <div class="total-general" id="totalGeneral">Total de Reportes: <span>0</span></div>
+
+  <h2>Gráfico de Reportes por operadores</h2>
+  <div class="chart-container">
+    <canvas id="graficoUsuario"></canvas>
+  </div>
+
+  <h2>Gráfico de Reportes por Códigos de emergencias </h2>
+  <div class="chart-container">
+    <canvas id="graficoTipoCaso"></canvas>
+  </div>
+
+  <!-- Menú de acciones -->
+  <div class="menu">
+    <button id="botonUsuario">
+      <i class="fas fa-user"></i>
+    </button>
+    <button id="botonImprimir">
+      <i class="fas fa-print"></i>
+    </button>
+    <a href="#" id="botonCertificado">
+      <i class="fas fa-award"></i>
+    </a>
+  </div>
+
+  <!-- Modal -->
+  <div class="overlay" id="overlay"></div>
+  <div class="modal" id="modalUsuario">
+    <h3>¡Felicidades!</h3>
+    <p id="mensajeFelicitacion">Cargando...</p>
+    <button id="cerrarModal">Cerrar</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Variables globales
+    let currentUser = null;
+    let usuarioMasReportes = "";
+    let maxReportes = 0;
+
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarReportes();
+      } else {
+        window.location.href = "login.html"; // Redirigir si no está logueado
+      }
+    });
+
+    // Función para obtener el primer y último día del mes actual
+    function obtenerRangoMesActual() {
+      const fechaActual = new Date();
+      const primerDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+      const ultimoDiaMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+      return { primerDiaMes, ultimoDiaMes };
+    }
+
+    // Función para cargar y calcular los reportes del mes actual
+    async function cargarReportes() {
+      try {
+        const reportesRef = collection(db, "Reportes");
+        const reportesSnapshot = await getDocs(reportesRef);
+
+        // Obtener el rango del mes actual
+        const { primerDiaMes, ultimoDiaMes } = obtenerRangoMesActual();
+
+        // Objetos para almacenar los totales
+        const reportesPorUsuario = {};
+        const reportesPorTipoCaso = {};
+        let totalReportes = 0;
+
+        // Recorrer todos los reportes
+        reportesSnapshot.forEach((doc) => {
+          const reporte = doc.data();
+          const fechaCreacion = new Date(reporte.createdAt); // Convertir a objeto Date
+
+          // Filtrar reportes del mes actual
+          if (fechaCreacion >= primerDiaMes && fechaCreacion <= ultimoDiaMes) {
+            const usuario = reporte.usuario || "Usuario Desconocido"; // Usar un valor predeterminado si no hay usuario
+            const tipoCaso = reporte.tipoCaso || "Tipo de Caso Desconocido"; // Usar un valor predeterminado si no hay tipo de caso
+
+            // Contar los reportes por usuario
+            if (reportesPorUsuario[usuario]) {
+              reportesPorUsuario[usuario]++;
+            } else {
+              reportesPorUsuario[usuario] = 1;
+            }
+
+            // Identificar el usuario con más reportes
+            if (reportesPorUsuario[usuario] > maxReportes) {
+              maxReportes = reportesPorUsuario[usuario];
+              usuarioMasReportes = usuario;
+            }
+
+            // Contar los reportes por tipo de caso
+            if (reportesPorTipoCaso[tipoCaso]) {
+              reportesPorTipoCaso[tipoCaso]++;
+            } else {
+              reportesPorTipoCaso[tipoCaso] = 1;
+            }
+
+            // Sumar al total general
+            totalReportes++;
+          }
+        });
+
+        // Mostrar el total general de reportes
+        document.getElementById('totalGeneral').innerHTML = `Total de Reportes: <span>${totalReportes}</span>`;
+
+        // Mostrar el mensaje de felicitación en el modal
+        const mensaje = `
+          ¡Gracias, <strong>${usuarioMasReportes}</strong>, por tu gran trabajo y esfuerzo este mes!<br><br>
+          Has realizado <strong>${maxReportes} reportes</strong>, lo que te convierte en el <strong>Colaborador del Mes</strong>.<br><br>
+          ¡Sigue así para el próximo mes! 🎉
+        `;
+        document.getElementById('mensajeFelicitacion').innerHTML = mensaje;
+
+        // Crear gráfico de reportes por usuario
+        const ctxUsuario = document.getElementById('graficoUsuario').getContext('2d');
+        new Chart(ctxUsuario, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(reportesPorUsuario),
+            datasets: [{
+              label: 'Reportes por Usuario',
+              data: Object.values(reportesPorUsuario),
+              backgroundColor: 'rgba(52, 152, 219, 0.6)',
+              borderColor: 'rgba(52, 152, 219, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#ecf0f1'
+                }
+              },
+              x: {
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#ecf0f1'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#ecf0f1'
+                }
+              }
+            }
+          }
+        });
+
+        // Crear gráfico de reportes por tipo de caso
+        const ctxTipoCaso = document.getElementById('graficoTipoCaso').getContext('2d');
+        new Chart(ctxTipoCaso, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(reportesPorTipoCaso),
+            datasets: [{
+              label: 'Reportes por Tipo de Caso',
+              data: Object.values(reportesPorTipoCaso),
+              backgroundColor: [
+                'rgba(231, 76, 60, 0.6)',
+                'rgba(46, 204, 113, 0.6)',
+                'rgba(52, 152, 219, 0.6)',
+                'rgba(155, 89, 182, 0.6)',
+                'rgba(241, 196, 15, 0.6)'
+              ],
+              borderColor: [
+                'rgba(231, 76, 60, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(52, 152, 219, 1)',
+                'rgba(155, 89, 182, 1)',
+                'rgba(241, 196, 15, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  color: '#ecf0f1'
+                }
+              },
+              title: {
+                display: true,
+                text: 'Reportes por Tipo de Caso',
+                color: '#ecf0f1'
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error al cargar los reportes:", error);
+        alert("Hubo un error al cargar los reportes. Revisa la consola para más detalles.");
+      }
+    }
+
+    // Mostrar modal con el usuario con más reportes
+    document.getElementById('botonUsuario').addEventListener('click', () => {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('modalUsuario').style.display = 'block';
+    });
+
+    // Cerrar modal
+    document.getElementById('cerrarModal').addEventListener('click', () => {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('modalUsuario').style.display = 'none';
+    });
+
+    // Imprimir la página
+    document.getElementById('botonImprimir').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Enlace tipo certificado (puedes cambiar el enlace)
+    document.getElementById('botonCertificado').addEventListener('click', (e) => {
+      e.preventDefault();
+      alert("Aquí puedes redirigir a una página de certificado o realizar otra acción.");
+    });
+  </script>
+</body>
+</html>
