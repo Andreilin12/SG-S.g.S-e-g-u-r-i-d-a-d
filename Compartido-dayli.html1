@@ -192,6 +192,66 @@
       font-style: italic;
       color: #15a086;
     }
+    .icono-notificacion {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #15a086;
+      color: white;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .icono-notificacion .punto-rojo {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+    }
+    .modal-reportes-recibidos {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-reportes-recibidos .modal-content {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-reportes-recibidos .modal-content h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .modal-reportes-recibidos .modal-content ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .modal-reportes-recibidos .modal-content ul li {
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 10px;
+      border-bottom: 1px solid #15a086;
+    }
+    .modal-reportes-recibidos .modal-content ul li:hover {
+      background-color: #2c3e50;
+    }
+    .modal-reportes-recibidos .modal-content button {
+      margin-top: 20px;
+    }
     @media print {
       body * {
         visibility: hidden;
@@ -252,6 +312,21 @@
     <div id="acordeonContainer"></div>
   </div>
 
+  <!-- Icono de notificación -->
+  <div class="icono-notificacion" onclick="abrirModalReportesRecibidos()">
+    <i class="fas fa-bell"></i>
+    <div id="puntoRojo" class="punto-rojo" style="display: none;"></div>
+  </div>
+
+  <!-- Modal para reportes recibidos -->
+  <div class="modal-reportes-recibidos" id="modalReportesRecibidos" style="display: none;">
+    <div class="modal-content">
+  <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">Cerrar</button>    
+      <h3>Reportes Recibidos</h3>
+      <ul id="listaReportesRecibidos"></ul>
+    </div>
+  </div>
+
   <!-- Modal para compartir -->
   <div class="modal" id="modalCompartir">
     <div class="modal-content">
@@ -275,7 +350,7 @@
   <div id="alert" class="alert" style="display: none;"></div>
 
   <!-- Sonido para alertas -->
-  <audio id="alertSound" src="https://www.soundjay.com/button/beep-07.mp3"></audio>
+  <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -302,12 +377,14 @@
     let reporteSeleccionado = null;
     let reporteAEliminar = null;
     let currentUser = null;
+    let reportesRecibidos = [];
 
     // Verificar si el usuario está logueado
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
         cargarReportes();
+        cargarReportesRecibidos();
       } else {
         window.location.href = "login.html"; // Redirigir si no está logueado
       }
@@ -419,7 +496,8 @@
               <p>En la fecha: ${formatearFecha(reporte.createdAt)}</p>
             </div>
             ${reporte.compartidoCon ? `<div class="compartido-info">
-              <p>Compartido el: ${formatearFecha(reporte.compartidoEl)}</p>
+              <p>Compartido por: ${reporte.compartidoPor}</p>
+              <p>Fecha y hora de recepción: ${formatearFecha(reporte.compartidoEl)}</p>
             </div>` : ''}
             <button class="btn-accion" onclick="imprimirAcordeon(this)"><i class="fas fa-print"></i></button>
             ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')"><i class="fas fa-share"></i></button>
@@ -511,7 +589,8 @@
         const reporteRef = doc(db, "Reportes", reporteSeleccionado);
         await updateDoc(reporteRef, {
           compartidoCon: usuariosSeleccionados,
-          compartidoEl: new Date().toISOString()
+          compartidoEl: new Date().toISOString(),
+          compartidoPor: currentUser.displayName || currentUser.email
         });
         mostrarAlerta(`Reporte compartido exitosamente el ${formatearFecha(new Date())}.`);
         cerrarModal();
@@ -521,13 +600,89 @@
       }
     };
 
+    // Función para cargar los reportes recibidos
+    async function cargarReportesRecibidos() {
+      const reportesRef = collection(db, "Reportes");
+      const reportesSnapshot = await getDocs(reportesRef);
+      reportesRecibidos = [];
+
+      reportesSnapshot.forEach((doc) => {
+        const reporte = doc.data();
+        if (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid)) {
+          reportesRecibidos.push({
+            id: doc.id,
+            nombreCaso: reporte.nombreCaso,
+            compartidoPor: reporte.compartidoPor,
+            compartidoEl: reporte.compartidoEl,
+            leido: reporte.leidoPor && reporte.leidoPor.includes(currentUser.uid)
+          });
+        }
+      });
+
+      // Ordenar de más nuevo a más viejo
+      reportesRecibidos.sort((a, b) => new Date(b.compartidoEl) - new Date(a.compartidoEl));
+
+      // Mostrar el punto rojo si hay reportes no leídos
+      const reportesNoLeidos = reportesRecibidos.filter(reporte => !reporte.leido);
+      if (reportesNoLeidos.length > 0) {
+        document.getElementById('puntoRojo').style.display = 'block';
+      } else {
+        document.getElementById('puntoRojo').style.display = 'none';
+      }
+    }
+
+    // Función para abrir el modal de reportes recibidos
+    window.abrirModalReportesRecibidos = function() {
+      const listaReportesRecibidos = document.getElementById('listaReportesRecibidos');
+      listaReportesRecibidos.innerHTML = ""; // Limpiar la lista antes de cargar
+
+      reportesRecibidos.forEach((reporte) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+          <strong>${reporte.nombreCaso}</strong><br>
+          Compartido por: ${reporte.compartidoPor}<br>
+          Fecha y hora: ${formatearFecha(reporte.compartidoEl)}
+        `;
+        item.onclick = () => {
+          // Mostrar el reporte seleccionado
+          const acordeon = document.querySelector(`.acordeon-titulo span:contains('${reporte.nombreCaso}')`).parentElement;
+          acordeon.click(); // Abrir el acordeón
+          cerrarModalReportesRecibidos();
+        };
+        listaReportesRecibidos.appendChild(item);
+      });
+
+      // Marcar los reportes como leídos
+      reportesRecibidos.forEach(async (reporte) => {
+        if (!reporte.leido) {
+          const reporteRef = doc(db, "Reportes", reporte.id);
+          await updateDoc(reporteRef, {
+            leidoPor: [...(reporte.leidoPor || []), currentUser.uid]
+          });
+        }
+      });
+
+      // Ocultar el punto rojo
+      document.getElementById('puntoRojo').style.display = 'none';
+
+      // Mostrar el modal
+      document.getElementById('modalReportesRecibidos').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal de reportes recibidos
+    window.cerrarModalReportesRecibidos = function() {
+      document.getElementById('modalReportesRecibidos').style.display = 'none';
+    };
+
     // Escuchar cambios en tiempo real
     onSnapshot(collection(db, "Reportes"), (snapshot) => {
       cargarReportes();
+      cargarReportesRecibidos();
     });
 
     // Cargar los reportes al cargar la página
     cargarReportes();
+    cargarReportesRecibidos();
   </script>
 </body>
 </html>
