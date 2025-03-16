@@ -352,7 +352,7 @@
   <!-- Sonido para alertas -->
   <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
 
-  <script type="module">
+   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -379,43 +379,16 @@
     let currentUser = null;
     let reportesRecibidos = [];
 
-    // Verificar si el usuario está logueado y es admin
-    onAuthStateChanged(auth, async (user) => {
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
-        const userDoc = await getDocs(collection(db, "users"));
-        let esAdmin = false;
-
-        userDoc.forEach((doc) => {
-          if (doc.id === currentUser.uid && doc.data().tipoUsuario === "admin") {
-            esAdmin = true;
-          }
-        });
-
-        if (esAdmin) {
-          cargarReportes();
-          cargarReportesRecibidos();
-        } else {
-          mostrarModalNoAdmin();
-        }
+        cargarReportes();
+        cargarReportesRecibidos();
       } else {
         window.location.href = "login.html"; // Redirigir si no está logueado
       }
     });
-
-    // Función para mostrar modal de no administrador
-    function mostrarModalNoAdmin() {
-      const modal = document.getElementById('modalNoAdmin');
-      modal.style.display = 'flex';
-      document.getElementById('mensajeNoAdmin').textContent = "No tienes permisos de administrador para usar esta sesión.";
-    }
-
-    // Función para cerrar el modal de no administrador
-    window.cerrarModalNoAdmin = function() {
-      const modal = document.getElementById('modalNoAdmin');
-      modal.style.display = 'none';
-      window.location.href = "login.html"; // Redirigir al login
-    };
 
     // Función para mostrar alerta
     function mostrarAlerta(mensaje) {
