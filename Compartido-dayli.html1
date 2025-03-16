@@ -626,6 +626,8 @@
       const reportesNoLeidos = reportesRecibidos.filter(reporte => !reporte.leido);
       if (reportesNoLeidos.length > 0) {
         document.getElementById('puntoRojo').style.display = 'block';
+        // Reproducir sonido cuando hay reportes no leídos
+        document.getElementById('alertSound').play();
       } else {
         document.getElementById('puntoRojo').style.display = 'none';
       }
