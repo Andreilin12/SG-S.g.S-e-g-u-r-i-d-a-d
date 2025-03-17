@@ -17,14 +17,17 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow: auto; /* Permite el desplazamiento vertical */
     }
     .form-container {
       background-color: #34495e;
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       padding: 20px;
-      width: 800px;
+      width: 90%; /* Cambiado a un porcentaje para ser más responsivo */
+      max-width: 800px; /* Mantiene un ancho máximo */
       text-align: center;
+      overflow: auto; /* Asegura que el contenido interno pueda desplazarse */
     }
     h2 {
       margin-bottom: 20px;
@@ -148,7 +151,7 @@
     .add-icon:hover {
       color: #2c3e50;
     }
-  </style>
+</style>
 </head>
 <body>
   <div class="form-container" id="formContainer" style="display: none;">
