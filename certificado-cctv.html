@@ -71,7 +71,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    .boton-descargar {
+    .boton-imprimir {
       position: fixed;
       bottom: 20px;
       right: 20px;
@@ -88,18 +88,69 @@
       align-items: center;
       justify-content: center;
     }
-    .boton-descargar:hover {
+    .boton-imprimir:hover {
       background-color: #2c3e50;
+    }
+
+    /* Estilos para impresión */
+    @media print {
+      @page {
+        size: landscape; /* Orientación horizontal */
+        margin: 0; /* Eliminar márgenes */
+      }
+      body {
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      .certificado {
+        border: 15px solid #15a086;
+        border-image: linear-gradient(to right, #15a086, #2c3e50, #15a086) 1;
+        box-shadow: none;
+        padding: 40px;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 800px;
+        page-break-after: always; /* Asegura que el certificado ocupe una página completa */
+      }
+      .certificado::before,
+      .certificado::after {
+        display: none; /* Ocultar pseudo-elementos en impresión */
+      }
+      .certificado img {
+        width: 100px;
+      }
+      .certificado h1 {
+        font-size: 24px;
+        color: #2c3e50;
+      }
+      .certificado p {
+        font-size: 12px;
+        color: #555;
+      }
+      .certificado .nombre-usuario {
+        font-size: 16px;
+        color: #15a086;
+      }
+      .certificado .firma {
+        border-top: 2px solid #2c3e50;
+        color: #555;
+      }
+      .boton-imprimir {
+        display: none; /* Ocultar el botón de imprimir en la impresión */
+      }
     }
   </style>
   <!-- Incluir Font Awesome para íconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Incluir html2canvas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <div class="certificado" id="certificado">
-    <img src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/RETOM%20COMPLETO%20(2).png?alt=media&token=bcb475a5-edf6-494a-96e5-ca8f0a8ae005" alt="Logo"> <!-- Cambia "logo.png" por la ruta de tu logo -->
+    <img id="logo" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/RETOM%20COMPLETO%20(2).png?alt=media&token=bcb475a5-edf6-494a-96e5-ca8f0a8ae005" alt="Logo">
     <h1>CERTIFICADO</h1>
     <p>
       En reconocimiento a su excelente desempeño, dedicación y contribución sobresaliente durante el mes,
@@ -119,8 +170,8 @@
       <span>Firma del Gerente</span>
     </div>
   </div>
-  <button class="boton-descargar" id="botonDescargar">
-    <i class="fas fa-download"></i>
+  <button class="boton-imprimir" id="botonImprimir">
+    <i class="fas fa-print"></i>
   </button>
 
   <script type="module">
@@ -195,16 +246,9 @@
       }
     }
 
-    // Función para descargar el certificado como PNG
-    document.getElementById('botonDescargar').addEventListener('click', () => {
-      const certificado = document.getElementById('certificado');
-
-      html2canvas(certificado).then((canvas) => {
-        const enlace = document.createElement('a');
-        enlace.href = canvas.toDataURL('image/png');
-        enlace.download = 'Certificado_Usuario_del_Mes.png'; // Nombre del archivo
-        enlace.click();
-      });
+    // Función para imprimir el certificado
+    document.getElementById('botonImprimir').addEventListener('click', () => {
+      window.print();
     });
   </script>
 </body>
