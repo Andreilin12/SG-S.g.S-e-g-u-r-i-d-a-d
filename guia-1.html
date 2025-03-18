@@ -8,10 +8,11 @@
         /* Estilos generales */
         body {
             font-family: 'Arial', sans-serif;
-            background: #0f0c29; /* Fondo oscuro futurista */
+            background: #2c3e50; /* Fondo oscuro futurista */
             color: #fff;
             margin: 0;
             padding: 0;
+            overflow: hidden; /* Evitar el scroll */
         }
 
         /* Estilos para la ventana emergente */
@@ -22,34 +23,37 @@
             left: 0;
             top: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh; /* Ocupa toda la altura de la pantalla */
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center; /* Centrar horizontalmente */
+            align-items: center; /* Centrar verticalmente */
         }
         .modal-content {
-            background: linear-gradient(145deg, #1a1a2e, #16213e); /* Gradiente futurista */
-            margin: 5% auto; /* Menos margen para que ocupe más espacio */
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 90%; /* Ocupa el 90% del ancho de la pantalla */
-            max-width: 800px; /* Aumentamos el ancho máximo */
+            background: linear-gradient(145deg, #2c3e50, #2c3e50); /* Gradiente futurista */
+            padding: 20px; /* Espacio interno */
+            width: 90%; /* Ancho ajustado */
+            max-width: 800px; /* Ancho máximo */
+            height: auto; /* Altura automática */
             text-align: center;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
+            position: relative;
         }
         .modal-content h2 {
             font-size: 32px; /* Título más grande */
             margin-bottom: 20px;
-            color: #e94560; /* Color de acento */
+            color: #15a086; /* Color de acento */
         }
         .modal-content p {
             font-size: 20px; /* Texto más grande */
-            color: #a8a8a8;
+            color: #fff;
             margin-bottom: 30px;
         }
         .modal-content button {
-            background: linear-gradient(145deg, #e94560, #ff6f91); /* Botón con gradiente */
+            background: linear-gradient(145deg, #15a086, #2c3e50); /* Botón con gradiente */
             border: none;
             padding: 15px 30px; /* Botón más grande */
             margin-top: 30px;
@@ -57,12 +61,11 @@
             color: #fff;
             font-size: 18px; /* Texto del botón más grande */
             border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .modal-content button:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.5);
+            box-shadow: 0 6px 20px rgba(21,160, 134);
         }
 
         /* Estilos para las imágenes */
@@ -86,6 +89,30 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        /* Imágenes en las esquinas */
+        .corner-image {
+            position: absolute;
+            width: 80px; /* Tamaño de las imágenes */
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .corner-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .top-left {
+            top: 10px; /* Posición superior izquierda */
+            left: 10px;
+        }
+        .bottom-right {
+            bottom: 10px; /* Posición inferior derecha */
+            right: 10px;
         }
 
         /* Animación de onda */
@@ -135,8 +162,16 @@
     <!-- Ventana emergente -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h2 id="modal-title">Título de la Ventana</h2>
-            <p id="modal-description">Descripción de la ventana.</p>
+            <!-- Imágenes en las esquinas -->
+            <div class="corner-image top-left">
+                <img src="https://via.placeholder.com/150" alt="Imagen superior izquierda">
+            </div>
+            <div class="corner-image bottom-right">
+                <img src="https://via.placeholder.com/150/FF0000" alt="Imagen inferior derecha">
+            </div>
+
+            <h2 id="modal-title">Retom</h2>
+            <p id="modal-description">Security System</p>
             <div id="image-container" class="image-container">
                 <!-- Imágenes se agregarán dinámicamente aquí -->
             </div>
@@ -148,21 +183,35 @@
         // Datos de las ventanas
         const ventanas = [
             { 
-                titulo: "Ventana 1", 
-                descripcion: "Esta es la ventana número 1.",
+                titulo: "Bienvenido a RETOM", 
+                descripcion: "Gracias por formar parte de RETOM, uno de los software líderes para el Departamento de Seguridad. Nuestra finalidad es optimizar el manejo de información en seguridad con funciones inteligentes que facilitan tu trabajo diario.",
                 imagenes: ["https://via.placeholder.com/150", "https://via.placeholder.com/150/FF0000"]
             },
             { 
-                titulo: "Ventana 2", 
-                descripcion: "Esta es la ventana número 2.",
+                titulo: "Manejo de Reportes y Estadísticas", 
+                descripcion: "RETOM te permite gestionar reportes de manera eficiente, incluyendo 'Lost and Found', CCTV y Seguridad. Además, ofrece estadísticas en tiempo real para una toma de decisiones más informada y precisa.",
                 imagenes: ["https://via.placeholder.com/150/00FF00", "https://via.placeholder.com/150/0000FF"]
             },
             { 
-                titulo: "Ventana 3", 
-                descripcion: "Esta es la ventana número 3.",
+                titulo: "Seguridad de RETOM", 
+                descripcion: "La seguridad es nuestra prioridad. RETOM cuenta con medidas avanzadas para proteger tus datos contra accesos no autorizados y filtraciones. Nuestro sistema está diseñado para ser robusto y confiable, garantizando la integridad de la información en todo momento.",
                 imagenes: ["https://via.placeholder.com/150/FFFF00", "https://via.placeholder.com/150/00FFFF"]
             },
-            // Agrega más ventanas según sea necesario
+            { 
+                titulo: "Manejo de Credenciales", 
+                descripcion: "Es responsabilidad de cada usuario proteger sus credenciales (usuario y contraseña). RETOM no se hace responsable por filtraciones derivadas de un mal manejo de las mismas. Recomendamos no compartir contraseñas y cambiarlas periódicamente. Además, los usuarios admin pueden monitorear todos los ingresos al sorfware con hora, fecha y nombre de usuario.",
+                imagenes: ["https://via.placeholder.com/150/FF00FF", "https://via.placeholder.com/150/00FF00"]
+            },
+            { 
+                titulo: "Manejo de Permisos", 
+                descripcion: "Los usuarios administradores pueden solicitar permisos adicionales o soporte técnico contactando a infor@retomrt.com o al (849) 515-8440. Los usuarios no administradores deben solicitar permisos a sus superiores dentro de la empresa donde laboran.",
+                imagenes: ["https://via.placeholder.com/150/0000FF", "https://via.placeholder.com/150/FF0000"]
+            },
+            { 
+                titulo: "Gracias por usar RETOM", 
+                descripcion: "Gracias por confiar en RETOM y en nuestro software Security System RETOM. Estamos comprometidos con brindarte las mejores herramientas para optimizar la seguridad y el manejo de información en tu organización.",
+                imagenes: ["https://via.placeholder.com/150/FFFF00", "https://via.placeholder.com/150/00FFFF"]
+            }
         ];
 
         let ventanaActual = 0;
@@ -181,7 +230,7 @@
         if (localStorage.getItem('guiaCompletada') === 'true') {
             redirigirAHome(); // Redirigir automáticamente si ya se completó
         } else {
-            modal.style.display = "block"; // Mostrar la ventana si no se ha completado
+            modal.style.display = "flex"; // Mostrar la ventana si no se ha completado
             mostrarVentana(); // Mostrar la primera ventana
         }
 
