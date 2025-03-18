@@ -91,6 +91,7 @@
       align-items: center;
       opacity: 0;
       transition: opacity 0.3s ease-in-out;
+      overflow-y: auto; /* Permite el desplazamiento vertical */
     }
     .modal.active {
       display: flex;
@@ -101,7 +102,9 @@
       padding: 2rem;
       border-radius: 10px;
       max-width: 500px;
-      width: 100%;
+      width: 90%; /* Ajuste para pantallas pequeñas */
+      max-height: 90vh; /* Limita la altura máxima al 90% de la ventana */
+      overflow-y: auto; /* Hace el contenido desplazable */
       text-align: center;
       transform: translateY(-100%);
       transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -139,6 +142,7 @@
       align-items: center;
       opacity: 0;
       transition: opacity 0.3s ease-in-out;
+      overflow-y: auto; /* Permite el desplazamiento vertical */
     }
     .report-modal.active {
       display: flex;
@@ -149,7 +153,9 @@
       padding: 2rem;
       border-radius: 10px;
       max-width: 800px;
-      width: 100%;
+      width: 90%; /* Ajuste para pantallas pequeñas */
+      max-height: 90vh; /* Limita la altura máxima al 90% de la ventana */
+      overflow-y: auto; /* Hace el contenido desplazable */
       text-align: left;
       transform: translateY(-100%);
       transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -208,7 +214,9 @@
       padding: 2rem;
       border-radius: 10px;
       max-width: 800px;
-      width: 100%;
+      width: 90%; /* Ajuste para pantallas pequeñas */
+      max-height: 90vh; /* Limita la altura máxima al 90% de la ventana */
+      overflow-y: auto; /* Hace el contenido desplazable */
       text-align: left;
     }
     .report-modal-content h3 {
