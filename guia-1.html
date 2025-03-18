@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Ventanas Emergentes Futurista</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0f0c29; /* Fondo oscuro futurista */
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos para la ventana emergente */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e); /* Gradiente futurista */
+            margin: 5% auto; /* Menos margen para que ocupe más espacio */
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%; /* Ocupa el 90% del ancho de la pantalla */
+            max-width: 800px; /* Aumentamos el ancho máximo */
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .modal-content h2 {
+            font-size: 32px; /* Título más grande */
+            margin-bottom: 20px;
+            color: #e94560; /* Color de acento */
+        }
+        .modal-content p {
+            font-size: 20px; /* Texto más grande */
+            color: #a8a8a8;
+            margin-bottom: 30px;
+        }
+        .modal-content button {
+            background: linear-gradient(145deg, #e94560, #ff6f91); /* Botón con gradiente */
+            border: none;
+            padding: 15px 30px; /* Botón más grande */
+            margin-top: 30px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 18px; /* Texto del botón más grande */
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modal-content button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.5);
+        }
+
+        /* Estilos para las imágenes */
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Más espacio entre imágenes */
+            margin-top: 30px;
+        }
+        .image-circle {
+            width: 120px; /* Imágenes más grandes */
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            animation: wave 3s infinite ease-in-out;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .image-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Animación de onda */
+        @keyframes wave {
+            0%, 100% {
+                border-radius: 50%;
+                transform: scale(1);
+            }
+            25% {
+                border-radius: 45% 55% 50% 50%;
+                transform: scale(1.05);
+            }
+            50% {
+                border-radius: 55% 45% 50% 50%;
+                transform: scale(0.95);
+            }
+            75% {
+                border-radius: 50% 50% 45% 55%;
+                transform: scale(1.02);
+            }
+        }
+
+        /* Efecto de brillo futurista */
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 10s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ventana emergente -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Título de la Ventana</h2>
+            <p id="modal-description">Descripción de la ventana.</p>
+            <div id="image-container" class="image-container">
+                <!-- Imágenes se agregarán dinámicamente aquí -->
+            </div>
+            <button id="next-button">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las ventanas
+        const ventanas = [
+            { 
+                titulo: "Ventana 1", 
+                descripcion: "Esta es la ventana número 1.",
+                imagenes: ["https://via.placeholder.com/150", "https://via.placeholder.com/150/FF0000"]
+            },
+            { 
+                titulo: "Ventana 2", 
+                descripcion: "Esta es la ventana número 2.",
+                imagenes: ["https://via.placeholder.com/150/00FF00", "https://via.placeholder.com/150/0000FF"]
+            },
+            { 
+                titulo: "Ventana 3", 
+                descripcion: "Esta es la ventana número 3.",
+                imagenes: ["https://via.placeholder.com/150/FFFF00", "https://via.placeholder.com/150/00FFFF"]
+            },
+            // Agrega más ventanas según sea necesario
+        ];
+
+        let ventanaActual = 0;
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
+        const nextButton = document.getElementById('next-button');
+        const imageContainer = document.getElementById('image-container');
+
+        // Función para redirigir a home.html
+        function redirigirAHome() {
+            window.location.href = "home.html"; // Redirige a home.html
+        }
+
+        // Verificar si la guía ya se completó
+        if (localStorage.getItem('guiaCompletada') === 'true') {
+            redirigirAHome(); // Redirigir automáticamente si ya se completó
+        } else {
+            modal.style.display = "block"; // Mostrar la ventana si no se ha completado
+            mostrarVentana(); // Mostrar la primera ventana
+        }
+
+        // Función para mostrar la ventana actual
+        function mostrarVentana() {
+            modalTitle.textContent = ventanas[ventanaActual].titulo;
+            modalDescription.textContent = ventanas[ventanaActual].descripcion;
+
+            // Limpiar imágenes anteriores
+            imageContainer.innerHTML = '';
+
+            // Agregar nuevas imágenes
+            ventanas[ventanaActual].imagenes.forEach(src => {
+                const div = document.createElement('div');
+                div.className = 'image-circle';
+                const img = document.createElement('img');
+                img.src = src;
+                div.appendChild(img);
+                imageContainer.appendChild(div);
+            });
+
+            if (ventanaActual === ventanas.length - 1) {
+                nextButton.textContent = "Finalizar";
+            } else {
+                nextButton.textContent = "Siguiente";
+            }
+        }
+
+        // Función para avanzar a la siguiente ventana
+        function siguienteVentana() {
+            if (ventanaActual < ventanas.length - 1) {
+                ventanaActual++;
+                mostrarVentana();
+            } else {
+                // Guardar en localStorage que ya se completó la guía
+                localStorage.setItem('guiaCompletada', 'true');
+                redirigirAHome(); // Redirigir a home.html después de finalizar
+            }
+        }
+
+        // Evento para el botón "Siguiente"
+        nextButton.addEventListener('click', siguienteVentana);
+    </script>
+</body>
+</html>
