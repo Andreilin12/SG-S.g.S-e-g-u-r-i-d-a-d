@@ -207,76 +207,59 @@
       background-color: #12876f;
     }
 
-    /* Estilos para el reporte en el modal */
-    .report-modal-content {
-      background-color: #fff;
-      color: #000;
-      padding: 2rem;
-      border-radius: 10px;
-      max-width: 800px;
-      width: 90%; /* Ajuste para pantallas pequeñas */
-      max-height: 90vh; /* Limita la altura máxima al 90% de la ventana */
-      overflow-y: auto; /* Hace el contenido desplazable */
-      text-align: left;
+    /* Estilos específicos para la generación del PDF */
+    .report-modal-content.for-pdf {
+      max-height: none; /* Elimina la limitación de altura */
+      overflow-y: visible; /* Evita el desplazamiento */
+      width: 100%; /* Ocupa todo el ancho disponible */
+      padding: 1rem; /* Ajusta el padding para el PDF */
     }
-    .report-modal-content h3 {
-      text-align: center;
-      margin-bottom: 1rem;
+    .report-modal-content.for-pdf h3 {
       font-size: 1.5rem;
       color: #15a086;
     }
-    .report-modal-content p {
-      margin-bottom: 0.5rem;
+    .report-modal-content.for-pdf p {
       font-size: 1rem;
     }
-    .report-modal-content table {
+    .report-modal-content.for-pdf table {
       width: 100%;
       margin-top: 1rem;
       margin-bottom: 1rem;
       border-collapse: collapse;
     }
-    .report-modal-content table th, .report-modal-content table td {
+    .report-modal-content.for-pdf table th, .report-modal-content.for-pdf table td {
       padding: 0.5rem;
       border: 1px solid #ddd;
     }
-    .report-modal-content table th {
+    .report-modal-content.for-pdf table th {
       background-color: #15a086;
       color: #fff;
     }
-    .report-modal-content img {
+    .report-modal-content.for-pdf img {
       width: 100px;
       height: 100px;
       object-fit: cover;
       border-radius: 5px;
       margin: 0.5rem;
     }
-    .report-modal-content .signatures {
+    .report-modal-content.for-pdf .signatures {
       display: flex;
       justify-content: space-between;
       margin-top: 2rem;
     }
-    .report-modal-content .signatures div {
+    .report-modal-content.for-pdf .signatures div {
       text-align: center;
     }
-    .report-modal-content .signatures p {
+    .report-modal-content.for-pdf .signatures p {
       border-top: 1px solid #000;
       width: 200px;
       margin: 0 auto;
       padding-top: 0.5rem;
     }
-    .report-modal-content button {
-      background-color: #15a086;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      margin-top: 1rem;
+    .report-modal-content.for-pdf button {
+      display: none; /* Oculta los botones en el PDF */
     }
-    .report-modal-content button:hover {
-      background-color: #12876f;
-    }
-    
+
     /* Estilos para el buscador */
     .search-container {
       display: flex;
