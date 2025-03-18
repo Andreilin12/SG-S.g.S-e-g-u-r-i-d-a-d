@@ -276,7 +276,7 @@
       } else {
         console.log("No hay usuario autenticado.");
         // Redirigir a la página de inicio de sesión si no hay usuario autenticado
-        window.location.href = "login.html"; // Cambia "login.html" por tu página de inicio de sesión
+        window.location.href = "index.html"; // Cambia "login.html" por tu página de inicio de sesión
       }
     });
 
@@ -355,15 +355,15 @@
         const expiredList = expiredObjects.map(obj => `- ${obj.objectName}`).join("<br>");
         Swal.fire({
           icon: 'error',
-          title: 'Productos Vencidos',
-          html: `Los siguientes productos están vencidos:<br>${expiredList}`,
+          title: 'Artículos No Reclamados',
+          html: `Los siguientes artículos son:<br>${expiredList}`,
           background: '#2c3e50',
           color: '#fff',
           confirmButtonColor: '#15a086',
-          timer: 10000, // 10 segundos
+          timer: 50000, // 10 segundos
           timerProgressBar: true,
           didOpen: () => {
-            const audio = new Audio('alert.mp3'); // Asegúrate de tener un archivo alert.mp3
+            const audio = new Audio('https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/audio%2FSD_ALERT_27.mp3?alt=media&token=387de74a-8551-4e83-974c-5f1b8dd27528'); // Asegúrate de tener un archivo alert.mp3
             audio.play();
           }
         });
