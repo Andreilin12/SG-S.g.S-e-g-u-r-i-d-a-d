@@ -179,7 +179,7 @@
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // El usuario ya está autenticado, redirigir a la página de inicio
-            window.location.href = "home.html";
+            window.location.href = "guia-1.html";
         }
     });
 
@@ -206,7 +206,7 @@
 
             showAlert('Inicio de sesión exitoso', 'success');
             setTimeout(() => {
-                window.location.href = "home.html";
+                window.location.href = "guia-1.html";
             }, 2000);
         } catch (error) {
             console.error('Error de autenticación:', error.message);
