@@ -348,224 +348,225 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
-      authDomain: "inventario-35d6b.firebaseapp.com",
-      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
-      projectId: "inventario-35d6b",
-      storageBucket: "inventario-35d6b.appspot.com",
-      messagingSenderId: "266100399659",
-      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+    authDomain: "inventario-35d6b.firebaseapp.com",
+    databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+    projectId: "inventario-35d6b",
+    storageBucket: "inventario-35d6b.appspot.com",
+    messagingSenderId: "266100399659",
+    appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    let allObjects = [];
-    let companyName = "Nombre de la Empresa"; // Valor por defecto
+  let allObjects = [];
+  let companyName = "Nombre de la Empresa"; // Valor por defecto
 
-    // Función para recuperar el nombre de la empresa desde Firebase
-    async function getCompanyName() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "DatosDeEmpresa"));
-        if (!querySnapshot.empty) {
-          const doc = querySnapshot.docs[0];
-          companyName = doc.data().nombreEmpresa || companyName;
-          localStorage.setItem("companyName", companyName); // Guardar en localStorage
-        }
-      } catch (error) {
-        console.error("Error al recuperar el nombre de la empresa:", error);
+  // Función para recuperar el nombre de la empresa desde Firebase
+  async function getCompanyName() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "DatosDeEmpresa"));
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        companyName = doc.data().nombreEmpresa || companyName;
+        localStorage.setItem("companyName", companyName); // Guardar en localStorage
       }
+    } catch (error) {
+      console.error("Error al recuperar el nombre de la empresa:", error);
     }
+  }
 
-    // Función para mostrar los objetos entregados
-    function renderObjects(objects) {
-      const tableBody = document.getElementById("tableBody");
-      tableBody.innerHTML = "";
+  // Función para mostrar los objetos entregados
+  function renderObjects(objects) {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
 
-      objects.forEach((obj) => {
-        const row = document.createElement("tr");
+    objects.forEach((obj) => {
+      const row = document.createElement("tr");
 
-        // Campos principales
-        row.innerHTML = `
-          <td>${obj.objectName}</td>
-          <td>${obj.deliveryDateTime}</td>
-          <td>${obj.deliveredTo}</td>
-          <td>${obj.deliveredBy}</td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn-icon" onclick="toggleDetails(this)" title="Ver detalles">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn-icon" onclick="openReportModal('${obj.id}')" title="Generar reporte">
-                <i class="fas fa-file-pdf"></i>
-              </button>
-            </div>
-          </td>
-        `;
-
-        // Fila de detalles
-        const detailsRow = document.createElement("tr");
-        detailsRow.classList.add("details-row");
-        detailsRow.innerHTML = `
-          <td colspan="5">
-            <div class="details-content">
-              <p><strong>Cantidad:</strong> ${obj.quantity}</p>
-              <p><strong>Lugar de encuentro:</strong> ${obj.meetingPlace}</p>
-              <p><strong>Hora de encuentro:</strong> ${obj.meetingTime}</p>
-              <p><strong>Informado a:</strong> ${obj.informedTo}</p>
-              <p><strong>Comentarios:</strong> ${obj.comments}</p>
-              <p><strong>Fotos:</strong></p>
-              <div class="image-preview">
-                ${obj.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto" onclick="expandImage('${url}')">`).join("")}
-              </div>
-            </div>
-          </td>
-        `;
-
-        tableBody.appendChild(row);
-        tableBody.appendChild(detailsRow);
-      });
-    }
-
-    // Función para filtrar objetos por nombre de objeto y "Entregado a"
-    window.filterObjects = function () {
-      const searchName = document.getElementById("searchName").value.toLowerCase();
-      const searchDeliveredTo = document.getElementById("searchDeliveredTo").value.toLowerCase();
-
-      const filteredObjects = allObjects.filter((obj) => {
-        const matchesName = obj.objectName.toLowerCase().includes(searchName);
-        const matchesDeliveredTo = obj.deliveredTo.toLowerCase().includes(searchDeliveredTo);
-        return matchesName && matchesDeliveredTo;
-      });
-
-      renderObjects(filteredObjects);
-    };
-
-    // Escuchar cambios en tiempo real
-    const unsubscribe = onSnapshot(collection(db, "ObjetosRegistrados"), (querySnapshot) => {
-      allObjects = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.delivered) {
-          allObjects.push({ id: doc.id, ...data });
-        }
-      });
-      filterObjects(); // Aplicar filtro inicial
-    });
-
-    // Función para expandir/colapsar detalles
-    window.toggleDetails = function (button) {
-      const detailsRow = button.closest("tr").nextElementSibling;
-      detailsRow.classList.toggle("active");
-    };
-
-    // Función para expandir una imagen en un modal
-    window.expandImage = function (imageUrl) {
-      const modal = document.getElementById("imageModal");
-      const expandedImage = document.getElementById("expandedImage");
-      expandedImage.src = imageUrl;
-      modal.classList.add("active");
-    };
-
-    // Función para cerrar el modal de imágenes
-    window.closeModal = function () {
-      const modal = document.getElementById("imageModal");
-      modal.classList.remove("active");
-    };
-
-    // Función para abrir el modal de reporte
-    window.openReportModal = function (objectId) {
-      const object = allObjects.find(obj => obj.id === objectId);
-      const reportModal = document.getElementById("reportModal");
-      const reportTitle = document.getElementById("reportTitle");
-      const reportContent = document.getElementById("reportContent");
-
-      // Recuperar el nombre de la empresa desde localStorage
-      companyName = localStorage.getItem("companyName") || companyName;
-
-      // Título del reporte
-      reportTitle.textContent = `Lost And Found - ${companyName}`;
-
-      // Contenido del reporte
-      reportContent.innerHTML = `
-        <p><strong>Reporte de Entrega</strong></p>
-        <p>A ${new Date().toLocaleDateString()}, yo, ${object.deliveredBy}, hago entrega formal al Sr./Sra. ${object.deliveredTo} del siguiente objeto:</p>
-        <table>
-          <tr>
-            <th>Nombre del objeto</th>
-            <td>${object.objectName}</td>
-          </tr>
-          <tr>
-            <th>Cantidad</th>
-            <td>${object.quantity}</td>
-          </tr>
-          <tr>
-            <th>Lugar de encuentro</th>
-            <td>${object.meetingPlace}</td>
-          </tr>
-          <tr>
-            <th>Hora de encuentro</th>
-            <td>${object.meetingTime}</td>
-          </tr>
-          <tr>
-            <th>Informado a</th>
-            <td>${object.informedTo}</td>
-          </tr>
-          <tr>
-            <th>Comentarios</th>
-            <td>${object.comments}</td>
-          </tr>
-        </table>
-        <p>Agradezco la atención prestada y quedo a disposición para cualquier aclaración.</p>
-        <p>Esta entrega se realiza en conformidad con los acuerdos establecidos.</p>
-        <p><strong>Descripción del Objeto:</strong></p>
-        <div class="image-preview">
-          ${object.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto">`).join("")}
-        </div>
+      // Campos principales
+      row.innerHTML = `
+        <td>${obj.objectName}</td>
+        <td>${obj.deliveryDateTime}</td>
+        <td>${obj.deliveredTo}</td>
+        <td>${obj.deliveredBy}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn-icon" onclick="toggleDetails(this)" title="Ver detalles">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon" onclick="openReportModal('${obj.id}')" title="Generar reporte">
+              <i class="fas fa-file-pdf"></i>
+            </button>
+          </div>
+        </td>
       `;
 
-      reportModal.classList.add("active");
-    };
+      // Fila de detalles
+      const detailsRow = document.createElement("tr");
+      detailsRow.classList.add("details-row");
+      detailsRow.innerHTML = `
+        <td colspan="5">
+          <div class="details-content">
+            <p><strong>Cantidad:</strong> ${obj.quantity}</p>
+            <p><strong>Lugar de encuentro:</strong> ${obj.meetingPlace}</p>
+            <p><strong>Hora de encuentro:</strong> ${obj.meetingTime}</p>
+            <p><strong>Informado a:</strong> ${obj.informedTo}</p>
+            <p><strong>Comentarios:</strong> ${obj.comments}</p>
+            <p><strong>Fotos:</strong></p>
+            <div class="image-preview">
+              ${obj.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto" onclick="expandImage('${url}')">`).join("")}
+            </div>
+          </div>
+        </td>
+      `;
 
-    // Función para cerrar el modal de reporte
-    window.closeReportModal = function () {
-      const reportModal = document.getElementById("reportModal");
-      reportModal.classList.remove("active");
-    };
+      tableBody.appendChild(row);
+      tableBody.appendChild(detailsRow);
+    });
+  }
 
-    // Función para generar el PDF
-    window.generatePDF = function () {
-      const { jsPDF } = window.jspdf;
-      const pdfContent = document.getElementById("pdfContent");
+  // Función para filtrar objetos por nombre de objeto y "Entregado a"
+  window.filterObjects = function () {
+    const searchName = document.getElementById("searchName").value.toLowerCase();
+    const searchDeliveredTo = document.getElementById("searchDeliveredTo").value.toLowerCase();
 
-      // Ocultar botones temporalmente
-      const buttons = pdfContent.querySelectorAll("button");
-      buttons.forEach(button => button.classList.add("hide-for-pdf"));
+    const filteredObjects = allObjects.filter((obj) => {
+      const matchesName = obj.objectName.toLowerCase().includes(searchName);
+      const matchesDeliveredTo = obj.deliveredTo.toLowerCase().includes(searchDeliveredTo);
+      return matchesName && matchesDeliveredTo;
+    });
 
-      html2canvas(pdfContent).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 210; // Ancho de A4 en mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    renderObjects(filteredObjects);
+  };
 
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save("reporte.pdf");
+  // Escuchar cambios en tiempo real
+  const unsubscribe = onSnapshot(collection(db, "ObjetosRegistrados"), (querySnapshot) => {
+    allObjects = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.delivered) {
+        allObjects.push({ id: doc.id, ...data });
+      }
+    });
+    filterObjects(); // Aplicar filtro inicial
+  });
 
-        // Mostrar botones nuevamente
-        buttons.forEach(button => button.classList.remove("hide-for-pdf"));
-      });
-    };
+  // Función para expandir/colapsar detalles
+  window.toggleDetails = function (button) {
+    const detailsRow = button.closest("tr").nextElementSibling;
+    detailsRow.classList.toggle("active");
+  };
 
-    // Inicializar el nombre de la empresa al cargar la página
-    getCompanyName();
-  </script>
+  // Función para expandir una imagen en un modal
+  window.expandImage = function (imageUrl) {
+    const modal = document.getElementById("imageModal");
+    const expandedImage = document.getElementById("expandedImage");
+    expandedImage.src = imageUrl;
+    modal.classList.add("active");
+  };
+
+  // Función para cerrar el modal de imágenes
+  window.closeModal = function () {
+    const modal = document.getElementById("imageModal");
+    modal.classList.remove("active");
+  };
+
+  // Función para abrir el modal de reporte
+  window.openReportModal = function (objectId) {
+    const object = allObjects.find(obj => obj.id === objectId);
+    const reportModal = document.getElementById("reportModal");
+    const reportTitle = document.getElementById("reportTitle");
+    const reportContent = document.getElementById("reportContent");
+
+    // Recuperar el nombre de la empresa desde localStorage
+    companyName = localStorage.getItem("companyName") || companyName;
+
+    // Título del reporte
+    reportTitle.textContent = `Lost And Found - ${companyName}`;
+
+    // Contenido del reporte
+    reportContent.innerHTML = `
+      <p><strong>Reporte de Entrega</strong></p>
+      <p>A ${new Date().toLocaleDateString()}, yo, ${object.deliveredBy}, hago entrega formal al Sr./Sra. ${object.deliveredTo} del siguiente objeto:</p>
+      <table>
+        <tr>
+          <th>Nombre del objeto</th>
+          <td>${object.objectName}</td>
+        </tr>
+        <tr>
+          <th>Cantidad</th>
+          <td>${object.quantity}</td>
+        </tr>
+        <tr>
+          <th>Lugar de encuentro</th>
+          <td>${object.meetingPlace}</td>
+        </tr>
+        <tr>
+          <th>Hora de encuentro</th>
+          <td>${object.meetingTime}</td>
+        </tr>
+        <tr>
+          <th>Informado a</th>
+          <td>${object.informedTo}</td>
+        </tr>
+        <tr>
+          <th>Comentarios</th>
+          <td>${object.comments}</td>
+        </tr>
+      </table>
+      <p>Agradezco la atención prestada y quedo a disposición para cualquier aclaración.</p>
+      <p>Esta entrega se realiza en conformidad con los acuerdos establecidos.</p>
+      <p><strong>Descripción del Objeto:</strong></p>
+      <div class="image-preview">
+        ${object.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto">`).join("")}
+      </div>
+    `;
+
+    reportModal.classList.add("active");
+  };
+
+  // Función para cerrar el modal de reporte
+  window.closeReportModal = function () {
+    const reportModal = document.getElementById("reportModal");
+    reportModal.classList.remove("active");
+  };
+
+  // Función para generar el PDF
+  window.generatePDF = function () {
+    const { jsPDF } = window.jspdf;
+    const pdfContent = document.getElementById("pdfContent");
+
+    // Ocultar botones temporalmente
+    const buttons = pdfContent.querySelectorAll("button");
+    buttons.forEach(button => button.classList.add("hide-for-pdf"));
+
+    html2canvas(pdfContent).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // Ancho de A4 en mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("reporte.pdf");
+
+      // Mostrar botones nuevamente
+      buttons.forEach(button => button.classList.remove("hide-for-pdf"));
+    });
+  };
+
+  // Inicializar el nombre de la empresa al cargar la página
+  getCompanyName();
+</script>
+
 </body>
 </html>
