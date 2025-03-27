@@ -321,7 +321,7 @@
   <!-- Modal para reportes recibidos -->
   <div class="modal-reportes-recibidos" id="modalReportesRecibidos" style="display: none;">
     <div class="modal-content">
-  <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">Cerrar</button>    
+      <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">Cerrar</button>    
       <h3>Reportes Recibidos</h3>
       <ul id="listaReportesRecibidos"></ul>
     </div>
@@ -352,7 +352,7 @@
   <!-- Sonido para alertas -->
   <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
 
-   <script type="module">
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -426,15 +426,51 @@
       }
     }
 
-    // Función para formatear la fecha y hora
+    // Función para formatear la fecha y hora (para fechas individuales)
     function formatearFecha(fecha) {
-      const fechaObj = new Date(fecha);
-      const dia = String(fechaObj.getDate()).padStart(2, '0');
-      const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
-      const año = fechaObj.getFullYear();
-      const horas = String(fechaObj.getHours()).padStart(2, '0');
-      const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
-      return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+      if (!fecha) return "No especificada";
+      
+      try {
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) {
+          // Si no es una fecha válida, devolver el valor original
+          return fecha;
+        }
+        
+        const dia = String(fechaObj.getDate()).padStart(2, '0');
+        const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+        const año = fechaObj.getFullYear();
+        let horas = fechaObj.getHours();
+        const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
+        
+        // Formato de 12 horas con AM/PM
+        const ampm = horas >= 12 ? 'pm' : 'am';
+        horas = horas % 12;
+        horas = horas ? horas : 12; // La hora 0 debe ser 12
+        
+        return `${dia}/${mes}/${año} ${horas}:${minutos} ${ampm}`;
+      } catch (e) {
+        // Si hay algún error, devolver el valor original
+        return fecha;
+      }
+    }
+
+    // Función para formatear las fechas concatenadas
+    function formatearFechasConcatenadas(fechasStr) {
+      if (!fechasStr) return "No especificada";
+      
+      // Si es un array, convertirlo a string
+      if (Array.isArray(fechasStr)) {
+        return fechasStr.map(f => formatearFecha(f)).join(', ');
+      }
+      
+      // Si ya es un string con formato correcto, devolverlo tal cual
+      if (typeof fechasStr === 'string' && fechasStr.includes(',')) {
+        return fechasStr.split(',').map(f => f.trim()).join(', ');
+      }
+      
+      // Para otros casos, formatear como fecha simple
+      return formatearFecha(fechasStr);
     }
 
     // Función para cargar los reportes desde Firestore
@@ -467,8 +503,8 @@
             <div class="titulo-impresion">${reporte.nombreCaso}</div>
             <div class="subtitulo-impresion">${reporte.tipoCaso}</div>
             <div class="reporte-item">
-              <label>Fecha y Hora del Incidente:</label>
-              <p>${formatearFecha(reporte.fechaHoraIncidente)}</p>
+              <label>Fecha(s) y Hora(s) del Incidente:</label>
+              <p>${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
             </div>
             <div class="reporte-item">
               <label>Reportado Por:</label>
@@ -565,14 +601,17 @@
 
       usuariosSnapshot.forEach((doc) => {
         const usuario = doc.data();
-        const usuarioItem = document.createElement('div');
-        usuarioItem.classList.add('usuario-item');
-        usuarioItem.innerHTML = `
-          <img src="${usuario.photoURL || 'https://via.placeholder.com/40'}" alt="Foto de perfil">
-          <span>${usuario.name} (${usuario.posicion})</span>
-          <input type="checkbox" value="${doc.id}">
-        `;
-        usuariosLista.appendChild(usuarioItem);
+        // No mostrar al usuario actual en la lista de compartir
+        if (doc.id !== currentUser.uid) {
+          const usuarioItem = document.createElement('div');
+          usuarioItem.classList.add('usuario-item');
+          usuarioItem.innerHTML = `
+            <img src="${usuario.photoURL || 'https://via.placeholder.com/40'}" alt="Foto de perfil">
+            <span>${usuario.name} (${usuario.posicion})</span>
+            <input type="checkbox" value="${doc.id}">
+          `;
+          usuariosLista.appendChild(usuarioItem);
+        }
       });
     }
 
@@ -646,8 +685,13 @@
         `;
         item.onclick = () => {
           // Mostrar el reporte seleccionado
-          const acordeon = document.querySelector(`.acordeon-titulo span:contains('${reporte.nombreCaso}')`).parentElement;
-          acordeon.click(); // Abrir el acordeón
+          const acordeones = document.querySelectorAll('.acordeon-titulo span');
+          for (let i = 0; i < acordeones.length; i++) {
+            if (acordeones[i].textContent.includes(reporte.nombreCaso)) {
+              acordeones[i].parentElement.click(); // Abrir el acordeón
+              break;
+            }
+          }
           cerrarModalReportesRecibidos();
         };
         listaReportesRecibidos.appendChild(item);
