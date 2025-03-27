@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Escáner QR Fullscreen</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <title>Escáner QR Rápido</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
     
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background-color: #000;
       color: #fff;
       height: 100vh;
       overflow: hidden;
-      position: relative;
+      position: fixed;
+      width: 100%;
     }
     
     .scanner-container {
@@ -28,10 +29,6 @@
       left: 0;
       width: 100%;
       height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       z-index: 1;
     }
     
@@ -39,6 +36,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transform: scaleX(-1); /* Espejo para cámara frontal */
     }
     
     .scanner-overlay {
@@ -56,98 +54,97 @@
     
     .scan-box {
       width: 80%;
-      max-width: 400px;
+      max-width: 300px;
       height: 200px;
-      border: 2px solid rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       position: relative;
       overflow: hidden;
+      border-radius: 12px;
     }
     
     .scan-line {
       position: absolute;
       width: 100%;
-      height: 2px;
-      background: linear-gradient(to right, transparent, #4CAF50, transparent);
-      animation: scan 3s linear infinite;
-      box-shadow: 0 0 10px #4CAF50;
+      height: 4px;
+      background: linear-gradient(to right, transparent, #00ff88, transparent);
+      animation: scan 1.5s linear infinite;
+      filter: drop-shadow(0 0 6px #00ff88);
     }
     
     @keyframes scan {
-      0% { top: 0; }
-      50% { top: 100%; }
-      100% { top: 0; }
+      0%, 100% { top: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: calc(100% - 4px); opacity: 0; }
     }
     
     .corner {
       position: absolute;
-      width: 30px;
-      height: 30px;
-      border-color: #4CAF50;
+      width: 24px;
+      height: 24px;
+      border-color: #00ff88;
       border-style: solid;
       border-width: 0;
     }
     
     .corner-tl {
-      top: 0;
-      left: 0;
-      border-top-width: 3px;
-      border-left-width: 3px;
+      top: -1px;
+      left: -1px;
+      border-top-width: 4px;
+      border-left-width: 4px;
     }
     
     .corner-tr {
-      top: 0;
-      right: 0;
-      border-top-width: 3px;
-      border-right-width: 3px;
+      top: -1px;
+      right: -1px;
+      border-top-width: 4px;
+      border-right-width: 4px;
     }
     
     .corner-bl {
-      bottom: 0;
-      left: 0;
-      border-bottom-width: 3px;
-      border-left-width: 3px;
+      bottom: -1px;
+      left: -1px;
+      border-bottom-width: 4px;
+      border-left-width: 4px;
     }
     
     .corner-br {
-      bottom: 0;
-      right: 0;
-      border-bottom-width: 3px;
-      border-right-width: 3px;
+      bottom: -1px;
+      right: -1px;
+      border-bottom-width: 4px;
+      border-right-width: 4px;
     }
     
     .controls {
       position: absolute;
-      bottom: 30px;
+      bottom: 25px;
       left: 0;
       width: 100%;
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 30px;
       z-index: 10;
     }
     
     .control-btn {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      background-color: rgba(0, 0, 0, 0.5);
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
+      font-size: 30px;
       cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .control-btn:hover {
-      background-color: rgba(76, 175, 80, 0.7);
-      transform: scale(1.1);
+      transition: all 0.2s;
     }
     
     .control-btn:active {
-      transform: scale(0.95);
+      transform: scale(0.9);
+      background-color: rgba(0, 255, 136, 0.6);
     }
     
     .hidden {
@@ -161,7 +158,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: rgba(0, 0, 0, 0.95);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -169,7 +166,8 @@
       z-index: 100;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s;
+      transition: opacity 0.2s;
+      padding: 20px;
     }
     
     .result-modal.active {
@@ -178,79 +176,91 @@
     }
     
     .result-content {
-      background-color: #1a1a1a;
-      width: 90%;
-      max-width: 500px;
-      border-radius: 15px;
-      padding: 20px;
+      background-color: #121212;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 16px;
+      padding: 25px;
       text-align: center;
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+      border: 1px solid #333;
+      box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
     }
     
     .result-title {
-      color: #4CAF50;
-      margin-bottom: 15px;
-      font-size: 20px;
+      color: #00ff88;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
     }
     
     .result-text {
-      background-color: #2d2d2d;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      background-color: #1e1e1e;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 25px;
       word-break: break-all;
-      font-size: 16px;
+      font-size: 17px;
+      border: 1px solid #333;
     }
     
     .result-actions {
       display: flex;
-      justify-content: center;
-      gap: 15px;
+      flex-direction: column;
+      gap: 12px;
     }
     
     .action-btn {
-      padding: 12px 20px;
-      border-radius: 30px;
+      padding: 16px;
+      border-radius: 12px;
       border: none;
-      font-size: 16px;
+      font-size: 17px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    
+    .action-btn:active {
+      transform: scale(0.98);
     }
     
     .copy-btn {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #00ff88;
+      color: #000;
     }
     
     .open-btn {
-      background-color: #2196F3;
+      background-color: #0095ff;
       color: white;
     }
     
     .close-btn {
-      background-color: #f44336;
+      background-color: #333;
       color: white;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      border: 1px solid #444;
     }
     
     /* Mensaje de ayuda */
     .help-text {
       position: absolute;
-      top: 20px;
+      top: 30px;
       left: 0;
       width: 100%;
       text-align: center;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
       padding: 0 20px;
       z-index: 5;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    /* Optimizaciones de rendimiento */
+    .scan-line, .corner {
+      will-change: transform, opacity;
     }
   </style>
 </head>
@@ -259,7 +269,7 @@
     <video id="scanner-video" playsinline></video>
     
     <div class="scanner-overlay">
-      <div class="help-text">Apunta a un código QR para escanearlo</div>
+      <div class="help-text">Apunta a un código QR</div>
       <div class="scan-box">
         <div class="scan-line"></div>
         <div class="corner corner-tl"></div>
@@ -271,27 +281,27 @@
     
     <div class="controls">
       <div class="control-btn" id="switch-camera" title="Cambiar cámara">
-        <i class="fas fa-camera-retro"></i>
+        <i class="fas fa-sync-alt"></i>
       </div>
-      <div class="control-btn" id="stop-scanner" title="Detener escáner">
-        <i class="fas fa-stop"></i>
+      <div class="control-btn" id="stop-scanner" title="Cerrar escáner">
+        <i class="fas fa-times"></i>
       </div>
     </div>
   </div>
   
   <div class="result-modal" id="result-modal">
     <div class="result-content">
-      <h3 class="result-title">Resultado del Escaneo</h3>
+      <h3 class="result-title">QR Escaneado</h3>
       <div class="result-text" id="scanned-content"></div>
       <div class="result-actions">
         <button class="action-btn copy-btn" id="copy-result">
-          <i class="far fa-copy"></i> Copiar
+          <i class="fas fa-copy"></i> Copiar Texto
         </button>
         <button class="action-btn open-btn hidden" id="open-link">
-          <i class="fas fa-external-link-alt"></i> Abrir
+          <i class="fas fa-external-link-alt"></i> Abrir Enlace
         </button>
         <button class="action-btn close-btn" id="close-modal">
-          <i class="fas fa-times"></i> Cerrar
+          <i class="fas fa-arrow-left"></i> Volver a Escanear
         </button>
       </div>
     </div>
@@ -301,6 +311,7 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Elementos del DOM
       const videoElement = document.getElementById('scanner-video');
       const switchBtn = document.getElementById('switch-camera');
       const stopBtn = document.getElementById('stop-scanner');
@@ -310,13 +321,16 @@
       const openBtn = document.getElementById('open-link');
       const closeBtn = document.getElementById('close-modal');
       
+      // Variables de estado
       let stream = null;
       let scanning = false;
       let cameras = [];
       let currentCameraIndex = 0;
+      let lastScanTime = 0;
+      let scanInterval = null;
       
       // Iniciar automáticamente al cargar
-      startScanner();
+      initScanner();
       
       // Event listeners
       switchBtn.addEventListener('click', switchCamera);
@@ -325,43 +339,17 @@
       openBtn.addEventListener('click', openLink);
       closeBtn.addEventListener('click', closeModal);
       
-      async function startScanner() {
+      async function initScanner() {
         try {
           // Obtener dispositivos de cámara
           await loadCameras();
           
-          // Configurar constraints
-          const constraints = {
-            video: {
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-              facingMode: cameras.length > 1 ? 'environment' : 'user'
-            },
-            audio: false
-          };
-          
-          // Si tenemos múltiples cámaras, especificar deviceId
-          if (cameras.length > 0) {
-            constraints.video.deviceId = { exact: cameras[currentCameraIndex].deviceId };
-          }
-          
-          // Obtener stream de video
-          stream = await navigator.mediaDevices.getUserMedia(constraints)
-            .catch(err => {
-              console.warn("Error con cámara específica, intentando con facingMode...");
-              delete constraints.video.deviceId;
-              return navigator.mediaDevices.getUserMedia(constraints);
-            });
-          
-          videoElement.srcObject = stream;
-          await videoElement.play();
-          
-          scanning = true;
-          scanQRCode();
+          // Iniciar con la cámara trasera por defecto
+          startCamera();
           
         } catch (error) {
           console.error('Error al iniciar escáner:', error);
-          alert('No se pudo acceder a la cámara. Asegúrate de haber concedido los permisos necesarios.');
+          alert('No se pudo acceder a la cámara. Asegúrate de haber concedido los permisos.');
         }
       }
       
@@ -390,16 +378,119 @@
         }
       }
       
-      function stopScanner() {
+      async function startCamera() {
+        try {
+          // Detener cámara actual si existe
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+          
+          // Configurar constraints
+          const constraints = {
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              facingMode: cameras.length > 1 ? 
+                (currentCameraIndex === 0 ? 'environment' : 'user') : 
+                { ideal: ['environment', 'user'] }
+            },
+            audio: false
+          };
+          
+          // Si tenemos dispositivos específicos, usarlos
+          if (cameras.length > 0) {
+            constraints.video.deviceId = { exact: cameras[currentCameraIndex].deviceId };
+          }
+          
+          // Obtener stream de video
+          stream = await navigator.mediaDevices.getUserMedia(constraints)
+            .catch(err => {
+              console.warn("Error con cámara específica, intentando con facingMode...");
+              delete constraints.video.deviceId;
+              return navigator.mediaDevices.getUserMedia(constraints);
+            });
+          
+          videoElement.srcObject = stream;
+          await videoElement.play();
+          
+          // Iniciar escaneo
+          startScanning();
+          
+        } catch (error) {
+          console.error('Error al iniciar cámara:', error);
+          alert('Error al acceder a la cámara: ' + error.message);
+        }
+      }
+      
+      function startScanning() {
+        scanning = true;
+        lastScanTime = 0;
+        
+        // Usar requestAnimationFrame para mejor rendimiento
+        scanInterval = requestAnimationFrame(scanLoop);
+      }
+      
+      function stopScanning() {
         scanning = false;
+        if (scanInterval) {
+          cancelAnimationFrame(scanInterval);
+          scanInterval = null;
+        }
+      }
+      
+      function scanLoop() {
+        if (!scanning) return;
+        
+        // Escanear a ~15fps (66ms entre escaneos) para mejor rendimiento
+        const now = Date.now();
+        if (now - lastScanTime > 66) {
+          scanQRCode();
+          lastScanTime = now;
+        }
+        
+        scanInterval = requestAnimationFrame(scanLoop);
+      }
+      
+      function scanQRCode() {
+        const video = videoElement;
+        if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        
+        // Dibujar solo la región central para mejor rendimiento
+        const scanSize = Math.min(video.videoWidth, video.videoHeight) * 0.7;
+        const x = (video.videoWidth - scanSize) / 2;
+        const y = (video.videoHeight - scanSize) / 2;
+        
+        ctx.drawImage(video, x, y, scanSize, scanSize, 0, 0, scanSize, scanSize);
+        
+        const imageData = ctx.getImageData(0, 0, scanSize, scanSize);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: 'dontInvert',
+        });
+        
+        if (code) {
+          showResult(code.data);
+        }
+      }
+      
+      function stopScanner() {
+        stopScanning();
         
         if (stream) {
           stream.getTracks().forEach(track => track.stop());
           videoElement.srcObject = null;
         }
         
-        // Redirigir o cerrar
-        window.close(); // O puedes usar history.back() para volver
+        // Cerrar la ventana o volver atrás
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.close();
+        }
       }
       
       function switchCamera() {
@@ -408,42 +499,13 @@
           return;
         }
         
-        scanning = false;
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
-        
+        stopScanning();
         currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
-        startScanner();
-      }
-      
-      function scanQRCode() {
-        if (!scanning) return;
-        
-        const video = document.getElementById('scanner-video');
-        const canvas = document.createElement('canvas');
-        const canvasContext = canvas.getContext('2d');
-        
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          canvasContext.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
-          const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: 'dontInvert',
-          });
-          
-          if (code) {
-            showResult(code.data);
-          }
-        }
-        
-        requestAnimationFrame(scanQRCode);
+        startCamera();
       }
       
       function showResult(content) {
-        scanning = false;
+        stopScanning();
         scannedContent.textContent = content;
         
         // Mostrar botón "Abrir" si es una URL
@@ -456,18 +518,16 @@
       function closeModal() {
         resultModal.classList.remove('active');
         setTimeout(() => {
-          scanning = true;
-          scanQRCode();
-        }, 500);
+          startScanning();
+        }, 300);
       }
       
       function copyToClipboard() {
         navigator.clipboard.writeText(scannedContent.textContent)
           .then(() => {
-            const originalText = copyBtn.innerHTML;
             copyBtn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
             setTimeout(() => {
-              copyBtn.innerHTML = originalText;
+              copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copiar Texto';
             }, 2000);
           })
           .catch(err => {
@@ -477,18 +537,26 @@
       }
       
       function openLink() {
-        let url = scannedContent.textContent;
+        let url = scannedContent.textContent.trim();
         if (!url.match(/^https?:\/\//i)) {
           url = 'https://' + url;
         }
         window.open(url, '_blank');
+        closeModal();
       }
       
-      // Detener al cerrar la página
-      window.addEventListener('beforeunload', () => {
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
+      // Optimización: Detener al cambiar de pestaña
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          stopScanning();
+        } else if (stream && !resultModal.classList.contains('active')) {
+          startScanning();
         }
+      });
+      
+      // Limpieza al cerrar
+      window.addEventListener('beforeunload', () => {
+        stopScanner();
       });
     });
   </script>
