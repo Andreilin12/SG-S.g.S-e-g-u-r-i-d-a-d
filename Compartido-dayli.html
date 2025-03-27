@@ -337,15 +337,6 @@
     </div>
   </div>
 
-  <!-- Confirmación de eliminación -->
-  <div id="confirmModal" class="confirm-modal" style="display: none;">
-    <div class="confirm-content">
-      <h3>¿Estás seguro de eliminar este reporte?</h3>
-      <button class="btn-accion" onclick="confirmarEliminar()">Sí</button>
-      <button class="btn-accion" onclick="cerrarConfirmModal()">No</button>
-    </div>
-  </div>
-
   <!-- Alertas -->
   <div id="alert" class="alert" style="display: none;"></div>
 
@@ -354,7 +345,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     // Configuración de Firebase
@@ -375,7 +366,6 @@
 
     // Variables globales
     let reporteSeleccionado = null;
-    let reporteAEliminar = null;
     let currentUser = null;
     let reportesRecibidos = [];
 
@@ -398,32 +388,6 @@
       setTimeout(() => {
         alert.style.display = 'none';
       }, 3000);
-    }
-
-    // Función para mostrar confirmación de eliminación
-    function mostrarConfirmModal(reporteId) {
-      reporteAEliminar = reporteId;
-      document.getElementById('confirmModal').style.display = 'flex';
-    }
-
-    // Función para cerrar confirmación de eliminación
-    function cerrarConfirmModal() {
-      document.getElementById('confirmModal').style.display = 'none';
-    }
-
-    // Función para confirmar eliminación
-    async function confirmarEliminar() {
-      if (reporteAEliminar) {
-        try {
-          await deleteDoc(doc(db, "Reportes", reporteAEliminar));
-          mostrarAlerta("Reporte eliminado exitosamente.");
-          cargarReportes();
-        } catch (error) {
-          console.error(error);
-          mostrarAlerta("Error al eliminar el reporte.");
-        }
-        cerrarConfirmModal();
-      }
     }
 
     // Función para formatear la fecha y hora (para fechas individuales)
@@ -535,8 +499,7 @@
               <p>Fecha y hora de recepción: ${formatearFecha(reporte.compartidoEl)}</p>
             </div>` : ''}
             <button class="btn-accion" onclick="imprimirAcordeon(this)"><i class="fas fa-print"></i></button>
-            ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')"><i class="fas fa-share"></i></button>
-            <button class="btn-accion" onclick="mostrarConfirmModal('${doc.id}')"><i class="fas fa-trash"></i></button>` : ''}
+            ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')"><i class="fas fa-share"></i></button>` : ''}
           `;
 
           // Agregar evento para abrir/cerrar el acordeón
