@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador Avanzado de Códigos QR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00f7ff;
+      --secondary: #7b2dff;
+      --dark: #0a0a1a;
+      --light: #e0e0ff;
+      --accent: #ff2d7b;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #2c3e50;
+      color: var(--light);
+      min-height: 100vh;
+      padding: 2rem;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(123, 45, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 247, 255, 0.1) 0%, transparent 50%);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: #fff;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 247, 255, 0.1) 0%, transparent 70%);
+      filter: blur(30px);
+      z-index: -1;
+    }
+    
+    .glow-1 {
+      top: -100px;
+      left: -100px;
+    }
+    
+    .glow-2 {
+      bottom: -100px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(123, 45, 255, 0.1) 0%, transparent 70%);
+    }
+    
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .form-section, .output-section {
+      background: #2c3e50;
+      border-radius: 15px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 247, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-section {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-title, .output-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-title svg, .output-title svg {
+      margin-right: 10px;
+    }
+    
+    #qrForm {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    input, select {
+      background: rgba(20, 20, 40, 0.8);
+      border: 1px solid 15a086;
+      border-radius: 8px;
+      padding: 12px 15px;
+      color: var(--light);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      
+    }
+    
+    input::placeholder {
+      color: #ccc;
+    }
+    
+    .options-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    button {
+      background: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      background: #2c3e50;
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button.secondary {
+      background: transparent;
+      color: #15a086;
+      border: 1px solid var(--primary);
+    }
+    
+    button.secondary:hover {
+      background: #2c3e50;
+    }
+    
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    
+    #qrCode {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid rgba(0, 247, 255, 0.3);
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 247, 255, 0.2);
+      transition: transform 0.3s ease;
+    }
+    
+    #qrCode:hover {
+      transform: scale(1.03);
+    }
+    
+    .qr-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .history-section {
+      margin-top: 2rem;
+    }
+    
+    .history-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--light);
+      display: flex;
+      align-items: center;
+    }
+    
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .history-item {
+      background: #rgba(20, 20, 40, 0.6);
+      border-radius: 6px;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid #15a086;
+      transition: all 0.2s ease;
+    }
+    
+    .history-item:hover {
+      background: #15a086;
+    }
+    
+    .history-text {
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    
+    .history-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .history-actions button {
+      padding: 5px 8px;
+      font-size: 0.7rem;
+      background: transparent;
+      color: var(--light);
+      border: 1px solid #15a086;
+    }
+    
+    .history-actions button:hover {
+      background: #2c3e50;
+    }
+    
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: 15a086;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #15a086;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #15a086;
+    }
+    
+    /* Animaciones */
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    /* Iconos SVG */
+    .icon {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    
+    /* Mensajes de error/éxito */
+    .message {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+    
+    .error {
+      background: #15a086;
+      border: 1px solid var(--accent);
+      color: #ff0000;
+    }
+    
+    .success {
+      background: #15a086;
+      border: 1px solid var(--primary);
+      color: #fff;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    
+    <header>
+      <h1 class="neon-text">GENERADOR QR | RETOM</h1>
+      <p class="subtitle">Crea códigos QR personalizados para URLs, texto, contactos y más
+</p>
+    </header>
+    
+    <div class="app-container">
+      <section class="form-section">
+        <h2 class="form-title">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M3,11H5V13H3V11M11,5H13V9H11V5M9,11H13V15H11V13H9V11M15,11H17V13H19V11H21V13H19V15H21V19H19V21H17V19H13V21H11V17H15V15H17V13H15V11M19,19V15H17V19H19M15,3H21V9H15V3M17,5V7H19V5H17M3,3H9V9H3V3M5,5V7H7V5H5M3,15H5V21H3V15Z" />
+          </svg>
+          Configuración del QR
+        </h2>
+        
+        <form id="qrForm">
+          <div id="messageContainer"></div>
+          
+          <div class="input-group">
+            <label for="inputText">Contenido del QR (URL, texto, etc.)</label>
+            <input type="text" id="inputText" placeholder="https://ejemplo.com o tu texto aquí" required>
+          </div>
+          
+          <div class="options-row">
+            <div class="input-group">
+              <label for="qrSize">Tamaño (px)</label>
+              <select id="qrSize">
+                <option value="200x200">200x200</option>
+                <option value="300x300" selected>300x300</option>
+                <option value="400x400">400x400</option>
+                <option value="500x500">500x500</option>
+              </select>
+            </div>
+            
+            <div class="input-group">
+              <label for="qrColor">Color</label>
+              <select id="qrColor">
+                <option value="000000" selected>Negro</option>
+                <option value="7b2dff">Morado</option>
+                <option value="00f7ff">Cian</option>
+                <option value="ff2d7b">Rosa</option>
+                <option value="ffffff">Blanco</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="options-row">
+            <div class="input-group">
+              <label for="qrBgColor">Color de fondo</label>
+              <select id="qrBgColor">
+                <option value="ffffff" selected>Blanco</option>
+                <option value="transparent">Transparente</option>
+                <option value="0a0a1a">Azul oscuro</option>
+                <option value="f0f0ff">Blanco azulado</option>
+              </select>
+            </div>
+            
+            <div class="input-group">
+              <label for="qrMargin">Margen</label>
+              <select id="qrMargin">
+                <option value="0">0px</option>
+                <option value="10">10px</option>
+                <option value="20" selected>20px</option>
+                <option value="30">30px</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <label for="qrFormat">Formato de descarga</label>
+            <select id="qrFormat">
+              <option value="png">PNG</option>
+              <option value="svg">SVG</option>
+              <option value="eps">EPS</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
+          
+          <button type="submit" id="generateBtn">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M14,12L10,8V11H2V13H10V16M20,18V6C20,4.89 19.1,4 18,4H6A2,2 0 0,0 4,6V9H6V6H18V18H6V15H4V18A2,2 0 0,0 6,20H18A2,2 0 0,0 20,18Z" />
+            </svg>
+            Generar Código QR
+          </button>
+        </form>
+      </section>
+      
+      <section class="output-section">
+        <h2 class="output-title">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.5,17.63H18.58L18.57,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" />
+          </svg>
+          Vista Previa
+        </h2>
+        
+        <div class="qr-container">
+          <img id="qrCode" src="" alt="Código QR aparecerá aquí" style="display: none;"/>
+          
+          <div class="qr-actions" id="qrActions" style="display: none;">
+            <button id="downloadBtn" class="secondary">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+              </svg>
+              Descargar QR
+            </button>
+            <button id="copyBtn" class="secondary">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+              </svg>
+              Copiar Imagen
+            </button>
+          </div>
+          
+          <div class="history-section">
+            <h3 class="history-title">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" />
+              </svg>
+              Historial de Códigos
+            </h3>
+            
+            <div class="history-list" id="historyList">
+              <!-- Los elementos del historial se agregarán aquí dinámicamente -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const qrForm = document.getElementById('qrForm');
+      const inputText = document.getElementById('inputText');
+      const qrCodeImage = document.getElementById('qrCode');
+      const qrActions = document.getElementById('qrActions');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const historyList = document.getElementById('historyList');
+      const messageContainer = document.getElementById('messageContainer');
+      
+      // Cargar historial desde localStorage
+      let qrHistory = JSON.parse(localStorage.getItem('qrHistory')) || [];
+      renderHistory();
+      
+      qrForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Validar si es una URL
+        let content = inputText.value.trim();
+        if (!content) {
+          showMessage('Por favor ingresa un texto o URL', 'error');
+          return;
+        }
+        
+        // Verificar si es una URL válida y agregar http:// si no lo tiene
+        if (isValidUrl(content) && !content.match(/^https?:\/\//i)) {
+          content = 'https://' + content;
+          inputText.value = content;
+        }
+        
+        generateQRCode(content);
+      });
+      
+      downloadBtn.addEventListener('click', downloadQR);
+      copyBtn.addEventListener('click', copyQRToClipboard);
+      
+      function generateQRCode(content) {
+        const size = document.getElementById('qrSize').value;
+        const color = document.getElementById('qrColor').value;
+        const bgColor = document.getElementById('qrBgColor').value === 'transparent' ? 'transparent' : document.getElementById('qrBgColor').value;
+        const margin = document.getElementById('qrMargin').value;
+        
+        // Usamos la API para generar el código QR con los parámetros
+        const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(content)}&size=${size}&color=${color}&bgcolor=${bgColor}&margin=${margin}&format=png`;
+        
+        // Actualizamos la imagen del código QR
+        qrCodeImage.src = apiUrl;
+        qrCodeImage.style.display = 'block';
+        qrActions.style.display = 'flex';
+        
+        // Guardar en el historial
+        addToHistory(content, apiUrl);
+        
+        showMessage('Código QR generado con éxito!', 'success');
+      }
+      
+      function downloadQR() {
+        const format = document.getElementById('qrFormat').value;
+        const content = inputText.value.trim();
+        const size = document.getElementById('qrSize').value;
+        const color = document.getElementById('qrColor').value;
+        const bgColor = document.getElementById('qrBgColor').value === 'transparent' ? 'transparent' : document.getElementById('qrBgColor').value;
+        const margin = document.getElementById('qrMargin').value;
+        
+        const downloadUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(content)}&size=${size}&color=${color}&bgcolor=${bgColor}&margin=${margin}&format=${format}&download=1`;
+        
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `codigo-qr.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        showMessage(`QR descargado como ${format.toUpperCase()}`, 'success');
+      }
+      
+      function copyQRToClipboard() {
+        // Crear un canvas temporal para copiar la imagen
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.crossOrigin = 'Anonymous';
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob(function(blob) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]).then(function() {
+              showMessage('Imagen copiada al portapapeles!', 'success');
+            }).catch(function(error) {
+              showMessage('Error al copiar: ' + error, 'error');
+            });
+          }, 'image/png');
+        };
+        
+        img.src = qrCodeImage.src + '?' + new Date().getTime(); // Evitar caché
+      }
+      
+      function addToHistory(content, qrUrl) {
+        // Limitar el historial a 10 elementos
+        if (qrHistory.length >= 10) {
+          qrHistory.pop();
+        }
+        
+        // Verificar si ya existe en el historial
+        const existingIndex = qrHistory.findIndex(item => item.content === content);
+        if (existingIndex !== -1) {
+          qrHistory.splice(existingIndex, 1);
+        }
+        
+        qrHistory.unshift({
+          content: content,
+          qrUrl: qrUrl,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+        renderHistory();
+      }
+      
+      function renderHistory() {
+        historyList.innerHTML = '';
+        
+        if (qrHistory.length === 0) {
+          historyList.innerHTML = '<div class="history-item"><span class="history-text">No hay códigos recientes</span></div>';
+          return;
+        }
+        
+        qrHistory.forEach((item, index) => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          
+          historyItem.innerHTML = `
+            <span class="history-text" title="${item.content}">${truncateText(item.content, 30)}</span>
+            <div class="history-actions">
+              <button class="history-load" data-index="${index}">
+                <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                  <path d="M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6Z" />
+                </svg>
+              </button>
+              <button class="history-delete" data-index="${index}">
+                <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                  <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+                </svg>
+              </button>
+            </div>
+          `;
+          
+          historyList.appendChild(historyItem);
+        });
+        
+        // Agregar eventos a los botones del historial
+        document.querySelectorAll('.history-load').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            loadFromHistory(index);
+          });
+        });
+        
+        document.querySelectorAll('.history-delete').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            deleteFromHistory(index);
+          });
+        });
+      }
+      
+      function loadFromHistory(index) {
+        const item = qrHistory[index];
+        inputText.value = item.content;
+        qrCodeImage.src = item.qrUrl;
+        qrCodeImage.style.display = 'block';
+        qrActions.style.display = 'flex';
+        
+        showMessage('Código QR cargado del historial', 'success');
+      }
+      
+      function deleteFromHistory(index) {
+        qrHistory.splice(index, 1);
+        localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+        renderHistory();
+        
+        showMessage('Elemento eliminado del historial', 'success');
+      }
+      
+      function truncateText(text, maxLength) {
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+      }
+      
+      function isValidUrl(string) {
+        try {
+          new URL(string);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+      
+      function showMessage(text, type) {
+        messageContainer.innerHTML = '';
+        
+        const message = document.createElement('div');
+        message.className = `message ${type}`;
+        
+        const iconPath = type === 'error' ? 
+          'M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z' : 
+          'M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z';
+        
+        message.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" width="20" height="20">
+            <path d="${iconPath}" />
+          </svg>
+          ${text}
+        `;
+        
+        messageContainer.appendChild(message);
+        
+        // Eliminar el mensaje después de 5 segundos
+        setTimeout(() => {
+          message.style.opacity = '0';
+          setTimeout(() => message.remove(), 300);
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>
