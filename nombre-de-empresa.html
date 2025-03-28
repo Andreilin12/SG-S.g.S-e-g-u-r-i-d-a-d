@@ -144,7 +144,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     const firebaseConfig = {
@@ -160,6 +160,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
+    const empresaCollection = collection(db, "DatosDeEmpresa");
 
     // Vista previa de la imagen seleccionada
     document.getElementById('fotoPerfil').addEventListener('change', function(event) {
@@ -175,6 +176,33 @@
       }
     });
 
+    // Cargar datos existentes al iniciar
+    async function cargarDatosExistente() {
+      try {
+        const querySnapshot = await getDocs(empresaCollection);
+        if (!querySnapshot.empty) {
+          // Tomamos el primer documento (debería ser el único)
+          const docSnapshot = querySnapshot.docs[0];
+          const data = docSnapshot.data();
+          
+          document.getElementById('nombreEmpresa').value = data.nombreEmpresa || '';
+          document.getElementById('rnc').value = data.rnc || '';
+          document.getElementById('direccion').value = data.direccion || '';
+          
+          if (data.fotoURL) {
+            const preview = document.getElementById('preview');
+            preview.src = data.fotoURL;
+            preview.style.display = 'block';
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar datos existentes:', error);
+      }
+    }
+
+    // Llamar a la función al cargar la página
+    window.addEventListener('DOMContentLoaded', cargarDatosExistente);
+
     // Guardar datos en Firebase
     document.getElementById('empresaForm').addEventListener('submit', async function(event) {
       event.preventDefault();
@@ -184,32 +212,50 @@
       const direccion = document.getElementById('direccion').value;
       const fotoPerfil = document.getElementById('fotoPerfil').files[0];
 
-      if (!nombreEmpresa || !direccion || !fotoPerfil) {
+      if (!nombreEmpresa || !direccion) {
         mostrarAlerta('Por favor, complete todos los campos obligatorios.', 'error');
         return;
       }
 
       try {
-        // Subir la imagen a Firebase Storage
-        const storageRef = ref(storage, `empresas/${fotoPerfil.name}`);
-        await uploadBytes(storageRef, fotoPerfil);
-        const fotoURL = await getDownloadURL(storageRef);
+        let fotoURL = '';
+        
+        // Si hay una nueva imagen, subirla
+        if (fotoPerfil) {
+          const storageRef = ref(storage, `empresas/${fotoPerfil.name}`);
+          await uploadBytes(storageRef, fotoPerfil);
+          fotoURL = await getDownloadURL(storageRef);
+        } else {
+          // Si no hay nueva imagen, mantener la existente
+          const querySnapshot = await getDocs(empresaCollection);
+          if (!querySnapshot.empty) {
+            const docSnapshot = querySnapshot.docs[0];
+            const data = docSnapshot.data();
+            fotoURL = data.fotoURL || '';
+          }
+        }
 
-        // Guardar los datos en Firestore
-        await addDoc(collection(db, "DatosDeEmpresa"), {
+        // Obtener el ID del documento existente o crear uno nuevo
+        let docId = 'empresaData';
+        const querySnapshot = await getDocs(empresaCollection);
+        if (!querySnapshot.empty) {
+          docId = querySnapshot.docs[0].id;
+        }
+
+        // Usar setDoc con merge: false para reemplazar completamente el documento
+        await setDoc(doc(db, "DatosDeEmpresa", docId), {
           nombreEmpresa,
           rnc,
           direccion,
           fotoURL,
-          fechaRegistro: new Date().toISOString()
-        });
+          fechaActualizacion: new Date().toISOString()
+        }, { merge: false });
 
-        mostrarAlerta('Datos guardados correctamente.', 'success');
-        document.getElementById('empresaForm').reset();
-        document.getElementById('preview').style.display = 'none';
+        mostrarAlerta('Datos actualizados correctamente.', 'success');
+        document.getElementById('preview').style.display = 'block';
       } catch (error) {
         console.error('Error al guardar los datos:', error);
-        mostrarAlerta('Error al guardar los datos.', 'error');
+        mostrarAlerta('Error al actualizar los datos.', 'error');
       }
     });
 
