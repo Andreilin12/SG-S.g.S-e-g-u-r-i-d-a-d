@@ -166,6 +166,12 @@
       margin-right: 5px;
     }
 
+    .user-list .last-activity {
+      font-size: 10px;
+      color: rgba(224, 224, 255, 0.6);
+      margin-top: 3px;
+    }
+
     /* Ventana de chat */
     .chat-window {
       flex: 1;
@@ -194,6 +200,7 @@
       border: 2px solid var(--primary);
       box-shadow: 0 0 15px var(--primary);
       transition: all 0.3s ease;
+      cursor: pointer;
     }
 
     .chat-header img:hover {
@@ -204,6 +211,7 @@
       font-size: 20px;
       font-weight: bold;
       color: var(--primary);
+      cursor: pointer;
     }
 
     .chat-header .online-status {
@@ -721,6 +729,283 @@
       background-color: var(--success);
       transform: translateY(-3px);
     }
+
+    /* Modal para compartir imagen */
+    .share-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .share-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .share-modal-container {
+      background-color: rgba(20, 20, 50, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 30px rgba(0, 247, 255, 0.3);
+    }
+
+    .share-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 247, 255, 0.2);
+    }
+
+    .share-modal-title {
+      font-size: 1.5em;
+      color: var(--primary);
+    }
+
+    .share-modal-close {
+      background: none;
+      border: none;
+      color: var(--light);
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    .share-modal-search {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .share-modal-search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .share-modal-search-input {
+      width: 100%;
+      padding: 10px 10px 10px 40px;
+      background-color: rgba(30, 30, 60, 0.7);
+      border: 1px solid rgba(0, 247, 255, 0.2);
+      border-radius: 25px;
+      color: var(--light);
+      outline: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: none;
+    }
+
+    .share-modal-search-input.active {
+      display: block;
+    }
+
+    .share-modal-users {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .share-modal-user {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+      background-color: rgba(30, 30, 60, 0.5);
+      border: 1px solid rgba(0, 247, 255, 0.1);
+    }
+
+    .share-modal-user:hover {
+      background-color: rgba(0, 247, 255, 0.2);
+    }
+
+    .share-modal-user.selected {
+      background-color: rgba(0, 247, 255, 0.3);
+      border-left: 4px solid var(--primary);
+    }
+
+    .share-modal-user img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 15px;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+    }
+
+    .share-modal-user-info {
+      flex: 1;
+    }
+
+    .share-modal-user-name {
+      font-weight: bold;
+    }
+
+    .share-modal-user-status {
+      font-size: 12px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+    }
+
+    .share-modal-user-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success);
+      margin-right: 5px;
+    }
+
+    .share-modal-checkbox {
+      margin-left: 15px;
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .share-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+
+    .share-modal-btn {
+      padding: 12px 25px;
+      border-radius: 25px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+    }
+
+    .share-modal-btn.send {
+      background-color: var(--success);
+      color: var(--dark);
+    }
+
+    .share-modal-btn.cancel {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .share-modal-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Modal de información de usuario */
+    .user-info-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .user-info-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .user-info-container {
+      background-color: rgba(20, 20, 50, 0.9);
+      border-radius: 15px;
+      padding: 25px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 30px rgba(0, 247, 255, 0.3);
+    }
+
+    .user-info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0, 247, 255, 0.2);
+    }
+
+    .user-info-title {
+      font-size: 1.5em;
+      color: var(--primary);
+    }
+
+    .user-info-close {
+      background: none;
+      border: none;
+      color: var(--light);
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    .user-info-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .user-info-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 20px var(--primary);
+    }
+
+    .user-info-field {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0, 247, 255, 0.1);
+    }
+
+    .user-info-label {
+      font-weight: bold;
+      color: var(--primary);
+      min-width: 120px;
+    }
+
+    .user-info-value {
+      flex: 1;
+      text-align: right;
+      word-break: break-word;
+    }
   </style>
 </head>
 <body>
@@ -782,6 +1067,74 @@
     </div>
   </div>
 
+  <!-- Modal para compartir imagen -->
+  <div class="share-modal" id="shareModal">
+    <div class="share-modal-container">
+      <div class="share-modal-header">
+        <div class="share-modal-title">Compartir imagen</div>
+        <button class="share-modal-close" id="closeShareModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="share-modal-search">
+        <i class="fas fa-search share-modal-search-icon" id="searchIcon"></i>
+        <input type="text" class="share-modal-search-input" id="shareSearchInput" placeholder="Buscar usuario...">
+      </div>
+      <div class="share-modal-users" id="shareUserList"></div>
+      <div class="share-modal-actions">
+        <button class="share-modal-btn cancel" id="cancelShareButton">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="share-modal-btn send" id="confirmShareButton">
+          <i class="fas fa-paper-plane"></i> Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de información de usuario -->
+  <div class="user-info-modal" id="userInfoModal">
+    <div class="user-info-container">
+      <div class="user-info-header">
+        <div class="user-info-title">Información del Usuario</div>
+        <button class="user-info-close" id="closeUserInfoModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="user-info-content">
+        <img class="user-info-avatar" id="userInfoAvatar" src="" alt="Avatar">
+        <div class="user-info-field">
+          <span class="user-info-label">Nombre:</span>
+          <span class="user-info-value" id="userInfoName"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Departamento:</span>
+          <span class="user-info-value" id="userInfoDepartment"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Área de trabajo:</span>
+          <span class="user-info-value" id="userInfoWorkArea"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Posición:</span>
+          <span class="user-info-value" id="userInfoPosition"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Fecha de nacimiento:</span>
+          <span class="user-info-value" id="userInfoBirthDate"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Correo:</span>
+          <span class="user-info-value" id="userInfoEmail"></span>
+        </div>
+        <div class="user-info-field">
+          <span class="user-info-label">Código de trabajo:</span>
+          <span class="user-info-value" id="userInfoWorkCode"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de cámara -->
   <div class="camera-modal" id="cameraModal">
     <div class="camera-container">
@@ -837,7 +1190,10 @@
       orderBy, 
       doc, 
       updateDoc,
-      serverTimestamp 
+      deleteDoc,
+      serverTimestamp,
+      where,
+      limit
     } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
     import { 
       getAuth, 
@@ -847,7 +1203,8 @@
       getStorage, 
       ref, 
       uploadBytes, 
-      getDownloadURL 
+      getDownloadURL,
+      deleteObject
     } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
 
     // Configuración de Firebase
@@ -874,6 +1231,9 @@
     let currentCameraFacing = 'environment'; // 'environment' (trasera) o 'user' (frontal)
     let selectedFile = null;
     let capturedPhoto = null;
+    let selectedUsersToShare = [];
+    let imageToShare = null;
+    let userActivity = {}; // Para rastrear la última actividad de cada usuario
 
     // Inicializar la aplicación cuando el usuario esté autenticado
     onAuthStateChanged(auth, (user) => {
@@ -895,71 +1255,165 @@
       }
     });
 
-    // Cargar lista de usuarios
+    // Cargar lista de usuarios con información adicional
     const loadUsers = async () => {
       const usersSnapshot = await getDocs(collection(db, "users"));
       const userList = document.getElementById("userList");
       userList.innerHTML = "";
 
+      // Crear un array temporal para ordenar usuarios por actividad
+      let usersArray = [];
+
       usersSnapshot.forEach((doc) => {
         const user = doc.data();
         const userId = doc.id;
         users[userId] = user;
+        userActivity[userId] = { lastActivity: 0 }; // Inicializar actividad
 
         if (userId !== activeUser) {
-          const li = document.createElement("li");
-          li.dataset.userId = userId;
-          
-          const img = document.createElement("img");
-          img.src = user.photoURL || "https://via.placeholder.com/40";
-          img.alt = user.name;
-          
-          const userInfo = document.createElement("div");
-          userInfo.className = "user-info";
-          
-          const userName = document.createElement("div");
-          userName.className = "user-name";
-          userName.textContent = user.name;
-          
-          const userStatus = document.createElement("div");
-          userStatus.className = "user-status";
-          
-          const statusDot = document.createElement("div");
-          statusDot.className = "status-dot";
-          
-          const statusText = document.createElement("span");
-          statusText.textContent = "En línea";
-          
-          userStatus.appendChild(statusDot);
-          userStatus.appendChild(statusText);
-          
-          const typingIndicator = document.createElement("div");
-          typingIndicator.className = "typing-indicator";
-          typingIndicator.style.display = "none";
-          typingIndicator.textContent = "escribiendo...";
-          
-          userInfo.appendChild(userName);
-          userInfo.appendChild(userStatus);
-          userInfo.appendChild(typingIndicator);
-          
-          li.appendChild(img);
-          li.appendChild(userInfo);
-          
-          // Indicador de mensajes no leídos
-          const unreadIndicator = document.createElement("div");
-          unreadIndicator.className = "unread";
-          unreadIndicator.style.display = "none";
-          li.appendChild(unreadIndicator);
-          
-          li.addEventListener("click", () => openChat(userId));
-          userList.appendChild(li);
-          
-          // Escuchar cambios de estado de escritura
-          listenForTyping(userId, typingIndicator);
-          // Verificar mensajes no leídos
-          checkUnreadMessages(userId, unreadIndicator);
+          usersArray.push({ userId, ...user });
         }
       });
+
+      // Cargar la última actividad de cada usuario
+      await loadUserActivities(usersArray);
+    };
+
+    // Cargar la última actividad de cada usuario
+    const loadUserActivities = async (usersArray) => {
+      const userList = document.getElementById("userList");
+      
+      // Para cada usuario, obtener su último mensaje o actividad
+      for (const userData of usersArray) {
+        const userId = userData.userId;
+        const chatId = getChatId(activeUser, userId);
+        
+        // Consultar el último mensaje en el chat
+        const messagesRef = collection(db, `chats/${chatId}/messages`);
+        const q = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
+        
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          const message = doc.data();
+          userActivity[userId] = {
+            lastActivity: message.timestamp?.toMillis() || 0,
+            lastMessage: message.text || "Imagen enviada"
+          };
+        });
+      }
+
+      // Ordenar usuarios por última actividad (más reciente primero)
+      usersArray.sort((a, b) => {
+        return (userActivity[b.userId]?.lastActivity || 0) - (userActivity[a.userId]?.lastActivity || 0);
+      });
+
+      // Mostrar usuarios ordenados
+      displaySortedUsers(usersArray);
+    };
+
+    // Mostrar usuarios ordenados por actividad
+    const displaySortedUsers = (usersArray) => {
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+
+      usersArray.forEach(userData => {
+        const userId = userData.userId;
+        const user = users[userId];
+        
+        const li = document.createElement("li");
+        li.dataset.userId = userId;
+        
+        const img = document.createElement("img");
+        img.src = user.photoURL || "https://via.placeholder.com/40";
+        img.alt = user.name;
+        
+        const userInfo = document.createElement("div");
+        userInfo.className = "user-info";
+        
+        const userName = document.createElement("div");
+        userName.className = "user-name";
+        userName.textContent = user.name;
+        
+        const userStatus = document.createElement("div");
+        userStatus.className = "user-status";
+        
+        const statusDot = document.createElement("div");
+        statusDot.className = "status-dot";
+        
+        const statusText = document.createElement("span");
+        statusText.textContent = "En línea";
+        
+        userStatus.appendChild(statusDot);
+        userStatus.appendChild(statusText);
+        
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "typing-indicator";
+        typingIndicator.style.display = "none";
+        typingIndicator.textContent = "escribiendo...";
+        
+        // Mostrar última actividad
+        const lastActivity = document.createElement("div");
+        lastActivity.className = "last-activity";
+        if (userActivity[userId]?.lastActivity) {
+          const lastDate = new Date(userActivity[userId].lastActivity);
+          lastActivity.textContent = `Última actividad: ${lastDate.toLocaleString()}`;
+        } else {
+          lastActivity.textContent = "Sin actividad reciente";
+        }
+        
+        userInfo.appendChild(userName);
+        userInfo.appendChild(userStatus);
+        userInfo.appendChild(typingIndicator);
+        userInfo.appendChild(lastActivity);
+        
+        li.appendChild(img);
+        li.appendChild(userInfo);
+        
+        // Indicador de mensajes no leídos
+        const unreadIndicator = document.createElement("div");
+        unreadIndicator.className = "unread";
+        unreadIndicator.style.display = "none";
+        li.appendChild(unreadIndicator);
+        
+        // Abrir chat al hacer clic
+        li.addEventListener("click", () => openChat(userId));
+        
+        // Mostrar info de usuario al hacer clic en el nombre
+        userName.addEventListener("click", (e) => {
+          e.stopPropagation();
+          showUserInfo(userId);
+        });
+        
+        // Mostrar info de usuario al hacer clic en la imagen
+        img.addEventListener("click", (e) => {
+          e.stopPropagation();
+          showUserInfo(userId);
+        });
+        
+        userList.appendChild(li);
+        
+        // Escuchar cambios de estado de escritura
+        listenForTyping(userId, typingIndicator);
+        // Verificar mensajes no leídos
+        checkUnreadMessages(userId, unreadIndicator);
+      });
+    };
+
+    // Mostrar información detallada del usuario
+    const showUserInfo = (userId) => {
+      const user = users[userId];
+      if (!user) return;
+      
+      document.getElementById("userInfoAvatar").src = user.photoURL || "https://via.placeholder.com/100";
+      document.getElementById("userInfoName").textContent = user.name || "No disponible";
+      document.getElementById("userInfoDepartment").textContent = user.department || "No disponible";
+      document.getElementById("userInfoWorkArea").textContent = user.workArea || "No disponible";
+      document.getElementById("userInfoPosition").textContent = user.position || "No disponible";
+      document.getElementById("userInfoBirthDate").textContent = user.birthDate || "No disponible";
+      document.getElementById("userInfoEmail").textContent = user.email || "No disponible";
+      document.getElementById("userInfoWorkCode").textContent = user.workCode || "No disponible";
+      
+      document.getElementById("userInfoModal").classList.add("active");
     };
 
     // Abrir chat con un usuario
@@ -970,6 +1424,10 @@
       const user = users[userId];
       document.getElementById("chatUserName").textContent = user.name;
       document.getElementById("chatUserImage").src = user.photoURL || "https://via.placeholder.com/40";
+      
+      // Configurar clic en el nombre y avatar del chat para mostrar info
+      document.getElementById("chatUserName").addEventListener("click", () => showUserInfo(userId));
+      document.getElementById("chatUserImage").addEventListener("click", () => showUserInfo(userId));
       
       // Marcar mensajes como leídos
       await markMessagesAsRead();
@@ -1119,7 +1577,7 @@
       
       contentDiv.appendChild(timeDiv);
       
-      // Acciones del mensaje (copiar, compartir)
+      // Acciones del mensaje (copiar, compartir, eliminar)
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "message-actions";
       
@@ -1149,7 +1607,7 @@
         shareButton.className = "message-action";
         shareButton.title = "Compartir imagen";
         shareButton.innerHTML = '<i class="fas fa-share-alt"></i>';
-        shareButton.addEventListener("click", () => shareImage(message.imageUrl));
+        shareButton.addEventListener("click", () => openShareModal(message.imageUrl));
         actionsDiv.appendChild(shareButton);
         
         const downloadButton = document.createElement("button");
@@ -1158,6 +1616,16 @@
         downloadButton.innerHTML = '<i class="fas fa-download"></i>';
         downloadButton.addEventListener("click", () => downloadImage(message.imageUrl));
         actionsDiv.appendChild(downloadButton);
+      }
+      
+      // Botón para eliminar mensaje (solo para mensajes enviados por el usuario)
+      if (isSent) {
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "message-action";
+        deleteButton.title = "Eliminar mensaje";
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteButton.addEventListener("click", () => deleteMessage(messageId, message.imageUrl));
+        actionsDiv.appendChild(deleteButton);
       }
       
       messageDiv.appendChild(contentDiv);
@@ -1171,36 +1639,196 @@
       }
     };
 
-    // Función para compartir imagen
-    const shareImage = async (imageUrl) => {
+    // Función para eliminar mensaje
+    const deleteMessage = async (messageId, imageUrl) => {
       try {
-        // Convertir la imagen a blob
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
+        // Mostrar confirmación
+        const result = await Swal.fire({
+          title: '¿Eliminar mensaje?',
+          text: 'Esta acción no se puede deshacer',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+          background: '#1a1a2e',
+          color: '#fff'
+        });
         
-        // Compartir usando la Web Share API
-        if (navigator.share) {
-          await navigator.share({
-            title: 'Imagen del chat',
-            files: [new File([blob], 'imagen-chat.jpg', { type: 'image/jpeg' })]
-          });
-        } else {
-          // Fallback para navegadores que no soportan compartir archivos
-          const a = document.createElement('a');
-          a.href = imageUrl;
-          a.download = 'imagen-chat.jpg';
-          a.click();
+        if (result.isConfirmed) {
+          // Eliminar imagen del storage si existe
+          if (imageUrl) {
+            const imageRef = ref(storage, imageUrl);
+            await deleteObject(imageRef).catch(e => console.log("No se pudo eliminar la imagen:", e));
+          }
+          
+          // Eliminar mensaje de Firestore
+          await deleteDoc(doc(db, `chats/${activeChatId}/messages/${messageId}`));
           
           Swal.fire({
-            title: 'Descargar imagen',
-            text: 'La imagen se está descargando ya que tu navegador no soporta compartir directamente',
-            icon: 'info',
+            title: 'Eliminado',
+            text: 'El mensaje ha sido eliminado',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
             background: '#1a1a2e',
             color: '#fff'
           });
         }
       } catch (error) {
-        console.error('Error al compartir imagen:', error);
+        console.error('Error al eliminar mensaje:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo eliminar el mensaje',
+          icon: 'error',
+          background: '#1a1a2e',
+          color: '#fff'
+        });
+      }
+    };
+
+    // Función para compartir imagen
+    const openShareModal = (imageUrl) => {
+      imageToShare = imageUrl;
+      selectedUsersToShare = [];
+      
+      // Mostrar modal de compartir
+      document.getElementById("shareModal").classList.add("active");
+      
+      // Cargar lista de usuarios para compartir
+      loadShareUsers();
+    };
+
+    // Cargar usuarios para compartir imagen
+    const loadShareUsers = () => {
+      const shareUserList = document.getElementById("shareUserList");
+      shareUserList.innerHTML = "";
+      
+      // Crear array de usuarios ordenados por actividad
+      const sortedUsers = Object.keys(users)
+        .filter(userId => userId !== activeUser)
+        .sort((a, b) => {
+          return (userActivity[b]?.lastActivity || 0) - (userActivity[a]?.lastActivity || 0);
+        });
+      
+      sortedUsers.forEach(userId => {
+        const user = users[userId];
+        
+        const userDiv = document.createElement("div");
+        userDiv.className = "share-modal-user";
+        userDiv.dataset.userId = userId;
+        
+        const img = document.createElement("img");
+        img.src = user.photoURL || "https://via.placeholder.com/40";
+        img.alt = user.name;
+        
+        const userInfo = document.createElement("div");
+        userInfo.className = "share-modal-user-info";
+        
+        const userName = document.createElement("div");
+        userName.className = "share-modal-user-name";
+        userName.textContent = user.name;
+        
+        const userStatus = document.createElement("div");
+        userStatus.className = "share-modal-user-status";
+        
+        const statusDot = document.createElement("div");
+        statusDot.className = "share-modal-user-status-dot";
+        
+        const statusText = document.createElement("span");
+        statusText.textContent = "En línea";
+        
+        userStatus.appendChild(statusDot);
+        userStatus.appendChild(statusText);
+        
+        userInfo.appendChild(userName);
+        userInfo.appendChild(userStatus);
+        
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "share-modal-checkbox";
+        checkbox.dataset.userId = userId;
+        
+        userDiv.appendChild(img);
+        userDiv.appendChild(userInfo);
+        userDiv.appendChild(checkbox);
+        
+        // Manejar selección de usuario
+        checkbox.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            selectedUsersToShare.push(userId);
+            userDiv.classList.add("selected");
+          } else {
+            selectedUsersToShare = selectedUsersToShare.filter(id => id !== userId);
+            userDiv.classList.remove("selected");
+          }
+        });
+        
+        shareUserList.appendChild(userDiv);
+      });
+    };
+
+    // Función para compartir imagen con usuarios seleccionados
+    const shareImageWithUsers = async () => {
+      if (!imageToShare || selectedUsersToShare.length === 0) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Debes seleccionar al menos un usuario para compartir',
+          icon: 'error',
+          background: '#1a1a2e',
+          color: '#fff'
+        });
+        return;
+      }
+      
+      try {
+        // Descargar la imagen original
+        const response = await fetch(imageToShare);
+        const blob = await response.blob();
+        
+        // Compartir con cada usuario seleccionado
+        for (const userId of selectedUsersToShare) {
+          const chatId = getChatId(activeUser, userId);
+          
+          // Subir imagen a Firebase Storage
+          const storageRef = ref(storage, `chat_images/${chatId}/${Date.now()}_shared.jpg`);
+          const uploadTask = await uploadBytes(storageRef, blob);
+          const downloadURL = await getDownloadURL(uploadTask.ref);
+          
+          // Guardar referencia en Firestore
+          await addDoc(collection(db, `chats/${chatId}/messages`), {
+            sender: activeUser,
+            imageUrl: downloadURL,
+            timestamp: serverTimestamp(),
+            read: false
+          });
+          
+          // Actualizar actividad del usuario
+          userActivity[userId] = {
+            lastActivity: Date.now(),
+            lastMessage: "Imagen compartida"
+          };
+        }
+        
+        // Cerrar modal y mostrar confirmación
+        document.getElementById("shareModal").classList.remove("active");
+        
+        Swal.fire({
+          title: 'Imagen compartida',
+          text: `La imagen ha sido compartida con ${selectedUsersToShare.length} usuario(s)`,
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1a1a2e',
+          color: '#fff'
+        });
+        
+        // Recargar lista de usuarios para actualizar orden
+        loadUsers();
+        
+      } catch (error) {
+        console.error("Error al compartir imagen:", error);
         Swal.fire({
           title: 'Error',
           text: 'No se pudo compartir la imagen',
@@ -1228,17 +1856,28 @@
     const sendMessage = async (messageText) => {
       if (!messageText.trim() || !activeChatId) return;
       
-      await addDoc(collection(db, `chats/${activeChatId}/messages`), {
+      const messageData = {
         sender: activeUser,
         text: messageText,
         timestamp: serverTimestamp(),
         read: false
-      });
+      };
+      
+      await addDoc(collection(db, `chats/${activeChatId}/messages`), messageData);
+      
+      // Actualizar actividad del usuario
+      userActivity[activeUserId] = {
+        lastActivity: Date.now(),
+        lastMessage: messageText
+      };
       
       // Actualizar estado de escritura
       updateTypingStatus(false);
       
       document.getElementById("messageInput").value = "";
+      
+      // Recargar lista de usuarios para actualizar orden
+      loadUsers();
     };
 
     // Enviar imagen
@@ -1259,9 +1898,18 @@
           read: false
         });
         
+        // Actualizar actividad del usuario
+        userActivity[activeUserId] = {
+          lastActivity: Date.now(),
+          lastMessage: "Imagen enviada"
+        };
+        
         // Cerrar modal de vista previa
         document.getElementById("imagePreviewModal").classList.remove("active");
         selectedFile = null;
+        
+        // Recargar lista de usuarios para actualizar orden
+        loadUsers();
         
       } catch (error) {
         console.error("Error al enviar imagen:", error);
@@ -1311,6 +1959,15 @@
                 if (message.sender !== activeUser && 
                     (!message.read || message.read === undefined)) {
                   showMessageNotification(otherUserId, message);
+                  
+                  // Actualizar actividad del usuario
+                  userActivity[otherUserId] = {
+                    lastActivity: message.timestamp?.toMillis() || Date.now(),
+                    lastMessage: message.text || "Imagen enviada"
+                  };
+                  
+                  // Recargar lista de usuarios para actualizar orden
+                  loadUsers();
                 }
               });
             });
@@ -1472,6 +2129,56 @@
     document.getElementById("cancelImageButton").addEventListener("click", () => {
       document.getElementById("imagePreviewModal").classList.remove("active");
       selectedFile = null;
+    });
+
+    // ========== Funcionalidad de compartir imagen ==========
+    // Mostrar/ocultar campo de búsqueda
+    document.getElementById("searchIcon").addEventListener("click", () => {
+      const searchInput = document.getElementById("shareSearchInput");
+      searchInput.classList.toggle("active");
+      if (searchInput.classList.contains("active")) {
+        searchInput.focus();
+      }
+    });
+
+    // Filtrar usuarios al buscar
+    document.getElementById("shareSearchInput").addEventListener("input", (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const userElements = document.querySelectorAll(".share-modal-user");
+      
+      userElements.forEach(userElement => {
+        const userName = userElement.querySelector(".share-modal-user-name").textContent.toLowerCase();
+        if (userName.includes(searchTerm)) {
+          userElement.style.display = "flex";
+        } else {
+          userElement.style.display = "none";
+        }
+      });
+    });
+
+    // Confirmar compartir imagen
+    document.getElementById("confirmShareButton").addEventListener("click", () => {
+      shareImageWithUsers();
+    });
+
+    // Cancelar compartir imagen
+    document.getElementById("cancelShareButton").addEventListener("click", () => {
+      document.getElementById("shareModal").classList.remove("active");
+      imageToShare = null;
+      selectedUsersToShare = [];
+    });
+
+    // Cerrar modal de compartir
+    document.getElementById("closeShareModal").addEventListener("click", () => {
+      document.getElementById("shareModal").classList.remove("active");
+      imageToShare = null;
+      selectedUsersToShare = [];
+    });
+
+    // ========== Funcionalidad de información de usuario ==========
+    // Cerrar modal de información de usuario
+    document.getElementById("closeUserInfoModal").addEventListener("click", () => {
+      document.getElementById("userInfoModal").classList.remove("active");
     });
 
     // ========== Funcionalidad de cámara ==========
