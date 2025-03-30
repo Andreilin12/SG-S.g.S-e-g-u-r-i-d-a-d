@@ -93,6 +93,31 @@
       letter-spacing: 1px;
     }
 
+    /* Buscador de usuarios */
+    .user-search {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .user-search input {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      background-color: rgba(30, 30, 60, 0.7);
+      border: 1px solid rgba(0, 247, 255, 0.2);
+      border-radius: 25px;
+      color: var(--light);
+      outline: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .user-search i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+    }
+
     .user-list ul {
       list-style: none;
       padding: 0;
@@ -388,7 +413,7 @@
     /* Barra de entrada de mensaje */
     .chat-input-container {
       padding: 10px;
-      background-color: rgba(20, 20, 50, 0.8);
+      background-color: rgba(20, 20, 50, 0.9);
       border-top: 1px solid rgba(0, 247, 255, 0.1);
       display: flex;
       align-items: center;
@@ -397,6 +422,7 @@
       left: 0;
       right: 0;
       z-index: 100;
+      box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
     }
 
     .chat-input-tools {
@@ -745,6 +771,54 @@
       gap: 15px;
     }
 
+    /* Loading futurista */
+    .futuristic-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(10, 10, 30, 0.8);
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+
+    .loader-content {
+      text-align: center;
+    }
+
+    .loader-spinner {
+      width: 80px;
+      height: 80px;
+      border: 5px solid rgba(0, 247, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px var(--primary);
+    }
+
+    .loader-text {
+      color: var(--primary);
+      font-size: 18px;
+      text-shadow: 0 0 10px var(--primary);
+      letter-spacing: 2px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Iconos para tipos de archivo */
+    .file-type-icon {
+      font-size: 24px;
+      margin-right: 10px;
+      color: var(--primary);
+    }
+
     .back-button {
       position: fixed;
       top: 15px;
@@ -849,11 +923,6 @@
       color: var(--light);
       outline: none;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: none;
-    }
-
-    .share-modal-search-input.active {
-      display: block;
     }
 
     .share-modal-users {
@@ -1078,6 +1147,128 @@
       margin-left: 2px;
     }
 
+    /* Reproductor de audio personalizado futurista */
+    .audio-player-container {
+      position: relative;
+      width: 100%;
+      margin-top: 5px;
+      background: linear-gradient(135deg, rgba(30, 30, 60, 0.8), rgba(20, 20, 50, 0.8));
+      border-radius: 15px;
+      padding: 10px;
+      box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+      display: flex;
+      align-items: center;
+    }
+
+    .audio-icon {
+      font-size: 24px;
+      color: var(--primary);
+      margin-right: 10px;
+      text-shadow: 0 0 10px var(--primary);
+    }
+
+    .audio-player {
+      flex: 1;
+      height: 30px;
+      -webkit-appearance: none;
+      background: transparent;
+    }
+
+    .audio-player::-webkit-slider-runnable-track {
+      height: 4px;
+      background: rgba(0, 247, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    .audio-player::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--primary);
+      margin-top: -5px;
+      cursor: pointer;
+      box-shadow: 0 0 5px var(--primary);
+    }
+
+    .audio-time {
+      font-size: 12px;
+      color: var(--primary);
+      margin-left: 10px;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    /* Reproductor de video personalizado futurista */
+    .video-player-container {
+      position: relative;
+      width: 100%;
+      max-height: 300px;
+      margin-top: 5px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 247, 255, 0.3);
+    }
+
+    .video-player {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    .video-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .video-player-container:hover .video-controls {
+      opacity: 1;
+    }
+
+    .video-control-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 16px;
+      margin: 0 5px;
+      cursor: pointer;
+      text-shadow: 0 0 5px var(--primary);
+    }
+
+    .video-progress {
+      flex: 1;
+      height: 4px;
+      background: rgba(0, 247, 255, 0.3);
+      border-radius: 2px;
+      margin: 0 10px;
+      position: relative;
+    }
+
+    .video-progress-filled {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .video-time {
+      font-size: 12px;
+      color: var(--primary);
+      margin-left: 5px;
+      min-width: 80px;
+      text-align: center;
+    }
+
     /* Media queries para dispositivos móviles */
     @media (min-width: 768px) {
       .container {
@@ -1133,39 +1324,6 @@
       }
     }
 
-    /* Reproductor de audio personalizado */
-    .audio-player {
-      width: 100%;
-      margin-top: 5px;
-    }
-
-    .audio-player::-webkit-media-controls-panel {
-      background-color: rgba(30, 30, 60, 0.7);
-      border-radius: 10px;
-    }
-
-    .audio-player::-webkit-media-controls-play-button,
-    .audio-player::-webkit-media-controls-mute-button {
-      background-color: var(--primary);
-      border-radius: 50%;
-    }
-
-    .audio-player::-webkit-media-controls-current-time-display,
-    .audio-player::-webkit-media-controls-time-remaining-display {
-      color: var(--light);
-    }
-
-    /* Reproductor de video personalizado */
-    .video-player {
-      width: 100%;
-      max-height: 300px;
-      background-color: #000;
-    }
-
-    .video-player::-webkit-media-controls-panel {
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-
     /* Botón para alternar lista de usuarios en móvil */
     .toggle-user-list {
       display: none;
@@ -1198,10 +1356,15 @@
   <div class="glow-effect glow-1"></div>
   <div class="glow-effect glow-2"></div>
 
-  <!-- Botón de volver -->
-  <button class="back-button" id="backButton">
-    <i class="fas fa-arrow-left"></i> Volver
-  </button>
+  <!-- Loading futurista -->
+  <div class="futuristic-loader" id="loader">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Cargando...</div>
+    </div>
+  </div>
+
+ 
 
   <!-- Botón para alternar lista de usuarios en móvil -->
   <button class="toggle-user-list" id="toggleUserList">
@@ -1212,6 +1375,10 @@
     <!-- Ventana Izquierda: Lista de Usuarios -->
     <div class="user-list" id="userListContainer">  
       <h2 class="neon-text">Contactos</h2>
+      <div class="user-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="userSearchInput" placeholder="Buscar contactos...">
+      </div>
       <ul id="userList"></ul>
     </div>
 
@@ -1270,7 +1437,7 @@
         </button>
       </div>
       <div class="share-modal-search">
-        <i class="fas fa-search share-modal-search-icon" id="searchIcon"></i>
+        <i class="fas fa-search share-modal-search-icon"></i>
         <input type="text" class="share-modal-search-input" id="shareSearchInput" placeholder="Buscar usuario...">
       </div>
       <div class="share-modal-users" id="shareUserList"></div>
@@ -1428,12 +1595,23 @@
     let imageToShare = null;
     let userActivity = {}; // Para rastrear la última actividad de cada usuario
 
+    // Mostrar loader
+    const showLoader = () => {
+      document.getElementById("loader").style.display = "flex";
+    };
+
+    // Ocultar loader
+    const hideLoader = () => {
+      document.getElementById("loader").style.display = "none";
+    };
+
     // Inicializar la aplicación cuando el usuario esté autenticado
     onAuthStateChanged(auth, (user) => {
       if (user) {
         activeUser = user.uid;
         loadUsers();
         setupMessageNotifications();
+        hideLoader();
       } else {
         Swal.fire({
           title: 'Acceso requerido',
@@ -1450,6 +1628,7 @@
 
     // Cargar lista de usuarios con información adicional
     const loadUsers = async () => {
+      showLoader();
       const usersSnapshot = await getDocs(collection(db, "users"));
       const userList = document.getElementById("userList");
       userList.innerHTML = "";
@@ -1470,6 +1649,7 @@
 
       // Cargar la última actividad de cada usuario
       await loadUserActivities(usersArray);
+      hideLoader();
     };
 
     // Cargar la última actividad de cada usuario
@@ -1596,6 +1776,21 @@
         // Verificar mensajes no leídos
         checkUnreadMessages(userId, unreadIndicator);
       });
+
+      // Filtrar usuarios al buscar
+      document.getElementById("userSearchInput").addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const userElements = document.querySelectorAll("#userList li");
+        
+        userElements.forEach(userElement => {
+          const userName = userElement.querySelector(".user-name").textContent.toLowerCase();
+          if (userName.includes(searchTerm)) {
+            userElement.style.display = "flex";
+          } else {
+            userElement.style.display = "none";
+          }
+        });
+      });
     };
 
     // Mostrar información detallada del usuario
@@ -1653,6 +1848,7 @@
 
     // Abrir chat con un usuario
     const openChat = async (userId) => {
+      showLoader();
       activeUserId = userId;
       activeChatId = getChatId(activeUser, userId);
       
@@ -1674,6 +1870,7 @@
       }
       
       loadMessages();
+      hideLoader();
     };
 
     // Marcar mensajes como leídos
@@ -1786,21 +1983,138 @@
       }
       
       if (message.audioUrl) {
-        const audioDiv = document.createElement("audio");
-        audioDiv.className = "message-audio";
-        audioDiv.controls = true;
-        audioDiv.src = message.audioUrl;
-        audioDiv.setAttribute("controlsList", "nodownload");
-        contentDiv.appendChild(audioDiv);
+        // Contenedor personalizado para audio
+        const audioContainer = document.createElement("div");
+        audioContainer.className = "audio-player-container";
+        
+        // Icono de audio
+        const audioIcon = document.createElement("i");
+        audioIcon.className = "fas fa-music audio-icon";
+        audioContainer.appendChild(audioIcon);
+        
+        // Reproductor de audio personalizado
+        const audioPlayer = document.createElement("input");
+        audioPlayer.type = "range";
+        audioPlayer.className = "audio-player";
+        audioPlayer.min = "0";
+        audioPlayer.max = "100";
+        audioPlayer.value = "0";
+        audioContainer.appendChild(audioPlayer);
+        
+        // Tiempo de audio
+        const audioTime = document.createElement("div");
+        audioTime.className = "audio-time";
+        audioTime.textContent = "0:00";
+        audioContainer.appendChild(audioTime);
+        
+        // Audio real (oculto)
+        const realAudio = document.createElement("audio");
+        realAudio.src = message.audioUrl;
+        realAudio.setAttribute("controlsList", "nodownload");
+        realAudio.style.display = "none";
+        
+        // Control del reproductor
+        realAudio.addEventListener("loadedmetadata", () => {
+          const duration = Math.floor(realAudio.duration);
+          audioTime.textContent = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+        });
+        
+        audioPlayer.addEventListener("input", () => {
+          const percent = audioPlayer.value / 100;
+          realAudio.currentTime = percent * realAudio.duration;
+        });
+        
+        realAudio.addEventListener("timeupdate", () => {
+          const percent = (realAudio.currentTime / realAudio.duration) * 100;
+          audioPlayer.value = percent;
+        });
+        
+        // Botón de reproducción
+        audioIcon.addEventListener("click", () => {
+          if (realAudio.paused) {
+            realAudio.play();
+            audioIcon.className = "fas fa-pause audio-icon";
+          } else {
+            realAudio.pause();
+            audioIcon.className = "fas fa-music audio-icon";
+          }
+        });
+        
+        contentDiv.appendChild(audioContainer);
+        contentDiv.appendChild(realAudio);
       }
       
       if (message.videoUrl) {
-        const videoDiv = document.createElement("video");
-        videoDiv.className = "message-video";
-        videoDiv.controls = true;
-        videoDiv.src = message.videoUrl;
-        videoDiv.setAttribute("controlsList", "nodownload");
-        contentDiv.appendChild(videoDiv);
+        // Contenedor personalizado para video
+        const videoContainer = document.createElement("div");
+        videoContainer.className = "video-player-container";
+        
+        // Video real
+        const videoPlayer = document.createElement("video");
+        videoPlayer.className = "video-player";
+        videoPlayer.src = message.videoUrl;
+        videoPlayer.setAttribute("controlsList", "nodownload");
+        videoContainer.appendChild(videoPlayer);
+        
+        // Controles personalizados
+        const videoControls = document.createElement("div");
+        videoControls.className = "video-controls";
+        
+        // Botón de reproducción
+        const playBtn = document.createElement("button");
+        playBtn.className = "video-control-btn";
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playBtn.addEventListener("click", () => {
+          if (videoPlayer.paused) {
+            videoPlayer.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          } else {
+            videoPlayer.pause();
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+          }
+        });
+        videoControls.appendChild(playBtn);
+        
+        // Barra de progreso
+        const progressBar = document.createElement("div");
+        progressBar.className = "video-progress";
+        
+        const progressFilled = document.createElement("div");
+        progressFilled.className = "video-progress-filled";
+        progressBar.appendChild(progressFilled);
+        
+        videoPlayer.addEventListener("timeupdate", () => {
+          const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+          progressFilled.style.width = `${percent}%`;
+        });
+        
+        progressBar.addEventListener("click", (e) => {
+          const percent = e.offsetX / progressBar.offsetWidth;
+          videoPlayer.currentTime = percent * videoPlayer.duration;
+        });
+        
+        videoControls.appendChild(progressBar);
+        
+        // Tiempo
+        const timeDisplay = document.createElement("div");
+        timeDisplay.className = "video-time";
+        timeDisplay.textContent = "0:00 / 0:00";
+        
+        videoPlayer.addEventListener("loadedmetadata", () => {
+          const duration = Math.floor(videoPlayer.duration);
+          timeDisplay.textContent = `0:00 / ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+        });
+        
+        videoPlayer.addEventListener("timeupdate", () => {
+          const current = Math.floor(videoPlayer.currentTime);
+          const duration = Math.floor(videoPlayer.duration);
+          timeDisplay.textContent = `${Math.floor(current / 60)}:${(current % 60).toString().padStart(2, '0')} / ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+        });
+        
+        videoControls.appendChild(timeDisplay);
+        
+        videoContainer.appendChild(videoControls);
+        contentDiv.appendChild(videoContainer);
       }
       
       const timeDiv = document.createElement("div");
@@ -2043,6 +2357,21 @@
         
         shareUserList.appendChild(userDiv);
       });
+      
+      // Filtrar usuarios al buscar en el modal de compartir
+      document.getElementById("shareSearchInput").addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const userElements = document.querySelectorAll(".share-modal-user");
+        
+        userElements.forEach(userElement => {
+          const userName = userElement.querySelector(".share-modal-user-name").textContent.toLowerCase();
+          if (userName.includes(searchTerm)) {
+            userElement.style.display = "flex";
+          } else {
+            userElement.style.display = "none";
+          }
+        });
+      });
     };
 
     // Función para compartir imagen con usuarios seleccionados
@@ -2059,6 +2388,7 @@
       }
       
       try {
+        showLoader();
         // Descargar la imagen original
         const response = await fetch(imageToShare);
         const blob = await response.blob();
@@ -2102,9 +2432,11 @@
         
         // Recargar lista de usuarios para actualizar orden
         loadUsers();
+        hideLoader();
         
       } catch (error) {
         console.error("Error al compartir imagen:", error);
+        hideLoader();
         Swal.fire({
           title: 'Error',
           text: 'No se pudo compartir la imagen',
@@ -2163,6 +2495,7 @@
       if (!imageFile || !activeChatId) return;
       
       try {
+        showLoader();
         // Subir imagen a Firebase Storage
         const storageRef = ref(storage, `chat_images/${activeChatId}/${Date.now()}_${imageFile.name}`);
         await uploadBytes(storageRef, imageFile);
@@ -2188,9 +2521,11 @@
         
         // Recargar lista de usuarios para actualizar orden
         loadUsers();
+        hideLoader();
         
       } catch (error) {
         console.error("Error al enviar imagen:", error);
+        hideLoader();
         Swal.fire({
           title: 'Error',
           text: 'No se pudo enviar la imagen',
@@ -2206,6 +2541,7 @@
       if (!audioFile || !activeChatId) return;
       
       try {
+        showLoader();
         // Subir audio a Firebase Storage
         const storageRef = ref(storage, `chat_audios/${activeChatId}/${Date.now()}_${audioFile.name}`);
         await uploadBytes(storageRef, audioFile);
@@ -2227,9 +2563,11 @@
         
         // Recargar lista de usuarios para actualizar orden
         loadUsers();
+        hideLoader();
         
       } catch (error) {
         console.error("Error al enviar audio:", error);
+        hideLoader();
         Swal.fire({
           title: 'Error',
           text: 'No se pudo enviar el audio',
@@ -2245,6 +2583,7 @@
       if (!videoFile || !activeChatId) return;
       
       try {
+        showLoader();
         // Subir video a Firebase Storage
         const storageRef = ref(storage, `chat_videos/${activeChatId}/${Date.now()}_${videoFile.name}`);
         await uploadBytes(storageRef, videoFile);
@@ -2266,9 +2605,11 @@
         
         // Recargar lista de usuarios para actualizar orden
         loadUsers();
+        hideLoader();
         
       } catch (error) {
         console.error("Error al enviar video:", error);
+        hideLoader();
         Swal.fire({
           title: 'Error',
           text: 'No se pudo enviar el video',
@@ -2467,30 +2808,6 @@
     });
 
     // ========== Funcionalidad de compartir imagen ==========
-    // Mostrar/ocultar campo de búsqueda
-    document.getElementById("searchIcon").addEventListener("click", () => {
-      const searchInput = document.getElementById("shareSearchInput");
-      searchInput.classList.toggle("active");
-      if (searchInput.classList.contains("active")) {
-        searchInput.focus();
-      }
-    });
-
-    // Filtrar usuarios al buscar
-    document.getElementById("shareSearchInput").addEventListener("input", (e) => {
-      const searchTerm = e.target.value.toLowerCase();
-      const userElements = document.querySelectorAll(".share-modal-user");
-      
-      userElements.forEach(userElement => {
-        const userName = userElement.querySelector(".share-modal-user-name").textContent.toLowerCase();
-        if (userName.includes(searchTerm)) {
-          userElement.style.display = "flex";
-        } else {
-          userElement.style.display = "none";
-        }
-      });
-    });
-
     // Confirmar compartir imagen
     document.getElementById("confirmShareButton").addEventListener("click", () => {
       shareImageWithUsers();
