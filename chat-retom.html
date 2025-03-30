@@ -1364,7 +1364,6 @@
     </div>
   </div>
 
- 
 
   <!-- Botón para alternar lista de usuarios en móvil -->
   <button class="toggle-user-list" id="toggleUserList">
@@ -1431,7 +1430,7 @@
   <div class="share-modal" id="shareModal">
     <div class="share-modal-container">
       <div class="share-modal-header">
-        <div class="share-modal-title">Compartir imagen</div>
+        <div class="share-modal-title">Compartir archivo</div>
         <button class="share-modal-close" id="closeShareModal">
           <i class="fas fa-times"></i>
         </button>
@@ -1588,12 +1587,13 @@
     let activeChatId = null;
     let users = {};
     let cameraStream = null;
-    let currentCameraFacing = 'environment'; // 'environment' (trasera) o 'user' (frontal)
+    let currentCameraFacing = 'environment';
     let selectedFile = null;
     let capturedPhoto = null;
     let selectedUsersToShare = [];
-    let imageToShare = null;
-    let userActivity = {}; // Para rastrear la última actividad de cada usuario
+    let fileToShare = null;
+    let fileTypeToShare = null;
+    let userActivity = {};
 
     // Mostrar loader
     const showLoader = () => {
@@ -1633,21 +1633,19 @@
       const userList = document.getElementById("userList");
       userList.innerHTML = "";
 
-      // Crear un array temporal para ordenar usuarios por actividad
       let usersArray = [];
 
       usersSnapshot.forEach((doc) => {
         const user = doc.data();
         const userId = doc.id;
         users[userId] = user;
-        userActivity[userId] = { lastActivity: 0 }; // Inicializar actividad
+        userActivity[userId] = { lastActivity: 0 };
 
         if (userId !== activeUser) {
           usersArray.push({ userId, ...user });
         }
       });
 
-      // Cargar la última actividad de cada usuario
       await loadUserActivities(usersArray);
       hideLoader();
     };
@@ -1656,12 +1654,10 @@
     const loadUserActivities = async (usersArray) => {
       const userList = document.getElementById("userList");
       
-      // Para cada usuario, obtener su último mensaje o actividad
       for (const userData of usersArray) {
         const userId = userData.userId;
         const chatId = getChatId(activeUser, userId);
         
-        // Consultar el último mensaje en el chat
         const messagesRef = collection(db, `chats/${chatId}/messages`);
         const q = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
         
@@ -1670,17 +1666,15 @@
           const message = doc.data();
           userActivity[userId] = {
             lastActivity: message.timestamp?.toMillis() || 0,
-            lastMessage: message.text || "Imagen enviada"
+            lastMessage: message.text || "Archivo enviado"
           };
         });
       }
 
-      // Ordenar usuarios por última actividad (más reciente primero)
       usersArray.sort((a, b) => {
         return (userActivity[b.userId]?.lastActivity || 0) - (userActivity[a.userId]?.lastActivity || 0);
       });
 
-      // Mostrar usuarios ordenados
       displaySortedUsers(usersArray);
     };
 
@@ -1724,7 +1718,6 @@
         typingIndicator.style.display = "none";
         typingIndicator.textContent = "escribiendo...";
         
-        // Mostrar última actividad
         const lastActivity = document.createElement("div");
         lastActivity.className = "last-activity";
         if (userActivity[userId]?.lastActivity) {
@@ -1742,28 +1735,23 @@
         li.appendChild(img);
         li.appendChild(userInfo);
         
-        // Indicador de mensajes no leídos
         const unreadIndicator = document.createElement("div");
         unreadIndicator.className = "unread";
         unreadIndicator.style.display = "none";
         li.appendChild(unreadIndicator);
         
-        // Abrir chat al hacer clic
         li.addEventListener("click", () => {
           openChat(userId);
-          // En móvil, ocultar la lista de usuarios después de seleccionar uno
           if (window.innerWidth <= 767) {
             document.getElementById("userListContainer").classList.remove("active");
           }
         });
         
-        // Mostrar info de usuario al hacer clic en el nombre
         userName.addEventListener("click", (e) => {
           e.stopPropagation();
           showUserInfo(userId);
         });
         
-        // Mostrar info de usuario al hacer clic en la imagen
         img.addEventListener("click", (e) => {
           e.stopPropagation();
           showUserInfo(userId);
@@ -1771,13 +1759,10 @@
         
         userList.appendChild(li);
         
-        // Escuchar cambios de estado de escritura
         listenForTyping(userId, typingIndicator);
-        // Verificar mensajes no leídos
         checkUnreadMessages(userId, unreadIndicator);
       });
 
-      // Filtrar usuarios al buscar
       document.getElementById("userSearchInput").addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const userElements = document.querySelectorAll("#userList li");
@@ -1807,11 +1792,9 @@
       document.getElementById("userInfoEmail").textContent = user.email || "No disponible";
       document.getElementById("userInfoWorkCode").textContent = user.workCode || "No disponible";
       
-      // Limpiar botones de copiar existentes
       const copyButtons = document.querySelectorAll('.copy-btn');
       copyButtons.forEach(btn => btn.remove());
       
-      // Agregar botones de copiar para cada campo
       const fields = ['userInfoName', 'userInfoDepartment', 'userInfoWorkArea', 
                      'userInfoPosition', 'userInfoBirthDate', 'userInfoEmail', 'userInfoWorkCode'];
       
@@ -1819,7 +1802,6 @@
         const fieldElement = document.getElementById(fieldId);
         const value = fieldElement.textContent;
         
-        // Crear botón de copiar
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-btn';
         copyBtn.innerHTML = '<i class="far fa-copy"></i>';
@@ -1839,7 +1821,6 @@
           });
         });
         
-        // Insertar después del contenido
         fieldElement.parentNode.insertBefore(copyBtn, fieldElement.nextSibling);
       });
       
@@ -1856,14 +1837,11 @@
       document.getElementById("chatUserName").textContent = user.name;
       document.getElementById("chatUserImage").src = user.photoURL || "https://via.placeholder.com/40";
       
-      // Configurar clic en el nombre y avatar del chat para mostrar info
       document.getElementById("chatUserName").addEventListener("click", () => showUserInfo(userId));
       document.getElementById("chatUserImage").addEventListener("click", () => showUserInfo(userId));
       
-      // Marcar mensajes como leídos
       await markMessagesAsRead();
       
-      // Ocultar indicador de no leídos
       const userItem = document.querySelector(`li[data-user-id="${userId}"] .unread`);
       if (userItem) {
         userItem.style.display = "none";
@@ -1968,7 +1946,6 @@
         imgDiv.src = message.imageUrl;
         imgDiv.alt = "Imagen enviada";
         
-        // Agregar funcionalidad para abrir imagen en grande
         imgDiv.addEventListener("click", () => {
           Swal.fire({
             imageUrl: message.imageUrl,
@@ -1983,16 +1960,13 @@
       }
       
       if (message.audioUrl) {
-        // Contenedor personalizado para audio
         const audioContainer = document.createElement("div");
         audioContainer.className = "audio-player-container";
         
-        // Icono de audio
         const audioIcon = document.createElement("i");
         audioIcon.className = "fas fa-music audio-icon";
         audioContainer.appendChild(audioIcon);
         
-        // Reproductor de audio personalizado
         const audioPlayer = document.createElement("input");
         audioPlayer.type = "range";
         audioPlayer.className = "audio-player";
@@ -2001,19 +1975,16 @@
         audioPlayer.value = "0";
         audioContainer.appendChild(audioPlayer);
         
-        // Tiempo de audio
         const audioTime = document.createElement("div");
         audioTime.className = "audio-time";
         audioTime.textContent = "0:00";
         audioContainer.appendChild(audioTime);
         
-        // Audio real (oculto)
         const realAudio = document.createElement("audio");
         realAudio.src = message.audioUrl;
         realAudio.setAttribute("controlsList", "nodownload");
         realAudio.style.display = "none";
         
-        // Control del reproductor
         realAudio.addEventListener("loadedmetadata", () => {
           const duration = Math.floor(realAudio.duration);
           audioTime.textContent = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
@@ -2029,7 +2000,6 @@
           audioPlayer.value = percent;
         });
         
-        // Botón de reproducción
         audioIcon.addEventListener("click", () => {
           if (realAudio.paused) {
             realAudio.play();
@@ -2045,22 +2015,18 @@
       }
       
       if (message.videoUrl) {
-        // Contenedor personalizado para video
         const videoContainer = document.createElement("div");
         videoContainer.className = "video-player-container";
         
-        // Video real
         const videoPlayer = document.createElement("video");
         videoPlayer.className = "video-player";
         videoPlayer.src = message.videoUrl;
         videoPlayer.setAttribute("controlsList", "nodownload");
         videoContainer.appendChild(videoPlayer);
         
-        // Controles personalizados
         const videoControls = document.createElement("div");
         videoControls.className = "video-controls";
         
-        // Botón de reproducción
         const playBtn = document.createElement("button");
         playBtn.className = "video-control-btn";
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -2075,7 +2041,6 @@
         });
         videoControls.appendChild(playBtn);
         
-        // Barra de progreso
         const progressBar = document.createElement("div");
         progressBar.className = "video-progress";
         
@@ -2095,7 +2060,6 @@
         
         videoControls.appendChild(progressBar);
         
-        // Tiempo
         const timeDisplay = document.createElement("div");
         timeDisplay.className = "video-time";
         timeDisplay.textContent = "0:00 / 0:00";
@@ -2123,13 +2087,11 @@
       const timestamp = message.timestamp?.toDate ? message.timestamp.toDate() : new Date();
       timeDiv.textContent = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       
-      // Mostrar estado de lectura (solo para mensajes enviados)
       if (isSent) {
         const readStatus = document.createElement("div");
         readStatus.className = "read-status";
         
         if (message.read) {
-          // Mostrar dos palomitas azules si el mensaje ha sido leído
           const check1 = document.createElement("i");
           check1.className = "fas fa-check read-check";
           const check2 = document.createElement("i");
@@ -2138,7 +2100,6 @@
           readStatus.appendChild(check1);
           readStatus.appendChild(check2);
         } else {
-          // Mostrar una palomita si no ha sido leído
           const check = document.createElement("i");
           check.className = "fas fa-check read-check";
           readStatus.appendChild(check);
@@ -2149,7 +2110,6 @@
       
       contentDiv.appendChild(timeDiv);
       
-      // Acciones del mensaje (copiar, compartir, eliminar)
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "message-actions";
       
@@ -2179,7 +2139,7 @@
         shareButton.className = "message-action";
         shareButton.title = "Compartir imagen";
         shareButton.innerHTML = '<i class="fas fa-share-alt"></i>';
-        shareButton.addEventListener("click", () => openShareModal(message.imageUrl));
+        shareButton.addEventListener("click", () => openShareModal(message.imageUrl, 'image'));
         actionsDiv.appendChild(shareButton);
         
         const downloadButton = document.createElement("button");
@@ -2191,6 +2151,13 @@
       }
       
       if (message.audioUrl) {
+        const shareButton = document.createElement("button");
+        shareButton.className = "message-action";
+        shareButton.title = "Compartir audio";
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i>';
+        shareButton.addEventListener("click", () => openShareModal(message.audioUrl, 'audio'));
+        actionsDiv.appendChild(shareButton);
+        
         const downloadButton = document.createElement("button");
         downloadButton.className = "message-action";
         downloadButton.title = "Descargar audio";
@@ -2200,6 +2167,13 @@
       }
       
       if (message.videoUrl) {
+        const shareButton = document.createElement("button");
+        shareButton.className = "message-action";
+        shareButton.title = "Compartir video";
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i>';
+        shareButton.addEventListener("click", () => openShareModal(message.videoUrl, 'video'));
+        actionsDiv.appendChild(shareButton);
+        
         const downloadButton = document.createElement("button");
         downloadButton.className = "message-action";
         downloadButton.title = "Descargar video";
@@ -2208,7 +2182,6 @@
         actionsDiv.appendChild(downloadButton);
       }
       
-      // Botón para eliminar mensaje (solo para mensajes enviados por el usuario)
       if (isSent) {
         const deleteButton = document.createElement("button");
         deleteButton.className = "message-action";
@@ -2222,7 +2195,6 @@
       messageDiv.appendChild(actionsDiv);
       chatMessages.appendChild(messageDiv);
       
-      // Animación para mensajes nuevos
       if (message.sender !== activeUser && !message.read) {
         messageDiv.style.animation = "pulse 2s";
         playNotificationSound();
@@ -2232,7 +2204,6 @@
     // Función para eliminar mensaje
     const deleteMessage = async (messageId, fileUrl) => {
       try {
-        // Mostrar confirmación
         const result = await Swal.fire({
           title: '¿Eliminar mensaje?',
           text: 'Esta acción no se puede deshacer',
@@ -2247,13 +2218,11 @@
         });
         
         if (result.isConfirmed) {
-          // Eliminar archivo del storage si existe
           if (fileUrl) {
             const fileRef = ref(storage, fileUrl);
             await deleteObject(fileRef).catch(e => console.log("No se pudo eliminar el archivo:", e));
           }
           
-          // Eliminar mensaje de Firestore
           await deleteDoc(doc(db, `chats/${activeChatId}/messages/${messageId}`));
           
           Swal.fire({
@@ -2278,24 +2247,23 @@
       }
     };
 
-    // Función para compartir imagen
-    const openShareModal = (imageUrl) => {
-      imageToShare = imageUrl;
+    // Función para compartir archivos
+    const openShareModal = (fileUrl, fileType) => {
+      fileToShare = fileUrl;
+      fileTypeToShare = fileType;
       selectedUsersToShare = [];
       
-      // Mostrar modal de compartir
       document.getElementById("shareModal").classList.add("active");
+      document.getElementById("shareModal-title").textContent = `Compartir ${fileType === 'image' ? 'imagen' : fileType === 'video' ? 'video' : 'audio'}`;
       
-      // Cargar lista de usuarios para compartir
       loadShareUsers();
     };
 
-    // Cargar usuarios para compartir imagen
+    // Cargar usuarios para compartir archivos
     const loadShareUsers = () => {
       const shareUserList = document.getElementById("shareUserList");
       shareUserList.innerHTML = "";
       
-      // Crear array de usuarios ordenados por actividad
       const sortedUsers = Object.keys(users)
         .filter(userId => userId !== activeUser)
         .sort((a, b) => {
@@ -2344,7 +2312,6 @@
         userDiv.appendChild(userInfo);
         userDiv.appendChild(checkbox);
         
-        // Manejar selección de usuario
         checkbox.addEventListener("change", (e) => {
           if (e.target.checked) {
             selectedUsersToShare.push(userId);
@@ -2358,7 +2325,6 @@
         shareUserList.appendChild(userDiv);
       });
       
-      // Filtrar usuarios al buscar en el modal de compartir
       document.getElementById("shareSearchInput").addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const userElements = document.querySelectorAll(".share-modal-user");
@@ -2374,9 +2340,9 @@
       });
     };
 
-    // Función para compartir imagen con usuarios seleccionados
-    const shareImageWithUsers = async () => {
-      if (!imageToShare || selectedUsersToShare.length === 0) {
+    // Función para compartir archivos con usuarios seleccionados
+    const shareFileWithUsers = async () => {
+      if (!fileToShare || selectedUsersToShare.length === 0) {
         Swal.fire({
           title: 'Error',
           text: 'Debes seleccionar al menos un usuario para compartir',
@@ -2389,40 +2355,42 @@
       
       try {
         showLoader();
-        // Descargar la imagen original
-        const response = await fetch(imageToShare);
+        const response = await fetch(fileToShare);
         const blob = await response.blob();
         
-        // Compartir con cada usuario seleccionado
         for (const userId of selectedUsersToShare) {
           const chatId = getChatId(activeUser, userId);
-          
-          // Subir imagen a Firebase Storage
-          const storageRef = ref(storage, `chat_images/${chatId}/${Date.now()}_shared.jpg`);
-          await uploadBytes(storageRef, blob);
-          const downloadURL = await getDownloadURL(storageRef);
-          
-          // Guardar referencia en Firestore
-          await addDoc(collection(db, `chats/${chatId}/messages`), {
+          let storagePath = '';
+          let messageData = {
             sender: activeUser,
-            imageUrl: downloadURL,
             timestamp: serverTimestamp(),
             read: false
-          });
+          };
           
-          // Actualizar actividad del usuario
+          if (fileTypeToShare === 'image') {
+            storagePath = `chat_images/${chatId}/${Date.now()}_shared.jpg`;
+            messageData.imageUrl = await uploadAndGetUrl(storagePath, blob);
+          } else if (fileTypeToShare === 'audio') {
+            storagePath = `chat_audios/${chatId}/${Date.now()}_shared.mp3`;
+            messageData.audioUrl = await uploadAndGetUrl(storagePath, blob);
+          } else if (fileTypeToShare === 'video') {
+            storagePath = `chat_videos/${chatId}/${Date.now()}_shared.mp4`;
+            messageData.videoUrl = await uploadAndGetUrl(storagePath, blob);
+          }
+          
+          await addDoc(collection(db, `chats/${chatId}/messages`), messageData);
+          
           userActivity[userId] = {
             lastActivity: Date.now(),
-            lastMessage: "Imagen compartida"
+            lastMessage: `${fileTypeToShare === 'image' ? 'Imagen' : fileTypeToShare === 'audio' ? 'Audio' : 'Video'} compartido`
           };
         }
         
-        // Cerrar modal y mostrar confirmación
         document.getElementById("shareModal").classList.remove("active");
         
         Swal.fire({
-          title: 'Imagen compartida',
-          text: `La imagen ha sido compartida con ${selectedUsersToShare.length} usuario(s)`,
+          title: 'Archivo compartido',
+          text: `El archivo ha sido compartido con ${selectedUsersToShare.length} usuario(s)`,
           icon: 'success',
           timer: 1500,
           showConfirmButton: false,
@@ -2430,21 +2398,27 @@
           color: '#fff'
         });
         
-        // Recargar lista de usuarios para actualizar orden
         loadUsers();
         hideLoader();
         
       } catch (error) {
-        console.error("Error al compartir imagen:", error);
+        console.error("Error al compartir archivo:", error);
         hideLoader();
         Swal.fire({
           title: 'Error',
-          text: 'No se pudo compartir la imagen',
+          text: 'No se pudo compartir el archivo',
           icon: 'error',
           background: '#1a1a2e',
           color: '#fff'
         });
       }
+    };
+
+    // Función auxiliar para subir archivo y obtener URL
+    const uploadAndGetUrl = async (storagePath, blob) => {
+      const storageRef = ref(storage, storagePath);
+      await uploadBytes(storageRef, blob);
+      return await getDownloadURL(storageRef);
     };
 
     // Función para descargar archivos
@@ -2475,18 +2449,15 @@
       
       await addDoc(collection(db, `chats/${activeChatId}/messages`), messageData);
       
-      // Actualizar actividad del usuario
       userActivity[activeUserId] = {
         lastActivity: Date.now(),
         lastMessage: messageText
       };
       
-      // Actualizar estado de escritura
       updateTypingStatus(false);
       
       document.getElementById("messageInput").value = "";
       
-      // Recargar lista de usuarios para actualizar orden
       loadUsers();
     };
 
@@ -2496,12 +2467,10 @@
       
       try {
         showLoader();
-        // Subir imagen a Firebase Storage
         const storageRef = ref(storage, `chat_images/${activeChatId}/${Date.now()}_${imageFile.name}`);
         await uploadBytes(storageRef, imageFile);
         const downloadURL = await getDownloadURL(storageRef);
         
-        // Guardar referencia en Firestore
         await addDoc(collection(db, `chats/${activeChatId}/messages`), {
           sender: activeUser,
           imageUrl: downloadURL,
@@ -2509,17 +2478,14 @@
           read: false
         });
         
-        // Actualizar actividad del usuario
         userActivity[activeUserId] = {
           lastActivity: Date.now(),
           lastMessage: "Imagen enviada"
         };
         
-        // Cerrar modal de vista previa
         document.getElementById("imagePreviewModal").classList.remove("active");
         selectedFile = null;
         
-        // Recargar lista de usuarios para actualizar orden
         loadUsers();
         hideLoader();
         
@@ -2542,12 +2508,10 @@
       
       try {
         showLoader();
-        // Subir audio a Firebase Storage
         const storageRef = ref(storage, `chat_audios/${activeChatId}/${Date.now()}_${audioFile.name}`);
         await uploadBytes(storageRef, audioFile);
         const downloadURL = await getDownloadURL(storageRef);
         
-        // Guardar referencia en Firestore
         await addDoc(collection(db, `chats/${activeChatId}/messages`), {
           sender: activeUser,
           audioUrl: downloadURL,
@@ -2555,13 +2519,11 @@
           read: false
         });
         
-        // Actualizar actividad del usuario
         userActivity[activeUserId] = {
           lastActivity: Date.now(),
           lastMessage: "Audio enviado"
         };
         
-        // Recargar lista de usuarios para actualizar orden
         loadUsers();
         hideLoader();
         
@@ -2584,12 +2546,10 @@
       
       try {
         showLoader();
-        // Subir video a Firebase Storage
         const storageRef = ref(storage, `chat_videos/${activeChatId}/${Date.now()}_${videoFile.name}`);
         await uploadBytes(storageRef, videoFile);
         const downloadURL = await getDownloadURL(storageRef);
         
-        // Guardar referencia en Firestore
         await addDoc(collection(db, `chats/${activeChatId}/messages`), {
           sender: activeUser,
           videoUrl: downloadURL,
@@ -2597,13 +2557,11 @@
           read: false
         });
         
-        // Actualizar actividad del usuario
         userActivity[activeUserId] = {
           lastActivity: Date.now(),
           lastMessage: "Video enviado"
         };
         
-        // Recargar lista de usuarios para actualizar orden
         loadUsers();
         hideLoader();
         
@@ -2635,14 +2593,12 @@
 
     // Configurar notificaciones de nuevos mensajes
     const setupMessageNotifications = () => {
-      // Escuchar todos los chats del usuario
       const chatsQuery = query(collection(db, "chats"));
       
       onSnapshot(chatsQuery, (snapshot) => {
         snapshot.forEach((doc) => {
           const chatId = doc.id;
           
-          // Verificar si este chat incluye al usuario actual
           if (chatId.includes(activeUser)) {
             const otherUserId = chatId.replace(activeUser, '');
             const messagesRef = collection(db, `chats/${chatId}/messages`);
@@ -2652,18 +2608,15 @@
               messageSnapshot.forEach((messageDoc) => {
                 const message = messageDoc.data();
                 
-                // Mostrar notificación si el mensaje es nuevo y no es del usuario actual
                 if (message.sender !== activeUser && 
                     (!message.read || message.read === undefined)) {
                   showMessageNotification(otherUserId, message);
                   
-                  // Actualizar actividad del usuario
                   userActivity[otherUserId] = {
                     lastActivity: message.timestamp?.toMillis() || Date.now(),
-                    lastMessage: message.text || "Imagen enviada"
+                    lastMessage: message.text || "Archivo enviado"
                   };
                   
-                  // Recargar lista de usuarios para actualizar orden
                   loadUsers();
                 }
               });
@@ -2690,7 +2643,6 @@
       notification.classList.add("show");
       playNotificationSound();
       
-      // Cerrar automáticamente después de 5 segundos
       setTimeout(() => {
         notification.classList.remove("show");
       }, 5000);
@@ -2708,13 +2660,12 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
-    // Manejo del envío de mensaje
+    // Event listeners
     document.getElementById("sendMessageButton").addEventListener("click", () => {
       const message = document.getElementById("messageInput").value;
       sendMessage(message);
     });
 
-    // Enviar mensaje con Enter (pero no con Shift+Enter)
     document.getElementById("messageInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -2723,7 +2674,6 @@
       }
     });
 
-    // Detectar cuando el usuario está escribiendo
     document.getElementById("messageInput").addEventListener("input", (e) => {
       if (e.target.value.length > 0) {
         updateTypingStatus(true);
@@ -2732,27 +2682,23 @@
       }
     });
 
-    // Cerrar notificación
     document.getElementById("closeNotification").addEventListener("click", () => {
       document.getElementById("messageNotification").classList.remove("show");
     });
 
-    // Botón de volver
     document.getElementById("backButton").addEventListener("click", () => {
       window.history.back();
     });
 
-    // Botón para alternar lista de usuarios en móvil
     document.getElementById("toggleUserList").addEventListener("click", () => {
       document.getElementById("userListContainer").classList.toggle("active");
     });
 
-    // Botón de menú
     document.getElementById("menuButton").addEventListener("click", () => {
       document.getElementById("userListContainer").classList.toggle("active");
     });
 
-    // ========== Funcionalidad de adjuntar archivos ==========
+    // Adjuntar archivos
     document.getElementById("attachFileButton").addEventListener("click", () => {
       const fileInput = document.createElement("input");
       fileInput.type = "file";
@@ -2762,7 +2708,6 @@
         const file = e.target.files[0];
         if (!file) return;
         
-        // Verificar tipo de archivo
         if (file.type.startsWith("image/")) {
           selectedFile = file;
           showImagePreview(file);
@@ -2807,33 +2752,33 @@
       selectedFile = null;
     });
 
-    // ========== Funcionalidad de compartir imagen ==========
-    // Confirmar compartir imagen
+    // Compartir archivo
     document.getElementById("confirmShareButton").addEventListener("click", () => {
-      shareImageWithUsers();
+      shareFileWithUsers();
     });
 
-    // Cancelar compartir imagen
+    // Cancelar compartir archivo
     document.getElementById("cancelShareButton").addEventListener("click", () => {
       document.getElementById("shareModal").classList.remove("active");
-      imageToShare = null;
+      fileToShare = null;
+      fileTypeToShare = null;
       selectedUsersToShare = [];
     });
 
     // Cerrar modal de compartir
     document.getElementById("closeShareModal").addEventListener("click", () => {
       document.getElementById("shareModal").classList.remove("active");
-      imageToShare = null;
+      fileToShare = null;
+      fileTypeToShare = null;
       selectedUsersToShare = [];
     });
 
-    // ========== Funcionalidad de información de usuario ==========
     // Cerrar modal de información de usuario
     document.getElementById("closeUserInfoModal").addEventListener("click", () => {
       document.getElementById("userInfoModal").classList.remove("active");
     });
 
-    // ========== Funcionalidad de cámara ==========
+    // Funcionalidad de cámara
     document.getElementById("openCameraButton").addEventListener("click", () => {
       openCamera();
     });
@@ -2875,17 +2820,13 @@
       const canvas = document.getElementById("camera-canvas");
       const context = canvas.getContext('2d');
       
-      // Ajustar tamaño del canvas al video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
-      // Dibujar el frame actual en el canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // Mostrar vista previa
       document.getElementById("cameraPreviewActions").style.display = "flex";
       
-      // Detener la transmisión de video
       cameraStream.getTracks().forEach(track => track.stop());
     });
 
@@ -2898,14 +2839,11 @@
     document.getElementById("sendPhotoButton").addEventListener("click", async () => {
       const canvas = document.getElementById("camera-canvas");
       
-      // Convertir canvas a blob
       canvas.toBlob(async (blob) => {
         try {
-          // Crear archivo desde el blob
           const file = new File([blob], `foto-${Date.now()}.jpg`, { type: 'image/jpeg' });
           await sendImage(file);
           
-          // Cerrar modal de cámara
           document.getElementById("cameraModal").classList.remove("active");
           capturedPhoto = null;
           
@@ -2941,14 +2879,11 @@
 
     // Limpieza al cerrar la página
     window.addEventListener('beforeunload', () => {
-      // Detener transmisión de cámara si está activa
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
       }
       
-      // Actualizar estado de escritura
       updateTypingStatus(false);
     });
   </script>
 </body>
-</html>
