@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Horarios | Gestión de Turnos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #15a086;
+      --secondary: #12876f;
+      --dark: #2c3e50;
+      --darker: #1a2a38;
+      --light: #ecf0f1;
+      --accent: #e74c3c;
+      --turn-A: #876a08;
+      --turn-B: #0a6b0b;
+      --turn-C: #0c0e7d;
+      --turn-D: #67096e;
+      --turn-E: #8f12e3;
+      --turn-G: #ff0ae7;
+      --falta: #ab0909;
+      --vacation: #2ecc71;
+      --medical: #16a5b8;
+      --permission: #95a5a6;
+      --free-day: #f1c40f;
+      --alert: #e74c3c;
+      --delete: #ab0909;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: var(--light);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 3px;
+      background: var(--primary);
+      margin: 10px auto;
+      border-radius: 3px;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(21, 160, 134, 0.3);
+      position: relative;
+    }
+    
+    .tab {
+      padding: 12px 25px;
+      background: transparent;
+      cursor: pointer;
+      border: none;
+      color: var(--light);
+      font-weight: 500;
+      position: relative;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+    }
+    
+    .tab.active {
+      opacity: 1;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .tab:hover {
+      opacity: 1;
+      color: var(--primary);
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Form Container */
+    .form-container {
+      background: var(--darker);
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-container h2 {
+      color: var(--primary);
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-container h2 i {
+      margin-right: 10px;
+      color: var(--primary);
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: rgba(236, 240, 241, 0.9);
+    }
+    
+    .form-control {
+      width: 85%;
+      padding: 12px 15px;
+      background: rgba(26, 42, 56, 0.7);
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      border-radius: 6px;
+      color: var(--light);
+      font-family: 'Roboto', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(21, 160, 134, 0.2);
+    }
+    
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2315a086'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 15px;
+    }
+    
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--darker);
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      z-index: 100;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .suggestion-item {
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .suggestion-item:hover {
+      background: rgba(21, 160, 134, 0.2);
+      color: var(--primary);
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(21, 160, 134, 0.3);
+    }
+    
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(21, 160, 134, 0.4);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: #34495e;
+    }
+    
+    .btn-secondary:hover {
+      background: #2c3e50;
+    }
+
+    .btn-danger {
+      background: var(--accent);
+    }
+    
+    .btn-danger:hover {
+      background: #ab0909;
+    }
+    
+    /* Table Container */
+    .table-container {
+      background: var(--darker);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      overflow-x: auto;
+    }
+    
+    .search-container {
+      display: flex;
+      margin-bottom: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .search-container .form-control {
+      max-width: 300px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    
+    th {
+      background: rgba(21, 160, 134, 0.2);
+      color: var(--primary);
+      font-weight: 500;
+      padding: 15px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(21, 160, 134, 0.1);
+    }
+    
+    tr.group-header {
+      background: rgba(21, 160, 134, 0.1);
+      cursor: pointer;
+    }
+    
+    tr.group-header:hover {
+      background: rgba(21, 160, 134, 0.15);
+    }
+    
+    tr.group-header td {
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    tr.detail-row {
+      display: none;
+    }
+    
+    tr.detail-row.show {
+      display: table-row;
+    }
+    
+    tr:hover:not(.group-header) {
+      background: rgba(21, 160, 134, 0.05);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .edit-btn {
+      background: var(--primary);
+      color: white;
+    }
+
+    .delete-btn {
+      background: var(--delete);
+      color: white;
+    }
+    
+    /* Calendar */
+    .calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .calendar-title {
+      color: var(--primary);
+      margin: 0;
+      min-width: 200px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.2rem;
+    }
+    
+    .calendar-btn {
+      background: rgba(21, 160, 134, 0.2);
+      color: var(--primary);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .calendar-btn:hover {
+      background: rgba(21, 160, 134, 0.3);
+    }
+    
+    .calendar-filters {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    
+    .calendar-header {
+      color: var(--primary);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 10px;
+      font-weight: 500;
+    }
+    
+    .calendar-day {
+      background: rgba(26, 42, 56, 0.7);
+      border-radius: 6px;
+      min-height: 120px;
+      padding: 10px;
+      border: 1px solid rgba(21, 160, 134, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .calendar-day:hover {
+      border-color: rgba(21, 160, 134, 0.3);
+    }
+    
+    .calendar-day.empty {
+      background: transparent;
+      border: 1px dashed rgba(21, 160, 134, 0.1);
+    }
+    
+    .day-number {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: var(--light);
+      font-size: 0.9rem;
+    }
+    
+    .day-number.today {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .events-container {
+      max-height: 90px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    
+    .events-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .events-container::-webkit-scrollbar-thumb {
+      background-color: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .event-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .event-badge:hover {
+      transform: translateX(2px);
+    }
+    
+    .event-badge.free-day {
+      background-color: var(--free-day);
+      color: #000;
+    }
+    
+    .event-badge.turn-A {
+      background-color: var(--turn-A);
+      color: white;
+    }
+    
+    .event-badge.turn-B {
+      background-color: var(--turn-B);
+      color: white;
+    }
+    
+    .event-badge.turn-C {
+      background-color: var(--turn-C);
+      color: white;
+    }
+    
+    .event-badge.turn-D {
+      background-color: var(--turn-D);
+      color: white;
+    }
+    
+    .event-badge.turn-E {
+      background-color: var(--turn-E);
+      color: white;
+    }
+    
+    .event-badge.turn-G {
+      background-color: var(--turn-G);
+      color: white;
+    }
+    
+    .event-badge.falta {
+      background-color: var(--falta);
+      color: white;
+    }
+    
+    .event-badge.vacation {
+      background-color: var(--vacation);
+      color: white;
+    }
+    
+    .event-badge.medical {
+      background-color: var(--medical);
+      color: white;
+    }
+    
+    .event-badge.permission {
+      background-color: var(--permission);
+      color: white;
+    }
+    
+    .event-badge.alert {
+      background-color: var(--alert);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 62, 80, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal-content {
+      background: var(--darker);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      padding: 15px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header.free-day {
+      background-color: var(--free-day);
+      color: #000;
+    }
+    
+    .modal-header.turn-A {
+      background-color: var(--turn-A);
+    }
+    
+    .modal-header.turn-B {
+      background-color: var(--turn-B);
+    }
+    
+    .modal-header.turn-C {
+      background-color: var(--turn-C);
+    }
+    
+    .modal-header.turn-D {
+      background-color: var(--turn-D);
+    }
+    
+    .modal-header.turn-E {
+      background-color: var(--turn-E);
+    }
+    
+     .modal-header.turn-G {
+      background-color: var(--turn-G);
+    }
+    
+     .modal-header.falta {
+      background-color: var(--falta);
+    }
+    
+    .modal-header.vacation {
+      background-color: var(--vacation);
+    }
+    
+    .modal-header.medical {
+      background-color: var(--medical);
+    }
+    
+    .modal-header.permission {
+      background-color: var(--permission);
+    }
+    
+    .modal-header.alert {
+      background-color: var(--alert);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    
+    .modal-body {
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .event-detail {
+      margin-bottom: 15px;
+    }
+    
+    .event-detail h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .event-detail p {
+      margin: 5px 0;
+    }
+    
+    .detail-label {
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    /* Print View */
+    .print-view {
+      display: block;
+      background: white;
+      color: #333;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    
+    .print-container {
+      background: white;
+      color: #333;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    
+    .print-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 10px;
+    }
+    
+    .print-title {
+      color: var(--primary);
+      margin: 0;
+    }
+    
+    .print-subtitle {
+      color: #666;
+      margin: 5px 0 0;
+    }
+    
+    .print-calendar {
+      margin-top: 20px;
+    }
+    
+    .print-day {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    
+    .print-day-header {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .print-events {
+      margin-left: 15px;
+    }
+    
+    .print-event {
+      margin-bottom: 5px;
+      padding-left: 10px;
+      border-left: 3px solid var(--primary);
+    }
+    
+    /* Alert Settings */
+    .settings-container {
+      background: var(--darker);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .settings-group {
+      margin-bottom: 20px;
+    }
+    
+    .settings-title {
+      color: var(--primary);
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 1px solid rgba(21, 160, 134, 0.3);
+      padding-bottom: 5px;
+    }
+    
+    .settings-checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .settings-checkbox input {
+      margin-right: 10px;
+    }
+    
+    /* SweetAlert2 Customization */
+    .swal2-popup {
+      background: var(--darker) !important;
+      color: var(--light) !important;
+      border: 1px solid rgba(21, 160, 134, 0.3) !important;
+    }
+    
+    .swal2-title {
+      color: var(--primary) !important;
+    }
+    
+    .swal2-confirm {
+      background-color: var(--primary) !important;
+    }
+    
+    .swal2-confirm:hover {
+      background-color: var(--secondary) !important;
+    }
+
+    .swal2-cancel {
+      background-color: #34495e !important;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .calendar-header, .calendar-day {
+        min-height: 80px;
+      }
+      
+      .day-number {
+        font-size: 0.8rem;
+      }
+      
+      .event-badge {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+      }
+      
+      .search-container {
+        flex-direction: column;
+      }
+      
+      .search-container .form-control {
+        max-width: 100%;
+      }
+    }
+    
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .print-view, .print-view * {
+        visibility: visible;
+      }
+      .print-view {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        padding: 20px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-calendar-alt"></i> GESTIÓN DE HORARIOS Y TURNOS</h1>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="openTab('register')"><i class="fas fa-plus-circle"></i> Registrar</div>
+      <div class="tab" onclick="openTab('view')"><i class="fas fa-list"></i> Visualizar</div>
+      <div class="tab" onclick="openTab('calendar')"><i class="fas fa-calendar"></i> Calendario</div>
+      <div class="tab" onclick="openTab('print')"><i class="fas fa-print"></i> Imprimir</div>
+      <div class="tab" onclick="openTab('settings')"><i class="fas fa-cog"></i> Configuración</div>
+    </div>
+
+    <div id="register" class="tab-content active">
+      <div class="form-container">
+        <h2><i class="fas fa-user-clock"></i> Registrar Días Libres o Turnos</h2>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="employeeName"><i class="fas fa-user"></i> Nombre del Colaborador:</label>
+            <input type="text" id="employeeName" class="form-control" required autocomplete="off">
+            <div class="suggestions" id="nameSuggestions"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="employeeCode"><i class="fas fa-id-card"></i> Código del Colaborador:</label>
+            <input type="text" id="employeeCode" class="form-control" autocomplete="off">
+          </div>
+          
+          <div class="form-group">
+            <label for="employeePosition"><i class="fas fa-briefcase"></i> Posición/Cargo:</label>
+            <input type="text" id="employeePosition" class="form-control" autocomplete="off">
+            <div class="suggestions" id="positionSuggestions"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="eventType"><i class="fas fa-tasks"></i> Tipo de Registro:</label>
+            <select id="eventType" class="form-control" onchange="toggleFields()">
+              <option value="free">Día Libre</option>
+              <option value="turn-A">Turno A (7am a 3pm)</option>
+              <option value="turn-B">Turno B (3pm a 11pm)</option>
+              <option value="turn-C">Turno C (11pm a 7am)</option>
+              <option value="turn-D">Turno D (7am a 7pm)</option>
+              <option value="turn-E">Turno E (7pm a 7am)</option>
+              <option value="turn-E">Turno G (12pm a 8pm)</option>
+              <option value="falta">Faltas (F)</option>
+              <option value="vacation">Vacaciones (V)</option>
+              <option value="medical">Licencia Médica (LM)</option>
+              <option value="permission">Permiso (P)</option>
+            </select>
+          </div>
+          
+          <div class="form-group" id="freeDayPatternGroup">
+            <label for="freeDayPattern"><i class="fas fa-calendar-week"></i> Patrón de Días Libres:</label>
+            <select id="freeDayPattern" class="form-control">
+              <option value="12-3">Cada 12 días por 3 días</option>
+              <option value="24-6">Cada 24 días por 6 días</option>
+              <option value="7-1">Cada semana por 1 día</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          
+          <div class="form-group" id="customDaysGroup" style="display: none;">
+            <label for="customDays"><i class="fas fa-calendar-day"></i> Días de duración:</label>
+            <input type="number" id="customDays" class="form-control" min="1" value="1">
+          </div>
+          
+          <div class="form-group">
+            <label for="startDate"><i class="fas fa-calendar-plus"></i> Fecha de Inicio:</label>
+            <input type="date" id="startDate" class="form-control" required>
+          </div>
+          
+          <div class="form-group" id="endDateGroup">
+            <label for="endDate"><i class="fas fa-calendar-minus"></i> Fecha de Fin (opcional):</label>
+            <input type="date" id="endDate" class="form-control">
+          </div>
+          
+          <div class="form-group" id="daysCountGroup">
+            <label for="daysCount"><i class="fas fa-clock"></i> Cantidad de Días:</label>
+            <input type="number" id="daysCount" class="form-control" min="1" value="1">
+          </div>
+        </div>
+        
+        <button class="btn" onclick="registerSchedule()"><i class="fas fa-save"></i> Registrar</button>
+      </div>
+    </div>
+
+    <div id="view" class="tab-content">
+      <div class="form-container">
+        <h2><i class="fas fa-table"></i> Registros de Horarios</h2>
+        
+        <div class="search-container">
+          <input type="text" id="searchEmployee" class="form-control" placeholder="Buscar por nombre de colaborador" oninput="filterSchedules()">
+          <input type="text" id="searchPosition" class="form-control" placeholder="Buscar por posición/cargo" oninput="filterSchedules()">
+          <select id="searchEventType" class="form-control" onchange="filterSchedules()">
+            <option value="">Todos los tipos</option>
+            <option value="free">Día Libre</option>
+            <option value="turn-A">Turno A</option>
+            <option value="turn-B">Turno B</option>
+            <option value="turn-C">Turno C</option>
+            <option value="turn-D">Turno D</option>
+            <option value="turn-E">Turno E</option>
+             <option value="turn-G">Turno G (12pm a 8pm)</option>
+              <option value="falta">Faltas</option>
+            <option value="vacation">Vacaciones</option>
+            <option value="medical">Licencia Médica</option>
+            <option value="permission">Permiso</option>
+          </select>
+        </div>
+        
+        <div class="table-container">
+          <table id="schedulesTable">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Posición</th>
+                <th>Tipo</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Días</th>
+                <th>Patrón</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="schedulesBody">
+              <!-- Los registros se cargarán aquí -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="calendar" class="tab-content">
+      <div class="form-container">
+        <h2><i class="fas fa-calendar-alt"></i> Calendario de Horarios</h2>
+        
+        <div class="calendar-controls">
+          <div class="calendar-nav">
+            <button class="calendar-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <h3 class="calendar-title" id="calendarTitle">Mes Año</h3>
+            <button class="calendar-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          
+          <div class="calendar-filters">
+            <input type="text" id="calendarEmployee" class="form-control" placeholder="Filtrar por colaborador" onchange="generateCalendar()">
+            <select id="calendarPosition" class="form-control" onchange="generateCalendar()">
+              <option value="">Todas las posiciones</option>
+              <!-- Las opciones se llenarán dinámicamente -->
+            </select>
+            <select id="calendarEventType" class="form-control" onchange="generateCalendar()">
+              <option value="">Todos los tipos</option>
+              <option value="free">Día Libre</option>
+              <option value="turn-A">Turno A</option>
+              <option value="turn-B">Turno B</option>
+              <option value="turn-C">Turno C</option>
+              <option value="turn-D">Turno D</option>
+              <option value="turn-E">Turno E</option>
+              <option value="turn-G">Turno G</option>
+              <option value="falta">Faltas</option>
+              <option value="vacation">Vacaciones</option>
+              <option value="medical">Licencia Médica</option>
+              <option value="permission">Permiso</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--free-day);"></div>
+            <span>Día Libre</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-A);"></div>
+            <span>Turno A</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-B);"></div>
+            <span>Turno B</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-C);"></div>
+            <span>Turno C</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-D);"></div>
+            <span>Turno D</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-E);"></div>
+            <span>Turno E</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--turn-G);"></div>
+            <span>Turno G</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--falta);"></div>
+            <span>Faltas</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--vacation);"></div>
+            <span>Vacaciones</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--medical);"></div>
+            <span>Licencia Médica</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--permission);"></div>
+            <span>Permiso</span>
+          </div>
+        </div>
+        
+        <div id="calendarContainer" class="calendar-grid">
+          <!-- El calendario se generará aquí -->
+        </div>
+      </div>
+    </div>
+
+    <div id="print" class="tab-content">
+      <div class="form-container">
+        <h2><i class="fas fa-print"></i> Vista de Impresión</h2>
+        
+        <div class="search-container">
+          <select id="printPosition" class="form-control" onchange="updatePrintPreview()">
+            <option value="">Todas las posiciones</option>
+            <!-- Las opciones se llenarán dinámicamente -->
+          </select>
+          <input type="month" id="printMonth" class="form-control" onchange="updatePrintPreview()">
+          <button class="btn" onclick="printDocument()"><i class="fas fa-print"></i> Imprimir</button>
+        </div>
+        
+        <div class="print-view" id="printPreview">
+          <!-- La vista previa de impresión se generará aquí -->
+        </div>
+      </div>
+    </div>
+
+    <div id="settings" class="tab-content">
+      <div class="form-container">
+        <h2><i class="fas fa-cog"></i> Configuración</h2>
+        
+        <div class="settings-container">
+          <div class="settings-group">
+            <h3 class="settings-title"><i class="fas fa-bell"></i> Alertas de Días Libres</h3>
+            <div class="form-group">
+              <label for="alertDaysBefore">Días de anticipación para alerta:</label>
+              <input type="number" id="alertDaysBefore" class="form-control" min="1" value="5">
+              <small>Número de días antes del día libre para mostrar alerta</small>
+            </div>
+            <div class="form-group">
+              <label for="reminderDaysBefore">Días de anticipación para recordatorio de turno:</label>
+              <input type="number" id="reminderDaysBefore" class="form-control" min="1" value="2">
+              <small>Número de días antes de regresar para recordar el turno</small>
+            </div>
+            <div class="settings-checkbox">
+              <input type="checkbox" id="enableSoundAlerts">
+              <label for="enableSoundAlerts">Activar sonido de alertas</label>
+            </div>
+          </div>
+          
+          <button class="btn" onclick="saveSettings()"><i class="fas fa-save"></i> Guardar Configuración</button>
+          <button class="btn btn-danger" onclick="confirmClearAll()"><i class="fas fa-trash-alt"></i> Vaciar Todos los Registros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para detalles del evento -->
+  <div class="modal" id="eventModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalEventHeader">
+        <h3 id="modalEventTitle">Detalles del Evento</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalEventBody">
+        <!-- Los detalles del evento se cargarán aquí -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para editar registro -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="editModalTitle">Editar Registro</h3>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editId">
+          <div class="form-group">
+            <label for="editEmployeeName">Nombre del Colaborador:</label>
+            <input type="text" id="editEmployeeName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editEmployeeCode">Código del Colaborador:</label>
+            <input type="text" id="editEmployeeCode" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="editEmployeePosition">Posición/Cargo:</label>
+            <input type="text" id="editEmployeePosition" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="editEventType">Tipo de Registro:</label>
+            <select id="editEventType" class="form-control">
+              <option value="free">Día Libre</option>
+              <option value="turn-A">Turno A (7am a 3pm)</option>
+              <option value="turn-B">Turno B (3pm a 11pm)</option>
+              <option value="turn-C">Turno C (11pm a 7am)</option>
+              <option value="turn-D">Turno D (7am a 7pm)</option>
+              <option value="turn-E">Turno E (7pm a 7am)</option>
+              <option value="turn-G">Turno G (12pm a 8pm)</option>
+              <option value="falta">Faltas (F)</option>
+              <option value="vacation">Vacaciones (V)</option>
+              <option value="medical">Licencia Médica (LM)</option>
+              <option value="permission">Permiso (P)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editStartDate">Fecha de Inicio:</label>
+            <input type="date" id="editStartDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editEndDate">Fecha de Fin:</label>
+            <input type="date" id="editEndDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="editDaysCount">Días:</label>
+            <input type="number" id="editDaysCount" class="form-control" min="1" value="1" readonly>
+          </div>
+          <div class="form-group">
+            <label for="editPattern">Patrón:</label>
+            <input type="text" id="editPattern" class="form-control">
+          </div>
+          <div class="form-group" style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <button type="button" class="btn" onclick="updateSchedule()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio para alertas -->
+  <audio id="alertSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    // Firebase configuration and initialization
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, Timestamp, doc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Global variables
+    let currentUser = null;
+    let allSchedules = [];
+    let allEmployeeNames = new Set();
+    let allEmployeePositions = new Set();
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let alertDaysBefore = 5;
+    let reminderDaysBefore = 2;
+    let enableSoundAlerts = false;
+    const alertSound = document.getElementById('alertSound');
+
+    // Format date to DD/MM/YYYY (fixed timezone issue)
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      // Ajuste para corregir diferencia de zona horaria
+      const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+      const day = String(adjustedDate.getDate()).padStart(2, '0');
+      const month = String(adjustedDate.getMonth() + 1).padStart(2, '0');
+      const year = adjustedDate.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    // Calculate days between two dates (fixed timezone issue)
+    function daysBetween(startDate, endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      // Ajuste para fechas sin hora (medianoche UTC)
+      const startUTC = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+      const endUTC = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+      const diffTime = Math.abs(endUTC - startUTC);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set current date as default for start date
+      const today = new Date();
+      // Ajuste para fecha sin hora local
+      const formattedDate = today.toISOString().split('T')[0];
+      document.getElementById('startDate').value = formattedDate;
+      
+      // Set current month for print view
+      const currentMonthForInput = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('printMonth').value = currentMonthForInput;
+      
+      // Update calendar title
+      updateCalendarTitle();
+      
+      // Listen for changes in free day pattern
+      document.getElementById('freeDayPattern').addEventListener('change', toggleFields);
+      
+      // Initial field setup
+      toggleFields();
+      
+      // Load settings
+      loadSettings();
+      
+      // Initialize autocomplete for employee names and positions
+      initAutocomplete();
+
+      // Listen for date changes to update days count
+      document.getElementById('startDate').addEventListener('change', updateDaysCount);
+      document.getElementById('endDate').addEventListener('change', updateDaysCount);
+      document.getElementById('editStartDate').addEventListener('change', updateEditDaysCount);
+      document.getElementById('editEndDate').addEventListener('change', updateEditDaysCount);
+    });
+
+    // Update days count based on start and end dates
+    function updateDaysCount() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      
+      if (startDate && endDate) {
+        const days = daysBetween(startDate, endDate);
+        document.getElementById('daysCount').value = days;
+      }
+    }
+
+    // Update edit days count
+    function updateEditDaysCount() {
+      const startDate = document.getElementById('editStartDate').value;
+      const endDate = document.getElementById('editEndDate').value;
+      
+      if (startDate && endDate) {
+        const days = daysBetween(startDate, endDate);
+        document.getElementById('editDaysCount').value = days;
+      }
+    }
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadSchedules();
+        generateCalendar();
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "index.html";
+      }
+    });
+
+    // Initialize autocomplete for employee names and positions
+    function initAutocomplete() {
+      const nameInput = document.getElementById('employeeName');
+      const positionInput = document.getElementById('employeePosition');
+      
+      nameInput.addEventListener('input', function() {
+        const input = this.value.toLowerCase();
+        const suggestions = document.getElementById('nameSuggestions');
+        
+        if (input.length < 2) {
+          suggestions.style.display = 'none';
+          return;
+        }
+        
+        const matches = Array.from(allEmployeeNames).filter(name => 
+          name.toLowerCase().includes(input)
+        );
+        
+        if (matches.length > 0) {
+          suggestions.innerHTML = matches.map(name => 
+            `<div class="suggestion-item" onclick="selectSuggestion('employeeName', '${name}')">${name}</div>`
+          ).join('');
+          suggestions.style.display = 'block';
+        } else {
+          suggestions.style.display = 'none';
+        }
+      });
+      
+      positionInput.addEventListener('input', function() {
+        const input = this.value.toLowerCase();
+        const suggestions = document.getElementById('positionSuggestions');
+        
+        if (input.length < 2) {
+          suggestions.style.display = 'none';
+          return;
+        }
+        
+        const matches = Array.from(allEmployeePositions).filter(position => 
+          position.toLowerCase().includes(input)
+        );
+        
+        if (matches.length > 0) {
+          suggestions.innerHTML = matches.map(position => 
+            `<div class="suggestion-item" onclick="selectSuggestion('employeePosition', '${position}')">${position}</div>`
+          ).join('');
+          suggestions.style.display = 'block';
+        } else {
+          suggestions.style.display = 'none';
+        }
+      });
+      
+      // Close suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.form-group')) {
+          document.getElementById('nameSuggestions').style.display = 'none';
+          document.getElementById('positionSuggestions').style.display = 'none';
+        }
+      });
+    }
+
+    // Toggle fields based on event type
+    window.toggleFields = function() {
+      const eventType = document.getElementById('eventType').value;
+      const freeDayPatternGroup = document.getElementById('freeDayPatternGroup');
+      const customDaysGroup = document.getElementById('customDaysGroup');
+      const endDateGroup = document.getElementById('endDateGroup');
+      const daysCountGroup = document.getElementById('daysCountGroup');
+
+      if (eventType === 'free') {
+        freeDayPatternGroup.style.display = 'block';
+        const pattern = document.getElementById('freeDayPattern').value;
+        if (pattern === 'custom') {
+          customDaysGroup.style.display = 'block';
+        } else {
+          customDaysGroup.style.display = 'none';
+        }
+        endDateGroup.style.display = 'block';
+        daysCountGroup.style.display = 'none';
+      } else {
+        freeDayPatternGroup.style.display = 'none';
+        customDaysGroup.style.display = 'none';
+        endDateGroup.style.display = 'block';
+        daysCountGroup.style.display = 'block';
+      }
+    };
+
+    // Select suggestion
+    window.selectSuggestion = function(fieldId, value) {
+      document.getElementById(fieldId).value = value;
+      document.getElementById(fieldId === 'employeeName' ? 'nameSuggestions' : 'positionSuggestions').style.display = 'none';
+      
+      // If selecting a name, try to autofill position if possible
+      if (fieldId === 'employeeName') {
+        const matchingSchedule = allSchedules.find(s => s.employeeName === value);
+        if (matchingSchedule && matchingSchedule.employeePosition) {
+          document.getElementById('employeePosition').value = matchingSchedule.employeePosition;
+        }
+      }
+    };
+
+    // Play alert sound if enabled
+    function playAlertSound() {
+      if (enableSoundAlerts) {
+        alertSound.currentTime = 0;
+        alertSound.play().catch(e => console.log("Error al reproducir sonido:", e));
+      }
+    }
+
+    // Register schedule function (with fixed date handling)
+    window.registerSchedule = async function() {
+      const employeeName = document.getElementById('employeeName').value;
+      const employeeCode = document.getElementById('employeeCode').value;
+      const employeePosition = document.getElementById('employeePosition').value;
+      const eventType = document.getElementById('eventType').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const daysCount = document.getElementById('daysCount').value;
+      const freeDayPattern = document.getElementById('freeDayPattern').value;
+      const customDays = document.getElementById('customDays').value;
+
+      if (!employeeName || !startDate) {
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Nombre del colaborador y fecha de inicio son obligatorios',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+
+      try {
+        // Determine the pattern and days
+        let pattern = '';
+        let days = 1;
+
+        if (eventType === 'free') {
+          if (freeDayPattern === '12-3') {
+            pattern = 'Cada 12 días por 3 días';
+            days = 3;
+          } else if (freeDayPattern === '24-6') {
+            pattern = 'Cada 24 días por 6 días';
+            days = 6;
+          } else if (freeDayPattern === '7-1') {
+            pattern = 'Cada semana por 1 día';
+            days = 1;
+          } else {
+            pattern = 'Personalizado';
+            days = parseInt(customDays) || 1;
+          }
+        } else {
+          days = parseInt(daysCount) || 1;
+        }
+
+        // Calculate end date if not provided (with fixed date handling)
+        let calculatedEndDate = endDate;
+        if (!endDate) {
+          // Use the same day if no end date is provided
+          calculatedEndDate = startDate;
+        }
+
+        // Calculate duration in days (with fixed date handling)
+        const duration = daysBetween(startDate, calculatedEndDate);
+
+        // Prepare data for Firebase (store dates as-is without timezone conversion)
+        const scheduleData = {
+          employeeName,
+          employeeCode,
+          employeePosition,
+          eventType,
+          startDate, // Store as string in YYYY-MM-DD format
+          endDate: calculatedEndDate, // Store as string in YYYY-MM-DD format
+          daysCount: duration,
+          pattern: eventType === 'free' ? pattern : '',
+          registeredAt: Timestamp.now(),
+          registeredBy: currentUser.email
+        };
+
+        // Add to Firestore
+        await addDoc(collection(db, "Horarios"), scheduleData);
+
+        playAlertSound();
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro exitoso',
+          text: 'El horario/día libre ha sido registrado correctamente',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+
+        // Clear form
+        document.getElementById('employeeName').value = '';
+        document.getElementById('employeeCode').value = '';
+        document.getElementById('employeePosition').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('daysCount').value = '1';
+
+        // Reload schedules
+        loadSchedules();
+        generateCalendar();
+
+      } catch (error) {
+        console.error("Error al registrar horario:", error);
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al registrar el horario. Inténtalo de nuevo.',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Load schedules from Firestore (with fixed date handling)
+    async function loadSchedules() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Horarios"));
+        allSchedules = [];
+        allEmployeeNames = new Set();
+        allEmployeePositions = new Set();
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const schedule = {
+            id: doc.id,
+            ...data,
+            // Store dates exactly as they were entered (no conversion)
+            startDate: data.startDate,
+            endDate: data.endDate,
+            registeredAt: data.registeredAt?.toDate() || new Date(),
+            formattedStartDate: formatDate(data.startDate),
+            formattedEndDate: formatDate(data.endDate)
+          };
+          
+          allSchedules.push(schedule);
+          
+          // Add to names and positions sets for autocomplete
+          if (data.employeeName) {
+            allEmployeeNames.add(data.employeeName);
+          }
+          if (data.employeePosition) {
+            allEmployeePositions.add(data.employeePosition);
+          }
+        });
+        
+        // Update positions dropdowns
+        updatePositionFilters();
+        
+        renderSchedules(allSchedules);
+        updatePrintPreview();
+      } catch (error) {
+        console.error("Error al cargar horarios:", error);
+      }
+    }
+
+    // Update position filters in all dropdowns
+    function updatePositionFilters() {
+      const positionSelects = [
+        document.getElementById('searchPosition'),
+        document.getElementById('calendarPosition'),
+        document.getElementById('printPosition')
+      ];
+      
+      positionSelects.forEach(select => {
+        // Save current value
+        const currentValue = select.value;
+        
+        // Clear and add default option
+        select.innerHTML = '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = select.id === 'printPosition' ? 'Todas las posiciones' : 'Todas las posiciones/cargos';
+        select.appendChild(defaultOption);
+        
+        // Add positions sorted
+        Array.from(allEmployeePositions).sort().forEach(position => {
+          const option = document.createElement('option');
+          option.value = position;
+          option.textContent = position;
+          select.appendChild(option);
+        });
+        
+        // Restore selected value if it still exists
+        if (Array.from(allEmployeePositions).includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
+    }
+
+    // Render schedules in the table (with consistent date display)
+    function renderSchedules(schedules) {
+      const tbody = document.getElementById('schedulesBody');
+      tbody.innerHTML = '';
+      
+      if (schedules.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="9" style="text-align: center;">No hay registros de horarios</td>';
+        tbody.appendChild(row);
+        return;
+      }
+      
+      // Group by employee name
+      const grouped = {};
+      schedules.forEach(schedule => {
+        if (!grouped[schedule.employeeName]) {
+          grouped[schedule.employeeName] = [];
+        }
+        grouped[schedule.employeeName].push(schedule);
+      });
+      
+      // Render grouped schedules
+      Object.keys(grouped).sort().forEach(name => {
+        const group = grouped[name];
+        
+        // Group header row
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'group-header';
+        headerRow.onclick = () => toggleGroupDetails(name);
+        
+        // Use first schedule for group info (assuming code and position are the same for same name)
+        const firstSchedule = group[0];
+        
+        headerRow.innerHTML = `
+          <td>${name}</td>
+          <td>${firstSchedule.employeeCode || '-'}</td>
+          <td>${firstSchedule.employeePosition || '-'}</td>
+          <td colspan="5"><i class="fas fa-caret-down"></i> ${group.length} registros</td>
+          <td></td>
+        `;
+        tbody.appendChild(headerRow);
+        
+        // Detail rows
+        group.forEach(schedule => {
+          const detailRow = document.createElement('tr');
+          detailRow.className = 'detail-row';
+          detailRow.dataset.group = name;
+          
+          // Determine type display name
+          let typeDisplay = '';
+          switch(schedule.eventType) {
+            case 'free': typeDisplay = 'Día Libre'; break;
+            case 'turn-A': typeDisplay = 'Turno A (7am-3pm)'; break;
+            case 'turn-B': typeDisplay = 'Turno B (3pm-11pm)'; break;
+            case 'turn-C': typeDisplay = 'Turno C (11pm-7am)'; break;
+            case 'turn-D': typeDisplay = 'Turno D (7am-7pm)'; break;
+            case 'turn-E': typeDisplay = 'Turno E (7pm-7am)'; break;
+            case 'turn-G': typeDisplay = 'Turno G (12pm-8pm)'; break;
+            case 'falta': typeDisplay = 'Faltas'; break;
+            case 'vacation': typeDisplay = 'Vacaciones (V)'; break;
+            case 'medical': typeDisplay = 'Licencia Médica (LM)'; break;
+            case 'permission': typeDisplay = 'Permiso (P)'; break;
+            default: typeDisplay = schedule.eventType;
+          }
+          
+          detailRow.innerHTML = `
+            <td>${schedule.employeeName}</td>
+            <td>${schedule.employeeCode || '-'}</td>
+            <td>${schedule.employeePosition || '-'}</td>
+            <td>${typeDisplay}</td>
+            <td>${schedule.formattedStartDate}</td>
+            <td>${schedule.formattedEndDate}</td>
+            <td>${schedule.daysCount}</td>
+            <td>${schedule.pattern || '-'}</td>
+            <td class="action-buttons">
+              <button class="edit-btn action-btn" onclick="editSchedule('${schedule.id}')"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn action-btn" onclick="confirmDeleteSchedule('${schedule.id}')"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          `;
+          tbody.appendChild(detailRow);
+        });
+      });
+    }
+
+    // Toggle group details
+    window.toggleGroupDetails = function(groupName) {
+      const detailRows = document.querySelectorAll(`tr.detail-row[data-group="${groupName}"]`);
+      detailRows.forEach(row => {
+        row.classList.toggle('show');
+      });
+    };
+
+    // Filter schedules by employee name, position and event type
+    window.filterSchedules = function() {
+      const nameTerm = document.getElementById('searchEmployee').value.toLowerCase();
+      const positionTerm = document.getElementById('searchPosition').value.toLowerCase();
+      const eventType = document.getElementById('searchEventType').value;
+      
+      const filtered = allSchedules.filter(schedule => {
+        const nameMatch = schedule.employeeName.toLowerCase().includes(nameTerm);
+        const positionMatch = schedule.employeePosition?.toLowerCase().includes(positionTerm) || false;
+        const typeMatch = eventType === '' || schedule.eventType === eventType;
+        
+        return nameMatch && positionMatch && typeMatch;
+      });
+      
+      // Re-render with filtered schedules
+      const tbody = document.getElementById('schedulesBody');
+      tbody.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="9" style="text-align: center;">No se encontraron registros</td>';
+        tbody.appendChild(row);
+        return;
+      }
+      
+      // Group filtered results
+      const grouped = {};
+      filtered.forEach(schedule => {
+        if (!grouped[schedule.employeeName]) {
+          grouped[schedule.employeeName] = [];
+        }
+        grouped[schedule.employeeName].push(schedule);
+      });
+      
+      // Render grouped schedules
+      Object.keys(grouped).sort().forEach(name => {
+        const group = grouped[name];
+        
+        // Group header row
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'group-header';
+        headerRow.onclick = () => toggleGroupDetails(name);
+        
+        // Use first schedule for group info
+        const firstSchedule = group[0];
+        
+        headerRow.innerHTML = `
+          <td>${name}</td>
+          <td>${firstSchedule.employeeCode || '-'}</td>
+          <td>${firstSchedule.employeePosition || '-'}</td>
+          <td colspan="5"><i class="fas fa-caret-down"></i> ${group.length} registros</td>
+          <td></td>
+        `;
+        tbody.appendChild(headerRow);
+        
+        // Detail rows
+        group.forEach(schedule => {
+          const detailRow = document.createElement('tr');
+          detailRow.className = 'detail-row show'; // Show all filtered details by default
+          detailRow.dataset.group = name;
+          
+          // Determine type display name
+          let typeDisplay = '';
+          switch(schedule.eventType) {
+            case 'free': typeDisplay = 'Día Libre'; break;
+            case 'turn-A': typeDisplay = 'Turno A (7am-3pm)'; break;
+            case 'turn-B': typeDisplay = 'Turno B (3pm-11pm)'; break;
+            case 'turn-C': typeDisplay = 'Turno C (11pm-7am)'; break;
+            case 'turn-D': typeDisplay = 'Turno D (7am-7pm)'; break;
+            case 'turn-E': typeDisplay = 'Turno E (7pm-7am)'; break;
+            case 'turn-G': typeDisplay = 'Turno G (12pm-8pm)'; break;
+            case 'falta': typeDisplay = 'Faltas'; break;
+            case 'vacation': typeDisplay = 'Vacaciones (V)'; break;
+            case 'medical': typeDisplay = 'Licencia Médica (LM)'; break;
+            case 'permission': typeDisplay = 'Permiso (P)'; break;
+            default: typeDisplay = schedule.eventType;
+          }
+          
+          detailRow.innerHTML = `
+            <td>${schedule.employeeName}</td>
+            <td>${schedule.employeeCode || '-'}</td>
+            <td>${schedule.employeePosition || '-'}</td>
+            <td>${typeDisplay}</td>
+            <td>${schedule.formattedStartDate}</td>
+            <td>${schedule.formattedEndDate}</td>
+            <td>${schedule.daysCount}</td>
+            <td>${schedule.pattern || '-'}</td>
+            <td class="action-buttons">
+              <button class="edit-btn action-btn" onclick="editSchedule('${schedule.id}')"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn action-btn" onclick="confirmDeleteSchedule('${schedule.id}')"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          `;
+          tbody.appendChild(detailRow);
+        });
+      });
+    };
+
+    // Update calendar title
+    function updateCalendarTitle() {
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      document.getElementById('calendarTitle').textContent = 
+        `${monthNames[currentMonth]} ${currentYear}`;
+    }
+
+    // Change month for calendar
+    window.changeMonth = function(offset) {
+      currentMonth += offset;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      } else if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      updateCalendarTitle();
+      generateCalendar();
+    };
+
+    // Check if a date is within alert period for free days (with fixed date handling)
+    function isInAlertPeriod(event, date) {
+      if (event.eventType !== 'free') return false;
+      
+      // Create dates without time components to avoid timezone issues
+      const eventStart = new Date(event.startDate);
+      const eventStartDate = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+      
+      const checkDateObj = new Date(date);
+      const checkDate = new Date(checkDateObj.getFullYear(), checkDateObj.getMonth(), checkDateObj.getDate());
+      
+      const diffDays = Math.ceil((eventStartDate - checkDate) / (1000 * 60 * 60 * 24));
+      
+      return diffDays > 0 && diffDays <= alertDaysBefore;
+    }
+
+    // Check if a date is within reminder period for returning to work (with fixed date handling)
+    function isInReminderPeriod(event, date) {
+      if (event.eventType !== 'free') return false;
+      
+      // Create dates without time components to avoid timezone issues
+      const eventEnd = new Date(event.endDate);
+      const eventEndDate = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+      
+      const checkDateObj = new Date(date);
+      const checkDate = new Date(checkDateObj.getFullYear(), checkDateObj.getMonth(), checkDateObj.getDate());
+      
+      const diffDays = Math.ceil((checkDate - eventEndDate) / (1000 * 60 * 60 * 24));
+      
+      return diffDays >= 0 && diffDays < reminderDaysBefore;
+    }
+
+    // Generate calendar view (with consistent date handling)
+    window.generateCalendar = async function() {
+      // Get first and last day of the month
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      
+      // Get day of week for first day (0 = Sunday, 1 = Monday, etc.)
+      const firstDayOfWeek = firstDay.getDay();
+      
+      // Get number of days in month
+      const daysInMonth = lastDay.getDate();
+      
+      // Get today's date for highlighting
+      const today = new Date();
+      const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+      
+      // Prepare calendar container
+      const calendarContainer = document.getElementById('calendarContainer');
+      calendarContainer.innerHTML = '';
+      
+      // Add day headers
+      const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      daysOfWeek.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-header';
+        dayHeader.textContent = day;
+        calendarContainer.appendChild(dayHeader);
+      });
+      
+      // Add empty cells for days before the first day of the month
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarContainer.appendChild(emptyDay);
+      }
+      
+      // Filter schedules for this month and filters
+      const employeeFilter = document.getElementById('calendarEmployee').value.toLowerCase();
+      const positionFilter = document.getElementById('calendarPosition').value.toLowerCase();
+      const eventTypeFilter = document.getElementById('calendarEventType').value;
+      
+      const filteredSchedules = allSchedules.filter(schedule => {
+        // Check if schedule overlaps with this month (using date strings directly)
+        const scheduleStart = new Date(schedule.startDate);
+        const scheduleEnd = new Date(schedule.endDate);
+        
+        const overlaps = (scheduleStart <= lastDay && scheduleEnd >= firstDay);
+        
+        // Check filters
+        const employeeMatch = !employeeFilter || 
+          schedule.employeeName.toLowerCase().includes(employeeFilter);
+        
+        const positionMatch = !positionFilter || 
+          (schedule.employeePosition && schedule.employeePosition.toLowerCase().includes(positionFilter));
+        
+        const typeMatch = !eventTypeFilter || schedule.eventType === eventTypeFilter;
+        
+        return overlaps && employeeMatch && positionMatch && typeMatch;
+      });
+      
+      // Check for alerts to show
+      const todayStr = today.toISOString().split('T')[0];
+      let hasAlerts = false;
+      
+      filteredSchedules.forEach(schedule => {
+        if (isInAlertPeriod(schedule, todayStr) || isInReminderPeriod(schedule, todayStr)) {
+          hasAlerts = true;
+        }
+      });
+      
+      if (hasAlerts && enableSoundAlerts) {
+        playAlertSound();
+        
+        // Show alert modal if there are alerts
+        showAlertsModal(filteredSchedules, todayStr);
+      }
+      
+      // Add days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = day;
+        
+        // Highlight today
+        if (isCurrentMonth && day === today.getDate()) {
+          dayNumber.classList.add('today');
+        }
+        
+        dayElement.appendChild(dayNumber);
+        
+        // Check for events on this day (using date string comparison)
+        const currentDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
+        
+        // Find events for this day
+        const dayEvents = [];
+        
+        filteredSchedules.forEach(schedule => {
+          const scheduleStart = schedule.startDate;
+          const scheduleEnd = schedule.endDate;
+          
+          // Compare date strings directly (YYYY-MM-DD format)
+          if (currentDate >= scheduleStart && currentDate <= scheduleEnd) {
+            dayEvents.push(schedule);
+          }
+        });
+        
+        // Add events container
+        const eventsContainer = document.createElement('div');
+        eventsContainer.className = 'events-container';
+        
+        // Add events to day
+        dayEvents.forEach(event => {
+          const eventElement = document.createElement('div');
+          eventElement.className = 'event-badge';
+          
+          // Determine class based on event type
+          let eventClass = '';
+          let eventText = event.employeeName.split(' ')[0]; // Show only first name
+          
+          // Check for alert or reminder status
+          const isAlert = isInAlertPeriod(event, currentDate);
+          const isReminder = isInReminderPeriod(event, currentDate);
+          
+          switch(event.eventType) {
+            case 'free':
+              eventClass = isAlert ? 'alert' : 'free-day';
+              eventText += isAlert ? ': Próximo a liberar' : ': Libre';
+              break;
+            case 'turn-A':
+              eventClass = isReminder ? 'alert' : 'turn-A';
+              eventText += isReminder ? ': Entrar a Turno A' : ': A';
+              break;
+            case 'turn-B':
+              eventClass = isReminder ? 'alert' : 'turn-B';
+              eventText += isReminder ? ': Entrar a Turno B' : ': B';
+              break;
+            case 'turn-C':
+              eventClass = isReminder ? 'alert' : 'turn-C';
+              eventText += isReminder ? ': Entrar a Turno C' : ': C';
+              break;
+            case 'turn-D':
+              eventClass = isReminder ? 'alert' : 'turn-D';
+              eventText += isReminder ? ': Entrar a Turno D' : ': D';
+              break;
+            case 'turn-E':
+              eventClass = isReminder ? 'alert' : 'turn-E';
+              eventText += isReminder ? ': Entrar a Turno E' : ': E';
+              break;
+              case 'turn-G':
+              eventClass = isReminder ? 'alert' : 'turn-G';
+              eventText += isReminder ? ': Entrar a Turno G' : ': G';
+              break;
+              case 'falta':
+              eventClass = 'falta';
+              eventText += ': F';
+              break;
+            case 'vacation':
+              eventClass = 'vacation';
+              eventText += ': Vac';
+              break;
+            case 'medical':
+              eventClass = 'medical';
+              eventText += ': LM';
+              break;
+            case 'permission':
+              eventClass = 'permission';
+              eventText += ': Perm';
+              break;
+          }
+          
+          eventElement.classList.add(eventClass);
+          eventElement.textContent = eventText;
+          eventElement.onclick = () => showEventDetails(event);
+          eventsContainer.appendChild(eventElement);
+        });
+        
+        dayElement.appendChild(eventsContainer);
+        calendarContainer.appendChild(dayElement);
+      }
+    };
+
+    // Show alerts modal (with consistent date display)
+    function showAlertsModal(schedules, todayStr) {
+      const alertSchedules = schedules.filter(schedule => 
+        isInAlertPeriod(schedule, todayStr) || isInReminderPeriod(schedule, todayStr)
+      );
+
+      if (alertSchedules.length === 0) return;
+
+      let alertMessage = '<div style="max-height: 300px; overflow-y: auto;">';
+      
+      alertSchedules.forEach(schedule => {
+        const isAlert = isInAlertPeriod(schedule, todayStr);
+        const isReminder = isInReminderPeriod(schedule, todayStr);
+        
+        let message = '';
+        if (isAlert) {
+          const daysUntil = Math.ceil((new Date(schedule.startDate) - new Date(todayStr)) / (1000 * 60 * 60 * 24));
+          message = `<strong>${schedule.employeeName}</strong> en ${daysUntil} días estará descansando, a partir del dia (${formatDate(schedule.startDate)})`;
+        } else if (isReminder) {
+          const daysSince = Math.ceil((new Date(todayStr) - new Date(schedule.endDate)) / (1000 * 60 * 60 * 24));
+          message = `<strong>${schedule.employeeName}</strong> debe regresar al turno ${schedule.eventType.replace('turn-', '')} (terminó su día libre el ${formatDate(schedule.endDate)})`;
+        }
+        
+        alertMessage += `<p style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">${message}</p>`;
+      });
+
+      alertMessage += '</div>';
+
+      Swal.fire({
+        title: 'Te acordemos que',
+        html: alertMessage,
+        icon: 'warning',
+        background: '#1a2a38',
+        color: '#ecf0f1',
+        confirmButtonColor: '#15a086',
+        allowOutsideClick: false
+      });
+    }
+
+    // Show event details in modal (with consistent date display)
+    function showEventDetails(event) {
+      const modal = document.getElementById('eventModal');
+      const modalHeader = document.getElementById('modalEventHeader');
+      const modalTitle = document.getElementById('modalEventTitle');
+      const modalBody = document.getElementById('modalEventBody');
+      
+      // Determine type display name
+      let typeDisplay = '';
+      let headerClass = '';
+      switch(event.eventType) {
+        case 'free': 
+          typeDisplay = 'Día Libre';
+          headerClass = 'free-day';
+          break;
+        case 'turn-A': 
+          typeDisplay = 'Turno A (7am-3pm)';
+          headerClass = 'turn-A';
+          break;
+        case 'turn-B': 
+          typeDisplay = 'Turno B (3pm-11pm)';
+          headerClass = 'turn-B';
+          break;
+        case 'turn-C': 
+          typeDisplay = 'Turno C (11pm-7am)';
+          headerClass = 'turn-C';
+          break;
+        case 'turn-D': 
+          typeDisplay = 'Turno D (7am-7pm)';
+          headerClass = 'turn-D';
+          break;
+        case 'turn-E': 
+          typeDisplay = 'Turno E (7pm-7am)';
+          headerClass = 'turn-E';
+          break;
+          case 'turn-G': 
+          typeDisplay = 'Turno G (12pm-8pm)';
+          headerClass = 'turn-G';
+          break;
+          case 'falta': 
+          typeDisplay = 'Faltas';
+          headerClass = 'falta';
+          break;
+        case 'vacation': 
+          typeDisplay = 'Vacaciones (V)';
+          headerClass = 'vacation';
+          break;
+        case 'medical': 
+          typeDisplay = 'Licencia Médica (LM)';
+          headerClass = 'medical';
+          break;
+        case 'permission': 
+          typeDisplay = 'Permiso (P)';
+          headerClass = 'permission';
+          break;
+        default: 
+          typeDisplay = event.eventType;
+          headerClass = '';
+      }
+      
+      // Set modal header class
+      modalHeader.className = 'modal-header ' + headerClass;
+      
+      modalTitle.textContent = `Detalles: ${event.employeeName}`;
+      
+      modalBody.innerHTML = `
+        <div class="event-detail">
+          <h3>${typeDisplay}</h3>
+          <p><span class="detail-label">Código:</span> ${event.employeeCode || 'No especificado'}</p>
+          <p><span class="detail-label">Posición:</span> ${event.employeePosition || 'No especificada'}</p>
+          <p><span class="detail-label">Fecha de inicio:</span> ${formatDate(event.startDate)}</p>
+          <p><span class="detail-label">Fecha de fin:</span> ${formatDate(event.endDate)}</p>
+          <p><span class="detail-label">Duración:</span> ${event.daysCount} días</p>
+          ${event.pattern ? `<p><span class="detail-label">Patrón:</span> ${event.pattern}</p>` : ''}
+          <p><span class="detail-label">Registrado por:</span> ${event.registeredBy}</p>
+          <p><span class="detail-label">Fecha de registro:</span> ${event.registeredAt.toLocaleString()}</p>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+    }
+
+    // Close modal
+    window.closeModal = function() {
+      document.getElementById('eventModal').classList.remove('active');
+    };
+
+    // Edit schedule (with consistent date handling)
+    window.editSchedule = function(scheduleId) {
+      const schedule = allSchedules.find(s => s.id === scheduleId);
+      if (!schedule) return;
+
+      document.getElementById('editId').value = schedule.id;
+      document.getElementById('editEmployeeName').value = schedule.employeeName;
+      document.getElementById('editEmployeeCode').value = schedule.employeeCode || '';
+      document.getElementById('editEmployeePosition').value = schedule.employeePosition || '';
+      document.getElementById('editEventType').value = schedule.eventType;
+      // Use stored date strings directly (no conversion)
+      document.getElementById('editStartDate').value = schedule.startDate;
+      document.getElementById('editEndDate').value = schedule.endDate;
+      document.getElementById('editDaysCount').value = schedule.daysCount;
+      document.getElementById('editPattern').value = schedule.pattern || '';
+
+      document.getElementById('editModal').classList.add('active');
+    };
+
+    // Close edit modal
+    window.closeEditModal = function() {
+      document.getElementById('editModal').classList.remove('active');
+    };
+
+    // Update schedule (with consistent date handling)
+    window.updateSchedule = async function() {
+      const id = document.getElementById('editId').value;
+      const employeeName = document.getElementById('editEmployeeName').value;
+      const employeeCode = document.getElementById('editEmployeeCode').value;
+      const employeePosition = document.getElementById('editEmployeePosition').value;
+      const eventType = document.getElementById('editEventType').value;
+      const startDate = document.getElementById('editStartDate').value;
+      const endDate = document.getElementById('editEndDate').value;
+      const daysCount = document.getElementById('editDaysCount').value;
+      const pattern = document.getElementById('editPattern').value;
+
+      if (!employeeName || !startDate) {
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Nombre del colaborador y fecha de inicio son obligatorios',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+
+      try {
+        // Calculate duration in days (with fixed date handling)
+        const duration = daysBetween(startDate, endDate);
+
+        // Prepare data for Firebase (store dates as-is)
+        const scheduleData = {
+          employeeName,
+          employeeCode,
+          employeePosition,
+          eventType,
+          startDate, // Store as string in YYYY-MM-DD format
+          endDate,   // Store as string in YYYY-MM-DD format
+          daysCount: duration,
+          pattern: eventType === 'free' ? pattern : '',
+          updatedAt: Timestamp.now(),
+          updatedBy: currentUser.email
+        };
+
+        // Update in Firestore
+        await updateDoc(doc(db, "Horarios", id), scheduleData);
+
+        playAlertSound();
+        Swal.fire({
+          icon: 'success',
+          title: 'Actualización exitosa',
+          text: 'El horario/día libre ha sido actualizado correctamente',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+
+        // Close modal
+        closeEditModal();
+
+        // Reload schedules
+        loadSchedules();
+        generateCalendar();
+
+      } catch (error) {
+        console.error("Error al actualizar horario:", error);
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al actualizar el horario. Inténtalo de nuevo.',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Confirm delete schedule
+    window.confirmDeleteSchedule = function(scheduleId) {
+      playAlertSound();
+      Swal.fire({
+        title: '¿Eliminar registro?',
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#15a086',
+        cancelButtonColor: '#ab0909',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#1a2a38',
+        color: '#ecf0f1'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteSchedule(scheduleId);
+        }
+      });
+    };
+
+    // Delete schedule
+    async function deleteSchedule(scheduleId) {
+      try {
+        await deleteDoc(doc(db, "Horarios", scheduleId));
+
+        playAlertSound();
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro eliminado',
+          text: 'El horario/día libre ha sido eliminado correctamente',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+
+        // Reload schedules
+        loadSchedules();
+        generateCalendar();
+
+      } catch (error) {
+        console.error("Error al eliminar horario:", error);
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al eliminar el horario. Inténtalo de nuevo.',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    }
+
+    // Confirm clear all records
+    window.confirmClearAll = function() {
+      playAlertSound();
+      Swal.fire({
+        title: '¿Eliminar TODOS los registros?',
+        text: "Esta acción es irreversible y eliminará todos los datos. ¿Estás seguro?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ab0909',
+        cancelButtonColor: '#15a086',
+        confirmButtonText: 'Sí, eliminar todo',
+        cancelButtonText: 'Cancelar',
+        background: '#1a2a38',
+        color: '#ecf0f1'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          clearAllRecords();
+        }
+      });
+    };
+
+    // Clear all records
+    async function clearAllRecords() {
+      try {
+        // Get all documents
+        const querySnapshot = await getDocs(collection(db, "Horarios"));
+        
+        // Delete in batches
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+
+        playAlertSound();
+        Swal.fire({
+          icon: 'success',
+          title: 'Todos los registros eliminados',
+          text: 'Se han eliminado todos los horarios/días libres',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+
+        // Reload schedules
+        loadSchedules();
+        generateCalendar();
+
+      } catch (error) {
+        console.error("Error al eliminar todos los registros:", error);
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al eliminar los registros. Inténtalo de nuevo.',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    }
+
+    // Update print preview (with consistent date display)
+    window.updatePrintPreview = function() {
+      const position = document.getElementById('printPosition').value;
+      const monthYear = document.getElementById('printMonth').value;
+      
+      if (!monthYear) {
+        document.getElementById('printPreview').innerHTML = '<p>Seleccione un mes y año para ver la vista previa</p>';
+        return;
+      }
+      
+      const [year, month] = monthYear.split('-').map(Number);
+      
+      // Filter schedules for selected position and month
+      const filtered = allSchedules.filter(schedule => {
+        if (position && schedule.employeePosition !== position) return false;
+        
+        const scheduleStart = new Date(schedule.startDate);
+        const scheduleEnd = new Date(schedule.endDate);
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+        
+        return scheduleStart <= lastDay && scheduleEnd >= firstDay;
+      });
+      
+      // Group by employee name
+      const grouped = {};
+      filtered.forEach(schedule => {
+        if (!grouped[schedule.employeeName]) {
+          grouped[schedule.employeeName] = [];
+        }
+        grouped[schedule.employeeName].push(schedule);
+      });
+      
+      // Generate print preview
+      const printPreview = document.getElementById('printPreview');
+      printPreview.innerHTML = '';
+      
+      if (Object.keys(grouped).length === 0) {
+        printPreview.innerHTML = '<p>No hay registros para mostrar con los filtros seleccionados.</p>';
+        return;
+      }
+      
+      const printHeader = document.createElement('div');
+      printHeader.className = 'print-header';
+      printHeader.innerHTML = `
+        <h2 class="print-title">Calendario de Horarios</h2>
+        <p class="print-subtitle">${position || 'Todas las posiciones'} - ${getMonthName(month-1)} ${year}</p>
+      `;
+      printPreview.appendChild(printHeader);
+      
+      // Create calendar by days
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const printCalendar = document.createElement('div');
+      printCalendar.className = 'print-calendar';
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const currentDate = new Date(year, month - 1, day).toISOString().split('T')[0];
+        
+        // Find events for this day (using date string comparison)
+        const dayEvents = [];
+        filtered.forEach(schedule => {
+          const scheduleStart = schedule.startDate;
+          const scheduleEnd = schedule.endDate;
+          
+          if (currentDate >= scheduleStart && currentDate <= scheduleEnd) {
+            dayEvents.push(schedule);
+          }
+        });
+        
+        if (dayEvents.length > 0) {
+          const printDay = document.createElement('div');
+          printDay.className = 'print-day';
+          
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'print-day-header';
+          dayHeader.innerHTML = `
+            <span>${day} ${getMonthName(month-1)} ${year}</span>
+            <span>${getDayName(new Date(year, month - 1, day).getDay())}</span>
+          `;
+          printDay.appendChild(dayHeader);
+          
+          const printEvents = document.createElement('div');
+          printEvents.className = 'print-events';
+          
+          dayEvents.forEach(event => {
+            const printEvent = document.createElement('div');
+            printEvent.className = 'print-event';
+            
+            let typeDisplay = '';
+            switch(event.eventType) {
+              case 'free': typeDisplay = 'Día Libre'; break;
+              case 'turn-A': typeDisplay = 'Turno A (7am-3pm)'; break;
+              case 'turn-B': typeDisplay = 'Turno B (3pm-11pm)'; break;
+              case 'turn-C': typeDisplay = 'Turno C (11pm-7am)'; break;
+              case 'turn-D': typeDisplay = 'Turno D (7am-7pm)'; break;
+              case 'turn-E': typeDisplay = 'Turno E (7pm-7am)'; break;
+              case 'turn-G': typeDisplay = 'Turno G (12pm-8pm)'; break;
+              case 'falta': typeDisplay = 'Faltas'; break;
+              case 'vacation': typeDisplay = 'Vacaciones'; break;
+              case 'medical': typeDisplay = 'Licencia Médica'; break;
+              case 'permission': typeDisplay = 'Permiso'; break;
+              default: typeDisplay = event.eventType;
+            }
+            
+            printEvent.innerHTML = `
+              <strong>${event.employeeName}</strong> - ${typeDisplay}
+              ${event.employeeCode ? ` (${event.employeeCode})` : ''}
+            `;
+            printEvents.appendChild(printEvent);
+          });
+          
+          printDay.appendChild(printEvents);
+          printCalendar.appendChild(printDay);
+        }
+      }
+      
+      printPreview.appendChild(printCalendar);
+    };
+
+    // Get month name
+    function getMonthName(monthIndex) {
+      const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      return months[monthIndex];
+    }
+
+    // Get day name
+    function getDayName(dayIndex) {
+      const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      return days[dayIndex];
+    }
+
+    // Print document
+    window.printDocument = function() {
+      const printPreview = document.getElementById('printPreview');
+      if (printPreview.innerHTML.trim() === '') {
+        playAlertSound();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No hay datos para imprimir. Seleccione una posición y mes válidos.',
+          background: '#1a2a38',
+          color: '#ecf0f1',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+      
+      window.print();
+    };
+
+    // Load settings
+    function loadSettings() {
+      const savedAlertDays = localStorage.getItem('alertDaysBefore');
+      const savedReminderDays = localStorage.getItem('reminderDaysBefore');
+      const savedSoundAlerts = localStorage.getItem('enableSoundAlerts');
+      
+      if (savedAlertDays) {
+        alertDaysBefore = parseInt(savedAlertDays);
+        document.getElementById('alertDaysBefore').value = alertDaysBefore;
+      }
+      
+      if (savedReminderDays) {
+        reminderDaysBefore = parseInt(savedReminderDays);
+        document.getElementById('reminderDaysBefore').value = reminderDaysBefore;
+      }
+      
+      if (savedSoundAlerts) {
+        enableSoundAlerts = savedSoundAlerts === 'true';
+        document.getElementById('enableSoundAlerts').checked = enableSoundAlerts;
+      }
+    }
+
+    // Save settings
+    window.saveSettings = function() {
+      alertDaysBefore = parseInt(document.getElementById('alertDaysBefore').value) || 5;
+      reminderDaysBefore = parseInt(document.getElementById('reminderDaysBefore').value) || 2;
+      enableSoundAlerts = document.getElementById('enableSoundAlerts').checked;
+      
+      localStorage.setItem('alertDaysBefore', alertDaysBefore);
+      localStorage.setItem('reminderDaysBefore', reminderDaysBefore);
+      localStorage.setItem('enableSoundAlerts', enableSoundAlerts);
+      
+      playAlertSound();
+      Swal.fire({
+        icon: 'success',
+        title: 'Configuración guardada',
+        text: 'Las preferencias de alertas han sido actualizadas',
+        background: '#1a2a38',
+        color: '#ecf0f1',
+        confirmButtonColor: '#15a086'
+      });
+      
+      // Update calendar to reflect new alert settings
+      generateCalendar();
+    };
+
+    // Tab navigation
+    window.openTab = function(tabName) {
+      // Hide all tab contents
+      const tabContents = document.getElementsByClassName('tab-content');
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+      }
+      
+      // Deactivate all tabs
+      const tabs = document.getElementsByClassName('tab');
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      
+      // Activate selected tab
+      document.getElementById(tabName).classList.add('active');
+      document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+      
+      // Refresh data if needed
+      if (tabName === 'view') {
+        loadSchedules();
+      } else if (tabName === 'calendar') {
+        generateCalendar();
+      } else if (tabName === 'print') {
+        updatePrintPreview();
+      }
+    };
+  </script>
+</body> 
+</html>
