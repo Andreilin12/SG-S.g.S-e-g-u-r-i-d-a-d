@@ -235,7 +235,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
     const firebaseConfig = {
@@ -296,6 +296,14 @@
       } else {
         return { status: "En proceso", daysLeft: diffDays };
       }
+    }
+
+    // Función para obtener el mes y año actual en formato MM-YYYY
+    function getCurrentMonthYear() {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      return `${month}-${year}`;
     }
 
     // Función para mostrar los objetos en la tabla
@@ -466,6 +474,11 @@
         // Obtener el nombre del usuario actual
         const userName = await getCurrentUserName();
 
+        // Obtener el objeto antes de actualizarlo
+        const objectDoc = await getDoc(doc(db, "ObjetosRegistrados", selectedObjectId));
+        const objectData = objectDoc.data();
+
+        // Actualizar el documento original como entregado
         await updateDoc(doc(db, "ObjetosRegistrados", selectedObjectId), {
           delivered: true,
           deliveredTo,
@@ -474,10 +487,24 @@
           deliveredBy: userName // Guardar el nombre del usuario actual
         });
 
+        // Crear una copia en la colección de entregas del mes actual
+        const currentMonthYear = getCurrentMonthYear();
+        const deliveriesCollection = collection(db, `Entregas_${currentMonthYear}`);
+        
+        await addDoc(deliveriesCollection, {
+          ...objectData, // Todos los datos originales del objeto
+          delivered: true,
+          deliveredTo,
+          deliveryComments,
+          deliveryDateTime,
+          deliveredBy: userName,
+          originalId: selectedObjectId // Guardar referencia al ID original
+        });
+
         Swal.fire({
           icon: 'success',
           title: 'Éxito',
-          text: 'Objeto entregado exitosamente.',
+          text: 'Objeto entregado exitosamente y guardado en registros del mes actual.',
           background: '#2c3e50',
           color: '#fff',
           confirmButtonColor: '#15a086'
