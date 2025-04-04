@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario de Turnos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #15a086;
+      --secondary: #12876f;
+      --dark: #2c3e50;
+      --darker: #1a2a38;
+      --light: #ecf0f1;
+      --accent: #e74c3c;
+      --turn-A: #876a08;
+      --turn-B: #0a6b0b;
+      --turn-C: #0c0e7d;
+      --turn-D: #67096e;
+      --turn-E: #8f12e3;
+      --turn-G: #ff0ae7;
+      --falta: #ab0909;
+      --vacation: #2ecc71;
+      --medical: #16a5b8;
+      --permission: #95a5a6;
+      --free-day: #f1c40f;
+      --alert: #e74c3c;
+      --delete: #ab0909;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: var(--light);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 3px;
+      background: var(--primary);
+      margin: 10px auto;
+      border-radius: 3px;
+    }
+    
+    /* Modal para selección de posición */
+    .position-modal {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 62, 80, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .position-modal-content {
+      background: var(--darker);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      padding: 30px;
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .position-modal h2 {
+      color: var(--primary);
+      margin-top: 0;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .position-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .position-item {
+      padding: 12px;
+      background: rgba(21, 160, 134, 0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .position-item:hover {
+      background: rgba(21, 160, 134, 0.3);
+      transform: translateY(-3px);
+    }
+    
+    .position-item.selected {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+    }
+    
+    /* Calendar */
+    .calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .calendar-title {
+      color: var(--primary);
+      margin: 0;
+      min-width: 200px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.2rem;
+    }
+    
+    .calendar-btn {
+      background: rgba(21, 160, 134, 0.2);
+      color: var(--primary);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .calendar-btn:hover {
+      background: rgba(21, 160, 134, 0.3);
+    }
+    
+    .calendar-filters {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    
+    .calendar-header {
+      color: var(--primary);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 10px;
+      font-weight: 500;
+    }
+    
+    .calendar-day {
+      background: rgba(26, 42, 56, 0.7);
+      border-radius: 6px;
+      min-height: 120px;
+      padding: 10px;
+      border: 1px solid rgba(21, 160, 134, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .calendar-day:hover {
+      border-color: rgba(21, 160, 134, 0.3);
+    }
+    
+    .calendar-day.empty {
+      background: transparent;
+      border: 1px dashed rgba(21, 160, 134, 0.1);
+    }
+    
+    .day-number {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: var(--light);
+      font-size: 0.9rem;
+    }
+    
+    .day-number.today {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .events-container {
+      max-height: 90px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    
+    .events-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .events-container::-webkit-scrollbar-thumb {
+      background-color: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .event-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .event-badge:hover {
+      transform: translateX(2px);
+    }
+    
+    .event-badge.free-day {
+      background-color: var(--free-day);
+      color: #000;
+    }
+    
+    .event-badge.turn-A {
+      background-color: var(--turn-A);
+      color: white;
+    }
+    
+    .event-badge.turn-B {
+      background-color: var(--turn-B);
+      color: white;
+    }
+    
+    .event-badge.turn-C {
+      background-color: var(--turn-C);
+      color: white;
+    }
+    
+    .event-badge.turn-D {
+      background-color: var(--turn-D);
+      color: white;
+    }
+    
+    .event-badge.turn-E {
+      background-color: var(--turn-E);
+      color: white;
+    }
+    
+    .event-badge.turn-G {
+      background-color: var(--turn-G);
+      color: white;
+    }
+    
+    .event-badge.falta {
+      background-color: var(--falta);
+      color: white;
+    }
+    
+    .event-badge.vacation {
+      background-color: var(--vacation);
+      color: white;
+    }
+    
+    .event-badge.medical {
+      background-color: var(--medical);
+      color: white;
+    }
+    
+    .event-badge.permission {
+      background-color: var(--permission);
+      color: white;
+    }
+    
+    .event-badge.alert {
+      background-color: var(--alert);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 62, 80, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal-content {
+      background: var(--darker);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      padding: 15px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header.free-day {
+      background-color: var(--free-day);
+      color: #000;
+    }
+    
+    .modal-header.turn-A {
+      background-color: var(--turn-A);
+    }
+    
+    .modal-header.turn-B {
+      background-color: var(--turn-B);
+    }
+    
+    .modal-header.turn-C {
+      background-color: var(--turn-C);
+    }
+    
+    .modal-header.turn-D {
+      background-color: var(--turn-D);
+    }
+    
+    .modal-header.turn-E {
+      background-color: var(--turn-E);
+    }
+    
+     .modal-header.turn-G {
+      background-color: var(--turn-G);
+    }
+    
+     .modal-header.falta {
+      background-color: var(--falta);
+    }
+    
+    .modal-header.vacation {
+      background-color: var(--vacation);
+    }
+    
+    .modal-header.medical {
+      background-color: var(--medical);
+    }
+    
+    .modal-header.permission {
+      background-color: var(--permission);
+    }
+    
+    .modal-header.alert {
+      background-color: var(--alert);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    
+    .modal-body {
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .event-detail {
+      margin-bottom: 15px;
+    }
+    
+    .event-detail h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .event-detail p {
+      margin: 5px 0;
+    }
+    
+    .detail-label {
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .calendar-header, .calendar-day {
+        min-height: 80px;
+      }
+      
+      .day-number {
+        font-size: 0.8rem;
+      }
+      
+      .event-badge {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+      }
+      
+      .position-list {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Estilos para el botón de cambiar posición */
+.btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(21, 160, 134, 0.3);
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background: var(--secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(21, 160, 134, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Estilos para el input de búsqueda */
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(26, 42, 56, 0.7);
+  border: 1px solid rgba(21, 160, 134, 0.3);
+  border-radius: 6px;
+  color: var(--light);
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(21, 160, 134, 0.2);
+}
+
+/* Estilos para los botones en el modal de posición */
+.position-modal .btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+}
+
+/* Estilos para el contenedor de filtros */
+.calendar-filters {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Ajustes para responsive */
+@media (max-width: 768px) {
+  .calendar-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .form-control, .btn {
+    width: 100%;
+  }
+}
+
+/* Estilo para el botón de cambiar posición específico */
+.btn-change-position {
+  background: rgba(21, 160, 134, 0.2);
+  color: var(--primary);
+  border: 1px solid rgba(21, 160, 134, 0.3);
+}
+
+.btn-change-position:hover {
+  background: rgba(21, 160, 134, 0.3);
+}
+
+/* Estilo para el botón de confirmar en el modal */
+.btn-confirm {
+  background: var(--primary);
+  color: white;
+}
+  </style>
+</head>
+<body>
+  <!-- Modal para selección de posición -->
+  <div class="position-modal" id="positionModal">
+    <div class="position-modal-content">
+      <h2><i class="fas fa-user-tag"></i> Seleccione su posición</h2>
+      <p>Por favor, seleccione su posición para ver los turnos correspondientes:</p>
+      
+      <div class="position-list" id="positionList">
+        <!-- Las posiciones se cargarán dinámicamente -->
+      </div>
+      
+      <div style="text-align: center;">
+        <button class="btn" onclick="savePosition()" style="width: 100%;">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido principal del calendario -->
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="header">
+      <h1><i class="fas fa-calendar-alt"></i> CALENDARIO DE TURNOS</h1>
+      <h3 id="positionTitle"></h3>
+    </div>
+
+    <div class="form-container">
+      <div class="calendar-controls">
+        <div class="calendar-nav">
+          <button class="calendar-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+          <h3 class="calendar-title" id="calendarTitle">Mes Año</h3>
+          <button class="calendar-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <div class="calendar-filters">
+          <input type="text" id="calendarEmployee" class="form-control" placeholder="Filtrar por colaborador" onchange="generateCalendar()">
+          <button class="btn" onclick="changePosition()"><i class="fas fa-sync-alt"></i> Cambiar Posición</button>
+        </div>
+      </div>
+      
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--free-day);"></div>
+          <span>Día Libre</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-A);"></div>
+          <span>Turno A</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-B);"></div>
+          <span>Turno B</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-C);"></div>
+          <span>Turno C</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-D);"></div>
+          <span>Turno D</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-E);"></div>
+          <span>Turno E</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--turn-G);"></div>
+          <span>Turno G</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--falta);"></div>
+          <span>Faltas</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--vacation);"></div>
+          <span>Vacaciones</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--medical);"></div>
+          <span>Licencia Médica</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: var(--permission);"></div>
+          <span>Permiso</span>
+        </div>
+      </div>
+      
+      <div id="calendarContainer" class="calendar-grid">
+        <!-- El calendario se generará aquí -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para detalles del evento -->
+  <div class="modal" id="eventModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalEventHeader">
+        <h3 id="modalEventTitle">Detalles del Evento</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalEventBody">
+        <!-- Los detalles del evento se cargarán aquí -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio para alertas -->
+  <audio id="alertSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    // Firebase configuration and initialization
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Global variables
+    let currentUser = null;
+    let allSchedules = [];
+    let allEmployeePositions = new Set();
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let selectedPosition = '';
+    const alertSound = document.getElementById('alertSound');
+
+    // Format date to DD/MM/YYYY (fixed timezone issue)
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      // Ajuste para corregir diferencia de zona horaria
+      const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+      const day = String(adjustedDate.getDate()).padStart(2, '0');
+      const month = String(adjustedDate.getMonth() + 1).padStart(2, '0');
+      const year = adjustedDate.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    // Calculate days between two dates (fixed timezone issue)
+    function daysBetween(startDate, endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      // Ajuste para fechas sin hora (medianoche UTC)
+      const startUTC = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+      const endUTC = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+      const diffTime = Math.abs(endUTC - startUTC);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if position is already selected in localStorage
+      const savedPosition = localStorage.getItem('selectedPosition');
+      
+      if (savedPosition) {
+        selectedPosition = savedPosition;
+        document.getElementById('positionModal').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('positionTitle').textContent = `Posición: ${selectedPosition}`;
+        loadSchedules();
+      } else {
+        // Show position selection modal
+        document.getElementById('positionModal').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
+      }
+      
+      // Update calendar title
+      updateCalendarTitle();
+    });
+
+    // Load schedules from Firestore (with fixed date handling)
+    async function loadSchedules() {
+      try {
+        // Query schedules for the selected position
+        const q = query(collection(db, "Horarios"), where("employeePosition", "==", selectedPosition));
+        const querySnapshot = await getDocs(q);
+        
+        allSchedules = [];
+        allEmployeePositions = new Set();
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const schedule = {
+            id: doc.id,
+            ...data,
+            // Store dates exactly as they were entered (no conversion)
+            startDate: data.startDate,
+            endDate: data.endDate,
+            registeredAt: data.registeredAt?.toDate() || new Date(),
+            formattedStartDate: formatDate(data.startDate),
+            formattedEndDate: formatDate(data.endDate)
+          };
+          
+          allSchedules.push(schedule);
+        });
+        
+        generateCalendar();
+      } catch (error) {
+        console.error("Error al cargar horarios:", error);
+      }
+    }
+
+    // Update calendar title
+    function updateCalendarTitle() {
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      document.getElementById('calendarTitle').textContent = 
+        `${monthNames[currentMonth]} ${currentYear}`;
+    }
+
+    // Change month for calendar
+    window.changeMonth = function(offset) {
+      currentMonth += offset;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      } else if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      updateCalendarTitle();
+      generateCalendar();
+    };
+
+    // Generate calendar view (with consistent date handling)
+    window.generateCalendar = async function() {
+      // Get first and last day of the month
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      
+      // Get day of week for first day (0 = Sunday, 1 = Monday, etc.)
+      const firstDayOfWeek = firstDay.getDay();
+      
+      // Get number of days in month
+      const daysInMonth = lastDay.getDate();
+      
+      // Get today's date for highlighting
+      const today = new Date();
+      const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+      
+      // Prepare calendar container
+      const calendarContainer = document.getElementById('calendarContainer');
+      calendarContainer.innerHTML = '';
+      
+      // Add day headers
+      const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      daysOfWeek.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-header';
+        dayHeader.textContent = day;
+        calendarContainer.appendChild(dayHeader);
+      });
+      
+      // Add empty cells for days before the first day of the month
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarContainer.appendChild(emptyDay);
+      }
+      
+      // Filter schedules by employee name
+      const employeeFilter = document.getElementById('calendarEmployee').value.toLowerCase();
+      
+      const filteredSchedules = allSchedules.filter(schedule => {
+        // Check if schedule overlaps with this month (using date strings directly)
+        const scheduleStart = new Date(schedule.startDate);
+        const scheduleEnd = new Date(schedule.endDate);
+        
+        const overlaps = (scheduleStart <= lastDay && scheduleEnd >= firstDay);
+        
+        // Check employee filter
+        const employeeMatch = !employeeFilter || 
+          schedule.employeeName.toLowerCase().includes(employeeFilter);
+        
+        return overlaps && employeeMatch;
+      });
+      
+      // Add days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = day;
+        
+        // Highlight today
+        if (isCurrentMonth && day === today.getDate()) {
+          dayNumber.classList.add('today');
+        }
+        
+        dayElement.appendChild(dayNumber);
+        
+        // Check for events on this day (using date string comparison)
+        const currentDate = new Date(currentYear, currentMonth, day).toISOString().split('T')[0];
+        
+        // Find events for this day
+        const dayEvents = [];
+        
+        filteredSchedules.forEach(schedule => {
+          const scheduleStart = schedule.startDate;
+          const scheduleEnd = schedule.endDate;
+          
+          // Compare date strings directly (YYYY-MM-DD format)
+          if (currentDate >= scheduleStart && currentDate <= scheduleEnd) {
+            dayEvents.push(schedule);
+          }
+        });
+        
+        // Add events container
+        const eventsContainer = document.createElement('div');
+        eventsContainer.className = 'events-container';
+        
+        // Add events to day
+        dayEvents.forEach(event => {
+          const eventElement = document.createElement('div');
+          eventElement.className = 'event-badge';
+          
+          // Determine class based on event type
+          let eventClass = '';
+          let eventText = event.employeeName.split(' ')[0]; // Show only first name
+          
+          switch(event.eventType) {
+            case 'free':
+              eventClass = 'free-day';
+              eventText += ': Libre';
+              break;
+            case 'turn-A':
+              eventClass = 'turn-A';
+              eventText += ': A';
+              break;
+            case 'turn-B':
+              eventClass = 'turn-B';
+              eventText += ': B';
+              break;
+            case 'turn-C':
+              eventClass = 'turn-C';
+              eventText += ': C';
+              break;
+            case 'turn-D':
+              eventClass = 'turn-D';
+              eventText += ': D';
+              break;
+            case 'turn-E':
+              eventClass = 'turn-E';
+              eventText += ': E';
+              break;
+            case 'turn-G':
+              eventClass = 'turn-G';
+              eventText += ': G';
+              break;
+            case 'falta':
+              eventClass = 'falta';
+              eventText += ': F';
+              break;
+            case 'vacation':
+              eventClass = 'vacation';
+              eventText += ': Vac';
+              break;
+            case 'medical':
+              eventClass = 'medical';
+              eventText += ': LM';
+              break;
+            case 'permission':
+              eventClass = 'permission';
+              eventText += ': Perm';
+              break;
+          }
+          
+          eventElement.classList.add(eventClass);
+          eventElement.textContent = eventText;
+          eventElement.onclick = () => showEventDetails(event);
+          eventsContainer.appendChild(eventElement);
+        });
+        
+        dayElement.appendChild(eventsContainer);
+        calendarContainer.appendChild(dayElement);
+      }
+    };
+
+    // Show event details in modal (with consistent date display)
+    function showEventDetails(event) {
+      const modal = document.getElementById('eventModal');
+      const modalHeader = document.getElementById('modalEventHeader');
+      const modalTitle = document.getElementById('modalEventTitle');
+      const modalBody = document.getElementById('modalEventBody');
+      
+      // Determine type display name
+      let typeDisplay = '';
+      let headerClass = '';
+      switch(event.eventType) {
+        case 'free': 
+          typeDisplay = 'Día Libre';
+          headerClass = 'free-day';
+          break;
+        case 'turn-A': 
+          typeDisplay = 'Turno A (7am-3pm)';
+          headerClass = 'turn-A';
+          break;
+        case 'turn-B': 
+          typeDisplay = 'Turno B (3pm-11pm)';
+          headerClass = 'turn-B';
+          break;
+        case 'turn-C': 
+          typeDisplay = 'Turno C (11pm-7am)';
+          headerClass = 'turn-C';
+          break;
+        case 'turn-D': 
+          typeDisplay = 'Turno D (7am-7pm)';
+          headerClass = 'turn-D';
+          break;
+        case 'turn-E': 
+          typeDisplay = 'Turno E (7pm-7am)';
+          headerClass = 'turn-E';
+          break;
+        case 'turn-G': 
+          typeDisplay = 'Turno G (12pm-8pm)';
+          headerClass = 'turn-G';
+          break;
+        case 'falta': 
+          typeDisplay = 'Faltas';
+          headerClass = 'falta';
+          break;
+        case 'vacation': 
+          typeDisplay = 'Vacaciones (V)';
+          headerClass = 'vacation';
+          break;
+        case 'medical': 
+          typeDisplay = 'Licencia Médica (LM)';
+          headerClass = 'medical';
+          break;
+        case 'permission': 
+          typeDisplay = 'Permiso (P)';
+          headerClass = 'permission';
+          break;
+        default: 
+          typeDisplay = event.eventType;
+          headerClass = '';
+      }
+      
+      // Set modal header class
+      modalHeader.className = 'modal-header ' + headerClass;
+      
+      modalTitle.textContent = `Detalles: ${event.employeeName}`;
+      
+      modalBody.innerHTML = `
+        <div class="event-detail">
+          <h3>${typeDisplay}</h3>
+          <p><span class="detail-label">Código:</span> ${event.employeeCode || 'No especificado'}</p>
+          <p><span class="detail-label">Posición:</span> ${event.employeePosition || 'No especificada'}</p>
+          <p><span class="detail-label">Fecha de inicio:</span> ${formatDate(event.startDate)}</p>
+          <p><span class="detail-label">Fecha de fin:</span> ${formatDate(event.endDate)}</p>
+          <p><span class="detail-label">Duración:</span> ${event.daysCount} días</p>
+          ${event.pattern ? `<p><span class="detail-label">Patrón:</span> ${event.pattern}</p>` : ''}
+          <p><span class="detail-label">Registrado por:</span> ${event.registeredBy}</p>
+          <p><span class="detail-label">Fecha de registro:</span> ${event.registeredAt.toLocaleString()}</p>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+    }
+
+    // Close modal
+    window.closeModal = function() {
+      document.getElementById('eventModal').classList.remove('active');
+    };
+
+    // Load available positions from Firestore
+    async function loadPositions() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Horarios"));
+        const positions = new Set();
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.employeePosition) {
+            positions.add(data.employeePosition);
+          }
+        });
+        
+        // Populate position list
+        const positionList = document.getElementById('positionList');
+        positionList.innerHTML = '';
+        
+        Array.from(positions).sort().forEach(position => {
+          const positionItem = document.createElement('div');
+          positionItem.className = 'position-item';
+          positionItem.textContent = position;
+          positionItem.onclick = function() {
+            // Remove selected class from all items
+            document.querySelectorAll('.position-item').forEach(item => {
+              item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked item
+            this.classList.add('selected');
+            selectedPosition = position;
+          };
+          positionList.appendChild(positionItem);
+        });
+        
+      } catch (error) {
+        console.error("Error al cargar posiciones:", error);
+      }
+    }
+
+    // Save selected position to localStorage
+    window.savePosition = function() {
+      if (!selectedPosition) {
+        alert('Por favor seleccione una posición');
+        return;
+      }
+      
+      localStorage.setItem('selectedPosition', selectedPosition);
+      document.getElementById('positionModal').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('positionTitle').textContent = `Posición: ${selectedPosition}`;
+      loadSchedules();
+    };
+
+    // Change position
+    window.changePosition = function() {
+      localStorage.removeItem('selectedPosition');
+      selectedPosition = '';
+      document.getElementById('positionModal').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+      loadPositions();
+    };
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        // Load positions when user is authenticated
+        loadPositions();
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>
