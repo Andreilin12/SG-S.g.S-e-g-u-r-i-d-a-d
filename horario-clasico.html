@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impresión de Turnos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --turn-A: #876a08;
+      --turn-B: #0a6b0b;
+      --turn-C: #0c0e7d;
+      --turn-D: #67096e;
+      --turn-E: #8f12e3;
+      --turn-G: #ff0ae7;
+      --free-day: #f1c40f;
+      --falta: #ab0909;
+      --vacation: #2ecc71;
+      --medical: #16a5b8;
+      --permission: #95a5a6;
+      --primary: #15a086;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #2c3e50;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .print-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #1a2a38;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .print-header h1 {
+      color: #15a086;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .print-header h2 {
+      margin: 10px 0 5px;
+      font-size: 20px;
+      color: #ecf0f1;
+      font-weight: 400;
+    }
+    
+    .print-header h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #bdc3c7;
+      font-weight: 300;
+    }
+    
+    .print-controls {
+      background-color: #1a2a38;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .control-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    label {
+      font-weight: 500;
+      color: #15a086;
+      min-width: 120px;
+    }
+    
+    select, input {
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 1px solid rgba(21, 160, 134, 0.3);
+      background-color: rgba(26, 42, 56, 0.7);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      flex: 1;
+      max-width: 300px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      background-color: #15a086;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background-color: #12876f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .btn-change-position {
+      background-color: #e74c3c;
+    }
+    
+    .btn-change-position:hover {
+      background-color: #c0392b;
+    }
+    
+    .schedule-container {
+      overflow-x: auto;
+      margin-bottom: 30px;
+      background-color: #1a2a38;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+    
+    .schedule-table th {
+      background-color: #15a086;
+      color: white;
+      padding: 8px 5px;
+      text-align: center;
+      border: 1px solid rgba(21, 160, 134, 0.5);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+    }
+    
+    .schedule-table td {
+      padding: 10px 8px;
+      border: 1px solid rgba(21, 160, 134, 0.2);
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .employee-row:hover {
+      background-color: rgba(21, 160, 134, 0.1);
+    }
+    
+    .employee-name {
+      font-weight: bold;
+      background-color: rgba(21, 160, 134, 0.2);
+      position: sticky;
+      left: 0;
+      min-width: 120px;
+    }
+    
+    /* Turn colors */
+    .turn-A { background-color: var(--turn-A); color: white; }
+    .turn-B { background-color: var(--turn-B); color: white; }
+    .turn-C { background-color: var(--turn-C); color: white; }
+    .turn-D { background-color: var(--turn-D); color: white; }
+    .turn-E { background-color: var(--turn-E); color: white; }
+    .turn-G { background-color: var(--turn-G); color: white; }
+    .free-day { background-color: var(--free-day); color: black; }
+    .falta { background-color: var(--falta); color: white; }
+    .vacation { background-color: var(--vacation); color: white; }
+    .medical { background-color: var(--medical); color: white; }
+    .permission { background-color: var(--permission); color: white; }
+    
+    .day-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .day-name {
+      font-size: 12px;
+      font-weight: 400;
+      margin-bottom: 2px;
+    }
+    
+    .day-number {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .today .day-number {
+      position: relative;
+    }
+    
+    .today .day-number::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background-color: #e74c3c;
+      border-radius: 3px;
+    }
+    
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 30px 0;
+      justify-content: center;
+      background-color: #1a2a38;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      min-width: 120px;
+    }
+    
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+      margin-right: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .position-selector {
+      background-color: #1a2a38;
+      padding: 30px;
+      border-radius: 10px;
+      margin: 50px auto;
+      max-width: 800px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .position-selector h2 {
+      color: #15a086;
+      margin-top: 0;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .position-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .position-btn {
+      padding: 12px;
+      background-color: rgba(21, 160, 134, 0.2);
+      color: #15a086;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .position-btn:hover {
+      background-color: rgba(21, 160, 134, 0.3);
+    }
+    
+    .position-btn.selected {
+      background-color: #15a086;
+      color: white;
+    }
+    
+    /* Estilos para impresión */
+    @media print {
+      @page {
+        size: landscape;
+        margin: 10mm;
+      }
+      
+      body {
+        background-color: white;
+        color: black;
+        font-size: 12pt;
+        padding: 0;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+      
+      .print-header {
+        background-color: white;
+        color: black;
+        padding: 10px 0;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #15a086;
+      }
+      
+      .print-header h1 {
+        color: #15a086;
+        font-size: 22pt;
+      }
+      
+      .print-header h2, .print-header h3 {
+        color: #555;
+        font-size: 14pt;
+        margin: 5px 0;
+      }
+      
+      .schedule-container {
+        background-color: white;
+        padding: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+      
+      .schedule-table {
+        width: 100%;
+        min-width: auto;
+        border: 1px solid #ddd;
+      }
+      
+      .schedule-table th {
+        background-color: #15a086 !important;
+        color: white !important;
+        padding: 5px;
+        font-size: 10pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      .schedule-table td {
+        padding: 8px 5px;
+        font-size: 10pt;
+        border: 1px solid #ddd;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      .employee-name {
+        background-color: #f0f0f0 !important;
+        color: black !important;
+        font-weight: bold;
+      }
+      
+      .day-name {
+        font-size: 10pt;
+      }
+      
+      .day-number {
+        font-size: 12pt;
+      }
+      
+      /* Mantener colores en impresión */
+      .turn-A { background-color: var(--turn-A) !important; color: white !important; }
+      .turn-B { background-color: var(--turn-B) !important; color: white !important; }
+      .turn-C { background-color: var(--turn-C) !important; color: white !important; }
+      .turn-D { background-color: var(--turn-D) !important; color: white !important; }
+      .turn-E { background-color: var(--turn-E) !important; color: white !important; }
+      .turn-G { background-color: var(--turn-G) !important; color: white !important; }
+      .free-day { background-color: var(--free-day) !important; color: black !important; }
+      .falta { background-color: var(--falta) !important; color: white !important; }
+      .vacation { background-color: var(--vacation) !important; color: white !important; }
+      .medical { background-color: var(--medical) !important; color: white !important; }
+      .permission { background-color: var(--permission) !important; color: white !important; }
+      
+      .legend {
+        display: none;
+      }
+      
+      .page-break {
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Selector de posición (solo visible en pantalla) -->
+  <div class="position-selector no-print" id="positionSelector">
+    <h2><i class="fas fa-user-tag"></i> Seleccione la posición</h2>
+    <p>Por favor, seleccione la posición para ver los turnos correspondientes:</p>
+    
+    <div class="position-list" id="positionList">
+      <!-- Las posiciones se cargarán dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Contenido principal (visible solo cuando se selecciona una posición) -->
+  <div id="mainContent" style="display: none;">
+    <div class="print-header">
+      <h1><i class="fas fa-calendar-alt"></i> CALENDARIO DE TURNOS</h1>
+      <h2 id="positionTitle">Posición: [Posición Seleccionada]</h2>
+      <h3 id="periodTitle">Período: [Período Seleccionado]</h3>
+      <h3 id="monthYearTitle"></h3>
+    </div>
+    
+    <div class="print-controls no-print">
+      <div class="control-group">
+        <label for="employeeFilter"><i class="fas fa-user"></i> Filtrar por colaborador:</label>
+        <input type="text" id="employeeFilter" placeholder="Nombre del colaborador">
+      </div>
+      
+      <div class="control-group">
+        <label for="viewOption"><i class="fas fa-calendar-week"></i> Vista:</label>
+        <select id="viewOption">
+          <option value="week">Semana Actual</option>
+          <option value="next-week">Próxima Semana</option>
+          <option value="month">Mes Completo (30/31 días)</option>
+        </select>
+        
+        <button onclick="generateSchedule()"><i class="fas fa-sync-alt"></i> Actualizar Vista</button>
+        <button onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
+        <button class="btn-change-position" onclick="changePosition()"><i class="fas fa-arrow-left"></i> Cambiar Posición</button>
+      </div>
+    </div>
+    
+    <div class="legend no-print">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--free-day);"></div>
+        <span>Día Libre</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-A);"></div>
+        <span>Turno A (7am-3pm)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-B);"></div>
+        <span>Turno B (3pm-11pm)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-C);"></div>
+        <span>Turno C (11pm-7am)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-D);"></div>
+        <span>Turno D (7am-7pm)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-E);"></div>
+        <span>Turno E (7pm-7am)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--turn-G);"></div>
+        <span>Turno G (12pm-8pm)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--falta);"></div>
+        <span>Faltas</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--vacation);"></div>
+        <span>Vacaciones</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--medical);"></div>
+        <span>Licencia Médica</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--permission);"></div>
+        <span>Permiso</span>
+      </div>
+    </div>
+    
+    <div class="schedule-container">
+      <div id="scheduleContainer">
+        <!-- Aquí se generará la tabla de horarios -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    // Firebase configuration and initialization
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Global variables
+    let allSchedules = [];
+    let allEmployees = new Set();
+    let selectedPosition = '';
+    let currentDate = new Date();
+
+    // Get month name in Spanish
+    function getMonthName(date) {
+      const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      return months[date.getMonth()];
+    }
+
+    // Format date to DD/MM/YYYY (fixed timezone issue)
+    function formatDate(date) {
+      if (!date) return '';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    // Get day name in Spanish (abreviado)
+    function getDayName(date) {
+      const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      return days[date.getDay()];
+    }
+
+    // Get time range for turn type
+    function getTimeRange(eventType) {
+      switch(eventType) {
+        case 'turn-A': return '7am-3pm';
+        case 'turn-B': return '3pm-11pm';
+        case 'turn-C': return '11pm-7am';
+        case 'turn-D': return '7am-7pm';
+        case 'turn-E': return '7pm-7am';
+        case 'turn-G': return '12pm-8pm';
+        default: return '';
+      }
+    }
+
+    // Fix date to avoid timezone issues
+    function fixTimezone(dateStr) {
+      if (!dateStr) return null;
+      const date = new Date(dateStr);
+      // Adjust for timezone offset
+      return new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+    }
+
+    // Load schedules from Firestore (with fixed date handling)
+    async function loadSchedules(position) {
+      try {
+        // Query schedules for the selected position
+        const q = query(collection(db, "Horarios"), where("employeePosition", "==", position));
+        const querySnapshot = await getDocs(q);
+        
+        allSchedules = [];
+        allEmployees = new Set();
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const schedule = {
+            id: doc.id,
+            ...data,
+            // Store dates with timezone correction
+            startDate: fixTimezone(data.startDate),
+            endDate: fixTimezone(data.endDate),
+            formattedStartDate: formatDate(fixTimezone(data.startDate)),
+            formattedEndDate: formatDate(fixTimezone(data.endDate))
+          };
+          
+          allSchedules.push(schedule);
+          allEmployees.add(data.employeeName);
+        });
+        
+        // Update position title
+        document.getElementById('positionTitle').textContent = `Posición: ${position}`;
+        
+        // Generate initial schedule
+        generateSchedule();
+        
+      } catch (error) {
+        console.error("Error al cargar horarios:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los horarios. Por favor intente nuevamente.'
+        });
+      }
+    }
+
+    // Load available positions from Firestore
+    async function loadPositions() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Horarios"));
+        const positions = new Set();
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.employeePosition) {
+            positions.add(data.employeePosition);
+          }
+        });
+        
+        // Populate position list
+        const positionList = document.getElementById('positionList');
+        positionList.innerHTML = '';
+        
+        Array.from(positions).sort().forEach(position => {
+          const positionBtn = document.createElement('button');
+          positionBtn.className = 'position-btn';
+          positionBtn.textContent = position;
+          positionBtn.onclick = function() {
+            // Remove selected class from all buttons
+            document.querySelectorAll('.position-btn').forEach(btn => {
+              btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            this.classList.add('selected');
+            selectedPosition = position;
+            
+            // Show main content and load schedules
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('positionSelector').style.display = 'none';
+            loadSchedules(position);
+          };
+          positionList.appendChild(positionBtn);
+        });
+        
+      } catch (error) {
+        console.error("Error al cargar posiciones:", error);
+      }
+    }
+
+    // Generate schedule based on selected view
+    window.generateSchedule = function() {
+      if (!selectedPosition) return;
+      
+      const viewOption = document.getElementById('viewOption').value;
+      const employeeFilter = document.getElementById('employeeFilter').value.toLowerCase();
+      const scheduleContainer = document.getElementById('scheduleContainer');
+      scheduleContainer.innerHTML = '';
+      
+      let startDate, endDate;
+      const today = new Date();
+      
+      // Set date range based on view option
+      if (viewOption === 'week') {
+        // Current week (Monday to Sunday)
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        
+        document.getElementById('periodTitle').textContent = `Semana Actual: ${formatDate(startDate)} al ${formatDate(endDate)}`;
+      } 
+      else if (viewOption === 'next-week') {
+        // Next week (Monday to Sunday)
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1) + 7);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        
+        document.getElementById('periodTitle').textContent = `Próxima Semana: ${formatDate(startDate)} al ${formatDate(endDate)}`;
+      } 
+      else {
+        // Full month
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        document.getElementById('periodTitle').textContent = `Mes Completo`;
+      }
+      
+      // Set month and year title
+      document.getElementById('monthYearTitle').textContent = `${getMonthName(today)} ${today.getFullYear()}`;
+      
+      // Filter schedules by date range and employee name
+      const filteredSchedules = allSchedules.filter(schedule => {
+        const scheduleStart = schedule.startDate;
+        const scheduleEnd = schedule.endDate;
+        
+        // Check if schedule overlaps with the selected date range
+        const overlaps = (scheduleStart <= endDate && scheduleEnd >= startDate);
+        
+        // Check employee filter
+        const employeeMatch = !employeeFilter || 
+          schedule.employeeName.toLowerCase().includes(employeeFilter);
+        
+        return overlaps && employeeMatch;
+      });
+      
+      // Get all unique employees from filtered schedules
+      const employees = Array.from(new Set(filteredSchedules.map(s => s.employeeName))).sort();
+      
+      // Create date headers for the table
+      const dateHeaders = [];
+      const currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        dateHeaders.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Create the schedule table
+      const table = document.createElement('table');
+      table.className = 'schedule-table';
+      
+      // Create table header with dates
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      
+      // First cell is empty (for employee names)
+      const emptyHeader = document.createElement('th');
+      headerRow.appendChild(emptyHeader);
+      
+      // Add date headers
+      dateHeaders.forEach(date => {
+        const th = document.createElement('th');
+        
+        // Contenedor para día de la semana y número
+        const dayContainer = document.createElement('div');
+        dayContainer.className = 'day-header';
+        
+        // Día de la semana (Lun, Mar, Mié...)
+        const dayName = document.createElement('div');
+        dayName.className = 'day-name';
+        dayName.textContent = getDayName(date);
+        
+        // Número del día
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        
+        dayContainer.appendChild(dayName);
+        dayContainer.appendChild(dayNumber);
+        th.appendChild(dayContainer);
+        
+        // Highlight today
+        if (date.toDateString() === today.toDateString()) {
+          th.classList.add('today');
+        }
+        
+        headerRow.appendChild(th);
+      });
+      
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      
+      // Create table body with employee schedules
+      const tbody = document.createElement('tbody');
+      
+      employees.forEach(employee => {
+        const employeeRow = document.createElement('tr');
+        employeeRow.className = 'employee-row';
+        
+        // Employee name cell
+        const nameCell = document.createElement('td');
+        nameCell.className = 'employee-name';
+        nameCell.textContent = employee;
+        employeeRow.appendChild(nameCell);
+        
+        // Add schedule cells for each date
+        dateHeaders.forEach(date => {
+          const dayCell = document.createElement('td');
+          
+          // Find schedule for this employee on this date
+          const schedule = filteredSchedules.find(s => 
+            s.employeeName === employee && 
+            date >= s.startDate && 
+            date <= s.endDate
+          );
+          
+          if (schedule) {
+            // Determine class based on event type
+            let eventClass = '';
+            let eventText = '';
+            let timeRange = '';
+            
+            switch(schedule.eventType) {
+              case 'free': 
+                eventClass = 'free-day';
+                eventText = 'Libre';
+                break;
+              case 'turn-A': 
+                eventClass = 'turn-A';
+                eventText = 'A';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'turn-B': 
+                eventClass = 'turn-B';
+                eventText = 'B';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'turn-C': 
+                eventClass = 'turn-C';
+                eventText = 'C';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'turn-D': 
+                eventClass = 'turn-D';
+                eventText = 'D';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'turn-E': 
+                eventClass = 'turn-E';
+                eventText = 'E';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'turn-G': 
+                eventClass = 'turn-G';
+                eventText = 'G';
+                timeRange = getTimeRange(schedule.eventType);
+                break;
+              case 'falta': 
+                eventClass = 'falta';
+                eventText = 'Falta';
+                break;
+              case 'vacation': 
+                eventClass = 'vacation';
+                eventText = 'Vac';
+                break;
+              case 'medical': 
+                eventClass = 'medical';
+                eventText = 'LM';
+                break;
+              case 'permission': 
+                eventClass = 'permission';
+                eventText = 'Perm';
+                break;
+              default: 
+                eventText = schedule.eventType;
+            }
+            
+            dayCell.className = eventClass;
+            
+            // Add time range if available
+            if (timeRange) {
+              dayCell.innerHTML = `${eventText}<br><small>${timeRange}</small>`;
+            } else {
+              dayCell.textContent = eventText;
+            }
+            
+            dayCell.title = `${employee}: ${eventText} ${timeRange ? '('+timeRange+')' : ''} (${schedule.formattedStartDate} a ${schedule.formattedEndDate})`;
+          }
+          
+          employeeRow.appendChild(dayCell);
+        });
+        
+        tbody.appendChild(employeeRow);
+      });
+      
+      table.appendChild(tbody);
+      scheduleContainer.appendChild(table);
+      
+      // Add page breaks for printing if showing full month
+      if (viewOption === 'month') {
+        const tables = scheduleContainer.querySelectorAll('table');
+        tables.forEach((table, index) => {
+          if (index < tables.length - 1) {
+            table.classList.add('page-break');
+          }
+        });
+      }
+    };
+
+    // Change position function
+    window.changePosition = function() {
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('positionSelector').style.display = 'block';
+      selectedPosition = '';
+    };
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPositions();
+      
+      // Set up event listeners for filters
+      document.getElementById('employeeFilter').addEventListener('input', generateSchedule);
+      document.getElementById('viewOption').addEventListener('change', generateSchedule);
+    });
+  </script>
+</body>
+</html>
