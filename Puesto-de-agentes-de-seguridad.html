@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Rotación de Colaboradores</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary-color: #2a2a3f;
+      --background-color: #2c3e50;
+      --text-color: #ffffff;
+      --text-light: #a8a8a8;
+      --border-color: #444;
+      --card-bg: #34495e;
+      --danger-color: #e74c3c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--secondary-color);
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-left: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-link i {
+      margin-right: 8px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .main-container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .card {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .add-more-btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      transition: background-color 0.3s ease;
+    }
+
+    .add-more-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .data-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .assignment-card {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .assignment-card.fixed {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .assignment-card h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .assignment-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    .assignment-card .badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .history-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .history-assignments {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .history-assignment {
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .history-assignment.fixed {
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .rotation-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+    }
+
+    .status-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-info i {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      color: var(--primary-color);
+    }
+
+    .status-text h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .status-text p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--secondary-color);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Dashboard Styles */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--secondary-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .stat-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+      color: var(--text-light);
+      font-size: 12px;
+    }
+
+    .current-rotations {
+      margin-top: 2rem;
+    }
+
+    .rotation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .rotation-item {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.3sease;
+    }
+
+    .rotation-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .rotation-item.fixed {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .rotation-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .rotation-item-title {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+
+    .rotation-item-badge {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+
+    .rotation-item-body p {
+      margin-bottom: 0.5rem;
+    }
+
+    .rotation-item-footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+      }
+      
+      .nav-menu {
+        margin-top: 1rem;
+      }
+      
+      .nav-item {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+      
+      .dashboard-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .rotation-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">Rotación de Colaboradores</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="collaborators">
+            <i class="fas fa-users"></i> Colaboradores
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="positions">
+            <i class="fas fa-briefcase"></i> Puestos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="configuration">
+            <i class="fas fa-cog"></i> Configuración
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="history">
+            <i class="fas fa-history"></i> Historial
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section active">
+      <h1 class="section-title">Panel Principal</h1>
+      
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <i class="fas fa-users"></i>
+          <h3 id="totalCollaborators">0</h3>
+          <p>Colaboradores</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-briefcase"></i>
+          <h3 id="totalPositions">0</h3>
+          <p>Puestos</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-random"></i>
+          <h3 id="totalRotations">0</h3>
+          <p>Rotaciones</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-lock"></i>
+          <h3 id="totalFixed">0</h3>
+          <p>Asignaciones Fijas</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="rotation-status">
+          <div class="status-info">
+            <i class="fas fa-sync-alt"></i>
+            <div class="status-text">
+              <h3>Estado de Rotación</h3>
+              <p id="rotationStatusText">Inactivo</p>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="dashboardRotationToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="dashboardRotationFrequency">Frecuencia de rotación:</label>
+          <select id="dashboardRotationFrequency" class="form-control">
+            <option value="3600000">Cada 1 hora</option>
+            <option value="7200000">Cada 2 horas</option>
+            <option value="21600000">Cada 6 horas</option>
+            <option value="43200000">Cada 12 horas</option>
+            <option value="604800000">Semanal (domingos)</option>
+            <option value="1209600000">Cada 2 semanas</option>
+            <option value="2073600000">Cada 24 días</option>
+            <option value="2592000000">Cada 30 días</option>
+          </select>
+        </div>
+
+        <button id="dashboardSaveConfig" class="btn btn-block">
+          <i class="fas fa-save"></i> Guardar Configuración
+        </button>
+        <button id="manualRotateBtn" class="btn btn-block">
+          <i class="fas fa-random"></i> Rotación Manual
+        </button>
+      </div>
+
+      <div class="current-rotations">
+        <h2 class="section-title">Asignaciones Actuales</h2>
+        
+        <div class="rotation-grid" id="currentRotationsGrid">
+          <!-- Las asignaciones actuales se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Collaborators Section -->
+    <section id="collaborators" class="section">
+      <h1 class="section-title">Gestión de Colaboradores</h1>
+      
+      <div class="card">
+        <h2>Agregar Colaboradores</h2>
+        <form id="collaboratorForm">
+          <div id="collaboratorFields">
+            <div class="form-group">
+              <label for="collaboratorName1">Nombre del colaborador</label>
+              <input type="text" id="collaboratorName1" class="form-control" placeholder="Nombre completo" required>
+            </div>
+          </div>
+          <button type="button" class="add-more-btn" onclick="addCollaboratorField()">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Guardar Colaboradores
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Lista de Colaboradores</h2>
+        <div class="data-grid" id="collaboratorsList">
+          <!-- Los colaboradores se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Positions Section -->
+    <section id="positions" class="section">
+      <h1 class="section-title">Gestión de Puestos</h1>
+      
+      <div class="card">
+        <h2>Agregar Puestos</h2>
+        <form id="positionForm">
+          <div id="positionFields">
+            <div class="form-group">
+              <label for="positionName1">Nombre del puesto</label>
+              <input type="text" id="positionName1" class="form-control" placeholder="Nombre del puesto" required>
+            </div>
+          </div>
+          <button type="button" class="add-more-btn" onclick="addPositionField()">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Guardar Puestos
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Lista de Puestos</h2>
+        <div class="data-grid" id="positionsList">
+          <!-- Los puestos se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuration Section -->
+    <section id="configuration" class="section">
+      <h1 class="section-title">Configuración del Sistema</h1>
+      
+      <div class="card">
+        <div class="rotation-status">
+          <div class="status-info">
+            <i class="fas fa-sync-alt"></i>
+            <div class="status-text">
+              <h3>Estado de Rotación</h3>
+              <p id="configStatusText">Inactivo</p>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="rotationToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="rotationFrequency">Frecuencia de rotación:</label>
+          <select id="rotationFrequency" class="form-control">
+            <option value="3600000">Cada 1 hora</option>
+            <option value="7200000">Cada 2 horas</option>
+            <option value="21600000">Cada 6 horas</option>
+            <option value="43200000">Cada 12 horas</option>
+            <option value="604800000">Semanal (domingos)</option>
+            <option value="1209600000">Cada 2 semanas</option>
+            <option value="2073600000">Cada 24 días</option>
+            <option value="2592000000">Cada 30 días</option>
+          </select>
+        </div>
+
+        <button id="saveConfig" class="btn btn-block">
+          <i class="fas fa-save"></i> Guardar Configuración
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>Asignaciones Fijas</h2>
+        <p>Estas asignaciones no serán afectadas por la rotación automática.</p>
+        
+        <div id="fixedAssignmentsContainer">
+          <!-- Las asignaciones fijas se cargarán aquí -->
+        </div>
+        
+        <button id="addFixedAssignment" class="btn btn-block">
+          <i class="fas fa-plus"></i> Agregar Asignación Fija
+        </button>
+      </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="section">
+      <h1 class="section-title">Historial de Rotaciones</h1>
+      
+      <div class="card">
+        <div id="rotationHistory">
+          <!-- El historial de rotaciones se cargará aquí -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal para asignaciones fijas -->
+  <div class="modal" id="assignmentModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Agregar Asignación Fija</h3>
+      <div class="form-group">
+        <label for="fixedCollaborator">Colaborador:</label>
+        <select id="fixedCollaborator" class="form-control"></select>
+      </div>
+      <div class="form-group">
+        <label for="fixedPosition">Puesto:</label>
+        <select id="fixedPosition" class="form-control"></select>
+      </div>
+      <div class="modal-footer">
+        <button id="saveFixedAssignment" class="btn">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+        <button onclick="closeModal()" class="btn btn-danger">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      getDocs, 
+      doc, 
+      setDoc, 
+      onSnapshot,
+      deleteDoc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let collaborators = [];
+    let positions = [];
+    let fixedAssignments = [];
+    let currentAssignments = [];
+    let rotationInterval = null;
+    let rotationConfig = {
+      active: false,
+      frequency: 3600000 // 1 hora por defecto
+    };
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavigation();
+      loadAllData();
+      setupEventListeners();
+    });
+
+    // Configuración de navegación
+    function setupNavigation() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Remover clase active de todos los links
+          navLinks.forEach(l => l.classList.remove('active'));
+          
+          // Agregar clase active al link clickeado
+          link.classList.add('active');
+          
+          // Ocultar todas las secciones
+          document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          // Mostrar la sección correspondiente
+          const sectionId = link.dataset.section;
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+    }
+
+    // Cargar todos los datos iniciales
+    async function loadAllData() {
+      await loadCollaborators();
+      await loadPositions();
+      await loadRotationConfig();
+      await loadFixedAssignments();
+      await loadCurrentAssignments();
+      await loadRotationHistory();
+      updateDashboardStats();
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Configuración de rotación
+      document.getElementById('saveConfig').addEventListener('click', saveRotationConfig);
+      document.getElementById('dashboardSaveConfig').addEventListener('click', saveRotationConfig);
+      
+      // Rotación manual
+      document.getElementById('manualRotateBtn').addEventListener('click', rotateAssignments);
+      
+      // Formularios
+      document.getElementById('collaboratorForm').addEventListener('submit', saveCollaborators);
+      document.getElementById('positionForm').addEventListener('submit', savePositions);
+      
+      // Asignaciones fijas
+      document.getElementById('addFixedAssignment').addEventListener('click', showFixedAssignmentModal);
+      document.getElementById('saveFixedAssignment').addEventListener('click', saveFixedAssignment);
+      
+      // Toggles de rotación
+      document.getElementById('rotationToggle').addEventListener('change', updateRotationToggle);
+      document.getElementById('dashboardRotationToggle').addEventListener('change', updateRotationToggle);
+    }
+
+    // Funciones para manejar colaboradores
+    async function loadCollaborators() {
+      const querySnapshot = await getDocs(collection(db, "collaborators"));
+      collaborators = [];
+      querySnapshot.forEach(doc => {
+        collaborators.push({ id: doc.id, ...doc.data() });
+      });
+      updateCollaboratorsList();
+      updateFixedAssignmentSelects();
+    }
+
+    function updateCollaboratorsList() {
+      const container = document.getElementById('collaboratorsList');
+      container.innerHTML = '';
+      
+      if (collaborators.length === 0) {
+        container.innerHTML = '<p>No hay colaboradores registrados</p>';
+        return;
+      }
+      
+      collaborators.forEach(collab => {
+        const item = document.createElement('div');
+        item.className = 'data-item';
+        item.innerHTML = `
+          <span>${collab.name}</span>
+          <button onclick="deleteCollaborator('${collab.id}')" class="btn btn-sm btn-danger">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    window.addCollaboratorField = function() {
+      const container = document.getElementById('collaboratorFields');
+      const newField = document.createElement('div');
+      newField.className = 'form-group';
+      newField.innerHTML = `
+        <label for="collaboratorName${container.children.length + 1}">Nombre del colaborador</label>
+        <input type="text" id="collaboratorName${container.children.length + 1}" class="form-control" placeholder="Nombre completo" required>
+      `;
+      container.appendChild(newField);
+    };
+
+    window.deleteCollaborator = async function(id) {
+      try {
+        // Verificar si el colaborador tiene asignaciones fijas
+        const hasFixedAssignment = fixedAssignments.some(a => a.collaboratorId === id);
+        
+        if (hasFixedAssignment) {
+          showModal('Error', 'No se puede eliminar este colaborador porque tiene asignaciones fijas');
+          return;
+        }
+        
+        await deleteDoc(doc(db, "collaborators", id));
+        showModal('Éxito', 'Colaborador eliminado correctamente');
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'No se pudo eliminar el colaborador');
+        console.error("Error eliminando colaborador: ", error);
+      }
+    };
+
+    async function saveCollaborators(e) {
+      e.preventDefault();
+      
+      const inputs = document.querySelectorAll('#collaboratorFields input[type="text"]');
+      const names = Array.from(inputs).map(input => input.value.trim()).filter(name => name !== '');
+      
+      if (names.length === 0) {
+        showModal('Error', 'Debe ingresar al menos un nombre de colaborador');
+        return;
+      }
+      
+      try {
+        for (const name of names) {
+          // Verificar si el colaborador ya existe
+          const exists = collaborators.some(c => c.name.toLowerCase() === name.toLowerCase());
+          if (!exists) {
+            await addDoc(collection(db, "collaborators"), { name });
+          }
+        }
+        
+        showModal('Éxito', 'Colaboradores guardados correctamente');
+        document.getElementById('collaboratorForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar colaboradores');
+        console.error("Error guardando colaboradores: ", error);
+      }
+    }
+
+    // Funciones para manejar puestos
+    async function loadPositions() {
+      const querySnapshot = await getDocs(collection(db, "positions"));
+      positions = [];
+      querySnapshot.forEach(doc => {
+        positions.push({ id: doc.id, ...doc.data() });
+      });
+      updatePositionsList();
+      updateFixedAssignmentSelects();
+    }
+
+    function updatePositionsList() {
+      const container = document.getElementById('positionsList');
+      container.innerHTML = '';
+      
+      if (positions.length === 0) {
+        container.innerHTML = '<p>No hay puestos registrados</p>';
+        return;
+      }
+      
+      positions.forEach(position => {
+        const item = document.createElement('div');
+        item.className = 'data-item';
+        item.innerHTML = `
+          <span>${position.name}</span>
+          <button onclick="deletePosition('${position.id}')" class="btn btn-sm btn-danger">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    window.addPositionField = function() {
+      const container = document.getElementById('positionFields');
+      const newField = document.createElement('div');
+      newField.className = 'form-group';
+      newField.innerHTML = `
+        <label for="positionName${container.children.length + 1}">Nombre del puesto</label>
+        <input type="text" id="positionName${container.children.length + 1}" class="form-control" placeholder="Nombre del puesto" required>
+      `;
+      container.appendChild(newField);
+    };
+
+    window.deletePosition = async function(id) {
+      try {
+        // Verificar si el puesto tiene asignaciones fijas
+        const hasFixedAssignment = fixedAssignments.some(a => a.positionId === id);
+        
+        if (hasFixedAssignment) {
+          showModal('Error', 'No se puede eliminar este puesto porque tiene asignaciones fijas');
+          return;
+        }
+        
+        await deleteDoc(doc(db, "positions", id));
+        showModal('Éxito', 'Puesto eliminado correctamente');
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'No se pudo eliminar el puesto');
+        console.error("Error eliminando puesto: ", error);
+      }
+    };
+
+    async function savePositions(e) {
+      e.preventDefault();
+      
+      const inputs = document.querySelectorAll('#positionFields input[type="text"]');
+      const names = Array.from(inputs).map(input => input.value.trim()).filter(name => name !== '');
+      
+      if (names.length === 0) {
+        showModal('Error', 'Debe ingresar al menos un nombre de puesto');
+        return;
+      }
+      
+      try {
+        for (const name of names) {
+          // Verificar si el puesto ya existe
+          const exists = positions.some(p => p.name.toLowerCase() === name.toLowerCase());
+          if (!exists) {
+            await addDoc(collection(db, "positions"), { name });
+          }
+        }
+        
+        showModal('Éxito', 'Puestos guardados correctamente');
+        document.getElementById('positionForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar puestos');
+        console.error("Error guardando puestos: ", error);
+      }
+    }
+
+    // Configuración de rotación
+    async function loadRotationConfig() {
+      const docSnap = await getDocs(collection(db, "config"));
+      
+      docSnap.forEach(doc => {
+        if (doc.id === "rotation") {
+          rotationConfig = doc.data();
+          
+          // Actualizar controles de UI
+          document.getElementById('rotationToggle').checked = rotationConfig.active;
+          document.getElementById('dashboardRotationToggle').checked = rotationConfig.active;
+          
+          document.getElementById('rotationFrequency').value = rotationConfig.frequency;
+          document.getElementById('dashboardRotationFrequency').value = rotationConfig.frequency;
+          
+          // Actualizar texto de estado
+          const statusText = rotationConfig.active ? 
+            `Activo (${getFrequencyText(rotationConfig.frequency)})` : 'Inactivo';
+          
+          document.getElementById('rotationStatusText').textContent = statusText;
+          document.getElementById('configStatusText').textContent = statusText;
+          
+          if (rotationConfig.active) {
+            startRotationInterval();
+          }
+        }
+      });
+    }
+
+    async function saveRotationConfig() {
+      const config = {
+        active: document.getElementById('rotationToggle').checked,
+        frequency: parseInt(document.getElementById('rotationFrequency').value)
+      };
+      
+      try {
+        await setDoc(doc(db, "config", "rotation"), config);
+        rotationConfig = config;
+        
+        // Actualizar controles del dashboard también
+        document.getElementById('dashboardRotationToggle').checked = config.active;
+        document.getElementById('dashboardRotationFrequency').value = config.frequency;
+        
+        // Actualizar texto de estado
+        const statusText = config.active ? 
+          `Activo (${getFrequencyText(config.frequency)})` : 'Inactivo';
+        
+        document.getElementById('rotationStatusText').textContent = statusText;
+        document.getElementById('configStatusText').textContent = statusText;
+        
+        if (config.active) {
+          startRotationInterval();
+        } else {
+          stopRotationInterval();
+        }
+        
+        showModal('Éxito', 'Configuración guardada correctamente');
+      } catch (error) {
+        showModal('Error', 'Error al guardar configuración');
+        console.error("Error guardando configuración: ", error);
+      }
+    }
+
+    function updateRotationToggle(e) {
+      // Sincronizar ambos toggles
+      const isChecked = e.target.checked;
+      document.getElementById('rotationToggle').checked = isChecked;
+      document.getElementById('dashboardRotationToggle').checked = isChecked;
+    }
+
+    function startRotationInterval() {
+      stopRotationInterval();
+      rotationInterval = setInterval(rotateAssignments, rotationConfig.frequency);
+      console.log(`Rotación automática iniciada cada ${rotationConfig.frequency / 1000 / 60} minutos`);
+    }
+
+    function stopRotationInterval() {
+      if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
+        console.log("Rotación automática detenida");
+      }
+    }
+
+    // Asignaciones fijas
+    async function loadFixedAssignments() {
+      const querySnapshot = await getDocs(collection(db, "fixedAssignments"));
+      fixedAssignments = [];
+      querySnapshot.forEach(doc => {
+        fixedAssignments.push({ id: doc.id, ...doc.data() });
+      });
+      updateFixedAssignmentsList();
+    }
+
+    function updateFixedAssignmentsList() {
+      const container = document.getElementById('fixedAssignmentsContainer');
+      container.innerHTML = '';
+      
+      if (fixedAssignments.length === 0) {
+        container.innerHTML = '<p>No hay asignaciones fijas registradas</p>';
+        return;
+      }
+      
+      fixedAssignments.forEach(assignment => {
+        const collab = collaborators.find(c => c.id === assignment.collaboratorId);
+        const position = positions.find(p => p.id === assignment.positionId);
+        
+        if (collab && position) {
+          const item = document.createElement('div');
+          item.className = 'assignment-card fixed';
+          item.innerHTML = `
+            <h3>${collab.name}</h3>
+            <p>Puesto: ${position.name}</p>
+            <small>Creado: ${new Date(assignment.createdAt).toLocaleDateString()}</small>
+            <button onclick="deleteFixedAssignment('${assignment.id}')" class="btn btn-sm btn-danger" style="position: absolute; top: 1rem; right: 1rem;">
+              <i class="fas fa-trash"></i>
+            </button>
+          `;
+          container.appendChild(item);
+        }
+      });
+    }
+
+    function updateFixedAssignmentSelects() {
+      const collabSelect = document.getElementById('fixedCollaborator');
+      const positionSelect = document.getElementById('fixedPosition');
+      
+      collabSelect.innerHTML = '';
+      positionSelect.innerHTML = '';
+      
+      // Agregar opción por defecto
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = '-- Seleccione --';
+      collabSelect.appendChild(defaultOption.cloneNode(true));
+      positionSelect.appendChild(defaultOption.cloneNode(true));
+      
+      // Agregar colaboradores disponibles (que no tengan asignación fija)
+      collaborators.forEach(collab => {
+        const hasFixedAssignment = fixedAssignments.some(a => a.collaboratorId === collab.id);
+        if (!hasFixedAssignment) {
+          const option = document.createElement('option');
+          option.value = collab.id;
+          option.textContent = collab.name;
+          collabSelect.appendChild(option);
+        }
+      });
+      
+      // Agregar puestos disponibles (que no tengan asignación fija)
+      positions.forEach(position => {
+        const hasFixedAssignment = fixedAssignments.some(a => a.positionId === position.id);
+        if (!hasFixedAssignment) {
+          const option = document.createElement('option');
+          option.value = position.id;
+          option.textContent = position.name;
+          positionSelect.appendChild(option);
+        }
+      });
+    }
+
+    function showFixedAssignmentModal() {
+      if (collaborators.length === 0 || positions.length === 0) {
+        showModal('Error', 'Primero debe agregar colaboradores y puestos');
+        return;
+      }
+      
+      updateFixedAssignmentSelects();
+      document.getElementById('assignmentModal').classList.add('active');
+    }
+
+    async function saveFixedAssignment() {
+      const collaboratorId = document.getElementById('fixedCollaborator').value;
+      const positionId = document.getElementById('fixedPosition').value;
+      
+      if (!collaboratorId || !positionId) {
+        showModal('Error', 'Debe seleccionar un colaborador y un puesto');
+        return;
+      }
+      
+      try {
+        await addDoc(collection(db, "fixedAssignments"), {
+          collaboratorId,
+          positionId,
+          createdAt: new Date().toISOString()
+        });
+        
+        showModal('Éxito', 'Asignación fija guardada correctamente');
+        closeModal();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar asignación fija');
+        console.error("Error guardando asignación fija: ", error);
+      }
+    }
+
+    window.deleteFixedAssignment = async function(id) {
+      try {
+        await deleteDoc(doc(db, "fixedAssignments", id));
+        showModal('Éxito', 'Asignación fija eliminada correctamente');
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'No se pudo eliminar la asignación fija');
+        console.error("Error eliminando asignación fija: ", error);
+      }
+    };
+
+    // Asignaciones actuales
+    async function loadCurrentAssignments() {
+      const querySnapshot = await getDocs(collection(db, "currentAssignments"));
+      currentAssignments = [];
+      querySnapshot.forEach(doc => {
+        currentAssignments.push({ id: doc.id, ...doc.data() });
+      });
+      updateCurrentAssignmentsList();
+      updateDashboardAssignments();
+    }
+
+    function updateCurrentAssignmentsList() {
+      const container = document.getElementById('currentRotationsGrid');
+      container.innerHTML = '';
+      
+      if (currentAssignments.length === 0) {
+        container.innerHTML = '<p>No hay asignaciones actuales</p>';
+        return;
+      }
+      
+      currentAssignments.forEach(assignment => {
+        const collab = collaborators.find(c => c.id === assignment.collaboratorId);
+        const position = positions.find(p => p.id === assignment.positionId);
+        
+        if (collab && position) {
+          const isFixed = fixedAssignments.some(a => 
+            a.collaboratorId === assignment.collaboratorId || 
+            a.positionId === assignment.positionId
+          );
+          
+          const item = document.createElement('div');
+          item.className = `rotation-item ${isFixed ? 'fixed' : ''}`;
+          item.innerHTML = `
+            <div class="rotation-item-header">
+              <span class="rotation-item-title">${collab.name}</span>
+              ${isFixed ? '<span class="rotation-item-badge">Fijo</span>' : ''}
+            </div>
+            <div class="rotation-item-body">
+              <p><strong>Puesto:</strong> ${position.name}</p>
+              <p><strong>Asignado:</strong> ${new Date(assignment.assignedAt).toLocaleString()}</p>
+            </div>
+            <div class="rotation-item-footer">
+              ${isFixed ? 'Asignación fija' : 'Rotación automática'}
+            </div>
+          `;
+          container.appendChild(item);
+        }
+      });
+    }
+
+    // Rotación de asignaciones
+    async function rotateAssignments() {
+      if (collaborators.length === 0 || positions.length === 0) {
+        showModal('Error', 'No hay suficientes colaboradores o puestos para rotar');
+        return;
+      }
+      
+      // Obtener colaboradores y puestos no fijos
+      const availableCollaborators = collaborators.filter(collab => 
+        !fixedAssignments.some(a => a.collaboratorId === collab.id)
+      );
+      
+      const availablePositions = positions.filter(position => 
+        !fixedAssignments.some(a => a.positionId === position.id)
+      );
+      
+      if (availableCollaborators.length === 0 || availablePositions.length === 0) {
+        showModal('Error', 'No hay suficientes colaboradores o puestos disponibles para rotar');
+        return;
+      }
+      
+      // Mezclar arrays aleatoriamente
+      const shuffledCollaborators = [...availableCollaborators].sort(() => Math.random() - 0.5);
+      const shuffledPositions = [...availablePositions].sort(() => Math.random() - 0.5);
+      
+      // Crear nuevas asignaciones
+      const newAssignments = [];
+      const minLength = Math.min(shuffledCollaborators.length, shuffledPositions.length);
+      
+      for (let i = 0; i < minLength; i++) {
+        newAssignments.push({
+          collaboratorId: shuffledCollaborators[i].id,
+          positionId: shuffledPositions[i].id,
+          assignedAt: new Date().toISOString()
+        });
+      }
+      
+      // Agregar asignaciones fijas
+      fixedAssignments.forEach(assignment => {
+        newAssignments.push({
+          collaboratorId: assignment.collaboratorId,
+          positionId: assignment.positionId,
+          assignedAt: new Date().toISOString(),
+          isFixed: true
+        });
+      });
+      
+      // Guardar en Firebase
+      try {
+        // Primero eliminar todas las asignaciones actuales
+        const currentSnapshot = await getDocs(collection(db, "currentAssignments"));
+        currentSnapshot.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+        
+        // Luego agregar las nuevas
+        for (const assignment of newAssignments) {
+          await addDoc(collection(db, "currentAssignments"), assignment);
+        }
+        
+        // Registrar en el historial
+        await addDoc(collection(db, "rotationHistory"), {
+          rotatedAt: new Date().toISOString(),
+          frequency: rotationConfig.frequency,
+          assignments: newAssignments
+        });
+        
+        showModal('Éxito', 'Rotación completada correctamente');
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al realizar la rotación');
+        console.error("Error en rotación: ", error);
+      }
+    }
+
+    // Historial de rotaciones
+    async function loadRotationHistory() {
+      const querySnapshot = await getDocs(collection(db, "rotationHistory"));
+      const history = [];
+      querySnapshot.forEach(doc => {
+        history.push({ id: doc.id, ...doc.data() });
+      });
+      
+      // Ordenar por fecha más reciente primero
+      history.sort((a, b) => new Date(b.rotatedAt) - new Date(a.rotatedAt));
+      updateRotationHistoryList(history);
+    }
+
+    function updateRotationHistoryList(history) {
+      const container = document.getElementById('rotationHistory');
+      container.innerHTML = '';
+      
+      if (history.length === 0) {
+        container.innerHTML = '<p>No hay historial de rotaciones</p>';
+        return;
+      }
+      
+      history.forEach(record => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        const frequencyText = getFrequencyText(record.frequency);
+        const date = new Date(record.rotatedAt).toLocaleString();
+        
+        item.innerHTML = `
+          <div class="history-header">
+            <div>
+              <h3>Rotación: ${frequencyText}</h3>
+              <small>${date}</small>
+            </div>
+            <button onclick="deleteRotationRecord('${record.id}')" class="btn btn-sm btn-danger">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <div class="history-assignments">
+            ${record.assignments.map(assignment => {
+              const collab = collaborators.find(c => c.id === assignment.collaboratorId);
+              const position = positions.find(p => p.id === assignment.positionId);
+              const isFixed = assignment.isFixed || fixedAssignments.some(a => 
+                a.collaboratorId === assignment.collaboratorId || 
+                a.positionId === assignment.positionId
+              );
+              
+              return collab && position ? `
+                <div class="history-assignment ${isFixed ? 'fixed' : ''}">
+                  <strong>${collab.name}</strong> - ${position.name}
+                  ${isFixed ? '<small>(Fijo)</small>' : ''}
+                </div>
+              ` : '';
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    window.deleteRotationRecord = async function(id) {
+      try {
+        await deleteDoc(doc(db, "rotationHistory", id));
+        showModal('Éxito', 'Registro de rotación eliminado');
+        await loadRotationHistory();
+      } catch (error) {
+        showModal('Error', 'No se pudo eliminar el registro');
+        console.error("Error eliminando registro: ", error);
+      }
+    };
+
+    // Dashboard
+    function updateDashboardStats() {
+      document.getElementById('totalCollaborators').textContent = collaborators.length;
+      document.getElementById('totalPositions').textContent = positions.length;
+      
+      // Contar rotaciones en el historial
+      const rotationCount = currentAssignments.filter(a => 
+        !fixedAssignments.some(f => 
+          f.collaboratorId === a.collaboratorId || 
+          f.positionId === a.positionId
+        )
+      ).length;
+      
+      document.getElementById('totalRotations').textContent = rotationCount;
+      document.getElementById('totalFixed').textContent = fixedAssignments.length;
+    }
+
+    function updateDashboardAssignments() {
+      const container = document.getElementById('currentRotationsGrid');
+      container.innerHTML = '';
+      
+      if (currentAssignments.length === 0) {
+        container.innerHTML = '<p>No hay asignaciones actuales</p>';
+        return;
+      }
+      
+      currentAssignments.forEach(assignment => {
+        const collab = collaborators.find(c => c.id === assignment.collaboratorId);
+        const position = positions.find(p => p.id === assignment.positionId);
+        
+        if (collab && position) {
+          const isFixed = fixedAssignments.some(a => 
+            a.collaboratorId === assignment.collaboratorId || 
+            a.positionId === assignment.positionId
+          );
+          
+          const item = document.createElement('div');
+          item.className = `rotation-item ${isFixed ? 'fixed' : ''}`;
+          item.innerHTML = `
+            <div class="rotation-item-header">
+              <span class="rotation-item-title">${collab.name}</span>
+              ${isFixed ? '<span class="rotation-item-badge">Fijo</span>' : ''}
+            </div>
+            <div class="rotation-item-body">
+              <p><strong>Puesto:</strong> ${position.name}</p>
+              <p><strong>Asignado:</strong> ${new Date(assignment.assignedAt).toLocaleString()}</p>
+            </div>
+            <div class="rotation-item-footer">
+              ${isFixed ? 'Asignación fija' : 'Rotación automática'}
+            </div>
+          `;
+          container.appendChild(item);
+        }
+      });
+    }
+
+    // Funciones auxiliares
+    function getFrequencyText(frequency) {
+      switch(frequency) {
+        case 3600000: return 'Cada 1 hora';
+        case 7200000: return 'Cada 2 horas';
+        case 21600000: return 'Cada 6 horas';
+        case 43200000: return 'Cada 12 horas';
+        case 604800000: return 'Semanal (domingos)';
+        case 1209600000: return 'Cada 2 semanas';
+        case 2073600000: return 'Cada 24 días';
+        case 2592000000: return 'Cada 30 días';
+        default: return 'Manual';
+      }
+    }
+
+    window.closeModal = function() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+      });
+    };
+
+    function showModal(title, message) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('alertModal').classList.add('active');
+    }
+  </script>
+</body>
+</html>
