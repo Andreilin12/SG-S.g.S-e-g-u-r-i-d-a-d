@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Horario</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-fondo: #2c3e50;
+            --color-icono: #15a086;
+            --color-texto: #ffffff;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--color-fondo);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .menu {
+            display: flex;
+            gap: 80px;
+        }
+        
+        .option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            width: 160px;
+            transition: transform 0.3s ease;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+        }
+        
+        .icon {
+            font-size: 60px;
+            color: var(--color-icono);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover .icon {
+            filter: drop-shadow(0 0 8px rgba(21, 160, 134, 0.7));
+            transform: scale(1.1);
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-texto);
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover .title {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Simple animación al hacer clic */
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        
+        .click-animation {
+            animation: clickEffect 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <!-- Opción Moderno -->
+        <div class="option" 
+             onclick="animateClick(this, 'horario-moderno.html')">
+            <i class="icon fas fa-clock"></i>
+            <div class="title">MODERNO</div>
+        </div>
+        
+        <!-- Opción Clásico -->
+        <div class="option" 
+             onclick="animateClick(this, 'horario-clasico.html')">
+            <i class="icon fas fa-calendar-check"></i>
+            <div class="title">CLÁSICO</div>
+        </div>
+    </div>
+
+    <script>
+        // Función para animación al hacer clic
+        function animateClick(element, url) {
+            element.classList.add('click-animation');
+            setTimeout(() => {
+                element.classList.remove('click-animation');
+                window.location.href = url;
+            }, 400);
+        }
+    </script>
+</body>
+</html>
