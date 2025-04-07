@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Tarjetas Bancarias</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --debit: #334155;
+            --credit: #1e40af;
+            --gold: #b45309;
+            --platinum: #64748b;
+            --black: #0f172a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            color: #334155;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            width: 340px;
+            height: 214px;
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s ease;
+            color: white;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card.debit {
+            background: linear-gradient(135deg, #334155, #475569);
+        }
+        
+        .card.platinum {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+        }
+        
+        .card.gold {
+            background: linear-gradient(135deg, #b45309, #d97706);
+        }
+        
+        .card.black {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px) rotateY(5deg);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .card-logo {
+            font-weight: bold;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+        }
+        
+        .card-type {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-weight: 500;
+            background: rgba(255,255,255,0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .card-number-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .card-number {
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: auto;
+        }
+        
+        .card-holder-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-holder-label {
+            font-size: 0.5rem;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+        
+        .card-holder {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .card-expiry-container, .card-cvv-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .card-expiry-label, .card-cvv-label {
+            font-size: 0.5rem;
+            opacity: 0.8;
+            margin-right: 5px;
+        }
+        
+        .card-expiry, .card-cvv {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .chip {
+            position: absolute;
+            top: 46px;
+            left: 25px;
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #eab308, #facc15);
+            border-radius: 5px;
+        }
+        
+        .chip::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+        
+        .magstripe ❌ {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            width: 340px;
+            margin: 30px auto 0;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(37, 99, 235, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-debit {
+            background: linear-gradient(to right, #475569, #334155);
+        }
+        
+        .btn-platinum {
+            background: linear-gradient(to right, #94a3b8, #64748b);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(to right, #d97706, #b45309);
+        }
+        
+        .btn-black {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+        }
+        
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            margin-left: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .card-issuer {
+            position: absolute;
+            bottom: 10px;
+            left: 25px;
+            font-size: 0.6rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+        
+        .signature ❌  {
+            position: absolute;
+            bottom: 10px;
+            left: 120px;
+            height: 18px;
+            width: 120px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            padding-left: 5px;
+            font-size: 0.6rem;
+            font-style: italic;
+        }
+        
+        .signature::after {
+            content: 'Authorized Signature';
+            position: absolute;
+            right: 5px;
+            bottom: -15px;
+            font-size: 0.5rem;
+            opacity: 0.6;
+            font-style: normal;
+        }
+        
+        .hologram {
+            position: absolute;
+            top: 50px;
+            right: 80px;
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(45deg, 
+                rgba(255,0,0,0.5), 
+                rgba(0,255,0,0.5), 
+                rgba(0,0,255,0.5));
+            border-radius: 3px;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .card {
+                width: 300px;
+                height: 190px;
+                padding: 20px;
+            }
+            
+            .card-number {
+                font-size: 1.1rem;
+            }
+            
+            .controls {
+                width: 300px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Tarjetas | Banco Jorg.</h1>
+        
+        <div class="card-container">
+            <div class="card credit" id="card-element">
+                <div class="magstripe"></div>
+                <div class="chip"></div>
+                <div class="hologram"></div>
+                
+                <div class="card-header">
+                    <div class="card-logo">VISA</div>
+                    <div class="card-type">CREDIT</div>
+                </div>
+                
+                <div class="card-number-container">
+                    <div class="card-number">
+                        <span id="card-number">•••• •••• •••• ••••</span>
+                        <button class="copy-btn" onclick="copyToClipboard('card-number')">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="card-holder-container">
+                        <div class="card-holder-label">CARD HOLDER</div>
+                        <div class="card-holder">
+                            <span id="card-holder">JOHN M. DOE</span>
+                            <button class="copy-btn" onclick="copyToClipboard('card-holder')">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-details">
+                        <div class="card-expiry-container">
+                            <div class="card-expiry-label">VALID THRU</div>
+                            <div class="card-expiry">
+                                <span id="card-expiry">••/••</span>
+                                <button class="copy-btn" onclick="copyToClipboard('card-expiry')">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card-cvv-container">
+                            <div class="card-cvv-label">CVV</div>
+                            <div class="card-cvv">
+                                <span id="card-cvv">•••</span>
+                                <button class="copy-btn" onclick="copyToClipboard('card-cvv')">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-issuer">bank Jorge</div>
+                <div class="signature"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="btn-group">
+                <button onclick="generateCard('credit')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    Tarjeta de Crédito
+                </button>
+                <button onclick="generateCard('debit')" class="btn-debit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    Tarjeta de Débito
+                </button>
+                <button onclick="generateCard('gold')" class="btn-gold">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 8v4l3 3"></path>
+                    </svg>
+                    Tarjeta Gold
+                </button>
+                <button onclick="generateCard('platinum')" class="btn-platinum">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    Tarjeta Platinum
+                </button>
+                <button onclick="generateCard('black')" class="btn-black">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2h10M5 6h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"></path>
+                    </svg>
+                    Tarjeta Black
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Copiado al portapapeles!</div>
+    
+    <script>
+        // Bancos y datos realistas
+        const banks = [
+            'GLOBAL BANK', 'CITY BANK', 'INTERNATIONAL BANK', 'FINANCIAL TRUST', 
+            'CREDIT UNION', 'CAPITAL ONE', 'CHASE BANK', 'WELLS FARGO', 
+            'BANK OF AMERICA', 'EUROPEAN BANK'
+        ];
+        
+        const firstNames = [
+            'JAMES', 'MARIA', 'ROBERT', 'JOHN', 'PATRICIA', 'MICHAEL', 'LINDA', 
+            'WILLIAM', 'ELIZABETH', 'DAVID', 'SUSAN', 'RICHARD', 'JESSICA', 
+            'CHARLES', 'SARAH', 'JOSEPH', 'KAREN', 'THOMAS', 'NANCY', 'DANIEL'
+        ];
+        
+        const lastNames = [
+            'SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'MILLER', 'DAVIS',
+            'GARCIA', 'RODRIGUEZ', 'WILSON', 'MARTINEZ', 'ANDERSON', 'TAYLOR',
+            'THOMAS', 'HERNANDEZ', 'MOORE', 'MARTIN', 'JACKSON', 'THOMPSON'
+        ];
+        
+        // Prefijos válidos para diferentes tipos de tarjeta
+        const visaPrefixes = ['4'];
+        const mcPrefixes = ['51', '52', '53', '54', '55'];
+        const amexPrefixes = ['34', '37'];
+        const discoverPrefixes = ['6011', '65'];
+        
+        function generateCard(type = 'credit') {
+            const cardElement = document.getElementById('card-element');
+            cardElement.className = 'card ' + type;
+            
+            // Generar nombre del titular
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const middleInitial = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            const cardHolder = `${firstName} ${middleInitial}. ${lastName}`;
+            
+            // Configurar según tipo de tarjeta
+            let prefix, cardLength, cardLogo;
+            
+            switch(type) {
+                case 'debit':
+                    prefix = mcPrefixes[Math.floor(Math.random() * mcPrefixes.length)];
+                    cardLength = 16;
+                    cardLogo = 'MASTERCARD';
+                    break;
+                case 'gold':
+                    prefix = amexPrefixes[Math.floor(Math.random() * amexPrefixes.length)];
+                    cardLength = 15;
+                    cardLogo = 'AMEX';
+                    break;
+                case 'platinum':
+                    prefix = visaPrefixes[0];
+                    cardLength = 16;
+                    cardLogo = 'VISA';
+                    break;
+                case 'black':
+                    prefix = discoverPrefixes[Math.floor(Math.random() * discoverPrefixes.length)];
+                    cardLength = prefix === '6011' ? 16 : 16;
+                    cardLogo = 'DISCOVER';
+                    break;
+                default: // credit
+                    prefix = visaPrefixes[0];
+                    cardLength = 16;
+                    cardLogo = 'VISA';
+            }
+            
+            // Generar número de tarjeta válido (algoritmo de Luhn)
+            let cardNumber = generateValidCardNumber(prefix, cardLength);
+            
+            // Formatear número para mostrar
+            let formattedNumber = formatCardNumber(cardNumber, cardLength);
+            
+            // Generar fecha de expiración válida (no vencida)
+            const expiryDate = generateValidExpiryDate();
+            
+            // Generar CVV (3 dígitos para Visa/MC/Discover, 4 para AMEX)
+            const cvvLength = (type === 'gold') ? 4 : 3;
+            const cvv = generateRandomNumber(cvvLength);
+            
+            // Seleccionar banco emisor
+            const bank = banks[Math.floor(Math.random() * banks.length)];
+            
+            // Actualizar la UI
+            document.getElementById('card-number').textContent = formattedNumber;
+            document.getElementById('card-holder').textContent = cardHolder;
+            document.getElementById('card-expiry').textContent = expiryDate;
+            document.getElementById('card-cvv').textContent = cvv;
+            document.querySelector('.card-logo').textContent = cardLogo;
+            document.querySelector('.card-type').textContent = type.toUpperCase();
+            document.querySelector('.card-issuer').textContent = bank;
+            
+            // Animación
+            cardElement.style.transform = 'rotateY(20deg)';
+            setTimeout(() => {
+                cardElement.style.transform = 'rotateY(0)';
+            }, 300);
+        }
+        
+        function generateValidCardNumber(prefix, length) {
+            let cardNumber = prefix;
+            
+            // Generar los dígitos faltantes (excepto el último)
+            while (cardNumber.length < length - 1) {
+                cardNumber += Math.floor(Math.random() * 10);
+            }
+            
+            // Calcular dígito de verificación (algoritmo de Luhn)
+            const checkDigit = calculateLuhnCheckDigit(cardNumber);
+            cardNumber += checkDigit;
+            
+            return cardNumber;
+        }
+        
+        function calculateLuhnCheckDigit(partialNumber) {
+            let sum = 0;
+            let alternate = false;
+            
+            for (let i = partialNumber.length - 1; i >= 0; i--) {
+                let digit = parseInt(partialNumber.charAt(i));
+                
+                if (alternate) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                
+                sum += digit;
+                alternate = !alternate;
+            }
+            
+            return ((10 - (sum % 10)) % 10).toString();
+        }
+        
+        function formatCardNumber(number, length) {
+            if (length === 15) { // AMEX
+                return number.substring(0, 4) + ' ' + 
+                       number.substring(4, 10) + ' ' + 
+                       number.substring(10, 15);
+            } else { // 16 dígitos
+                return number.substring(0, 4) + ' ' + 
+                       number.substring(4, 8) + ' ' + 
+                       number.substring(8, 12) + ' ' + 
+                       number.substring(12, 16);
+            }
+        }
+        
+        function generateValidExpiryDate() {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            
+            // Fecha de expiración entre 1 y 5 años en el futuro
+            const expiryYear = currentYear + Math.floor(Math.random() * 5) + 1;
+            let expiryMonth = Math.floor(Math.random() * 12) + 1;
+            
+            // Si es el año actual, asegurar que el mes sea futuro
+            if (expiryYear === currentYear && expiryMonth <= currentMonth) {
+                expiryMonth = currentMonth + 1;
+                if (expiryMonth > 12) expiryMonth = 1;
+            }
+            
+            return `${expiryMonth.toString().padStart(2, '0')}/${expiryYear.toString().slice(-2)}`;
+        }
+        
+        function generateRandomNumber(length) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += Math.floor(Math.random() * 10);
+            }
+            return result;
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent.replace(/•/g, '').trim();
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification();
+            });
+        }
+        
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Generar una tarjeta al cargar la página
+        window.onload = function() {
+            generateCard('credit');
+        };
+    </script>
+</body>
+</html>
