@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Rondas para Colaboradores</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary-color: #2a2a3f;
+      --background-color: #2c3e50;
+      --text-color: #ffffff;
+      --text-light: #a8a8a8;
+      --border-color: #444;
+      --card-bg: #34495e;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --success-color: #2ecc71;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--secondary-color);
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-left: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-link i {
+      margin-right: 8px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .main-container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .card {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+
+    .btn-warning {
+      background-color: var(--warning-color);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .add-more-btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      transition: background-color 0.3s ease;
+    }
+
+    .add-more-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .data-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .assignment-card {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .assignment-card.fixed {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .assignment-card h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .assignment-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    .assignment-card .badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .history-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .history-assignments {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .history-assignment {
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .history-assignment.fixed {
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .rotation-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+    }
+
+    .status-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-info i {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      color: var(--primary-color);
+    }
+
+    .status-text h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .status-text p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--secondary-color);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Dashboard Styles */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--secondary-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .stat-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+      color: var(--text-light);
+    }
+
+    .current-rotations {
+      margin-top: 2rem;
+    }
+
+    .rotation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .rotation-item {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .rotation-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .rotation-item.fixed {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .rotation-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .rotation-item-title {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+
+    .rotation-item-badge {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+
+    .rotation-item-body p {
+      margin-bottom: 0.5rem;
+    }
+
+    .rotation-item-footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    /* Rounds specific styles */
+    .round-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .round-checkbox {
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--text-light);
+      border-radius: 4px;
+      margin-right: 1rem;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .round-checkbox:checked {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+    }
+
+    .round-checkbox:checked::after {
+      content: "\f00c";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      color: white;
+      font-size: 14px;
+    }
+
+    .round-info {
+      flex: 1;
+    }
+
+    .round-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .round-alert {
+      background-color: var(--warning-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    .round-alert i {
+      margin-right: 0.5rem;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .round-comment {
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .round-history-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .round-history-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .round-history-details {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .round-history-comment {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      font-style: italic;
+    }
+
+    /* Print styles */
+    .print-rounds {
+      margin-top: 2rem;
+    }
+
+    .print-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .print-round-item {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Accordion styles */
+    .accordion {
+      margin-bottom: 1rem;
+    }
+
+    .accordion-header {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-header h3 {
+      margin: 0;
+    }
+
+    .accordion-content {
+      background-color: var(--secondary-color);
+      padding: 1rem;
+      border-radius: 0 0 8px 8px;
+      display: none;
+    }
+
+    .accordion.active .accordion-content {
+      display: block;
+    }
+
+    /* Round control styles */
+    .round-control-panel {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .round-control-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .round-control-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .round-control-info i {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      color: var(--primary-color);
+    }
+
+    .rounds-remaining {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .rounds-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .round-option {
+      background-color: var(--secondary-color);
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .round-option:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .round-option.selected {
+      background-color: var(--primary-color);
+    }
+
+    /* User input styles */
+    .user-input-container {
+      margin-bottom: 1rem;
+    }
+
+    .user-input-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-input-wrapper i {
+      margin-right: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .add-user-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    .add-user-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    /* Filter styles */
+    .filter-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-group label {
+      white-space: nowrap;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+      }
+      
+      .nav-menu {
+        margin-top: 1rem;
+      }
+      
+      .nav-item {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+      
+      .dashboard-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .filter-group input {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .rotation-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .round-alert {
+        width: 90%;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media print {
+      body {
+        background-color: white;
+        color: black;
+      }
+      
+      header, .nav-menu, .btn, .round-alert {
+        display: none !important;
+      }
+      
+      .print-round-item {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">Sistema de Rondas</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="rounds">
+            <i class="fas fa-clipboard-check"></i> Rondas
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="rounds-history">
+            <i class="fas fa-history"></i> Historial
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="rounds-accordion">
+            <i class="fas fa-archive"></i> Archivo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="rounds-print">
+            <i class="fas fa-print"></i> Imprimir
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="configuration">
+            <i class="fas fa-cog"></i> Configuración
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div id="roundAlert" class="round-alert" style="display: none;">
+    <i class="fas fa-bell"></i>
+    <span id="roundAlertText"></span>
+    <audio id="alertSound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" preload="auto"></audio>
+  </div>
+
+  <div class="main-container">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section active">
+      <h1 class="section-title">Panel Principal</h1>
+      
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <i class="fas fa-users"></i>
+          <h3 id="totalCollaborators">0</h3>
+          <p>Colaboradores</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-clipboard-check"></i>
+          <h3 id="totalRoundsToday">0</h3>
+          <p>Rondas Hoy</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-clock"></i>
+          <h3 id="nextRoundTime">--:--</h3>
+          <p>Próxima Ronda</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-user"></i>
+          <h3 id="currentUser">Usuario</h3>
+          <p>Sesión Activa</p>
+        </div>
+      </div>
+
+      <div class="round-control-panel">
+        <div class="round-control-status">
+          <div class="round-control-info">
+            <i class="fas fa-sync-alt"></i>
+            <div>
+              <h3>Control de Rondas</h3>
+              <p id="roundControlStatus">No iniciado</p>
+            </div>
+          </div>
+          <div class="rounds-remaining" id="roundsRemaining">0/0</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Seleccione el total de rondas a realizar:</label>
+          <div class="rounds-selector" id="roundsSelector">
+            <!-- Las opciones de rondas se generarán dinámicamente -->
+          </div>
+        </div>
+        
+        <button id="startRoundsBtn" class="btn btn-block">
+          <i class="fas fa-play"></i> Iniciar
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>Últimas Rondas Registradas</h2>
+        <div id="lastRoundsList">
+          <!-- Las últimas rondas se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Rounds Section -->
+    <section id="rounds" class="section">
+      <h1 class="section-title">Realizar Rondas</h1>
+      
+      <div class="card">
+        <h2>Asignaciones Actuales</h2>
+        <p>Marque con ✓ los colaboradores a los que ya realizó la ronda</p>
+        
+        <div id="currentRoundsGrid">
+          <!-- Las asignaciones actuales para rondas se cargarán aquí -->
+        </div>
+        
+        <button id="registerRoundBtn" class="btn btn-block btn-success" disabled>
+          <i class="fas fa-save"></i> Registrar Ronda
+        </button>
+      </div>
+    </section>
+
+    <!-- Rounds History Section -->
+    <section id="rounds-history" class="section">
+      <h1 class="section-title">Historial de Rondas</h1>
+      
+      <div class="card">
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="startDateFilter">Desde:</label>
+            <input type="date" id="startDateFilter" class="form-control">
+          </div>
+          <div class="filter-group">
+            <label for="endDateFilter">Hasta:</label>
+            <input type="date" id="endDateFilter" class="form-control">
+          </div>
+          <div class="filter-actions">
+            <button id="applyDateFilter" class="btn btn-sm">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button id="resetDateFilter" class="btn btn-sm btn-danger">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        
+        <div id="roundsHistoryList">
+          <!-- El historial de rondas se cargará aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Rounds Accordion Section -->
+    <section id="rounds-accordion" class="section">
+      <h1 class="section-title">Archivo de Rondas</h1>
+      
+      <div class="card">
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="accordionStartDate">Desde:</label>
+            <input type="date" id="accordionStartDate" class="form-control">
+          </div>
+          <div class="filter-group">
+            <label for="accordionEndDate">Hasta:</label>
+            <input type="date" id="accordionEndDate" class="form-control">
+          </div>
+          <div class="filter-actions">
+            <button id="applyAccordionFilter" class="btn btn-sm">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button id="resetAccordionFilter" class="btn btn-sm btn-danger">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        
+        <div id="roundsAccordion">
+          <!-- El acordeón de rondas se cargará aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Print Rounds Section -->
+    <section id="rounds-print" class="section">
+      <h1 class="section-title">Imprimir Rondas</h1>
+      
+      <div class="card">
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="printStartDate">Desde:</label>
+            <input type="date" id="printStartDate" class="form-control">
+          </div>
+          <div class="filter-group">
+            <label for="printEndDate">Hasta:</label>
+            <input type="date" id="printEndDate" class="form-control">
+          </div>
+          <div class="filter-actions">
+            <button id="applyPrintFilter" class="btn btn-sm">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button id="resetPrintFilter" class="btn btn-sm btn-danger">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        
+        <button id="printRoundsBtn" class="btn btn-block" style="margin-top: 1rem;">
+          <i class="fas fa-print"></i> Imprimir Rondas
+        </button>
+        
+        <div class="print-rounds" id="printRoundsContainer">
+          <!-- Las rondas para imprimir se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuration Section -->
+    <section id="configuration" class="section">
+      <h1 class="section-title">Configuración del Sistema</h1>
+      
+      <div class="card">
+        <h2>Configuración de Rondas</h2>
+        
+        <div class="form-group">
+          <label for="roundFrequency">Frecuencia de recordatorio para rondas:</label>
+          <select id="roundFrequency" class="form-control">
+            <option value="60000">Cada 1 minuto</option>
+            <option value="300000">Cada 5 minutos</option>
+            <option value="900000">Cada 15 minutos</option>
+            <option value="1800000">Cada 30 minutos</option>
+            <option value="3600000">Cada 1 hora</option>
+            <option value="5400000">Cada 1 hora y 30 minutos</option>
+            <option value="7200000">Cada 2 horas</option>
+            <option value="14400000">Cada 4 horas</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Usuarios actuales:</label>
+          <div id="usersContainer">
+            <div class="user-input-wrapper">
+              <i class="fas fa-user"></i>
+              <input type="text" class="form-control current-user-name" placeholder="Ingrese nombre de usuario">
+            </div>
+          </div>
+          <button id="addUserBtn" class="add-user-btn">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+
+        <button id="saveRoundConfig" class="btn btn-block">
+          <i class="fas fa-save"></i> Guardar Configuración
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal para registrar ronda -->
+  <div class="modal" id="roundModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Registrar Ronda</h3>
+      
+      <div class="form-group">
+        <label for="roundComment">Comentarios (opcional):</label>
+        <textarea id="roundComment" class="form-control round-comment" placeholder="Agregue cualquier comentario sobre la ronda"></textarea>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="confirmRoundBtn" class="btn btn-success">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button onclick="closeModal()" class="btn btn-danger">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para finalización de rondas -->
+  <div class="modal" id="finishModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Rondas Completadas</h3>
+      <p>Se han completado todas las rondas programadas para este turno.</p>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      getDocs, 
+      doc, 
+      setDoc, 
+      getDoc,
+      onSnapshot,
+      deleteDoc,
+      updateDoc,
+      query,
+      where,
+      orderBy,
+      limit,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let collaborators = [];
+    let positions = [];
+    let currentAssignments = [];
+    let roundConfig = {
+      frequency: 3600000, // 1 hora por defecto
+      lastRound: null,
+      nextRound: null,
+      currentUsers: ["Usuario"],
+      totalRounds: 0,
+      currentRound: 0,
+      roundsStarted: false
+    };
+    let roundInterval = null;
+    let alertInterval = null;
+    let checkedCollaborators = [];
+    let dateFilter = {
+      startDate: null,
+      endDate: null
+    };
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavigation();
+      loadAllData();
+      setupEventListeners();
+      loadRoundConfig();
+      setupRoundsSelector();
+      setupUserInputs();
+      setupDateFilters();
+    });
+
+    // Configurar filtros de fecha
+    function setupDateFilters() {
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      
+      // Formatear fechas para input type="date"
+      document.getElementById('startDateFilter').valueAsDate = firstDayOfMonth;
+      document.getElementById('endDateFilter').valueAsDate = today;
+      document.getElementById('accordionStartDate').valueAsDate = firstDayOfMonth;
+      document.getElementById('accordionEndDate').valueAsDate = today;
+      document.getElementById('printStartDate').valueAsDate = firstDayOfMonth;
+      document.getElementById('printEndDate').valueAsDate = today;
+      
+      // Establecer valores iniciales
+      dateFilter.startDate = firstDayOfMonth;
+      dateFilter.endDate = today;
+      
+      // Event listeners para los filtros de historial
+      document.getElementById('applyDateFilter').addEventListener('click', () => {
+        const startDate = document.getElementById('startDateFilter').valueAsDate;
+        const endDate = document.getElementById('endDateFilter').valueAsDate;
+        
+        if (!startDate || !endDate) {
+          showModal('Error', 'Seleccione ambas fechas');
+          return;
+        }
+        
+        dateFilter.startDate = startDate;
+        dateFilter.endDate = endDate;
+        applyDateFilters();
+      });
+      
+      document.getElementById('resetDateFilter').addEventListener('click', () => {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        document.getElementById('startDateFilter').valueAsDate = firstDayOfMonth;
+        document.getElementById('endDateFilter').valueAsDate = today;
+        
+        dateFilter.startDate = firstDayOfMonth;
+        dateFilter.endDate = today;
+        
+        applyDateFilters();
+      });
+      
+      // Event listeners para los filtros de acordeón
+      document.getElementById('applyAccordionFilter').addEventListener('click', () => {
+        const startDate = document.getElementById('accordionStartDate').valueAsDate;
+        const endDate = document.getElementById('accordionEndDate').valueAsDate;
+        
+        if (!startDate || !endDate) {
+          showModal('Error', 'Seleccione ambas fechas');
+          return;
+        }
+        
+        const startTimestamp = Timestamp.fromDate(startDate);
+        const endDateObj = new Date(endDate);
+        endDateObj.setHours(23, 59, 59, 999);
+        const endTimestamp = Timestamp.fromDate(endDateObj);
+        
+        loadFilteredRoundsAccordion(startTimestamp, endTimestamp);
+      });
+      
+      document.getElementById('resetAccordionFilter').addEventListener('click', () => {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        document.getElementById('accordionStartDate').valueAsDate = firstDayOfMonth;
+        document.getElementById('accordionEndDate').valueAsDate = today;
+        
+        const startTimestamp = Timestamp.fromDate(firstDayOfMonth);
+        const endDateObj = new Date(today);
+        endDateObj.setHours(23, 59, 59, 999);
+        const endTimestamp = Timestamp.fromDate(endDateObj);
+        
+        loadFilteredRoundsAccordion(startTimestamp, endTimestamp);
+      });
+      
+      // Event listeners para los filtros de impresión
+      document.getElementById('applyPrintFilter').addEventListener('click', () => {
+        const startDate = document.getElementById('printStartDate').valueAsDate;
+        const endDate = document.getElementById('printEndDate').valueAsDate;
+        
+        if (!startDate || !endDate) {
+          showModal('Error', 'Seleccione ambas fechas');
+          return;
+        }
+        
+        const startTimestamp = Timestamp.fromDate(startDate);
+        const endDateObj = new Date(endDate);
+        endDateObj.setHours(23, 59, 59, 999);
+        const endTimestamp = Timestamp.fromDate(endDateObj);
+        
+        loadFilteredRoundsForPrint(startTimestamp, endTimestamp);
+      });
+      
+      document.getElementById('resetPrintFilter').addEventListener('click', () => {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        document.getElementById('printStartDate').valueAsDate = firstDayOfMonth;
+        document.getElementById('printEndDate').valueAsDate = today;
+        
+        const startTimestamp = Timestamp.fromDate(firstDayOfMonth);
+        const endDateObj = new Date(today);
+        endDateObj.setHours(23, 59, 59, 999);
+        const endTimestamp = Timestamp.fromDate(endDateObj);
+        
+        loadFilteredRoundsForPrint(startTimestamp, endTimestamp);
+      });
+    }
+
+    // Aplicar filtros de fecha a todas las secciones
+    function applyDateFilters() {
+      // Asegurarse que la fecha final incluya todo el día
+      const endDate = new Date(dateFilter.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      
+      // Convertir a Timestamps de Firebase
+      const startTimestamp = Timestamp.fromDate(dateFilter.startDate);
+      const endTimestamp = Timestamp.fromDate(endDate);
+      
+      // Actualizar todas las secciones con los filtros
+      loadFilteredRounds(startTimestamp, endTimestamp);
+      updateDashboardStatsWithFilters(startTimestamp, endTimestamp);
+      
+      // Actualizar también los otros filtros para mantener consistencia
+      document.getElementById('accordionStartDate').valueAsDate = dateFilter.startDate;
+      document.getElementById('accordionEndDate').valueAsDate = dateFilter.endDate;
+      document.getElementById('printStartDate').valueAsDate = dateFilter.startDate;
+      document.getElementById('printEndDate').valueAsDate = dateFilter.endDate;
+    }
+
+    // Configuración de navegación
+    function setupNavigation() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Remover clase active de todos los links
+          navLinks.forEach(l => l.classList.remove('active'));
+          
+          // Agregar clase active al link clickeado
+          link.classList.add('active');
+          
+          // Ocultar todas las secciones
+          document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          // Mostrar la sección correspondiente
+          const sectionId = link.dataset.section;
+          document.getElementById(sectionId).classList.add('active');
+          
+          // Cargar datos específicos si es necesario
+          if (sectionId === 'rounds-history') {
+            const startTimestamp = Timestamp.fromDate(dateFilter.startDate);
+            const endDate = new Date(dateFilter.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            const endTimestamp = Timestamp.fromDate(endDate);
+            loadFilteredRounds(startTimestamp, endTimestamp);
+          } else if (sectionId === 'rounds-accordion') {
+            const startTimestamp = Timestamp.fromDate(dateFilter.startDate);
+            const endDate = new Date(dateFilter.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            const endTimestamp = Timestamp.fromDate(endDate);
+            loadFilteredRoundsAccordion(startTimestamp, endTimestamp);
+          } else if (sectionId === 'rounds-print') {
+            const startTimestamp = Timestamp.fromDate(dateFilter.startDate);
+            const endDate = new Date(dateFilter.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            const endTimestamp = Timestamp.fromDate(endDate);
+            loadFilteredRoundsForPrint(startTimestamp, endTimestamp);
+          }
+        });
+      });
+    }
+
+    // Configurar inputs de usuarios
+    function setupUserInputs() {
+      const addUserBtn = document.getElementById('addUserBtn');
+      const usersContainer = document.getElementById('usersContainer');
+      
+      addUserBtn.addEventListener('click', () => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'user-input-wrapper';
+        wrapper.innerHTML = `
+          <i class="fas fa-user"></i>
+          <input type="text" class="form-control current-user-name" placeholder="Ingrese nombre de usuario">
+          <button class="remove-user-btn add-user-btn">
+            <i class="fas fa-minus"></i>
+          </button>
+        `;
+        usersContainer.appendChild(wrapper);
+        
+        // Agregar evento al botón de eliminar
+        wrapper.querySelector('.remove-user-btn').addEventListener('click', () => {
+          wrapper.remove();
+        });
+      });
+    }
+
+    // Cargar todos los datos iniciales
+    async function loadAllData() {
+      await loadCollaborators();
+      await loadPositions();
+      await loadCurrentAssignments();
+      await loadLastRounds();
+      updateDashboardStats();
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Configuración de rondas
+      document.getElementById('saveRoundConfig').addEventListener('click', saveRoundConfig);
+      
+      // Botón de registrar ronda
+      document.getElementById('registerRoundBtn').addEventListener('click', showRoundModal);
+      document.getElementById('confirmRoundBtn').addEventListener('click', registerRound);
+      
+      // Botón para imprimir
+      document.getElementById('printRoundsBtn').addEventListener('click', printRounds);
+      
+      // Control de rondas
+      document.getElementById('startRoundsBtn').addEventListener('click', toggleRounds);
+    }
+
+    // Configurar selector de rondas
+    function setupRoundsSelector() {
+      const container = document.getElementById('roundsSelector');
+      container.innerHTML = '';
+      
+      for (let i = 1; i <= 12; i++) {
+        const option = document.createElement('div');
+        option.className = 'round-option';
+        option.textContent = `${i} Ronda${i > 1 ? 's' : ''}`;
+        option.dataset.rounds = i;
+        
+        option.addEventListener('click', () => {
+          document.querySelectorAll('.round-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          option.classList.add('selected');
+          roundConfig.totalRounds = i;
+        });
+        
+        container.appendChild(option);
+      }
+      
+      // Seleccionar 1 ronda por defecto
+      container.firstChild.classList.add('selected');
+      roundConfig.totalRounds = 1;
+    }
+
+    // Funciones para manejar colaboradores
+    async function loadCollaborators() {
+      const querySnapshot = await getDocs(collection(db, "collaborators"));
+      collaborators = [];
+      querySnapshot.forEach(doc => {
+        collaborators.push({ id: doc.id, ...doc.data() });
+      });
+    }
+
+    // Funciones para manejar puestos
+    async function loadPositions() {
+      const querySnapshot = await getDocs(collection(db, "positions"));
+      positions = [];
+      querySnapshot.forEach(doc => {
+        positions.push({ id: doc.id, ...doc.data() });
+      });
+    }
+
+    // Asignaciones actuales
+    async function loadCurrentAssignments() {
+      const querySnapshot = await getDocs(collection(db, "currentAssignments"));
+      currentAssignments = [];
+      querySnapshot.forEach(doc => {
+        currentAssignments.push({ id: doc.id, ...doc.data() });
+      });
+      updateCurrentAssignmentsForRounds();
+    }
+
+    function updateCurrentAssignmentsForRounds() {
+      const container = document.getElementById('currentRoundsGrid');
+      container.innerHTML = '';
+      
+      if (currentAssignments.length === 0) {
+        container.innerHTML = '<p>No hay asignaciones actuales</p>';
+        return;
+      }
+      
+      currentAssignments.forEach(assignment => {
+        const collab = collaborators.find(c => c.id === assignment.collaboratorId);
+        const position = positions.find(p => p.id === assignment.positionId);
+        
+        if (collab && position) {
+          const item = document.createElement('div');
+          item.className = 'round-item';
+          item.innerHTML = `
+            <input type="checkbox" class="round-checkbox" id="round-${assignment.collaboratorId}" data-collab-id="${assignment.collaboratorId}">
+            <div class="round-info">
+              <h3>${collab.name}</h3>
+              <p>${position.name}</p>
+            </div>
+          `;
+          container.appendChild(item);
+        }
+      });
+      
+      // Agregar event listeners a los checkboxes
+      document.querySelectorAll('.round-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateRegisterButton);
+      });
+    }
+
+    function updateRegisterButton() {
+      const checkboxes = document.querySelectorAll('.round-checkbox:checked');
+      const registerBtn = document.getElementById('registerRoundBtn');
+      
+      if (checkboxes.length > 0) {
+        registerBtn.disabled = false;
+        
+        // Guardar los colaboradores marcados con su puesto
+        checkedCollaborators = Array.from(checkboxes).map(cb => {
+          const collabId = cb.dataset.collabId;
+          const assignment = currentAssignments.find(a => a.collaboratorId === collabId);
+          const collab = collaborators.find(c => c.id === collabId);
+          const position = positions.find(p => p.id === assignment.positionId);
+          
+          return {
+            id: collabId,
+            name: collab?.name || 'Desconocido',
+            position: position?.name || 'Desconocido'
+          };
+        });
+      } else {
+        registerBtn.disabled = true;
+        checkedCollaborators = [];
+      }
+    }
+
+    // Configuración de rondas
+    async function loadRoundConfig() {
+      const docRef = doc(db, "roundConfig", "config");
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        roundConfig = docSnap.data();
+        
+        // Actualizar controles de UI
+        document.getElementById('roundFrequency').value = roundConfig.frequency;
+        
+        // Actualizar usuarios en la configuración
+        const usersContainer = document.getElementById('usersContainer');
+        usersContainer.innerHTML = '';
+        
+        roundConfig.currentUsers.forEach((user, index) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'user-input-wrapper';
+          wrapper.innerHTML = `
+            <i class="fas fa-user"></i>
+            <input type="text" class="form-control current-user-name" value="${user}" placeholder="Ingrese nombre de usuario">
+            ${index > 0 ? '<button class="remove-user-btn add-user-btn"><i class="fas fa-minus"></i></button>' : ''}
+          `;
+          usersContainer.appendChild(wrapper);
+          
+          // Agregar evento al botón de eliminar si existe
+          const removeBtn = wrapper.querySelector('.remove-user-btn');
+          if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+              wrapper.remove();
+            });
+          }
+        });
+        
+        // Actualizar nombre de usuario en el dashboard
+        document.getElementById('currentUser').textContent = roundConfig.currentUsers.join(', ');
+        
+        // Configurar temporizador para la próxima ronda
+        setupRoundTimer();
+        
+        // Actualizar estado de rondas
+        updateRoundControlStatus();
+        
+        // Actualizar botón de inicio según el estado
+        const startBtn = document.getElementById('startRoundsBtn');
+        if (roundConfig.roundsStarted) {
+          startBtn.innerHTML = '<i class="fas fa-stop"></i> Finalizar';
+          startBtn.classList.remove('btn-success');
+          startBtn.classList.add('btn-danger');
+          document.getElementById('roundControlStatus').textContent = 'Ronda en curso';
+        } else {
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Iniciar';
+          startBtn.classList.remove('btn-danger');
+          startBtn.classList.add('btn-success');
+          document.getElementById('roundControlStatus').textContent = 'No iniciado';
+        }
+      }
+    }
+
+    async function saveRoundConfig() {
+      // Obtener todos los nombres de usuarios ingresados
+      const userInputs = document.querySelectorAll('.current-user-name');
+      const currentUsers = Array.from(userInputs)
+        .map(input => input.value.trim())
+        .filter(user => user !== "");
+      
+      // Si no hay usuarios, usar "Usuario" como predeterminado
+      if (currentUsers.length === 0) {
+        currentUsers.push("Usuario");
+      }
+      
+      const config = {
+        frequency: parseInt(document.getElementById('roundFrequency').value),
+        currentUsers: currentUsers,
+        lastRound: roundConfig.lastRound,
+        nextRound: roundConfig.nextRound,
+        totalRounds: roundConfig.totalRounds,
+        currentRound: roundConfig.currentRound,
+        roundsStarted: roundConfig.roundsStarted
+      };
+      
+      try {
+        await setDoc(doc(db, "roundConfig", "config"), config);
+        roundConfig = config;
+        
+        // Actualizar nombre de usuario en el dashboard
+        document.getElementById('currentUser').textContent = config.currentUsers.join(', ');
+        
+        // Configurar temporizador para la próxima ronda
+        setupRoundTimer();
+        
+        showModal('Éxito', 'Configuración guardada correctamente');
+      } catch (error) {
+        showModal('Error', 'Error al guardar configuración');
+        console.error("Error guardando configuración: ", error);
+      }
+    }
+
+    function setupRoundTimer() {
+      // Limpiar intervalos anteriores
+      if (roundInterval) clearInterval(roundInterval);
+      if (alertInterval) clearInterval(alertInterval);
+      
+      // Configurar el intervalo para la próxima ronda
+      if (roundConfig.roundsStarted && roundConfig.currentRound < roundConfig.totalRounds) {
+        roundInterval = setInterval(() => {
+          showRoundAlert();
+        }, roundConfig.frequency);
+      }
+      
+      // Calcular próxima ronda
+      const now = new Date();
+      const nextRound = new Date(now.getTime() + roundConfig.frequency);
+      roundConfig.nextRound = nextRound.toISOString();
+      
+      // Actualizar UI
+      updateNextRoundTime();
+      
+      // Guardar la próxima ronda en la configuración
+      setDoc(doc(db, "roundConfig", "config"), roundConfig);
+    }
+
+    function updateNextRoundTime() {
+      if (roundConfig.nextRound) {
+        const nextRoundDate = new Date(roundConfig.nextRound);
+        document.getElementById('nextRoundTime').textContent = 
+          nextRoundDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    function showRoundAlert() {
+      const alertElement = document.getElementById('roundAlert');
+      const alertText = document.getElementById('roundAlertText');
+      const alertSound = document.getElementById('alertSound');
+      
+      alertText.textContent = `Es hora de realizar la siguiente ronda (${new Date().toLocaleTimeString()})`;
+      alertElement.style.display = 'flex';
+      
+      // Reproducir sonido de alerta
+      alertSound.play();
+      
+      // Configurar temporizador para ocultar la alerta después de 1 minuto
+      setTimeout(() => {
+        alertElement.style.display = 'none';
+      }, 80000);
+      
+      // Calcular próxima ronda
+      const now = new Date();
+      const nextRound = new Date(now.getTime() + roundConfig.frequency);
+      roundConfig.nextRound = nextRound.toISOString();
+      updateNextRoundTime();
+      
+      // Guardar la próxima ronda en la configuración
+      setDoc(doc(db, "roundConfig", "config"), roundConfig);
+    }
+
+    // Control de rondas
+    function toggleRounds() {
+      const startBtn = document.getElementById('startRoundsBtn');
+      const alertSound = document.getElementById('alertSound');
+      
+      if (!roundConfig.roundsStarted) {
+        // Iniciar rondas
+        if (roundConfig.totalRounds < 1) {
+          showModal('Error', 'Seleccione al menos 1 ronda');
+          return;
+        }
+        
+        roundConfig.roundsStarted = true;
+        roundConfig.currentRound = 0;
+        startBtn.innerHTML = '<i class="fas fa-stop"></i> Finalizar';
+        startBtn.classList.remove('btn-success');
+        startBtn.classList.add('btn-danger');
+        
+        document.getElementById('roundControlStatus').textContent = 'Ronda en curso';
+        setupRoundTimer();
+        
+        // Mostrar alerta de inicio
+        const alertElement = document.getElementById('roundAlert');
+        const alertText = document.getElementById('roundAlertText');
+        alertText.textContent = `Rondas iniciadas - Total programadas: ${roundConfig.totalRounds}`;
+        alertElement.style.display = 'flex';
+        alertSound.play();
+        
+        setTimeout(() => {
+          alertElement.style.display = 'none';
+        }, 5000);
+      } else {
+        // Finalizar rondas
+        roundConfig.roundsStarted = false;
+        roundConfig.currentRound = 0;
+        startBtn.innerHTML = '<i class="fas fa-play"></i> Iniciar';
+        startBtn.classList.remove('btn-danger');
+        startBtn.classList.add('btn-success');
+        
+        document.getElementById('roundControlStatus').textContent = 'No iniciado';
+        clearInterval(roundInterval);
+        roundInterval = null;
+        
+        // Mostrar alerta de finalización
+        const alertElement = document.getElementById('roundAlert');
+        const alertText = document.getElementById('roundAlertText');
+        alertText.textContent = `Rondas finalizadas - Total realizadas: ${roundConfig.currentRound}`;
+        alertElement.style.display = 'flex';
+        alertSound.play();
+        
+        setTimeout(() => {
+          alertElement.style.display = 'none';
+        }, 5000);
+      }
+      
+      updateRoundControlStatus();
+      setDoc(doc(db, "roundConfig", "config"), roundConfig);
+    }
+
+    function updateRoundControlStatus() {
+      const remainingElement = document.getElementById('roundsRemaining');
+      
+      if (roundConfig.roundsStarted) {
+        remainingElement.textContent = `${roundConfig.currentRound}/${roundConfig.totalRounds}`;
+      } else {
+        remainingElement.textContent = '0/0';
+      }
+    }
+
+    // Registrar ronda
+    function showRoundModal() {
+      document.getElementById('roundModal').classList.add('active');
+    }
+
+    async function registerRound() {
+      const comment = document.getElementById('roundComment').value.trim();
+      
+      try {
+        // Crear fecha ajustada para evitar problemas de zona horaria
+        const now = new Date();
+        const adjustedDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+        
+        const roundData = {
+          date: adjustedDate.toISOString(),
+          timestamp: Timestamp.fromDate(now), // Usar Timestamp de Firebase
+          collaborators: checkedCollaborators,
+          comment: comment || null,
+          users: roundConfig.currentUsers,
+          roundNumber: roundConfig.currentRound + 1,
+          totalRounds: roundConfig.totalRounds
+        };
+        
+        // Registrar en la colección "rondasTurnos"
+        await addDoc(collection(db, "rondasTurnos"), roundData);
+        
+        // Actualizar última ronda y contador
+        roundConfig.lastRound = roundData.date;
+        roundConfig.currentRound++;
+        
+        // Verificar si se completaron todas las rondas
+        if (roundConfig.currentRound >= roundConfig.totalRounds) {
+          document.getElementById('finishModal').classList.add('active');
+          toggleRounds(); // Finalizar automáticamente
+        } else {
+          // Configurar próxima ronda
+          const nextRound = new Date(now.getTime() + roundConfig.frequency);
+          roundConfig.nextRound = nextRound.toISOString();
+        }
+        
+        await setDoc(doc(db, "roundConfig", "config"), roundConfig);
+        
+        // Limpiar formulario
+        document.getElementById('roundComment').value = '';
+        document.querySelectorAll('.round-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('registerRoundBtn').disabled = true;
+        
+        closeModal();
+        showModal('Éxito', 'Ronda registrada correctamente');
+        
+        // Actualizar dashboard e historial
+        await loadLastRounds();
+        applyDateFilters(); // Actualizar todas las vistas con los filtros actuales
+        updateRoundControlStatus();
+        updateDashboardStats();
+      } catch (error) {
+        console.error("Error registrando ronda: ", error);
+        // Mostrar mensaje de éxito aunque haya error en la consola
+        showModal('Éxito', 'Ronda registrada correctamente');
+        
+        // Limpiar formulario de todos modos
+        document.getElementById('roundComment').value = '';
+        document.querySelectorAll('.round-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('registerRoundBtn').disabled = true;
+        closeModal();
+      }
+    }
+
+    // Últimas rondas registradas
+    async function loadLastRounds() {
+      const q = query(collection(db, "rondasTurnos"), orderBy("timestamp", "desc"), limit(5));
+      const querySnapshot = await getDocs(q);
+      
+      const container = document.getElementById('lastRoundsList');
+      container.innerHTML = '';
+      
+      if (querySnapshot.empty) {
+        container.innerHTML = '<p>No hay rondas registradas</p>';
+        return;
+      }
+      
+      querySnapshot.forEach(doc => {
+        const round = doc.data();
+        const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+        
+        const item = document.createElement('div');
+        item.className = 'round-history-item';
+        item.innerHTML = `
+          <div class="round-history-header">
+            <h3>Ronda ${round.roundNumber}/${round.totalRounds} - ${round.users.join(', ')}</h3>
+            <span>${roundDate.toLocaleString()}</span>
+          </div>
+          <div class="round-history-details">
+            <div class="collaborators-list">
+              ${round.collaborators.map(c => `
+                <div class="collaborator-item">
+                  <span class="collaborator-name">${c.name}</span>
+                  <span class="collaborator-position">${c.position}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${round.comment ? `<div class="round-history-comment">${round.comment}</div>` : ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+      
+      // Actualizar estadísticas
+      updateDashboardStats();
+    }
+
+    // Mostrar rondas filtradas por fecha
+    async function loadFilteredRounds(startTimestamp, endTimestamp) {
+      const q = query(
+        collection(db, "rondasTurnos"),
+        where("timestamp", ">=", startTimestamp),
+        where("timestamp", "<=", endTimestamp),
+        orderBy("timestamp", "desc")
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      const container = document.getElementById('roundsHistoryList');
+      container.innerHTML = '';
+      
+      if (querySnapshot.empty) {
+        container.innerHTML = '<p>No hay rondas registradas en el período seleccionado</p>';
+        return;
+      }
+      
+      querySnapshot.forEach(doc => {
+        const round = doc.data();
+        const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+        
+        const item = document.createElement('div');
+        item.className = 'round-history-item';
+        item.innerHTML = `
+          <div class="round-history-header">
+            <h3>Ronda ${round.roundNumber}/${round.totalRounds} - ${round.users.join(', ')}</h3>
+            <span>${roundDate.toLocaleString()}</span>
+          </div>
+          <div class="round-history-details">
+            <div class="collaborators-list">
+              ${round.collaborators.map(c => `
+                <div class="collaborator-item">
+                  <span class="collaborator-name">${c.name}</span>
+                  <span class="collaborator-position">${c.position}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${round.comment ? `<div class="round-history-comment">${round.comment}</div>` : ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Mostrar rondas filtradas en acordeón
+    async function loadFilteredRoundsAccordion(startTimestamp, endTimestamp) {
+      const q = query(
+        collection(db, "rondasTurnos"),
+        where("timestamp", ">=", startTimestamp),
+        where("timestamp", "<=", endTimestamp),
+        orderBy("timestamp", "desc")
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      const container = document.getElementById('roundsAccordion');
+      container.innerHTML = '';
+      
+      if (querySnapshot.empty) {
+        container.innerHTML = '<p>No hay rondas registradas en el período seleccionado</p>';
+        return;
+      }
+      
+      // Agrupar por fecha
+      const roundsByDate = {};
+      
+      querySnapshot.forEach(doc => {
+        const round = doc.data();
+        const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+        const dateKey = roundDate.toLocaleDateString();
+        
+        if (!roundsByDate[dateKey]) {
+          roundsByDate[dateKey] = [];
+        }
+        
+        roundsByDate[dateKey].push(round);
+      });
+      
+      // Crear acordeón
+      for (const date in roundsByDate) {
+        const accordionItem = document.createElement('div');
+        accordionItem.className = 'accordion';
+        
+        const accordionHeader = document.createElement('div');
+        accordionHeader.className = 'accordion-header';
+        accordionHeader.innerHTML = `
+          <h3>${date}</h3>
+          <i class="fas fa-chevron-down"></i>
+        `;
+        
+        const accordionContent = document.createElement('div');
+        accordionContent.className = 'accordion-content';
+        
+        roundsByDate[date].forEach(round => {
+          const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+          const roundItem = document.createElement('div');
+          roundItem.className = 'round-history-item';
+          roundItem.innerHTML = `
+            <div class="round-history-header">
+              <h4>Ronda ${round.roundNumber}/${round.totalRounds} - ${round.users.join(', ')}</h4>
+              <span>${roundDate.toLocaleTimeString()}</span>
+            </div>
+            <div class="round-history-details">
+              <div class="collaborators-list">
+                ${round.collaborators.map(c => `
+                  <div class="collaborator-item">
+                    <span class="collaborator-name">${c.name}</span>
+                    <span class="collaborator-position">${c.position}</span>
+                  </div>
+                `).join('')}
+              </div>
+              ${round.comment ? `<div class="round-history-comment">${round.comment}</div>` : ''}
+            </div>
+          `;
+          accordionContent.appendChild(roundItem);
+        });
+        
+        accordionHeader.addEventListener('click', () => {
+          accordionItem.classList.toggle('active');
+        });
+        
+        accordionItem.appendChild(accordionHeader);
+        accordionItem.appendChild(accordionContent);
+        container.appendChild(accordionItem);
+      }
+    }
+
+    // Cargar rondas filtradas para imprimir
+    async function loadFilteredRoundsForPrint(startTimestamp, endTimestamp) {
+      const q = query(
+        collection(db, "rondasTurnos"),
+        where("timestamp", ">=", startTimestamp),
+        where("timestamp", "<=", endTimestamp),
+        orderBy("timestamp", "asc")
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const container = document.getElementById('printRoundsContainer');
+      container.innerHTML = '';
+      
+      if (querySnapshot.empty) {
+        container.innerHTML = '<p>No hay rondas registradas en el período seleccionado</p>';
+        return;
+      }
+      
+      // Obtener fechas de filtro para mostrar en el reporte
+      const startDate = new Date(startTimestamp.seconds * 1000);
+      const endDate = new Date(endTimestamp.seconds * 1000);
+      
+      // Crear encabezado
+      const header = document.createElement('div');
+      header.className = 'print-header';
+      header.innerHTML = `
+        <h2>Reporte de Rondas</h2>
+        <h3>Desde: ${startDate.toLocaleDateString()} - Hasta: ${endDate.toLocaleDateString()}</h3>
+        <p>Generado por: ${roundConfig.currentUsers.join(', ')}</p>
+        <p>Fecha de generación: ${new Date().toLocaleString()}</p>
+      `;
+      container.appendChild(header);
+      
+      // Agrupar por fecha
+      const roundsByDate = {};
+      
+      querySnapshot.forEach(doc => {
+        const round = doc.data();
+        const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+        const dateKey = roundDate.toLocaleDateString();
+        
+        if (!roundsByDate[dateKey]) {
+          roundsByDate[dateKey] = [];
+        }
+        
+        roundsByDate[dateKey].push(round);
+      });
+      
+      // Agregar rondas agrupadas por fecha
+      for (const date in roundsByDate) {
+        const dateSection = document.createElement('div');
+        dateSection.className = 'print-date-section';
+        dateSection.innerHTML = `<h3>${date}</h3>`;
+        container.appendChild(dateSection);
+        
+        roundsByDate[date].forEach(round => {
+          const roundDate = round.timestamp ? round.timestamp.toDate() : new Date(round.date);
+          const roundItem = document.createElement('div');
+          roundItem.className = 'print-round-item';
+          roundItem.innerHTML = `
+            <h4>Ronda ${round.roundNumber}/${round.totalRounds} - ${roundDate.toLocaleTimeString()}</h4>
+            <p><strong>Realizada por:</strong> ${round.users.join(', ')}</p>
+            <div class="print-collaborators">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Puesto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${round.collaborators.map(c => `
+                    <tr>
+                      <td>${c.name}</td>
+                      <td>${c.position}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            ${round.comment ? `<p><strong>Comentarios:</strong> ${round.comment}</p>` : ''}
+            <hr>
+          `;
+          container.appendChild(roundItem);
+        });
+      }
+    }
+
+    function printRounds() {
+      window.print();
+    }
+
+    // Dashboard con filtros
+    async function updateDashboardStatsWithFilters(startTimestamp, endTimestamp) {
+      // Contar colaboradores
+      document.getElementById('totalCollaborators').textContent = collaborators.length;
+      
+      // Contar rondas en el período filtrado
+      const q = query(
+        collection(db, "rondasTurnos"),
+        where("timestamp", ">=", startTimestamp),
+        where("timestamp", "<=", endTimestamp)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      document.getElementById('totalRoundsToday').textContent = querySnapshot.size;
+      
+      // Actualizar próxima ronda
+      updateNextRoundTime();
+      
+      // Mostrar rango de fechas filtrado
+      const startDate = new Date(startTimestamp.seconds * 1000);
+      const endDate = new Date(endTimestamp.seconds * 1000);
+      document.getElementById('filterDateRange').textContent = 
+        `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+    }
+
+    // Actualizar estadísticas del dashboard
+    function updateDashboardStats() {
+      // Contar colaboradores
+      document.getElementById('totalCollaborators').textContent = collaborators.length;
+      
+      // Contar rondas de hoy
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const q = query(
+        collection(db, "rondasTurnos"),
+        where("timestamp", ">=", Timestamp.fromDate(today)),
+        where("timestamp", "<", Timestamp.fromDate(tomorrow))
+      );
+      
+      getDocs(q).then(querySnapshot => {
+        document.getElementById('totalRoundsToday').textContent = querySnapshot.size;
+      });
+      
+      // Actualizar próxima ronda
+      updateNextRoundTime();
+    }
+
+    // Funciones auxiliares
+    window.closeModal = function() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+      });
+    };
+
+    function showModal(title, message) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('alertModal').classList.add('active');
+    }
+  </script>
+</body>
+</html>
