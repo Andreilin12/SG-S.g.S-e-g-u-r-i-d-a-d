@@ -824,13 +824,85 @@
       body {
         background-color: white;
         color: black;
+        font-size: 12pt;
       }
       
-      header, .nav-menu, .btn, .round-alert {
+      /* Ocultar elementos que no deben imprimirse */
+      header, .nav-menu, .btn, .round-alert,
+      .filter-container, .filter-group, .filter-actions,
+      #printRoundsBtn, #applyPrintFilter, #resetPrintFilter,
+      #startRoundsBtn, #registerRoundBtn, #saveRoundConfig,
+      #addUserBtn, .add-user-btn, .remove-user-btn,
+      .rounds-selector, .round-control-panel,
+      .accordion-header, .accordion-content {
         display: none !important;
       }
       
+      /* Estilos específicos para la impresión */
       .print-round-item {
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .print-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+      
+      .print-header h2 {
+        font-size: 18pt;
+        margin-bottom: 0.5rem;
+      }
+      
+      .print-header h3, .print-header p {
+        font-size: 12pt;
+        margin-bottom: 0.3rem;
+      }
+      
+      .print-date-section h3 {
+        font-size: 14pt;
+        margin: 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .print-round-item h4 {
+        font-size: 13pt;
+        margin-bottom: 0.5rem;
+      }
+      
+      .print-round-item p {
+        font-size: 11pt;
+        margin-bottom: 0.5rem;
+      }
+      
+      .print-collaborators table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.5rem 0;
+      }
+      
+      .print-collaborators th,
+      .print-collaborators td {
+        padding: 0.3rem;
+        border: 1px solid #ddd;
+        font-size: 10pt;
+      }
+      
+      .print-collaborators th {
+        background-color: #f5f5f5;
+      }
+      
+      hr {
+        border: none;
+        border-top: 1px dashed #ccc;
+        margin: 1rem 0;
+      }
+      
+      /* Asegurar que el contenido no se corte entre páginas */
+      .print-rounds > div {
         page-break-inside: avoid;
       }
     }
@@ -1021,7 +1093,7 @@
 
     <!-- Print Rounds Section -->
     <section id="rounds-print" class="section">
-      <h1 class="section-title">Imprimir Rondas</h1>
+      <h1 class="section-title">Reportes de Rondas</h1>
       
       <div class="card">
         <div class="filter-container">
@@ -1044,7 +1116,7 @@
         </div>
         
         <button id="printRoundsBtn" class="btn btn-block" style="margin-top: 1rem;">
-          <i class="fas fa-print"></i> Imprimir Rondas
+          <i class="fas fa-print"></i> Imprimir
         </button>
         
         <div class="print-rounds" id="printRoundsContainer">
