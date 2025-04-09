@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Monitoreo CCTV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Barra Superior */
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .header-icon {
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+        
+        .header-icon:hover {
+            color: var(--accent-color);
+        }
+        
+        /* Contenedor Principal */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Barra Lateral */
+        .sidebar {
+            width: 280px;
+            background: var(--secondary-color);
+            color: white;
+            overflow-y: auto;
+            transition: width 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .camera-list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .camera-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .camera-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .camera-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .camera-item.active {
+            background: var(--accent-color);
+        }
+        
+        .camera-item .camera-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .camera-item .camera-actions {
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .camera-item:hover .camera-actions {
+            display: block;
+        }
+        
+        .camera-item .camera-actions i {
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .camera-item .camera-actions i:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .camera-preview {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 240px;
+            height: 180px;
+            background: white;
+            z-index: 100;
+            border: 1px solid #ddd;
+            display: none;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .camera-preview img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+        
+        .camera-preview-info {
+            padding: 8px;
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+        
+        .camera-preview-info div {
+            margin-bottom: 3px;
+        }
+        
+        .camera-item:hover .camera-preview {
+            display: block;
+        }
+        
+        /* Área Principal */
+        .main {
+            flex: 1;
+            background: #1a1a1a;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            overflow: auto;
+            padding: 5px;
+            gap: 5px;
+            position: relative;
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .video-container.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 1000;
+            background: black;
+        }
+        
+        .video-container.expanded img {
+            object-fit: contain;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px;
+            font-size: 0.8rem;
+            display: none;
+            z-index: 10;
+        }
+        
+        .video-overlay-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .video-overlay-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+        
+        .video-overlay-details span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .video-container:hover .video-overlay {
+            display: block;
+        }
+        
+        .video-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: none;
+            z-index: 11;
+        }
+        
+        .video-container:hover .video-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .video-action-btn {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .video-action-btn:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Barra Inferior */
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-icons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-icon {
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-icon:hover {
+            color: var(--accent-color);
+        }
+        
+        .footer-icon.active {
+            color: var(--accent-color);
+        }
+        
+        .layout-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .layout-selector select {
+            padding: 5px 8px;
+            border-radius: 4px;
+            border: none;
+            background: white;
+        }
+        
+        /* Menú Contextual */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+            display: none;
+            min-width: 200px;
+        }
+        
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .context-menu-item i {
+            width: 18px;
+            text-align: center;
+        }
+        
+        .context-menu-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .context-menu-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
+        }
+        
+        /* Modal de Configuración */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .close-modal {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        
+        .modal-body {
+            padding: 15px;
+        }
+        
+        .modal-footer {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 0 0 5px 5px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        /* Presentación automática */
+        .presentation-controls {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1001;
+            color: white;
+            display: none;
+        }
+        
+        .presentation-controls.active {
+            display: flex;
+        }
+        
+        .presentation-speed {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .presentation-speed input {
+            width: 60px;
+            padding: 3px;
+            text-align: center;
+        }
+        
+        /* Drag and Drop */
+        .camera-item.dragging {
+            opacity: 0.5;
+            background: rgba(52, 152, 219, 0.3);
+        }
+        
+        .camera-item.over {
+            border-top: 2px solid var(--accent-color);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 250px;
+            }
+            
+            .footer-icons {
+                gap: 10px;
+            }
+            
+            .layout-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Barra Superior -->
+<div class="header">
+    <div class="header-title">Sistema de Monitoreo CCTV</div>
+    <div class="header-actions">
+        <a href="#" class="header-icon" id="addWindowBtn" title="Añadir ventana"><i class="fas fa-plus"></i></a>
+        <a href="#" class="header-icon" id="refreshBtn" title="Actualizar"><i class="fas fa-sync-alt"></i></a>
+        <a href="#" class="header-icon" id="settingsBtn" title="Configuración"><i class="fas fa-cog"></i></a>
+        <a href="#" class="header-icon" id="userBtn" title="Usuario"><i class="fas fa-user-circle"></i></a>
+    </div>
+</div>
+
+<!-- Contenedor Principal -->
+<div class="container">
+    <!-- Barra Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <span>Cámaras</span>
+                <i class="fas fa-search" title="Buscar cámara"></i>
+            </div>
+            <input type="text" class="search-box" id="searchBox" placeholder="Buscar cámara...">
+        </div>
+        <div class="camera-list-container">
+            <ul class="camera-list" id="cameraList">
+                <!-- Las cámaras se cargarán dinámicamente -->
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Área Principal -->
+    <div class="main" id="videoGrid">
+        <!-- Las vistas de cámara se agregarán aquí -->
+    </div>
+</div>
+
+<!-- Barra Inferior -->
+<div class="footer">
+    <div class="footer-icons">
+        <i class="fas fa-play footer-icon" id="playBtn" title="Reproducir presentación"></i>
+        <i class="fas fa-pause footer-icon" id="pauseBtn" title="Pausar presentación"></i>
+        <i class="fas fa-expand footer-icon" id="fullscreenBtn" title="Pantalla completa"></i>
+        <i class="fas fa-camera footer-icon" id="snapshotBtn" title="Capturar imagen"></i>
+        <i class="fas fa-video footer-icon" id="recordBtn" title="Grabar video"></i>
+    </div>
+    <div class="layout-selector">
+        <i class="fas fa-th footer-icon" title="Cambiar diseño"></i>
+        <select id="layoutSelect">
+            <option value="1">1x1</option>
+            <option value="2">1x2</option>
+            <option value="4" selected>2x2</option>
+            <option value="8">2x4</option>
+            <option value="9">3x3</option>
+            <option value="16">4x4</option>
+            <option value="32">8x4</option>
+            <option value="custom">Personalizado</option>
+        </select>
+    </div>
+</div>
+
+<!-- Menú Contextual -->
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" data-action="view"><i class="fas fa-eye"></i> Ver en pantalla completa</div>
+    <div class="context-menu-item" data-action="play"><i class="fas fa-play"></i> Reproducir</div>
+    <div class="context-menu-item" data-action="pause"><i class="fas fa-pause"></i> Pausar</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" data-action="snapshot"><i class="fas fa-camera"></i> Capturar imagen</div>
+    <div class="context-menu-item" data-action="record"><i class="fas fa-video"></i> Grabar video</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" data-action="pin"><i class="fas fa-thumbtack"></i> Fijar cámara</div>
+    <div class="context-menu-item" data-action="edit"><i class="fas fa-edit"></i> Editar configuración</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" data-action="remove"><i class="fas fa-times"></i> Eliminar de la vista</div>
+</div>
+
+<!-- Modal de Configuración de Cámara -->
+<div class="modal" id="cameraModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Configuración de Cámara</div>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="cameraConfigForm">
+                <div class="form-group">
+                    <label for="editCameraName">Nombre de la cámara</label>
+                    <input type="text" id="editCameraName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCameraLocation">Ubicación</label>
+                    <input type="text" id="editCameraLocation">
+                </div>
+                <div class="form-group">
+                    <label for="editCameraType">Tipo de cámara</label>
+                    <select id="editCameraType">
+                        <option value="dome">Domo</option>
+                        <option value="bullet">Bullet</option>
+                        <option value="ptz">PTZ</option>
+                        <option value="ip">IP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editCameraIP">Dirección IP</label>
+                    <input type="text" id="editCameraIP">
+                </div>
+                <div class="form-group">
+                    <label for="editCameraSettings">Configuración avanzada</label>
+                    <textarea id="editCameraSettings" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" id="cancelEdit">Cancelar</button>
+            <button class="btn-primary" id="saveCameraConfig">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Controles de Presentación -->
+<div class="presentation-controls" id="presentationControls">
+    <div class="presentation-speed">
+        <span>Velocidad:</span>
+        <input type="number" id="presentationSpeed" min="1" max="60" value="5"> seg.
+    </div>
+    <button id="stopPresentation"><i class="fas fa-stop"></i> Detener</button>
+</div>
+
+<script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+        authDomain: "inventario-35d6b.firebaseapp.com",
+        databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+        projectId: "inventario-35d6b",
+        storageBucket: "inventario-35d6b.appspot.com",
+        messagingSenderId: "266100399659",
+        appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Referencia a la colección de cámaras
+    const camerasRef = db.collection("camCCTV");
+
+    // Variables de estado
+    let currentLayout = 4;
+    let activeCameras = [];
+    let isPlaying = false;
+    let isPresentationMode = false;
+    let presentationInterval;
+    let presentationSpeed = 5; // segundos
+    let currentCameraIndex = 0;
+    let draggedItem = null;
+    let cameraOrder = [];
+    let camerasData = {}; // Objeto para almacenar todos los datos de las cámaras
+
+    // Elementos del DOM
+    const cameraList = document.getElementById('cameraList');
+    const videoGrid = document.getElementById('videoGrid');
+    const layoutSelect = document.getElementById('layoutSelect');
+    const contextMenu = document.getElementById('contextMenu');
+    const cameraModal = document.getElementById('cameraModal');
+    const closeModal = document.querySelector('.close-modal');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const saveCameraConfig = document.getElementById('saveCameraConfig');
+    const cameraConfigForm = document.getElementById('cameraConfigForm');
+    const addWindowBtn = document.getElementById('addWindowBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const userBtn = document.getElementById('userBtn');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const snapshotBtn = document.getElementById('snapshotBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const searchBox = document.getElementById('searchBox');
+    const presentationControls = document.getElementById('presentationControls');
+    const presentationSpeedInput = document.getElementById('presentationSpeed');
+    const stopPresentationBtn = document.getElementById('stopPresentation');
+
+    // Imágenes de demostración para las cámaras (solo si no hay imagen en los datos)
+    const demoImages = [
+        'https://via.placeholder.com/800x600/333333/FFFFFF?text=Cámara+1',
+        'https://via.placeholder.com/800x600/555555/FFFFFF?text=Cámara+2',
+        'https://via.placeholder.com/800x600/777777/FFFFFF?text=Cámara+3',
+        'https://via.placeholder.com/800x600/999999/FFFFFF?text=Cámara+4',
+        'https://via.placeholder.com/800x600/BBBBBB/FFFFFF?text=Cámara+5',
+        'https://via.placeholder.com/800x600/DDDDDD/333333?text=Cámara+6'
+    ];
+
+    // Inicializar la aplicación
+    function init() {
+        loadCameras();
+        updateVideoGrid();
+        setupEventListeners();
+    }
+
+    // Cargar cámaras desde Firebase
+    function loadCameras() {
+        camerasRef.orderBy('createdAt', 'desc').get()
+            .then(querySnapshot => {
+                cameraList.innerHTML = '';
+                camerasData = {};
+                cameraOrder = [];
+                
+                if (querySnapshot.empty) {
+                    cameraList.innerHTML = '<li style="padding:15px;color:#ccc;text-align:center;">No hay cámaras registradas</li>';
+                    return;
+                }
+                
+                querySnapshot.forEach(doc => {
+                    const camera = doc.data();
+                    camera.id = doc.id;
+                    camerasData[camera.id] = camera; // Almacenar todos los datos de la cámara
+                    cameraOrder.push(camera.id);
+                    addCameraToList(camera);
+                });
+            })
+            .catch(error => {
+                console.error("Error loading cameras: ", error);
+                cameraList.innerHTML = '<li style="padding:15px;color:#ccc;text-align:center;">Error al cargar cámaras</li>';
+            });
+    }
+
+    // Añadir cámara a la lista lateral
+    function addCameraToList(camera) {
+        const li = document.createElement('li');
+        li.className = 'camera-item';
+        li.dataset.id = camera.id;
+        li.draggable = true;
+        
+        li.innerHTML = `
+            <div class="camera-name">${camera.name}</div>
+            <div class="camera-actions">
+                <i class="fas fa-ellipsis-v" title="Más opciones"></i>
+            </div>
+            <div class="camera-preview">
+                <img src="${camera.image || demoImages[Math.floor(Math.random() * demoImages.length)]}" alt="${camera.name}">
+                <div class="camera-preview-info">
+                    <div><strong>Ubicación:</strong> ${camera.location || 'No especificada'}</div>
+                    <div><strong>Tipo:</strong> ${camera.type ? camera.type.toUpperCase() : 'No especificado'}</div>
+                    <div><strong>IP:</strong> ${camera.ip || 'No configurada'}</div>
+                    <div><strong>Calidad:</strong> ${camera.quality || 'HD'}</div>
+                </div>
+            </div>
+        `;
+        
+        // Evento para añadir cámara a la vista
+        li.addEventListener('click', (e) => {
+            // Solo si no se hizo clic en los íconos de acción
+            if (!e.target.classList.contains('fa-ellipsis-v')) {
+                toggleCameraInView(camera.id);
+            }
+        });
+        
+        // Evento para menú contextual
+        li.querySelector('.fa-ellipsis-v').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCameraContextMenu(e, camera.id);
+        });
+        
+        // Drag and Drop events
+        li.addEventListener('dragstart', handleDragStart);
+        li.addEventListener('dragover', handleDragOver);
+        li.addEventListener('dragleave', handleDragLeave);
+        li.addEventListener('drop', handleDrop);
+        li.addEventListener('dragend', handleDragEnd);
+        
+        cameraList.appendChild(li);
+    }
+
+    // Añadir o quitar cámara de la vista
+    function toggleCameraInView(cameraId) {
+        const index = activeCameras.indexOf(cameraId);
+        if (index === -1) {
+            // Si no está en la vista y hay espacio, añadirla
+            if (activeCameras.length < currentLayout) {
+                activeCameras.push(cameraId);
+            } else {
+                // Si no hay espacio, reemplazar la primera
+                activeCameras[0] = cameraId;
+            }
+        } else {
+            // Si ya está en la vista, quitarla
+            activeCameras.splice(index, 1);
+        }
+        updateVideoGrid();
+    }
+
+    // Actualizar la cuadrícula de videos
+    function updateVideoGrid() {
+        videoGrid.innerHTML = '';
+        
+        // Calcular el tamaño de cada contenedor de video
+        const gridSize = Math.ceil(Math.sqrt(currentLayout));
+        const widthPercent = 100 / gridSize;
+        const heightPercent = 100 / gridSize;
+        
+        // Crear los contenedores de video
+        for (let i = 0; i < currentLayout; i++) {
+            const videoContainer = document.createElement('div');
+            videoContainer.className = 'video-container';
+            videoContainer.style.width = `calc(${widthPercent}% - 5px)`;
+            videoContainer.style.height = `calc(${heightPercent}% - 5px)`;
+            
+            if (i < activeCameras.length) {
+                const cameraId = activeCameras[i];
+                const camera = camerasData[cameraId]; // Obtener datos de la cámara desde nuestro objeto
+                
+                if (camera) {
+                    videoContainer.innerHTML = `
+                        <img src="${camera.image || demoImages[Math.floor(Math.random() * demoImages.length)]}" alt="${camera.name}">
+                        <div class="video-overlay">
+                            <div class="video-overlay-title">${camera.name}</div>
+                            <div class="video-overlay-details">
+                                <span><i class="fas fa-map-marker-alt"></i> ${camera.location || 'Sin ubicación'}</span>
+                                <span><i class="fas fa-video"></i> ${camera.type || 'Sin tipo'}</span>
+                                <span><i class="fas fa-wifi"></i> ${camera.ip || 'Sin IP'}</span>
+                                <span><i class="fas fa-tachometer-alt"></i> ${camera.quality || 'HD'}</span>
+                                ${camera.mac ? `<span><i class="fas fa-network-wired"></i> ${camera.mac}</span>` : ''}
+                                ${camera.notes ? `<span><i class="fas fa-info-circle"></i> ${camera.notes.substring(0, 20)}${camera.notes.length > 20 ? '...' : ''}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <button class="video-action-btn" title="Expandir" data-action="expand"><i class="fas fa-expand"></i></button>
+                            <button class="video-action-btn" title="Descargar imagen" data-action="download"><i class="fas fa-download"></i></button>
+                        </div>
+                    `;
+                    
+                    videoContainer.dataset.cameraId = cameraId;
+                    
+                    // Evento para expandir imagen
+                    videoContainer.querySelector('[data-action="expand"]').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleFullscreenVideo(videoContainer);
+                    });
+                    
+                    // Evento para descargar imagen
+                    videoContainer.querySelector('[data-action="download"]').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        downloadCameraImage(camera);
+                    });
+                    
+                    // Doble clic para expandir
+                    videoContainer.addEventListener('dblclick', () => {
+                        toggleFullscreenVideo(videoContainer);
+                    });
+                    
+                    // Menú contextual
+                    videoContainer.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        showVideoContextMenu(e, cameraId);
+                    });
+                }
+            } else {
+                videoContainer.innerHTML = `
+                    <div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;color:#666;">
+                        <i class="fas fa-video-slash" style="font-size:2rem;"></i>
+                    </div>
+                `;
+            }
+            
+            videoGrid.appendChild(videoContainer);
+        }
+    }
+
+    // Alternar pantalla completa para un video
+    function toggleFullscreenVideo(videoContainer) {
+        videoContainer.classList.toggle('expanded');
+        
+        if (videoContainer.classList.contains('expanded')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Descargar imagen de la cámara
+    function downloadCameraImage(camera) {
+        // Crear un canvas para generar la imagen con los datos
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+        
+        // Fondo
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Imagen de la cámara
+        const img = new Image();
+        img.src = camera.image || demoImages[0];
+        img.onload = function() {
+            ctx.drawImage(img, 50, 50, 700, 400);
+            
+            // Texto con los datos
+            ctx.fillStyle = '#333';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Nombre: ${camera.name}`, 50, 480);
+            ctx.fillText(`Ubicación: ${camera.location || 'No especificada'}`, 50, 510);
+            ctx.fillText(`Tipo: ${camera.type || 'No especificado'}`, 50, 540);
+            ctx.fillText(`IP: ${camera.ip || 'No configurada'}`, 50, 570);
+            
+            // Convertir a imagen y descargar
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `captura_${camera.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    }
+
+    // Mostrar menú contextual para cámara en la lista
+    function showCameraContextMenu(e, cameraId) {
+        const camera = camerasData[cameraId];
+        
+        contextMenu.innerHTML = `
+            <div class="context-menu-item" data-action="view"><i class="fas fa-eye"></i> Ver en pantalla</div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item" data-action="edit"><i class="fas fa-edit"></i> Editar configuración</div>
+            <div class="context-menu-item" data-action="pin"><i class="fas fa-thumbtack"></i> Fijar en vista</div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item" data-action="refresh"><i class="fas fa-sync-alt"></i> Actualizar</div>
+            <div class="context-menu-item" data-action="download"><i class="fas fa-download"></i> Descargar imagen</div>
+        `;
+        
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.dataset.cameraId = cameraId;
+        
+        // Cerrar el menú al hacer clic en cualquier parte
+        const closeMenu = () => {
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', closeMenu);
+        };
+        
+        document.addEventListener('click', closeMenu);
+        
+        // Manejar acciones del menú
+        document.querySelectorAll('.context-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                
+                switch(action) {
+                    case 'view':
+                        addCameraToFirstView(cameraId);
+                        break;
+                    case 'edit':
+                        openCameraConfigModal(cameraId);
+                        break;
+                    case 'pin':
+                        pinCamera(cameraId);
+                        break;
+                    case 'refresh':
+                        refreshCamera(cameraId);
+                        break;
+                    case 'download':
+                        downloadCameraImage(camera);
+                        break;
+                }
+            });
+        });
+    }
+
+    // Mostrar menú contextual para video
+    function showVideoContextMenu(e, cameraId) {
+        const camera = camerasData[cameraId];
+        
+        contextMenu.innerHTML = `
+            <div class="context-menu-item" data-action="view"><i class="fas fa-eye"></i> Pantalla completa</div>
+            <div class="context-menu-item" data-action="play"><i class="fas fa-play"></i> Reproducir</div>
+            <div class="context-menu-item" data-action="pause"><i class="fas fa-pause"></i> Pausar</div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item" data-action="snapshot"><i class="fas fa-camera"></i> Capturar imagen</div>
+            <div class="context-menu-item" data-action="record"><i class="fas fa-video"></i> Grabar video</div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item" data-action="pin"><i class="fas fa-thumbtack"></i> Fijar cámara</div>
+            <div class="context-menu-item" data-action="remove"><i class="fas fa-times"></i> Eliminar de la vista</div>
+        `;
+        
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.dataset.cameraId = cameraId;
+        
+        // Cerrar el menú al hacer clic en cualquier parte
+        const closeMenu = () => {
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', closeMenu);
+        };
+        
+        document.addEventListener('click', closeMenu);
+        
+        // Manejar acciones del menú
+        document.querySelectorAll('.context-menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                
+                switch(action) {
+                    case 'view':
+                        const videoContainer = document.querySelector(`.video-container[data-camera-id="${cameraId}"]`);
+                        if (videoContainer) toggleFullscreenVideo(videoContainer);
+                        break;
+                    case 'play':
+                        startPresentation();
+                        break;
+                    case 'pause':
+                        stopPresentation();
+                        break;
+                    case 'snapshot':
+                        downloadCameraImage(camera);
+                        break;
+                    case 'record':
+                        alert(`Grabación de cámara ${camera.name} iniciada/detenida`);
+                        break;
+                    case 'pin':
+                        pinCamera(cameraId);
+                        break;
+                    case 'remove':
+                        removeCameraFromView(cameraId);
+                        break;
+                }
+            });
+        });
+    }
+
+    // Añadir cámara a la primera vista disponible
+    function addCameraToFirstView(cameraId) {
+        if (!activeCameras.includes(cameraId)) {
+            if (activeCameras.length < currentLayout) {
+                activeCameras.push(cameraId);
+            } else {
+                activeCameras[0] = cameraId;
+            }
+            updateVideoGrid();
+        }
+    }
+
+    // Quitar cámara de la vista
+    function removeCameraFromView(cameraId) {
+        const index = activeCameras.indexOf(cameraId);
+        if (index !== -1) {
+            activeCameras.splice(index, 1);
+            updateVideoGrid();
+        }
+    }
+
+    // Fijar cámara en vista (no se remueve automáticamente)
+    function pinCamera(cameraId) {
+        // Implementación para marcar cámara como fija
+        alert(`Cámara ${camerasData[cameraId].name} fijada en vista`);
+    }
+
+    // Actualizar vista de cámara específica
+    function refreshCamera(cameraId) {
+        camerasRef.doc(cameraId).get().then(doc => {
+            if (doc.exists) {
+                const camera = doc.data();
+                camerasData[cameraId] = camera; // Actualizar datos en memoria
+                
+                // Actualizar la vista si esta cámara está activa
+                if (activeCameras.includes(cameraId)) {
+                    updateVideoGrid();
+                }
+                
+                alert(`Cámara ${camera.name} actualizada`);
+            }
+        });
+    }
+
+    // Abrir modal de configuración de cámara
+    function openCameraConfigModal(cameraId) {
+        const camera = camerasData[cameraId];
+        
+        if (camera) {
+            document.getElementById('editCameraName').value = camera.name || '';
+            document.getElementById('editCameraLocation').value = camera.location || '';
+            document.getElementById('editCameraType').value = camera.type || 'dome';
+            document.getElementById('editCameraIP').value = camera.ip || '';
+            document.getElementById('editCameraSettings').value = JSON.stringify({
+                quality: camera.quality,
+                mac: camera.mac,
+                username: camera.username,
+                notes: camera.notes
+            }, null, 2);
+            
+            cameraModal.dataset.cameraId = cameraId;
+            cameraModal.style.display = 'flex';
+        }
+    }
+
+    // Iniciar presentación automática
+    function startPresentation() {
+        if (isPresentationMode || activeCameras.length === 0) return;
+        
+        isPresentationMode = true;
+        presentationControls.classList.add('active');
+        playBtn.classList.add('active');
+        pauseBtn.classList.remove('active');
+        
+        currentCameraIndex = 0;
+        presentationSpeed = parseInt(presentationSpeedInput.value) || 5;
+        
+        // Cambiar cámaras automáticamente
+        presentationInterval = setInterval(() => {
+            if (activeCameras.length > 0) {
+                currentCameraIndex = (currentCameraIndex + 1) % activeCameras.length;
+                const cameraId = activeCameras[currentCameraIndex];
+                const camera = camerasData[cameraId];
+                
+                // En una implementación real, aquí se enfocaría la cámara
+                console.log(`Mostrando cámara: ${camera.name}`);
+            }
+        }, presentationSpeed * 1000);
+    }
+
+    // Detener presentación automática
+    function stopPresentation() {
+        if (!isPresentationMode) return;
+        
+        isPresentationMode = false;
+        presentationControls.classList.remove('active');
+        pauseBtn.classList.add('active');
+        playBtn.classList.remove('active');
+        clearInterval(presentationInterval);
+    }
+
+    // Drag and Drop functions
+    function handleDragStart(e) {
+        draggedItem = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        if (draggedItem && this !== draggedItem) {
+            this.classList.add('over');
+        }
+        return false;
+    }
+
+    function handleDragLeave() {
+        this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (draggedItem && this !== draggedItem) {
+            this.classList.remove('over');
+            
+            // Reordenar elementos en el DOM
+            const dropTarget = this;
+            const dropTargetRect = dropTarget.getBoundingClientRect();
+            const dropTargetMiddle = dropTargetRect.top + dropTargetRect.height / 2;
+            
+            if (e.clientY < dropTargetMiddle) {
+                dropTarget.parentNode.insertBefore(draggedItem, dropTarget);
+            } else {
+                dropTarget.parentNode.insertBefore(draggedItem, dropTarget.nextSibling);
+            }
+            
+            // Actualizar el orden en Firebase
+            updateCameraOrder();
+        }
+        
+        return false;
+    }
+
+    function handleDragEnd() {
+        this.classList.remove('dragging');
+        this.classList.remove('over');
+        draggedItem = null;
+        
+        // Remover clases 'over' de todos los elementos
+        document.querySelectorAll('.camera-item.over').forEach(item => {
+            item.classList.remove('over');
+        });
+    }
+
+    // Actualizar orden de cámaras en Firebase
+    function updateCameraOrder() {
+        const newOrder = [];
+        const items = cameraList.querySelectorAll('.camera-item');
+        
+        items.forEach((item, index) => {
+            newOrder.push(item.dataset.id);
+        });
+        
+        // Actualizar cada documento en Firebase con su nuevo orden
+        const batch = db.batch();
+        
+        newOrder.forEach((cameraId, index) => {
+            const cameraRef = camerasRef.doc(cameraId);
+            batch.update(cameraRef, { order: index });
+        });
+        
+        batch.commit().then(() => {
+            console.log('Orden de cámaras actualizado');
+        }).catch(error => {
+            console.error('Error actualizando orden:', error);
+        });
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+        // Cambiar diseño
+        layoutSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                const customLayout = prompt('Ingrese el número de cámaras a mostrar (1-32):', currentLayout);
+                const num = parseInt(customLayout);
+                if (!isNaN(num)) {
+                    currentLayout = Math.min(Math.max(num, 1), 32);
+                    updateVideoGrid();
+                }
+            } else {
+                currentLayout = parseInt(e.target.value);
+                updateVideoGrid();
+            }
+        });
+        
+        // Panel de configuración de cámara
+        closeModal.addEventListener('click', () => {
+            cameraModal.style.display = 'none';
+        });
+        
+        cancelEdit.addEventListener('click', () => {
+            cameraModal.style.display = 'none';
+        });
+        
+        saveCameraConfig.addEventListener('click', async () => {
+            const cameraId = cameraModal.dataset.cameraId;
+            if (!cameraId) return;
+            
+            try {
+                const settings = JSON.parse(document.getElementById('editCameraSettings').value || '{}');
+                
+                const updatedData = {
+                    name: document.getElementById('editCameraName').value,
+                    location: document.getElementById('editCameraLocation').value,
+                    type: document.getElementById('editCameraType').value,
+                    ip: document.getElementById('editCameraIP').value,
+                    quality: settings.quality,
+                    mac: settings.mac,
+                    username: settings.username,
+                    notes: settings.notes,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await camerasRef.doc(cameraId).update(updatedData);
+                
+                // Actualizar datos en memoria
+                camerasData[cameraId] = {
+                    ...camerasData[cameraId],
+                    ...updatedData
+                };
+                
+                cameraModal.style.display = 'none';
+                loadCameras(); // Recargar lista para asegurar consistencia
+                updateVideoGrid(); // Actualizar vistas si esta cámara está activa
+                
+                alert('Configuración de cámara actualizada correctamente');
+            } catch (error) {
+                console.error('Error updating camera:', error);
+                alert('Error al actualizar la cámara: ' + error.message);
+            }
+        });
+        
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (e.target === cameraModal) {
+                cameraModal.style.display = 'none';
+            }
+        });
+        
+        // Controles de presentación
+        playBtn.addEventListener('click', startPresentation);
+        pauseBtn.addEventListener('click', stopPresentation);
+        
+        stopPresentationBtn.addEventListener('click', stopPresentation);
+        
+        presentationSpeedInput.addEventListener('change', (e) => {
+            if (isPresentationMode) {
+                stopPresentation();
+                startPresentation();
+            }
+        });
+        
+        // Pantalla completa
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                videoGrid.requestFullscreen().catch(err => {
+                    alert(`Error al intentar pantalla completa: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+        
+        // Captura de imagen
+        snapshotBtn.addEventListener('click', () => {
+            if (activeCameras.length > 0) {
+                const cameraId = activeCameras[0];
+                const camera = camerasData[cameraId];
+                if (camera) {
+                    downloadCameraImage(camera);
+                }
+            } else {
+                alert('No hay cámaras activas para capturar');
+            }
+        });
+        
+        // Grabación de video
+        recordBtn.addEventListener('click', () => {
+            if (activeCameras.length > 0) {
+                const cameraId = activeCameras[0];
+                const camera = camerasData[cameraId];
+                alert(`Grabación de cámara ${camera.name} iniciada/detenida`);
+            } else {
+                alert('No hay cámaras activas para grabar');
+            }
+        });
+        
+        // Buscador de cámaras
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.camera-item');
+            
+            items.forEach(item => {
+                const text = item.querySelector('.camera-name').textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // Añadir ventana
+        addWindowBtn.addEventListener('click', () => {
+            alert('Nueva ventana de visualización abierta');
+        });
+        
+        // Actualizar
+        refreshBtn.addEventListener('click', () => {
+            loadCameras();
+            updateVideoGrid();
+            alert('Vistas actualizadas');
+        });
+        
+        // Configuración
+        settingsBtn.addEventListener('click', () => {
+            alert('Abrir configuración del sistema');
+        });
+        
+        // Usuario
+        userBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Menú de usuario');
+        });
+    }
+
+    // Iniciar la aplicación
+    init();
+</script>
+
+</body>
+</html>
