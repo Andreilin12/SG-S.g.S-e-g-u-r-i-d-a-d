@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Estado de Cámaras</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #15a086;
+            --light-color: #ecf0f1;
+            --dark-color: #333;
+            --error-color: #ff3860;
+            --success-color: #23d160;
+            --warning-color: #ffdd57;
+            --offline-color: #7f8c8d;
+            --dirty-color: #f39c12;
+            --water-color: #3498db;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--primary-color);
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2c2e50;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .status-filters {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: var(--accent-color);
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-filter {
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .status-filter.active {
+            color: white;
+        }
+        
+        .status-filter.all {
+            background: #ddd;
+        }
+        
+        .status-filter.all.active {
+            background: var(--primary-color);
+        }
+        
+        .status-filter.online {
+            background: #d4edda;
+            color: var(--success-color);
+        }
+        
+        .status-filter.online.active {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .status-filter.offline {
+            background: #f8d7da;
+            color: var(--error-color);
+        }
+        
+        .status-filter.offline.active {
+            background: var(--offline-color);
+            color: white;
+        }
+        
+        .status-filter.dirty {
+            background: #fff3cd;
+            color: var(--dirty-color);
+        }
+        
+        .status-filter.dirty.active {
+            background: var(--dirty-color);
+            color: white;
+        }
+        
+        .status-filter.water {
+            background: #d1ecf1;
+            color: var(--water-color);
+        }
+        
+        .status-filter.water.active {
+            background: var(--water-color);
+            color: white;
+        }
+        
+        .cameras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .camera-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .camera-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .camera-image {
+            height: 180px;
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .camera-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .camera-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-online {
+            background: var(--success-color);
+        }
+        
+        .status-offline {
+            background: var(--offline-color);
+        }
+        
+        .status-dirty {
+            background: var(--dirty-color);
+        }
+        
+        .status-water {
+            background: var(--water-color);
+        }
+        
+        .camera-info {
+            padding: 15px;
+        }
+        
+        .camera-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .camera-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .camera-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .camera-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .status-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .status-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .status-btn.online {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .status-btn.offline {
+            background: var(--offline-color);
+            color: white;
+        }
+        
+        .status-btn.dirty {
+            background: var(--dirty-color);
+            color: white;
+        }
+        
+        .status-btn.water {
+            background: var(--water-color);
+            color: white;
+        }
+        
+        .no-cameras {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal de confirmación */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #2c3e50;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            color: #fff;
+        }
+        
+        .modal-header {
+            padding: 15px;
+            background: #15a086;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px;
+            background: #2c3e50;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #15a086;
+            color: #fff;
+        }
+        
+        /* Alertas */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1100;
+            transform: translateX(150%);
+            transition: transform 0.4s ease-out;
+            max-width: 350px;
+        }
+        
+        .alert.show {
+            transform: translateX(0);
+        }
+        
+        .alert-success {
+            background: var(--success-color);
+        }
+        
+        .alert-error {
+            background: var(--error-color);
+        }
+        
+        .alert-warning {
+            background: var(--warning-color);
+            color: #333;
+        }
+        
+        .alert-close {
+            margin-left: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">Gestión de Estado de Cámaras</div>
+        </div>
+        
+        <div class="status-filters">
+            <div class="status-filter all active" data-status="all">Todas</div>
+            <div class="status-filter online" data-status="online">En línea</div>
+            <div class="status-filter offline" data-status="offline">Fuera de servicio</div>
+            <div class="status-filter dirty" data-status="dirty">Sucia</div>
+            <div class="status-filter water" data-status="water">Agua dentro</div>
+        </div>
+        
+        <div class="cameras-grid" id="camerasGrid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>Cargando cámaras...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmación -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">Confirmar cambio de estado</div>
+            <div class="modal-body" id="modalMessage">
+                ¿Estás seguro de que deseas cambiar el estado de esta cámara?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelChange">Cancelar</button>
+                <button class="btn btn-primary" id="confirmChange">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alertas -->
+    <div id="alertContainer"></div>
+    
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const camerasRef = db.collection("camCCTV");
+        
+        // Variables de estado
+        let currentFilter = 'all';
+        let camerasData = {};
+        let currentCameraId = null;
+        let newStatus = null;
+        
+        // Elementos del DOM
+        const camerasGrid = document.getElementById('camerasGrid');
+        const statusFilters = document.querySelectorAll('.status-filter');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const cancelChange = document.getElementById('cancelChange');
+        const confirmChange = document.getElementById('confirmChange');
+        const alertContainer = document.getElementById('alertContainer');
+        
+        // Imágenes de demostración
+        const demoImages = [
+            'https://via.placeholder.com/800x600/333333/FFFFFF?text=Cámara+1',
+            'https://via.placeholder.com/800x600/555555/FFFFFF?text=Cámara+2',
+            'https://via.placeholder.com/800x600/777777/FFFFFF?text=Cámara+3',
+            'https://via.placeholder.com/800x600/999999/FFFFFF?text=Cámara+4',
+            'https://via.placeholder.com/800x600/BBBBBB/FFFFFF?text=Cámara+5',
+            'https://via.placeholder.com/800x600/DDDDDD/333333?text=Cámara+6'
+        ];
+        
+        // Mostrar alerta
+        function showAlert(message, type = 'success', duration = 5000) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 
+                              type === 'success' ? 'fa-check-circle' : 
+                              type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <span class="alert-close"><i class="fas fa-times"></i></span>
+            `;
+            
+            alertContainer.appendChild(alert);
+            
+            // Mostrar alerta
+            setTimeout(() => {
+                alert.classList.add('show');
+            }, 10);
+            
+            // Cerrar alerta al hacer clic
+            alert.querySelector('.alert-close').addEventListener('click', () => {
+                closeAlert(alert);
+            });
+            
+            // Cerrar automáticamente después de la duración
+            if (duration > 0) {
+                setTimeout(() => {
+                    closeAlert(alert);
+                }, duration);
+            }
+            
+            return alert;
+        }
+        
+        // Cerrar alerta
+        function closeAlert(alert) {
+            alert.classList.remove('show');
+            setTimeout(() => {
+                alert.remove();
+            }, 400);
+        }
+        
+        // Cargar cámaras desde Firebase
+        function loadCameras() {
+            camerasGrid.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Cargando cámaras...</div>
+                </div>
+            `;
+            
+            camerasRef.orderBy('createdAt', 'desc').get()
+                .then(querySnapshot => {
+                    camerasData = {};
+                    const cameras = [];
+                    
+                    if (querySnapshot.empty) {
+                        camerasGrid.innerHTML = `
+                            <div class="no-cameras">
+                                <i class="fas fa-video-slash" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                                <div>No hay cámaras registradas</div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    querySnapshot.forEach(doc => {
+                        const camera = doc.data();
+                        camera.id = doc.id;
+                        camerasData[camera.id] = camera;
+                        cameras.push(camera);
+                    });
+                    
+                    renderCameras(cameras);
+                })
+                .catch(error => {
+                    console.error("Error loading cameras: ", error);
+                    camerasGrid.innerHTML = `
+                        <div class="no-cameras">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--error-color); margin-bottom: 15px;"></i>
+                            <div>Error al cargar las cámaras</div>
+                        </div>
+                    `;
+                    showAlert('Error al cargar las cámaras', 'error');
+                });
+        }
+        
+        // Renderizar cámaras en la cuadrícula
+        function renderCameras(cameras) {
+            camerasGrid.innerHTML = '';
+            
+            if (cameras.length === 0) {
+                camerasGrid.innerHTML = `
+                    <div class="no-cameras">
+                        <i class="fas fa-video-slash" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <div>No hay cámaras que coincidan con el filtro</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            cameras.forEach(camera => {
+                const cameraStatus = camera.status || 'online';
+                
+                // Aplicar filtro
+                if (currentFilter !== 'all' && cameraStatus !== currentFilter) {
+                    return;
+                }
+                
+                const cameraCard = document.createElement('div');
+                cameraCard.className = 'camera-card';
+                cameraCard.dataset.id = camera.id;
+                
+                cameraCard.innerHTML = `
+                    <div class="camera-image">
+                        <img src="${camera.image || demoImages[Math.floor(Math.random() * demoImages.length)]}" alt="${camera.name}">
+                        <div class="camera-status status-${cameraStatus}">
+                            ${getStatusText(cameraStatus)}
+                        </div>
+                    </div>
+                    <div class="camera-info">
+                        <div class="camera-name">${camera.name}</div>
+                        <div class="camera-location">${camera.location || 'Sin ubicación'}</div>
+                        <div class="camera-details">
+                            <div><i class="fas fa-video"></i> ${camera.type || 'Sin tipo'}</div>
+                            <div><i class="fas fa-wifi"></i> ${camera.ip || 'Sin IP'}</div>
+                        </div>
+                        <div class="camera-actions">
+                            <button class="status-btn online" data-status="online">
+                                <i class="fas fa-check-circle"></i> En línea
+                            </button>
+                            <button class="status-btn offline" data-status="offline">
+                                <i class="fas fa-power-off"></i> Fuera
+                            </button>
+                            <button class="status-btn dirty" data-status="dirty">
+                                <i class="fas fa-broom"></i> Sucia
+                            </button>
+                            <button class="status-btn water" data-status="water">
+                                <i class="fas fa-tint"></i> Agua
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                camerasGrid.appendChild(cameraCard);
+                
+                // Agregar eventos a los botones de estado
+                const statusBtns = cameraCard.querySelectorAll('.status-btn');
+                statusBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const status = btn.dataset.status;
+                        showConfirmationModal(camera.id, status);
+                    });
+                });
+            });
+        }
+        
+        // Obtener texto descriptivo del estado
+        function getStatusText(status) {
+            switch(status) {
+                case 'online': return 'En línea';
+                case 'offline': return 'Fuera de servicio';
+                case 'dirty': return 'Sucia';
+                case 'water': return 'Agua dentro';
+                default: return 'Desconocido';
+            }
+        }
+        
+        // Mostrar modal de confirmación
+        function showConfirmationModal(cameraId, status) {
+            currentCameraId = cameraId;
+            newStatus = status;
+            
+            const camera = camerasData[cameraId];
+            const currentStatus = camera.status || 'online';
+            
+            modalMessage.innerHTML = `
+                ¿Estás seguro de que deseas cambiar el estado de la cámara <strong>${camera.name}</strong>?<br><br>
+                Estado actual: <span class="status-${currentStatus}">${getStatusText(currentStatus)}</span><br>
+                Nuevo estado: <span class="status-${status}">${getStatusText(status)}</span>
+            `;
+            
+            confirmationModal.style.display = 'flex';
+        }
+        
+        // Cambiar estado de la cámara
+        function changeCameraStatus() {
+            if (!currentCameraId || !newStatus) return;
+            
+            camerasRef.doc(currentCameraId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                // Actualizar datos en memoria
+                camerasData[currentCameraId].status = newStatus;
+                
+                // Volver a renderizar las cámaras
+                renderCameras(Object.values(camerasData));
+                
+                // Mostrar alerta de éxito
+                showAlert(`Estado de la cámara actualizado a "${getStatusText(newStatus)}"`, 'success');
+                
+                // Cerrar modal
+                confirmationModal.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error updating camera status:', error);
+                showAlert('Error al actualizar el estado de la cámara', 'error');
+                confirmationModal.style.display = 'none';
+            });
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Filtros de estado
+            statusFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    statusFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    currentFilter = filter.dataset.status;
+                    renderCameras(Object.values(camerasData));
+                });
+            });
+            
+            // Modal de confirmación
+            cancelChange.addEventListener('click', () => {
+                confirmationModal.style.display = 'none';
+            });
+            
+            confirmChange.addEventListener('click', changeCameraStatus);
+            
+            // Cerrar modal al hacer clic fuera
+            window.addEventListener('click', (e) => {
+                if (e.target === confirmationModal) {
+                    confirmationModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Inicializar la aplicación
+        function init() {
+            loadCameras();
+            setupEventListeners();
+        }
+        
+        // Iniciar la aplicación
+        init();
+    </script>
+</body>
+</html>
