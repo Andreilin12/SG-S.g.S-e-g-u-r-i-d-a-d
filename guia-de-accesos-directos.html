@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Accesos Directos</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #2c3e50, #2c3e50);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .shortcut span {
+            font-weight: bold;
+        }
+        .shortcut p {
+            margin: 0;
+            font-size: 16px;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Guía de Accesos Directos</h1>
+        
+        <div class="shortcut">
+            <span>Alt + A</span>
+            <p>Puesto de Agentes de Seguridad (Áreas de Trabajos)</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + H</span>
+            <p>Horarios</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + P</span>
+            <p>Pases de Rondas (Puesto de Trabajo)</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + C</span>
+            <p>Chat</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + L</span>
+            <p>Libreta de Contactos</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + R</span>
+            <p>Reportes</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + F</span>
+            <p>Lost and Found</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + G</span>
+            <p>Generar QR</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + S</span>
+            <p>Scanner QR</p>
+        </div>
+        <div class="shortcut">
+            <span>Alt + U</span>
+            <p>Perfil (Cuenta)</p>
+        </div>
+
+        <footer>
+            <p>Guía interactiva de accesos directos para navegar en la plataforma.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('keydown', function(event) {
+            // Accesos Directos
+            if (event.altKey && event.key === 'a') {
+                event.preventDefault();
+                window.location.href = 'puesto-de-agentes-de-seguridad.html';
+            }
+            if (event.altKey && event.key === 'h') {
+                event.preventDefault();
+                window.location.href = 'horario-view.html';
+            }
+            if (event.altKey && event.key === 'p') {
+                event.preventDefault();
+                window.location.href = 'rondas-puesto-de-trabajo.html';
+            }
+            if (event.altKey && event.key === 'c') {
+                event.preventDefault();
+                window.location.href = 'chat-retom.html';
+            }
+            if (event.altKey && event.key === 'l') {
+                event.preventDefault();
+                window.location.href = 'libreta-de-contactos.html';
+            }
+            if (event.altKey && event.key === 'r') {
+                event.preventDefault();
+                window.location.href = 'reportes.html';
+            }
+            if (event.altKey && event.key === 'f') {
+                event.preventDefault();
+                window.location.href = 'lost-and-home-sesion.html';
+            }
+            if (event.altKey && event.key === 'g') {
+                event.preventDefault();
+                window.location.href = 'generar-qr.html';
+            }
+            if (event.altKey && event.key === 's') {
+                event.preventDefault();
+                window.location.href = 'scaner-qr.html';
+            }
+            if (event.altKey && event.key === 'u') {
+                event.preventDefault();
+                window.location.href = 'perfil.html';
+            }
+        });
+    </script>
+
+</body>
+</html>
