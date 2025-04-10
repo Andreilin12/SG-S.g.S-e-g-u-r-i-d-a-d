@@ -10,6 +10,7 @@
     <style>
         :root {
             --primary-color: #2c3e50;
+            --fuera-de-servicio: #ff0000;
             --secondary-color: #34495e;
             --accent-color: #15a086;
             --light-color: #ecf0f1;
@@ -17,7 +18,7 @@
             --error-color: #ff3860;
             --success-color: #23d160;
             --warning-color: #ffdd57;
-            --offline-color: #7f8c8d;
+            --offline-color: #ff0000;
             --dirty-color: #f39c12;
             --water-color: #3498db;
         }
@@ -55,15 +56,16 @@
         }
         
         .header-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
+           font-size: 1.5rem;
+           font-weight: bold;
+
+             }
         
         .status-filters {
             display: flex;
             gap: 10px;
             padding: 15px;
-            background: var(--accent-color);
+            background: var(--primary-color);
             border-bottom: 1px solid #eee;
         }
         
@@ -84,12 +86,12 @@
         }
         
         .status-filter.all.active {
-            background: var(--primary-color);
+            background: #15a086;
         }
         
         .status-filter.online {
-            background: #d4edda;
-            color: var(--success-color);
+            background: #15a086;
+            color: #fff;
         }
         
         .status-filter.online.active {
@@ -98,18 +100,18 @@
         }
         
         .status-filter.offline {
-            background: #f8d7da;
-            color: var(--error-color);
+            background: #15a086;
+            color: white;
         }
         
         .status-filter.offline.active {
-            background: var(--offline-color);
+            background: var(--fuera-de-servicio);
             color: white;
         }
         
         .status-filter.dirty {
-            background: #fff3cd;
-            color: var(--dirty-color);
+            background: #15a086;
+            color: white;
         }
         
         .status-filter.dirty.active {
@@ -118,8 +120,8 @@
         }
         
         .status-filter.water {
-            background: #d1ecf1;
-            color: var(--water-color);
+            background: #15a086;
+            color: white;
         }
         
         .status-filter.water.active {
@@ -135,12 +137,13 @@
         }
         
         .camera-card {
-            background: white;
+            background: #2c3e50;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border: 1px solid #eee;
             transition: transform 0.3s, box-shadow 0.3s;
+            color: white;
         }
         
         .camera-card:hover {
@@ -202,13 +205,14 @@
             color: #666;
             font-size: 0.9rem;
             margin-bottom: 10px;
+            color: #15a086;
         }
         
         .camera-details {
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
-            color: #666;
+            color: #15a086;
             margin-bottom: 15px;
         }
         
@@ -266,16 +270,18 @@
             grid-column: 1 / -1;
             text-align: center;
             padding: 40px;
+            color: #fff;
         }
         
         .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(59, 88, 117);
             border-radius: 50%;
             border-top: 4px solid var(--accent-color);
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
+
         }
         
         @keyframes spin {
@@ -401,7 +407,7 @@
         <div class="cameras-grid" id="camerasGrid">
             <div class="loading">
                 <div class="loading-spinner"></div>
-                <div>Cargando cámaras...</div>
+                <div>Retom, está cargando las cámaras, por favor espere...</div>
             </div>
         </div>
     </div>
@@ -512,7 +518,7 @@
             camerasGrid.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <div>Cargando cámaras...</div>
+                    <div>Retom, está cargando las cámaras, por favor espere...</div>
                 </div>
             `;
             
