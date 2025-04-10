@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuraciones CCTV</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #2c3e50;
+      --accent-color: #3498db;
+      --light-color: #ecf0f1;
+      --dark-color: #333;
+    }
+
+    body {
+      background-color: var(--primary-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .config-header {
+      background-color: #2c3e50;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 30px;
+      padding: 40px;
+      background-color: #2c3e50;
+      flex: 1;
+    }
+
+    .icon-item {
+      background: var(--secondary-color);
+      border-radius: 12px;
+      padding: 25px 15px;
+      text-align: center;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .icon-item:hover {
+      background: #15a086;
+      transform: translateY(-5px);
+    }
+
+    .icon-item i {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      color: var(--light-color);
+    }
+
+    .icon-item span {
+      display: block;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--light-color);
+    }
+
+    .footer {
+      background-color: #2c3e50;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="config-header">
+    Panel De Security Retom - CCTV
+  </div>
+
+  <div class="icon-grid">
+    <a href="#" class="icon-item">
+      <i class="fas fa-cogs"></i>
+      <span>Configuración NVR</span>
+    </a>
+    <a href="#" class="icon-item">
+      <i class="fas fa-video"></i>
+      <span>Lista de Cámaras</span>
+    </a>
+    <a href="#" class="icon-item">
+      <i class="fas fa-map-marked-alt"></i>
+      <span>Mapa</span>
+    </a>
+    <a href="formulario-camara-cctv.html" class="icon-item">
+      <i class="fas fa-database"></i>
+      <span>Registro de Eventos</span>
+    </a>
+    <a href="estado-camara.html" class="icon-item">
+      <i class="fas fa-eye"></i>
+      <span>Monitor de Conectividad</span>
+    </a>
+    <a href="#" class="icon-item">
+      <i class="fas fa-chalkboard-teacher"></i>
+      <span>Formación Operativa CCTV</span>
+    </a>
+    <a href="#" class="icon-item">
+      <i class="fas fa-wifi"></i>
+      <span>Red y Conectividad</span>
+    </a>
+    <a href="#informes.html" class="icon-item">
+      <i class="fas fa-file-alt"></i>
+      <span>Informes y Logs</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    © 2025 RETOM  - Digital Comapny
+  </div>
+
+</body>
+</html>
