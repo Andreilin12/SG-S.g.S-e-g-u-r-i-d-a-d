@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración de Contraseñas por Posición</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #15a086;
+      --secondary: #12876f;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --error: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: rgba(52, 73, 94, 0.8);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+    }
+    
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+    
+    h1 i {
+      color: var(--primary);
+      margin-right: 10px;
+    }
+    
+    h2 {
+      color: white;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    h2 i {
+      color: var(--primary);
+    }
+    
+    .message {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      display: none;
+    }
+    
+    .message.success {
+      background-color: rgba(46, 204, 113, 0.2);
+      color: var(--success);
+      display: block;
+      border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+    
+    .message.error {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--error);
+      display: block;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    .auth-section {
+      background-color: rgba(31, 43, 56, 0.6);
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      border: 1px solid var(--glass-border);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #bdc3c7;
+    }
+    
+    input, select {
+      width: 96%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background-color: rgba(31, 43, 56, 0.7);
+      color: white;
+      font-size: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(21, 160, 134, 0.3);
+    }
+    
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(21, 160, 134, 0.3);
+    }
+    
+    .password-display {
+      font-size: 24px;
+      letter-spacing: 3px;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: rgba(31, 43, 56, 0.7);
+      border-radius: 8px;
+      text-align: center;
+      min-height: 40px;
+      border: 1px solid var(--glass-border);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .password-display .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    .password-display .copy-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    .keyboard-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    
+    .numpad button {
+      background-color: rgba(31, 43, 56, 0.7);
+      border: 1px solid var(--glass-border);
+      color: white;
+    }
+    
+    .numpad button:hover {
+      background-color: var(--primary);
+    }
+    
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+    }
+    
+    .clear-btn {
+      background-color: var(--error) !important;
+      border-color: var(--error) !important;
+    }
+    
+    .clear-btn:hover {
+      background-color: #c0392b !important;
+    }
+    
+    .submit-btn {
+      background-color: var(--success) !important;
+      border-color: var(--success) !important;
+    }
+    
+    .submit-btn:hover {
+      background-color: #27ae60 !important;
+    }
+    
+    .positions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    
+    .print-all-btn {
+      background-color: var(--warning);
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .print-all-btn:hover {
+      background-color: #e67e22;
+    }
+    
+    .position-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      margin-bottom: 12px;
+      background-color: rgba(31, 43, 56, 0.6);
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      position: relative;
+    }
+    
+    .position-info {
+      flex: 1;
+    }
+    
+    .position-name {
+      font-weight: 600;
+      color: white;
+      margin-bottom: 5px;
+    }
+    
+    .position-password {
+      font-family: monospace;
+      letter-spacing: 2px;
+      color: #bdc3c7;
+      font-size: 0.9rem;
+    }
+    
+    .position-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 80px;
+    }
+    
+    .view-btn {
+      background-color: rgba(21, 160, 134, 0.2);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    
+    .view-btn:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .delete-btn {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+    
+    .delete-btn:hover {
+      background-color: var(--error);
+      color: white;
+    }
+    
+    .hidden-actions {
+      position: absolute;
+      right: 15px;
+      top: -15px;
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .position-item:hover .hidden-actions {
+      opacity: 1;
+    }
+    
+    .hidden-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background-color: rgba(31, 43, 56, 0.9);
+      border: 1px solid var(--glass-border);
+      color: var(--light);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .hidden-btn:hover {
+      background-color: var(--primary);
+      transform: scale(1.1);
+    }
+    
+    .copy-all-btn {
+      color: var(--success);
+    }
+    
+    .copy-all-btn:hover {
+      background-color: var(--success);
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .numpad button {
+        padding: 15px;
+      }
+      
+      .action-buttons button {
+        padding: 12px 15px;
+      }
+      
+      .positions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .print-all-btn {
+        width: 100%;
+      }
+      
+      .position-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding-top: 25px;
+      }
+      
+      .position-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      
+      .hidden-actions {
+        top: 5px;
+        right: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-lock"></i> Configuración de Contraseñas del horario Laboral</h1>
+    
+    <div id="message" class="message"></div>
+    
+    <div id="authSection">
+      <h2><i class="fas fa-user-shield"></i> Verificación Requerida</h2>
+      <p>Para acceder a esta configuración, ingrese su contraseña actual:</p>
+      
+      <div class="form-group">
+        <label for="currentPassword">Contraseña:</label>
+        <input type="password" id="currentPassword" placeholder="Ingrese su contraseña">
+      </div>
+      
+      <button onclick="verifyUser()"><i class="fas fa-check-circle"></i> Verificar</button>
+    </div>
+    
+    <div id="passwordConfigSection" style="display: none;">
+      <h2><i class="fas fa-key"></i> Asignar Contraseña</h2>
+      
+      <div class="form-group">
+        <label for="positionSelect">Seleccionar Posición:</label>
+        <select id="positionSelect">
+          <option value="">-- Seleccione una posición --</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Contraseña (4-6 dígitos):</label>
+        <div class="password-display" id="passwordDisplay">
+          <span id="passwordText"></span>
+          <button class="toggle-btn" onclick="togglePasswordVisibility()" title="Mostrar/ocultar">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="copy-btn" onclick="copyCurrentPassword()" title="Copiar contraseña">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+        
+        <div class="keyboard-container">
+          <div class="numpad">
+            <button onclick="appendPassword('1')">1</button>
+            <button onclick="appendPassword('2')">2</button>
+            <button onclick="appendPassword('3')">3</button>
+            <button onclick="appendPassword('4')">4</button>
+            <button onclick="appendPassword('5')">5</button>
+            <button onclick="appendPassword('6')">6</button>
+            <button onclick="appendPassword('7')">7</button>
+            <button onclick="appendPassword('8')">8</button>
+            <button onclick="appendPassword('9')">9</button>
+            <button onclick="backspacePassword()"><i class="fas fa-backspace"></i></button>
+            <button onclick="appendPassword('0')">0</button>
+          </div>
+          
+          <div class="action-buttons">
+            <button class="clear-btn" onclick="clearPassword()">
+              <i class="fas fa-trash"></i> Limpiar
+            </button>
+            <button class="submit-btn" onclick="savePassword()">
+              <i class="fas fa-save"></i> Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="positions-list">
+        <div class="positions-header">
+          <h2><i class="fas fa-list-check"></i> Contraseñas Asignadas</h2>
+          <button class="print-all-btn" onclick="printAllPasswords()">
+            <i class="fas fa-print"></i> Imprimir
+          </button>
+        </div>
+        <div id="positionsList">
+          <p>No hay contraseñas configuradas aún.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged,
+      reauthenticateWithCredential,
+      EmailAuthProvider
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      doc, 
+      getDoc, 
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let currentPassword = '';
+    let positionPasswords = {};
+    let currentUser = null;
+    let isAdmin = false;
+    let showPasswordText = false;
+
+    // Mostrar mensaje
+    function showMessage(text, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = text;
+      messageDiv.className = `message ${type}`;
+      setTimeout(() => messageDiv.style.display = 'none', 5000);
+    }
+
+    // Actualizar visualización de contraseña
+    function updatePasswordDisplay() {
+      const passwordText = document.getElementById('passwordText');
+      if (showPasswordText) {
+        passwordText.textContent = currentPassword;
+      } else {
+        passwordText.textContent = '•'.repeat(currentPassword.length);
+      }
+    }
+
+    // Alternar visibilidad de la contraseña
+    window.togglePasswordVisibility = function() {
+      showPasswordText = !showPasswordText;
+      updatePasswordDisplay();
+      const eyeIcon = document.querySelector('.toggle-btn i');
+      eyeIcon.className = showPasswordText ? 'fas fa-eye-slash' : 'fas fa-eye';
+    }
+
+    // Agregar dígito a la contraseña
+    window.appendPassword = function(digit) {
+      if (currentPassword.length < 6) {
+        currentPassword += digit;
+        updatePasswordDisplay();
+      }
+    }
+
+    // Eliminar último dígito de la contraseña
+    window.backspacePassword = function() {
+      if (currentPassword.length > 0) {
+        currentPassword = currentPassword.slice(0, -1);
+        updatePasswordDisplay();
+      }
+    }
+
+    // Limpiar contraseña
+    window.clearPassword = function() {
+      currentPassword = '';
+      updatePasswordDisplay();
+    }
+
+    // Copiar contraseña actual al portapapeles
+    window.copyCurrentPassword = function() {
+      if (currentPassword.length === 0) return;
+      
+      navigator.clipboard.writeText(currentPassword).then(() => {
+        showMessage('Contraseña copiada al portapapeles', 'success');
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+        showMessage('Error al copiar contraseña', 'error');
+      });
+    }
+
+    // Verificar usuario
+    window.verifyUser = async function() {
+      const password = document.getElementById('currentPassword').value;
+      
+      if (!password) {
+        showMessage('Ingrese su contraseña', 'error');
+        return;
+      }
+
+      try {
+        // Reautenticar al usuario
+        const credential = EmailAuthProvider.credential(currentUser.email, password);
+        await reauthenticateWithCredential(currentUser, credential);
+        
+        // Verificar si es admin
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists() && userDoc.data().tipoUsuario === 'admin') {
+          isAdmin = true;
+          document.getElementById('passwordConfigSection').style.display = 'block';
+          document.getElementById('authSection').style.display = 'none';
+          loadPositions();
+          loadPositionPasswords();
+          showMessage('Verificación exitosa', 'success');
+        } else {
+          showMessage('Solo administradores pueden acceder', 'error');
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        showMessage('Contraseña incorrecta', 'error');
+      }
+    }
+
+    // Cargar posiciones disponibles
+    async function loadPositions() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Horarios"));
+        const positions = new Set();
+        
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.employeePosition) positions.add(data.employeePosition);
+        });
+        
+        const select = document.getElementById('positionSelect');
+        select.innerHTML = '<option value="">-- Seleccione una posición --</option>';
+        
+        Array.from(positions).sort().forEach(position => {
+          const option = document.createElement('option');
+          option.value = position;
+          option.textContent = position;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error al cargar posiciones:", error);
+        showMessage('Error al cargar posiciones', 'error');
+      }
+    }
+
+    // Cargar contraseñas existentes
+    async function loadPositionPasswords() {
+      try {
+        const docRef = doc(db, "Configuraciones", "PasswordsPosiciones");
+        const docSnap = await getDoc(docRef);
+        
+        positionPasswords = docSnap.exists() ? docSnap.data() : {};
+        updatePositionsList();
+      } catch (error) {
+        console.error("Error al cargar contraseñas:", error);
+        showMessage('Error al cargar contraseñas', 'error');
+      }
+    }
+
+    // Actualizar lista de posiciones en la UI
+    function updatePositionsList() {
+      const container = document.getElementById('positionsList');
+      container.innerHTML = '';
+      
+      if (Object.keys(positionPasswords).length === 0) {
+        container.innerHTML = '<p>No hay contraseñas configuradas aún.</p>';
+        return;
+      }
+      
+      Object.entries(positionPasswords).forEach(([position, password]) => {
+        const item = document.createElement('div');
+        item.className = 'position-item';
+        
+        item.innerHTML = `
+          <div class="hidden-actions">
+            <button class="hidden-btn copy-all-btn" onclick="copyPositionData('${position}', '${password}')" title="Copiar datos">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+          <div class="position-info">
+            <div class="position-name">${position}</div>
+            <div class="position-password">••••••</div>
+          </div>
+          <div class="position-actions">
+            <button class="action-btn view-btn" onclick="showPassword('${position}', '${password}')">
+              <i class="fas fa-eye"></i> Ver
+            </button>
+            <button class="action-btn delete-btn" onclick="deletePassword('${position}')">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+
+    // Mostrar contraseña con opción de copiar
+    window.showPassword = function(position, password) {
+      Swal.fire({
+        title: `Contraseña para ${position}`,
+        html: `
+          <div style="font-size: 1.5rem; letter-spacing: 3px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; position: relative;">
+            ${password}
+            <button onclick="copyToClipboard('${password}')" 
+              style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #15a086; cursor: pointer;">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#15a086',
+        showCancelButton: true,
+        cancelButtonText: 'Cerrar',
+        confirmButtonText: 'Copiar',
+        cancelButtonColor: '#e74c3c',
+        focusConfirm: false,
+        preConfirm: () => {
+          return copyToClipboard(password);
+        }
+      });
+    }
+
+    // Copiar texto al portapapeles
+    window.copyToClipboard = function(text) {
+      return navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+          title: 'Copiado!',
+          text: 'La contraseña ha sido copiada al portapapeles',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        return true;
+      }).catch(err => {
+        Swal.showValidationMessage(`Error al copiar: ${err}`);
+        return false;
+      });
+    }
+
+    // Copiar datos de posición al portapapeles
+    window.copyPositionData = function(position, password) {
+      const text = `Posición: ${position}\nContraseña: ${password}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showMessage('Datos copiados al portapapeles', 'success');
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+        showMessage('Error al copiar datos', 'error');
+      });
+    }
+
+    // Imprimir todas las contraseñas
+    window.printAllPasswords = function() {
+      if (Object.keys(positionPasswords).length === 0) {
+        showMessage('No hay contraseñas para imprimir', 'error');
+        return;
+      }
+      
+      let printContent = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h1 style="color: #15a086; text-align: center;">Contraseñas por Posición</h1>
+          <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+            Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+          </p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+              <tr style="background-color: #15a086; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Posición</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contraseña</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      Object.entries(positionPasswords).forEach(([position, password]) => {
+        printContent += `
+          <tr style="border-bottom: 1px solid #ddd;">
+            <td style="padding: 12px; border: 1px solid #ddd;">${position}</td>
+            <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; letter-spacing: 2px;">${password}</td>
+          </tr>
+        `;
+      });
+      
+      printContent += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      const win = window.open('', '_blank');
+      win.document.write(printContent);
+      win.document.close();
+      win.focus();
+      setTimeout(() => {
+        win.print();
+        win.close();
+      }, 500);
+    }
+
+    // Guardar contraseña
+    window.savePassword = async function() {
+      const position = document.getElementById('positionSelect').value;
+      
+      if (!position) {
+        showMessage('Seleccione una posición', 'error');
+        return;
+      }
+      
+      if (currentPassword.length < 4 || currentPassword.length > 6) {
+        showMessage('La contraseña debe tener 4-6 dígitos', 'error');
+        return;
+      }
+      
+      try {
+        positionPasswords[position] = currentPassword;
+        await setDoc(doc(db, "Configuraciones", "PasswordsPosiciones"), positionPasswords);
+        
+        showMessage(`Contraseña guardada para ${position}`, 'success');
+        currentPassword = '';
+        showPasswordText = false;
+        updatePasswordDisplay();
+        document.querySelector('.toggle-btn i').className = 'fas fa-eye';
+        updatePositionsList();
+      } catch (error) {
+        console.error("Error al guardar:", error);
+        showMessage('Error al guardar contraseña', 'error');
+      }
+    }
+
+    // Eliminar contraseña
+    window.deletePassword = async function(position) {
+      const result = await Swal.fire({
+        title: `¿Eliminar contraseña para ${position}?`,
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#15a086',
+        cancelButtonColor: '#e74c3c',
+        confirmButtonText: 'Sí, eliminar'
+      });
+      
+      if (result.isConfirmed) {
+        try {
+          delete positionPasswords[position];
+          await setDoc(doc(db, "Configuraciones", "PasswordsPosiciones"), positionPasswords);
+          showMessage('Contraseña eliminada', 'success');
+          updatePositionsList();
+        } catch (error) {
+          console.error("Error al eliminar:", error);
+          showMessage('Error al eliminar contraseña', 'error');
+        }
+      }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          
+          // Verificar si es admin
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists() && userDoc.data().tipoUsuario === 'admin') {
+            document.getElementById('authSection').style.display = 'block';
+          } else {
+            showMessage('Acceso solo para administradores', 'error');
+            setTimeout(() => window.location.href = "index.html", 3000);
+          }
+        } else {
+          window.location.href = "login.html";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
