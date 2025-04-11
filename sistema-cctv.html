@@ -122,28 +122,29 @@
         }
         
         .sidebar-collapse-btn {
-            position: absolute;
-            right: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--accent-color);
-            width: 30px;
-            height: 60px;
-            border-radius: 0 8px 8px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    position: fixed; /* Cambiado de absolute a fixed */
+    left: 280px; /* Mismo ancho que el sidebar */
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--accent-color);
+    width: 15px; /* Aumentado de 40px a 60px */
+    height: 60px; /* Aumentado de 60px a 80px */
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+       }
+    
+      .sidebar.collapsed ~ .sidebar-collapse-btn {
+    left: 0; /* Cuando el sidebar está colapsado, el botón se pega al borde izquierdo */
         }
-        
-        .sidebar-collapse-btn:hover {
-            background: var(--primary-color);
-        }
-        
+
+                 
         .sidebar.collapsed {
             width: 3px;
             overflow: hidden;
@@ -1027,7 +1028,7 @@
 <div class="status-summary-modal" id="statusSummaryModal">
     <div class="status-summary-header">
         <div class="status-summary-title">Resumen de Estados</div>
-        <span class="close-modal">&times;</span>
+        
     </div>
     <div class="status-summary-body" id="statusSummaryBody">
         <!-- Los datos se cargarán dinámicamente -->
@@ -2292,16 +2293,18 @@
         
         // Colapsar/expandir barra lateral
         sidebarCollapseBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            const icon = sidebarCollapseBtn.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
-            } else {
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
-            }
-        });
+    sidebar.classList.toggle('collapsed');
+    const icon = sidebarCollapseBtn.querySelector('i');
+    if (sidebar.classList.contains('collapsed')) {
+        icon.classList.remove('fa-chevron-left');
+        icon.classList.add('fa-chevron-right');
+        sidebarCollapseBtn.style.left = '0'; // Se pega al borde izquierdo
+    } else {
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-left');
+        sidebarCollapseBtn.style.left = '280px'; // Vuelve a su posición original
+    }
+              });
     }
 
     // Iniciar la aplicación
