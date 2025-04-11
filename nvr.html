@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurador RTMCAM - camCCTV</title>
+    <title>NVR RTM - Restaurador</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -12,86 +12,92 @@
     <style>
         :root {
             --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
+            --accent-color: #15a086;
             --light-color: #ecf0f1;
-            --success-color: #2ecc71;
+            --dark-color: #1a2a3a;
+            --success-color: #15a086;
             --warning-color: #f39c12;
             --error-color: #e74c3c;
         }
         
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--primary-color);
             color: var(--light-color);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             min-height: 100vh;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: rgba(44, 62, 80, 0.9);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
         h1 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             color: var(--light-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 15px auto 0;
         }
         
         .panel {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: var(--dark-color);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         
         .btn {
-            padding: 10px 20px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         
         .btn-primary {
             background: var(--accent-color);
             color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .btn-primary:hover {
-            background: #2980b9;
+            background: #0e8c74;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         
-        .btn-success {
-            background: var(--success-color);
-            color: white;
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
         }
         
-        .btn-success:hover {
-            background: #27ae60;
-        }
-        
-        .btn-warning {
-            background: var(--warning-color);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e67e22;
+        .btn-outline:hover {
+            background: rgba(21, 160, 134, 0.1);
         }
         
         .btn-danger {
@@ -100,7 +106,7 @@
         }
         
         .btn-danger:hover {
-            background: #c0392b;
+            background: #d62c1a;
         }
         
         #fileInput {
@@ -108,104 +114,140 @@
         }
         
         .file-info {
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
             background: rgba(0,0,0,0.2);
-            border-radius: 5px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
         }
         
         .info-row {
             display: flex;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
         }
         
         .info-label {
-            font-weight: bold;
-            min-width: 150px;
+            font-weight: 600;
+            min-width: 180px;
+            color: var(--accent-color);
         }
         
         .info-value {
             flex-grow: 1;
-            word-break: break-all;
+            word-break: break-word;
         }
         
         .json-viewer {
-            font-family: monospace;
+            font-family: 'Fira Code', monospace;
             white-space: pre-wrap;
             background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 5px;
-            max-height: 500px;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 600px;
             overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         
         .cameras-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
         
         .camera-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(145deg, #1e2b3a, #1a2432);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .camera-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
         }
         
         .camera-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            align-items: center;
         }
         
         .camera-name {
-            font-weight: bold;
-            color: var(--accent-color);
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+            margin: 0;
         }
         
         .camera-id {
-            font-size: 0.8em;
-            color: rgba(255,255,255,0.6);
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.3);
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .camera-image-container {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
         }
         
         .camera-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            margin: 10px 0;
-            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .camera-card:hover .camera-image {
+            transform: scale(1.05);
         }
         
         .camera-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            padding: 20px;
         }
         
         .detail-item {
-            margin-bottom: 5px;
+            margin-bottom: 12px;
+            display: flex;
         }
         
         .detail-label {
-            font-weight: bold;
+            font-weight: 600;
             color: var(--accent-color);
-            font-size: 0.9em;
+            font-size: 0.85rem;
+            min-width: 120px;
         }
         
         .detail-value {
-            font-size: 0.9em;
+            font-size: 0.9rem;
             word-break: break-word;
+            flex-grow: 1;
         }
         
         .badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
         
         .badge-dome {
@@ -224,7 +266,7 @@
         }
         
         .badge-ip {
-            background-color: #2ecc71;
+            background-color: var(--accent-color);
             color: white;
         }
         
@@ -239,13 +281,13 @@
         }
         
         .spinner {
-            border: 4px solid rgba(255,255,255,0.3);
+            border: 4px solid rgba(255,255,255,0.1);
             border-radius: 50%;
             border-top: 4px solid var(--accent-color);
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 40px auto;
             display: none;
         }
         
@@ -259,42 +301,109 @@
         }
         
         .view-options {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
         }
         
         .restore-options {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 30px;
+            padding: 25px;
             background: rgba(0,0,0,0.2);
-            border-radius: 5px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
         }
         
         .option-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
-        .option-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+        .option-title {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        select.btn {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+            padding-right: 40px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+        }
+        
+        .checkbox-group label {
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.2);
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+        
+        /* Efecto de carga para las tarjetas */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .camera-card {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .camera-card:nth-child(1) { animation-delay: 0.1s; }
+        .camera-card:nth-child(2) { animation-delay: 0.2s; }
+        .camera-card:nth-child(3) { animation-delay: 0.3s; }
+        .camera-card:nth-child(4) { animation-delay: 0.4s; }
+        .camera-card:nth-child(5) { animation-delay: 0.5s; }
+        .camera-card:nth-child(6) { animation-delay: 0.6s; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-file-import"></i> Restaurador de Backup RTMCAM</h1>
+        <h1><i class="fas fa-server"></i> NVR RTM</h1>
         
         <div class="panel">
             <button id="loadFileBtn" class="btn btn-primary">
-                <i class="fas fa-file-upload"></i> Cargar archivo .rtmcam
+                <i class="fas fa-file-import"></i> Cargar Archivo RTMCAM
             </button>
             <input type="file" id="fileInput" accept=".rtmcam">
             
             <div id="fileInfo" class="file-info hidden">
-                <h3>Información del Archivo</h3>
+                <h3 style="margin-top: 0; color: var(--accent-color);"><i class="fas fa-info-circle"></i> Información del Archivo</h3>
                 <div class="info-row">
                     <span class="info-label">Formato:</span>
-                    <span class="info-value" id="fileFormat">RTMCAM</span>
+                    <span class="info-value" id="fileFormat">NVR RTM</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Versión:</span>
@@ -305,7 +414,7 @@
                     <span class="info-value" id="fileDate">-</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Cámaras incluidas:</span>
+                    <span class="info-label">Dispositivos incluidos:</span>
                     <span class="info-value" id="fileCameras">0</span>
                 </div>
                 <div class="info-row">
@@ -317,11 +426,11 @@
         
         <div class="panel">
             <div class="view-options">
-                <button id="viewJsonBtn" class="btn btn-primary">
-                    <i class="fas fa-code"></i> Ver JSON Completo
+                <button id="viewJsonBtn" class="btn btn-outline">
+                    <i class="fas fa-hdd"></i> Agregar NVR-RTM
                 </button>
-                <button id="viewCardsBtn" class="btn btn-primary">
-                    <i class="fas fa-th-large"></i> Ver como Tarjetas
+                <button id="viewCardsBtn" class="btn btn-outline">
+                    <i class="fas fa-th"></i> Vista de Dispositivos
                 </button>
             </div>
             
@@ -330,50 +439,54 @@
             </div>
             
             <div id="cardsView" class="hidden">
-                <h3>Cámaras en el archivo</h3>
                 <div id="camerasGrid" class="cameras-grid">
-                    <!-- Las cámaras se mostrarán aquí -->
+                    <div class="empty-state">
+                        <i class="fas fa-video-slash"></i>
+                        <p>No hay dispositivos cargados</p>
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="panel restore-options hidden" id="restorePanel">
-            <h3><i class="fas fa-cloud-upload-alt"></i> Opciones de Restauración</h3>
+            <h3 style="margin-top: 0; color: var(--accent-color);"><i class="fas fa-cloud-upload-alt"></i> Opciones de Restauración</h3>
             
             <div class="option-group">
-                <label class="option-label">Estrategia de restauración:</label>
-                <select id="restoreStrategy" class="btn btn-secondary">
-                    <option value="merge">Actualizar existentes y agregar nuevas</option>
-                    <option value="replace">Reemplazar toda la colección</option>
-                    <option value="addOnly">Solo agregar nuevas cámaras</option>
+                <div class="option-title"><i class="fas fa-chess-board"></i> Estrategia de restauración</div>
+                <select id="restoreStrategy" class="btn btn-outline">
+                    <option value="merge">Actualizar existentes y agregar nuevos</option>
+                    <option value="replace">Reemplazar toda la configuración</option>
+                    <option value="addOnly">Solo agregar nuevos dispositivos</option>
                 </select>
             </div>
             
             <div class="option-group">
-                <label class="option-label">Opciones adicionales:</label>
-                <div>
+                <div class="option-title"><i class="fas fa-cog"></i> Opciones avanzadas</div>
+                <div class="checkbox-group">
                     <input type="checkbox" id="preserveTimestamps" checked>
-                    <label for="preserveTimestamps">Mantener fechas originales</label>
+                    <label for="preserveTimestamps">Mantener marcas de tiempo originales</label>
                 </div>
-                <div>
+                <div class="checkbox-group">
                     <input type="checkbox" id="overwriteCredentials">
-                    <label for="overwriteCredentials">Sobrescribir credenciales</label>
+                    <label for="overwriteCredentials">Sobrescribir credenciales de acceso</label>
                 </div>
             </div>
             
-            <button id="restoreBtn" class="btn btn-success">
-                <i class="fas fa-database"></i> Restaurar a camCCTV
-            </button>
-            <button id="cancelBtn" class="btn btn-danger">
-                <i class="fas fa-times"></i> Cancelar
-            </button>
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button id="restoreBtn" class="btn btn-primary">
+                    <i class="fas fa-database"></i> Restaurar Configuración
+                </button>
+                <button id="cancelBtn" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
         </div>
         
         <div id="spinner" class="spinner"></div>
     </div>
 
     <script>
-        // Configuración de Firebase (debe coincidir con tu proyecto)
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
             authDomain: "inventario-35d6b.firebaseapp.com",
@@ -410,14 +523,20 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const spinner = document.getElementById('spinner');
 
-        // Mostrar alerta
+        // Mostrar alerta mejorada
         function showAlert(icon, title, text) {
             Swal.fire({
                 icon: icon,
                 title: title,
-                text: text,
-                background: 'var(--primary-color)',
-                color: 'var(--light-color)'
+                html: text.replace(/<br>/g, '\n'), // Convertir <br> a saltos de línea
+                background: '#2c3e50',
+                color: '#ecf0f1',
+                confirmButtonColor: '#15a086',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    content: 'custom-swal-content'
+                }
             });
         }
 
@@ -460,11 +579,16 @@
 
         // Mostrar información del archivo
         function displayFileInfo(metadata) {
-            document.getElementById('fileFormat').textContent = metadata.format || 'RTMCAM';
+            document.getElementById('fileFormat').textContent = metadata.format || 'NVR RTM';
             document.getElementById('fileVersion').textContent = metadata.version || '1.0';
             document.getElementById('fileDate').textContent = new Date(metadata.exportedAt).toLocaleString() || 'Desconocida';
             document.getElementById('fileCameras').textContent = metadata.totalCameras || '0';
-            document.getElementById('fileSource').textContent = metadata.source || 'Origen desconocido';
+            
+            // Limpiar el prefijo "firebase://" si existe
+            let source = metadata.source || 'Origen desconocido';
+            source = source.replace('firebase://', '');
+            document.getElementById('fileSource').textContent = source;
+            
             fileInfo.classList.remove('hidden');
         }
 
@@ -473,7 +597,12 @@
             camerasGrid.innerHTML = '';
             
             if (!cameras || cameras.length === 0) {
-                camerasGrid.innerHTML = '<p>No se encontraron cámaras en el archivo</p>';
+                camerasGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-video-slash"></i>
+                        <p>No se encontraron dispositivos en el archivo</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -520,16 +649,23 @@
                 // Construir tarjeta
                 card.innerHTML = `
                     <div class="camera-header">
-                        <span class="camera-name">${camera.name || 'Cámara sin nombre'}</span>
+                        <h3 class="camera-name">${camera.name || 'Dispositivo sin nombre'}</h3>
                         <span class="camera-id">${camera.id || 'ID desconocido'}</span>
                     </div>
                     
-                    ${camera.image ? `<img src="${camera.image}" class="camera-image" alt="Imagen de cámara">` : ''}
+                    <div class="camera-image-container">
+                        ${camera.image ? 
+                            `<img src="${camera.image}" class="camera-image" alt="Vista previa">` : 
+                            `<div style="height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.3);">
+                                <i class="fas fa-camera" style="font-size: 2rem;"></i>
+                            </div>`
+                        }
+                    </div>
                     
                     <div class="camera-details">
                         <div class="detail-item">
                             <span class="detail-label">Ubicación:</span>
-                            <span class="detail-value">${camera.location || 'N/A'}</span>
+                            <span class="detail-value">${camera.location || 'No especificada'}</span>
                         </div>
                         
                         <div class="detail-item">
@@ -539,17 +675,17 @@
                         
                         <div class="detail-item">
                             <span class="detail-label">Calidad:</span>
-                            <span class="detail-value">${qualityText || 'N/A'}</span>
+                            <span class="detail-value">${qualityText || 'No especificada'}</span>
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">IP:</span>
-                            <span class="detail-value">${camera.ip || 'N/A'}</span>
+                            <span class="detail-label">Dirección IP:</span>
+                            <span class="detail-value">${camera.ip || 'No configurada'}</span>
                         </div>
                         
                         <div class="detail-item">
-                            <span class="detail-label">MAC:</span>
-                            <span class="detail-value">${camera.mac || 'N/A'}</span>
+                            <span class="detail-label">Dirección MAC:</span>
+                            <span class="detail-value">${camera.mac || 'No configurada'}</span>
                         </div>
                         
                         ${camera.username ? `
@@ -563,6 +699,12 @@
                             <span class="detail-label">Contraseña:</span>
                             <span class="detail-value">••••••••</span>
                         </div>` : ''}
+                        
+                        ${camera.notes ? `
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <span class="detail-label">Notas:</span>
+                            <span class="detail-value" style="font-style: italic;">${camera.notes}</span>
+                        </div>` : ''}
                     </div>
                 `;
                 
@@ -573,7 +715,7 @@
         // Restaurar datos a Firebase
         async function restoreToFirebase() {
             if (!currentFileData || !currentFileData.cameras || currentFileData.cameras.length === 0) {
-                showAlert('warning', 'Advertencia', 'No hay cámaras para restaurar');
+                showAlert('warning', 'Advertencia', 'No hay dispositivos para restaurar');
                 return;
             }
             
@@ -584,18 +726,23 @@
             const result = await Swal.fire({
                 title: 'Confirmar Restauración',
                 html: `
-                    <p>¿Estás seguro de querer restaurar <strong>${currentFileData.cameras.length} cámaras</strong>?</p>
+                    <p>¿Estás seguro de querer restaurar <strong>${currentFileData.cameras.length} dispositivos</strong>?</p>
                     <p><strong>Estrategia:</strong> ${getStrategyText(strategy)}</p>
                     <p>Esta acción no se puede deshacer.</p>
                 `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, restaurar',
+                confirmButtonColor: '#15a086',
+                cancelButtonColor: '#e74c3c',
+                confirmButtonText: 'Confirmar Restauración',
                 cancelButtonText: 'Cancelar',
-                background: 'var(--primary-color)',
-                color: 'var(--light-color)'
+                background: '#2c3e50',
+                color: '#ecf0f1',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    htmlContainer: 'custom-swal-content'
+                }
             });
             
             if (!result.isConfirmed) return;
@@ -656,16 +803,19 @@
                 // Ejecutar operaciones por lotes
                 await batch.commit();
                 
-                showAlert('success', 'Restauración Completa', `
-                    Procesadas: ${camerasProcessed} cámaras<br>
-                    Agregadas: ${camerasAdded}<br>
-                    Actualizadas: ${camerasUpdated}<br>
-                    Omitidas: ${camerasSkipped}
-                `);
+                // Mostrar resultados sin <br>
+                const resultText = [
+                    `Procesados: ${camerasProcessed} dispositivos`,
+                    `Agregados: ${camerasAdded}`,
+                    `Actualizados: ${camerasUpdated}`,
+                    `Omitidos: ${camerasSkipped}`
+                ].join('\n');
+                
+                showAlert('success', 'Restauración Exitosa', resultText);
                 
             } catch (error) {
                 console.error('Error al restaurar:', error);
-                showAlert('error', 'Error', 'No se pudo completar la restauración');
+                showAlert('error', 'Error', 'No se pudo completar la restauración:\n' + error.message);
             } finally {
                 showSpinner(false);
             }
@@ -674,9 +824,9 @@
         // Obtener texto descriptivo de la estrategia
         function getStrategyText(strategy) {
             switch(strategy) {
-                case 'replace': return 'Reemplazar toda la colección (peligroso)';
-                case 'merge': return 'Actualizar existentes y agregar nuevas';
-                case 'addOnly': return 'Solo agregar cámaras nuevas';
+                case 'replace': return 'Reemplazar toda la configuración (peligroso)';
+                case 'merge': return 'Actualizar existentes y agregar nuevos';
+                case 'addOnly': return 'Solo agregar nuevos dispositivos';
                 default: return strategy;
             }
         }
@@ -688,7 +838,12 @@
             jsonView.classList.add('hidden');
             cardsView.classList.add('hidden');
             restorePanel.classList.add('hidden');
-            camerasGrid.innerHTML = '';
+            camerasGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-video-slash"></i>
+                    <p>No hay dispositivos cargados</p>
+                </div>
+            `;
             jsonContent.textContent = '';
             fileInput.value = '';
         }
@@ -710,11 +865,19 @@
         viewJsonBtn.addEventListener('click', () => {
             jsonView.classList.remove('hidden');
             cardsView.classList.add('hidden');
+            viewJsonBtn.classList.add('btn-primary');
+            viewJsonBtn.classList.remove('btn-outline');
+            viewCardsBtn.classList.add('btn-outline');
+            viewCardsBtn.classList.remove('btn-primary');
         });
         
         viewCardsBtn.addEventListener('click', () => {
             jsonView.classList.add('hidden');
             cardsView.classList.remove('hidden');
+            viewCardsBtn.classList.add('btn-primary');
+            viewCardsBtn.classList.remove('btn-outline');
+            viewJsonBtn.classList.add('btn-outline');
+            viewJsonBtn.classList.remove('btn-primary');
         });
         
         restoreBtn.addEventListener('click', restoreToFirebase);
@@ -727,6 +890,26 @@
                     window.location.href = 'login.html';
                 }
             });
+            
+            // Estilos adicionales para SweetAlert
+            const style = document.createElement('style');
+            style.textContent = `
+                .custom-swal-popup {
+                    background: #2c3e50;
+                    border: 1px solid #15a086;
+                    border-radius: 10px;
+                }
+                .custom-swal-title {
+                    color: #15a086;
+                    font-weight: 400;
+                }
+                .custom-swal-content {
+                    color: #ecf0f1;
+                    line-height: 1.6;
+                    white-space: pre-line;
+                }
+            `;
+            document.head.appendChild(style);
         });
     </script>
 </body>
