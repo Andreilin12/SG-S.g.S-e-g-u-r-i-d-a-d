@@ -21,82 +21,98 @@
       --primary: #15a086;
     }
     
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #2c3e50;
       color: white;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
+      font-size: 14px;
+      -webkit-text-size-adjust: 100%;
     }
     
     .print-header {
       text-align: center;
-      margin-bottom: 30px;
-      padding: 20px;
+      margin-bottom: 15px;
+      padding: 10px;
       background-color: #1a2a38;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     
     .print-header h1 {
       color: #15a086;
       margin: 0;
-      font-size: 28px;
+      font-size: 1.5rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
     }
     
     .print-header h2 {
-      margin: 10px 0 5px;
-      font-size: 20px;
+      margin: 5px 0;
+      font-size: 1.1rem;
       color: #ecf0f1;
       font-weight: 400;
+      line-height: 1.2;
     }
     
     .print-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 1rem;
       color: #bdc3c7;
       font-weight: 300;
+      line-height: 1.2;
     }
     
     .print-controls {
       background-color: #1a2a38;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     
     .control-group {
       display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
     }
     
     label {
       font-weight: 500;
       color: #15a086;
-      min-width: 120px;
+      margin-bottom: -8px;
+      font-size: 0.9rem;
     }
     
     select, input {
-      padding: 10px 15px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border-radius: 5px;
       border: 1px solid rgba(21, 160, 134, 0.3);
       background-color: rgba(26, 42, 56, 0.7);
       color: white;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      flex: 1;
-      max-width: 300px;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 5px;
     }
     
     button {
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border-radius: 5px;
       border: none;
       background-color: #15a086;
       color: white;
@@ -105,13 +121,17 @@
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      flex: 1;
+      min-width: 120px;
     }
     
     button:hover {
       background-color: #12876f;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     .btn-change-position {
@@ -123,36 +143,39 @@
     }
     
     .schedule-container {
+      width: 100%;
       overflow-x: auto;
-      margin-bottom: 30px;
+      margin-bottom: 15px;
       background-color: #1a2a38;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      -webkit-overflow-scrolling: touch;
     }
     
     .schedule-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
+      min-width: 600px;
     }
     
     .schedule-table th {
       background-color: #15a086;
       color: white;
-      padding: 8px 5px;
+      padding: 6px 4px;
       text-align: center;
       border: 1px solid rgba(21, 160, 134, 0.5);
       font-weight: 500;
       position: sticky;
       top: 0;
+      font-size: 0.8rem;
     }
     
     .schedule-table td {
-      padding: 10px 8px;
+      padding: 6px 4px;
       border: 1px solid rgba(21, 160, 134, 0.2);
       text-align: center;
-      font-size: 14px;
+      font-size: 0.75rem;
     }
     
     .employee-row:hover {
@@ -164,7 +187,12 @@
       background-color: rgba(21, 160, 134, 0.2);
       position: sticky;
       left: 0;
-      min-width: 120px;
+      min-width: 80px;
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.75rem;
     }
     
     /* Turn colors */
@@ -185,16 +213,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      min-width: 30px;
     }
     
     .day-name {
-      font-size: 12px;
+      font-size: 0.7rem;
       font-weight: 400;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     
     .day-number {
-      font-size: 14px;
+      font-size: 0.8rem;
       font-weight: 600;
     }
     
@@ -205,75 +234,79 @@
     .today .day-number::after {
       content: '';
       position: absolute;
-      bottom: -3px;
+      bottom: -2px;
       left: 50%;
       transform: translateX(-50%);
-      width: 20px;
-      height: 3px;
+      width: 15px;
+      height: 2px;
       background-color: #e74c3c;
-      border-radius: 3px;
+      border-radius: 2px;
     }
     
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 15px;
-      margin: 30px 0;
+      gap: 8px;
+      margin: 15px 0;
       justify-content: center;
       background-color: #1a2a38;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     
     .legend-item {
       display: flex;
       align-items: center;
-      font-size: 14px;
-      min-width: 120px;
+      font-size: 0.7rem;
+      min-width: 80px;
+      flex: 1 0 calc(50% - 8px);
+      max-width: calc(50% - 8px);
     }
     
     .legend-color {
-      width: 15px;
-      height: 15px;
-      border-radius: 3px;
-      margin-right: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      margin-right: 6px;
       border: 1px solid rgba(255,255,255,0.2);
+      flex-shrink: 0;
     }
     
     .position-selector {
       background-color: #1a2a38;
-      padding: 30px;
-      border-radius: 10px;
-      margin: 50px auto;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px auto;
       max-width: 800px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     
     .position-selector h2 {
       color: #15a086;
       margin-top: 0;
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
     }
     
     .position-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px;
-      margin: 20px 0;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+      margin: 15px 0;
     }
     
     .position-btn {
-      padding: 12px;
+      padding: 10px;
       background-color: rgba(21, 160, 134, 0.2);
       color: #15a086;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       transition: all 0.3s ease;
       font-weight: 500;
+      font-size: 0.9rem;
     }
     
     .position-btn:hover {
@@ -297,32 +330,34 @@
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      padding: 15px;
     }
     
     .password-container {
       background-color: #1a2a38;
-      padding: 30px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
+      padding: 20px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 350px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
     }
     
     .password-container h2 {
       color: #15a086;
       margin-top: 0;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
     }
     
     .password-display {
-      font-size: 24px;
-      letter-spacing: 3px;
-      margin: 20px 0;
-      padding: 10px;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      margin: 15px 0;
+      padding: 8px;
       background-color: rgba(0,0,0,0.2);
-      border-radius: 5px;
-      min-height: 40px;
+      border-radius: 4px;
+      min-height: 35px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -330,29 +365,31 @@
     
     .password-error {
       color: #e74c3c;
-      margin-top: 10px;
-      min-height: 20px;
+      margin-top: 8px;
+      min-height: 18px;
+      font-size: 0.8rem;
     }
     
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 15px;
     }
     
     .numpad button {
-      padding: 15px;
-      font-size: 18px;
+      padding: 12px;
+      font-size: 1.1rem;
       background-color: #2c3e50;
       border: none;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 50px;
+      height: 45px;
+      min-width: auto;
     }
     
     .numpad button:hover {
@@ -393,7 +430,7 @@
       body {
         background-color: white;
         color: black;
-        font-size: 12pt;
+        font-size: 10pt;
         padding: 0;
       }
       
@@ -404,20 +441,20 @@
       .print-header {
         background-color: white;
         color: black;
-        padding: 10px 0;
-        margin-bottom: 15px;
+        padding: 8px 0;
+        margin-bottom: 10px;
         border-bottom: 2px solid #15a086;
       }
       
       .print-header h1 {
         color: #15a086;
-        font-size: 22pt;
+        font-size: 16pt;
       }
       
       .print-header h2, .print-header h3 {
         color: #555;
-        font-size: 14pt;
-        margin: 5px 0;
+        font-size: 10pt;
+        margin: 3px 0;
       }
       
       .schedule-container {
@@ -436,15 +473,15 @@
       .schedule-table th {
         background-color: #15a086 !important;
         color: white !important;
-        padding: 5px;
-        font-size: 10pt;
+        padding: 4px;
+        font-size: 8pt;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
       
       .schedule-table td {
-        padding: 8px 5px;
-        font-size: 10pt;
+        padding: 6px 4px;
+        font-size: 8pt;
         border: 1px solid #ddd;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -457,11 +494,11 @@
       }
       
       .day-name {
-        font-size: 10pt;
+        font-size: 8pt;
       }
       
       .day-number {
-        font-size: 12pt;
+        font-size: 9pt;
       }
       
       /* Mantener colores en impresión */
@@ -486,48 +523,42 @@
       }
     }
 
-    /* Estilos para modo horizontal */
-    @media screen and (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-
+    /* Estilos específicos para móviles pequeños */
+    @media (max-width: 400px) {
       .print-header h1 {
-        font-size: 22px;
+        font-size: 1.3rem;
       }
-
+      
       .print-header h2 {
-        font-size: 18px;
+        font-size: 1rem;
       }
-
+      
       .print-header h3 {
-        font-size: 16px;
+        font-size: 0.9rem;
       }
-
-      .control-group {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      select, input {
-        max-width: 100%;
-        width: 100%;
-      }
-
+      
       button {
-        width: 100%;
-        justify-content: center;
-        margin-bottom: 10px;
+        font-size: 0.8rem;
+        padding: 6px 8px;
       }
-
-      .password-container {
-        width: 95%;
-        padding: 20px;
+      
+      .position-btn {
+        font-size: 0.8rem;
+        padding: 8px;
       }
-
+      
+      .password-container h2 {
+        font-size: 1.1rem;
+      }
+      
       .numpad button {
-        height: 60px;
-        font-size: 20px;
+        height: 40px;
+        font-size: 1rem;
+      }
+      
+      .legend-item {
+        min-width: 70px;
+        font-size: 0.65rem;
       }
     }
   </style>
@@ -577,7 +608,6 @@
     <div class="print-header">
       <h1><i class="fas fa-calendar-alt"></i> CALENDARIO DE TURNOS</h1>
       <h2 id="positionTitle">Posición: [Posición Seleccionada]</h2>
-      <h2 id="positionTitle">Posición: [Posición Seleccionada]</h2>
       <h3 id="periodTitle">Período: [Período Seleccionado]</h3>
       <h3 id="monthYearTitle"></h3>
     </div>
@@ -595,10 +625,12 @@
           <option value="next-week">Próxima Semana</option>
           <option value="month">Mes Completo (30/31 días)</option>
         </select>
-        
-        <button onclick="generateSchedule()"><i class="fas fa-sync-alt"></i> Actualizar Vista</button>
+      </div>
+      
+      <div class="button-group">
+        <button onclick="generateSchedule()"><i class="fas fa-sync-alt"></i> Actualizar</button>
         <button onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
-        <button class="btn-change-position" onclick="changePosition()"><i class="fas fa-arrow-left"></i> Cambiar Posición</button>
+        <button class="btn-change-position" onclick="changePosition()"><i class="fas fa-arrow-left"></i> Cambiar</button>
       </div>
     </div>
     
@@ -682,29 +714,6 @@
     let currentDate = new Date();
     let currentPassword = '';
     let positionPasswords = {};
-
-    // Función para forzar orientación horizontal
-    async function lockOrientation() {
-      try {
-        if (screen.orientation && screen.orientation.lock) {
-          await screen.orientation.lock('landscape');
-          console.log('Orientación bloqueada en horizontal');
-        } else if (screen.lockOrientation) {
-          screen.lockOrientation('landscape');
-          console.log('Orientación bloqueada en horizontal (método legacy)');
-        } else if (screen.mozLockOrientation) {
-          screen.mozLockOrientation('landscape');
-          console.log('Orientación bloqueada en horizontal (Firefox legacy)');
-        } else if (screen.msLockOrientation) {
-          screen.msLockOrientation('landscape');
-          console.log('Orientación bloqueada en horizontal (IE legacy)');
-        } else {
-          console.warn('API de orientación no soportada');
-        }
-      } catch (error) {
-        console.error('Error al bloquear orientación:', error);
-      }
-    }
 
     // Get month name in Spanish
     function getMonthName(date) {
@@ -811,10 +820,6 @@
         selectedPosition = position;
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('positionSelector').style.display = 'none';
-        
-        // Forzar orientación horizontal al ingresar correctamente
-        await lockOrientation();
-        
         loadSchedules(position);
       } else {
         document.getElementById('passwordError').textContent = 'Contraseña incorrecta. Intente nuevamente.';
@@ -1142,21 +1147,6 @@
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('positionSelector').style.display = 'block';
       selectedPosition = '';
-      
-      // Intentar desbloquear la orientación al cambiar de posición
-      try {
-        if (screen.orientation && screen.orientation.unlock) {
-          screen.orientation.unlock();
-        } else if (screen.unlockOrientation) {
-          screen.unlockOrientation();
-        } else if (screen.mozUnlockOrientation) {
-          screen.mozUnlockOrientation();
-        } else if (screen.msUnlockOrientation) {
-          screen.msUnlockOrientation();
-        }
-      } catch (error) {
-        console.error('Error al desbloquear orientación:', error);
-      }
     };
 
     // Initialize the page
@@ -1167,22 +1157,6 @@
       // Set up event listeners for filters
       document.getElementById('employeeFilter').addEventListener('input', generateSchedule);
       document.getElementById('viewOption').addEventListener('change', generateSchedule);
-      
-      // Verificar orientación al cargar
-      if (window.matchMedia("(orientation: portrait)").matches) {
-        console.log('Dispositivo en modo vertical');
-      } else {
-        console.log('Dispositivo en modo horizontal');
-      }
-      
-      // Escuchar cambios de orientación
-      window.addEventListener("orientationchange", function() {
-        if (window.orientation === 90 || window.orientation === -90) {
-          console.log('Cambió a modo horizontal');
-        } else {
-          console.log('Cambió a modo vertical');
-        }
-      }, false);
     });
   </script>
 </body>
