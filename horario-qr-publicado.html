@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impresión de Turnos - Autenticación</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
@@ -27,21 +27,6 @@
       color: white;
       margin: 0;
       padding: 20px;
-    }
-    
-    /* Forzar modo escritorio en móviles */
-    @media only screen and (max-width: 768px) {
-      body {
-        transform: scale(0.8);
-        transform-origin: top left;
-        width: 125%; /* Compensar el zoom out */
-        overflow-x: auto;
-      }
-      
-      .password-container {
-        transform: scale(1.25);
-        transform-origin: top center;
-      }
     }
     
     .print-header {
@@ -364,6 +349,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s;
+      width: 100%; /* Asegura que todos los botones tengan el mismo ancho */
       height: 60px; /* Altura fija para todos los botones */
       display: flex;
       align-items: center;
@@ -380,8 +366,7 @@
     
     .numpad .clear-btn {
       background-color: #e74c3c;
-      grid-column: span 1; /* Ocupa una columna */
-      width: 100%; /* Ancho completo */
+      grid-column: span 1; /* Cambiado a span 1 para que ocupe una columna */
     }
     
     .numpad .clear-btn:hover {
@@ -390,8 +375,7 @@
     
     .numpad .submit-btn {
       background-color: #2ecc71;
-      grid-column: span 1; /* Ocupa una columna */
-      width: 100%; /* Ancho completo */
+      grid-column: span 2; /* Ocupa dos columnas */
     }
     
     .numpad .submit-btn:hover {
@@ -498,6 +482,21 @@
       
       .page-break {
         page-break-after: always;
+      }
+    }
+
+    /* Estilo para forzar orientación horizontal en dispositivos móviles */
+    @media screen and (max-width: 768px) {
+      body.horizontal-orientation {
+        transform: rotate(0deg);
+        transform-origin: center center;
+        width: 100vh;
+        height: 100vw;
+        overflow-x: hidden;
+        position: absolute;
+        top: 0;
+        left: 100vw;
+        transform: rotate(90deg);
       }
     }
   </style>
@@ -653,6 +652,23 @@
     let currentPassword = '';
     let positionPasswords = {};
 
+    // Función para forzar orientación horizontal
+    function lockOrientation() {
+      // Primero intentamos con la Screen Orientation API
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape')
+          .then(() => console.log('Orientación bloqueada en horizontal'))
+          .catch(err => {
+            console.error('Error al bloquear orientación:', err);
+            // Fallback CSS para dispositivos que no soportan la API
+            document.body.classList.add('horizontal-orientation');
+          });
+      } else {
+        // Fallback CSS para navegadores que no soportan la API
+        document.body.classList.add('horizontal-orientation');
+      }
+    }
+
     // Get month name in Spanish
     function getMonthName(date) {
       const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -720,6 +736,9 @@
       document.getElementById('passwordError').textContent = '';
       currentPassword = '';
       updatePasswordDisplay();
+      
+      // Forzar orientación horizontal cuando se muestra el modal de contraseña
+      lockOrientation();
     }
 
     // Update password display with dots
@@ -759,6 +778,9 @@
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('positionSelector').style.display = 'none';
         loadSchedules(position);
+        
+        // Mantener orientación horizontal después de autenticar
+        lockOrientation();
       } else {
         document.getElementById('passwordError').textContent = 'Contraseña incorrecta. Intente nuevamente.';
         currentPassword = '';
@@ -1085,6 +1107,13 @@
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('positionSelector').style.display = 'block';
       selectedPosition = '';
+      
+      // Intentar desbloquear la orientación al cambiar de posición
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      } else {
+        document.body.classList.remove('horizontal-orientation');
+      }
     };
 
     // Initialize the page
