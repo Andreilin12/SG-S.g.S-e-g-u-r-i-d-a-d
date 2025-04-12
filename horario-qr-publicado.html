@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impresión de Turnos - Autenticación</title>
+  
+  <!-- Meta tags para controlar la orientación -->
+  <meta name="screen-orientation" content="landscape">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="x5-orientation" content="landscape">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-orientations" content="landscape">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -21,39 +30,41 @@
       --primary: #15a086;
     }
     
-    /* Forzar orientación horizontal en móviles */
+    /* Estilo para forzar el modo horizontal */
     @media screen and (max-width: 768px) {
-      html, body {
-        transform: rotate(0deg);
-        transform-origin: center;
-        width: 100vw;
-        height: 100vh;
-        overflow-x: hidden;
-        position: fixed;
-      }
-      
       body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        transform: rotate(0deg);
+        transform-origin: 0 0;
+        width: 100vh;
+        height: 100vw;
+        position: fixed;
+        top: 100%;
+        left: 0;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
       }
       
-      /* Deshabilitar zoom */
-      input, textarea, select {
-        font-size: 16px !important;
+      html {
+        overflow-x: hidden;
+        width: 100vh;
+        height: 100vw;
       }
       
-      /* Ajustar teclado numérico */
+      /* Ajustes para el teclado numérico */
       .numpad button {
-        width: 100%;
-        height: 60px;
-        font-size: 24px;
+        height: 60px !important;
+        font-size: 24px !important;
       }
       
       .numpad .clear-btn, 
       .numpad .submit-btn {
-        height: 60px;
-        font-size: 20px;
+        height: 60px !important;
+        font-size: 20px !important;
+      }
+      
+      .password-container {
+        width: 80vw !important;
+        max-width: none !important;
       }
     }
     
@@ -516,6 +527,48 @@
       }
     }
   </style>
+  
+  <!-- Script para forzar orientación en móviles -->
+  <script>
+    // Función para forzar orientación horizontal
+    function lockOrientation() {
+      // Para navegadores que soportan Screen Orientation API
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(function(error) {
+          console.log('Error al bloquear orientación: ', error);
+        });
+      } 
+      // Para navegadores más antiguos (iOS)
+      else if (window.screen.lockOrientation) {
+        window.screen.lockOrientation('landscape');
+      } 
+      // Para otros navegadores
+      else if (window.screen.mozLockOrientation) {
+        window.screen.mozLockOrientation('landscape');
+      } 
+      else if (window.screen.msLockOrientation) {
+        window.screen.msLockOrientation('landscape');
+      }
+    }
+    
+    // Intentar bloquear la orientación al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      lockOrientation();
+      
+      // También intentar bloquear cuando cambia la visibilidad
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+          lockOrientation();
+        }
+      });
+      
+      // Y cuando cambia el tamaño (por si acaso)
+      window.addEventListener('resize', lockOrientation);
+    });
+    
+    // Intentar bloquear también cuando la página está completamente cargada
+    window.onload = lockOrientation;
+  </script>
 </head>
 <body>
   <!-- Modal para ingresar contraseña -->
@@ -668,21 +721,6 @@
     let currentPassword = '';
     let positionPasswords = {};
 
-    // Forzar orientación horizontal en móviles
-    function lockOrientation() {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(function(error) {
-          console.log('Error al bloquear orientación: ', error);
-        });
-      } else if (window.screen.lockOrientation) {
-        window.screen.lockOrientation('landscape');
-      } else if (window.screen.mozLockOrientation) {
-        window.screen.mozLockOrientation('landscape');
-      } else if (window.screen.msLockOrientation) {
-        window.screen.msLockOrientation('landscape');
-      }
-    }
-
     // Get month name in Spanish
     function getMonthName(date) {
       const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -750,11 +788,6 @@
       document.getElementById('passwordError').textContent = '';
       currentPassword = '';
       updatePasswordDisplay();
-      
-      // Forzar orientación horizontal al mostrar el teclado numérico
-      if (window.innerWidth <= 768) {
-        lockOrientation();
-      }
     }
 
     // Update password display with dots
@@ -1126,18 +1159,6 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadPositions();
       loadPositionPasswords();
-      
-      // Forzar orientación horizontal en móviles al cargar la página
-      if (window.innerWidth <= 768) {
-        lockOrientation();
-      }
-      
-      // Escuchar cambios de tamaño para detectar rotación
-      window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-          lockOrientation();
-        }
-      });
       
       // Set up event listeners for filters
       document.getElementById('employeeFilter').addEventListener('input', generateSchedule);
