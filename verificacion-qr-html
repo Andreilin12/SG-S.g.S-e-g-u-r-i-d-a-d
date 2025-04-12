@@ -1,1 +1,135 @@
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso a Horarios Laborales</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #15a086;
+      --secondary: #12876f;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background-color: rgba(52, 73, 94, 0.8);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      text-align: center;
+    }
+    
+    h1 {
+      color: white;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+    }
+    
+    h1 i {
+      color: var(--primary);
+      margin-right: 10px;
+    }
+    
+    .dedication-text {
+      background-color: rgba(31, 43, 56, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      border: 1px solid var(--glass-border);
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    .qr-container {
+      margin: 25px 0;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+    }
+    
+    .instructions {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #bdc3c7;
+      font-style: italic;
+    }
+    
+    .company-name {
+      margin-top: 30px;
+      font-weight: bold;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .qr-code {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .dedication-text {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-clock"></i> Acceso a Horarios</h1>
+    
+    <div class="dedication-text">
+      <p>Estimado colaborador,</p>
+      <p>Este código QR te brinda acceso directo a tu información de horarios laborales actualizada.</p>
+      <p>Para consultar tus turnos asignados, simplemente escanea este código con la cámara de tu dispositivo móvil.</p>
+      <p>Recuerda que tu puntualidad y asistencia son fundamentales para nuestro éxito colectivo.</p>
+    </div>
+    
+    <div class="qr-container">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://andreilin12.github.io/SG-S.g.S-e-g-u-r-i-d-a-d/ver-horario-menu-html" 
+           alt="Código QR para acceso a horarios" class="qr-code">
+    </div>
+    
+    <p class="instructions">Utiliza la cámara de tu smartphone para escanear el código</p>
+    
+    <div class="company-name">
+      <p>Recursos Humanos</p>
+      <p>Sistema de Gestión de Seguridad</p>
+    </div>
+  </div>
+</body>
+</html>
