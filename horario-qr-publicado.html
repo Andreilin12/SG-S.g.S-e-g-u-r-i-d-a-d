@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Impresión de Turnos - Autenticación</title>
   
   <!-- Meta tags para controlar la orientación -->
@@ -30,26 +30,8 @@
       --primary: #15a086;
     }
     
-    /* Estilo para forzar el modo horizontal */
+    /* Estilo para pantallas móviles */
     @media screen and (max-width: 768px) {
-      body {
-        transform: rotate(0deg);
-        transform-origin: 0 0;
-        width: 100vh;
-        height: 100vw;
-        position: fixed;
-        top: 100%;
-        left: 0;
-        overflow-x: hidden;
-        -webkit-text-size-adjust: 100%;
-      }
-      
-      html {
-        overflow-x: hidden;
-        width: 100vh;
-        height: 100vw;
-      }
-      
       /* Ajustes para el teclado numérico */
       .numpad button {
         height: 60px !important;
@@ -527,48 +509,6 @@
       }
     }
   </style>
-  
-  <!-- Script para forzar orientación en móviles -->
-  <script>
-    // Función para forzar orientación horizontal
-    function lockOrientation() {
-      // Para navegadores que soportan Screen Orientation API
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(function(error) {
-          console.log('Error al bloquear orientación: ', error);
-        });
-      } 
-      // Para navegadores más antiguos (iOS)
-      else if (window.screen.lockOrientation) {
-        window.screen.lockOrientation('landscape');
-      } 
-      // Para otros navegadores
-      else if (window.screen.mozLockOrientation) {
-        window.screen.mozLockOrientation('landscape');
-      } 
-      else if (window.screen.msLockOrientation) {
-        window.screen.msLockOrientation('landscape');
-      }
-    }
-    
-    // Intentar bloquear la orientación al cargar la página
-    document.addEventListener('DOMContentLoaded', function() {
-      lockOrientation();
-      
-      // También intentar bloquear cuando cambia la visibilidad
-      document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-          lockOrientation();
-        }
-      });
-      
-      // Y cuando cambia el tamaño (por si acaso)
-      window.addEventListener('resize', lockOrientation);
-    });
-    
-    // Intentar bloquear también cuando la página está completamente cargada
-    window.onload = lockOrientation;
-  </script>
 </head>
 <body>
   <!-- Modal para ingresar contraseña -->
@@ -720,6 +660,32 @@
     let currentDate = new Date();
     let currentPassword = '';
     let positionPasswords = {};
+
+    // Función para bloquear la orientación en horizontal
+    function lockLandscapeOrientation() {
+      // Para navegadores modernos
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape')
+          .then(() => console.log('Orientación bloqueada en horizontal'))
+          .catch(err => console.error('Error al bloquear orientación:', err));
+      } 
+      // Para navegadores más antiguos
+      else if (window.screen.lockOrientation) {
+        window.screen.lockOrientation('landscape');
+      } 
+      // Para Firefox
+      else if (window.screen.mozLockOrientation) {
+        window.screen.mozLockOrientation('landscape');
+      } 
+      // Para IE/Edge
+      else if (window.screen.msLockOrientation) {
+        window.screen.msLockOrientation('landscape');
+      }
+      // Para Safari (no soporta bloqueo de orientación)
+      else {
+        console.warn('Este navegador no soporta el bloqueo de orientación');
+      }
+    }
 
     // Get month name in Spanish
     function getMonthName(date) {
@@ -1157,6 +1123,19 @@
 
     // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
+      // Bloquear orientación al cargar la página
+      lockLandscapeOrientation();
+      
+      // También intentar bloquear cuando cambia la visibilidad
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+          lockLandscapeOrientation();
+        }
+      });
+      
+      // Y cuando cambia el tamaño (por si acaso)
+      window.addEventListener('resize', lockLandscapeOrientation);
+      
       loadPositions();
       loadPositionPasswords();
       
