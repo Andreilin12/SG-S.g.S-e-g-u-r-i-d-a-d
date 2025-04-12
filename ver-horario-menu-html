@@ -1,1 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compartir Enlace</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #15a086;
+      --secondary: #12876f;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --error: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --info: #3498db;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background-color: rgba(52, 73, 94, 0.8);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      position: relative;
+    }
+    
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+    }
+    
+    h1 i {
+      color: var(--primary);
+      margin-right: 10px;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    .action-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .action-btn:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(21, 160, 134, 0.3);
+    }
+    
+    .copy-btn {
+      background-color: var(--info);
+    }
+    
+    .copy-btn:hover {
+      background-color: #2980b9;
+    }
+    
+    .share-btn {
+      background-color: var(--success);
+    }
+    
+    .share-btn:hover {
+      background-color: #27ae60;
+    }
+    
+    .open-btn {
+      background-color: var(--warning);
+    }
+    
+    .open-btn:hover {
+      background-color: #e67e22;
+    }
+    
+    .hidden-link {
+      display: none;
+    }
+    
+    /* Estilos para las alertas */
+    .custom-alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 25px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    
+    .alert-success {
+      background-color: var(--success);
+      border-left: 5px solid #27ae60;
+    }
+    
+    .alert-error {
+      background-color: var(--error);
+      border-left: 5px solid #c0392b;
+    }
+    
+    .alert-info {
+      background-color: var(--info);
+      border-left: 5px solid #2980b9;
+    }
+    
+    .alert-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .alert-hide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .action-btn {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .custom-alert {
+        width: 90%;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-link"></i> Gestión de Enlace</h1>
+    
+    <!-- Enlace oculto que se usará para las acciones -->
+    <a id="hiddenLink" class="hidden-link" href="https://andreilin12.github.io/SG-S.g.S-e-g-u-r-i-d-a-d/horario-qr-publicado.html" target="_blank"></a>
+    
+    <div class="button-group">
+      <button class="action-btn copy-btn" onclick="copyLink()">
+        <i class="fas fa-copy"></i> Copiar Enlace
+      </button>
+      
+      <button class="action-btn share-btn" onclick="shareLink()">
+        <i class="fas fa-share-alt"></i> Compartir Enlace
+      </button>
+      
+      <button class="action-btn open-btn" onclick="openLink()">
+        <i class="fas fa-external-link-alt"></i> Abrir Enlace
+      </button>
+    </div>
+  </div>
 
+  <!-- Alertas personalizadas -->
+  <div id="customAlert" class="custom-alert" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="alertMessage">Mensaje de alerta</span>
+  </div>
+
+  <script>
+    // Obtener elementos
+    const hiddenLink = document.getElementById('hiddenLink');
+    const linkUrl = hiddenLink.href;
+    const customAlert = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+    
+    // Mostrar alerta personalizada
+    function showAlert(message, type) {
+      // Configurar alerta según el tipo
+      customAlert.className = `custom-alert alert-${type}`;
+      alertMessage.textContent = message;
+      
+      // Icono según el tipo de alerta
+      const icon = customAlert.querySelector('i');
+      icon.className = 
+        type === 'success' ? 'fas fa-check-circle' :
+        type === 'error' ? 'fas fa-exclamation-circle' :
+        'fas fa-info-circle';
+      
+      // Mostrar alerta
+      customAlert.style.display = 'flex';
+      setTimeout(() => {
+        customAlert.classList.add('alert-show');
+      }, 10);
+      
+      // Ocultar después de 3 segundos
+      setTimeout(() => {
+        customAlert.classList.remove('alert-show');
+        customAlert.classList.add('alert-hide');
+        setTimeout(() => {
+          customAlert.style.display = 'none';
+          customAlert.classList.remove('alert-hide');
+        }, 300);
+      }, 3000);
+    }
+    
+    // Copiar enlace al portapapeles
+    function copyLink() {
+      navigator.clipboard.writeText(linkUrl).then(() => {
+        showAlert('Enlace copiado al portapapeles', 'success');
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+        showAlert('Error al copiar el enlace', 'error');
+      });
+    }
+    
+    // Compartir enlace usando Web Share API
+    function shareLink() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Horarios Laborales',
+          text: 'Accede a la información actualizada de horarios laborales',
+          url: linkUrl
+        }).catch(err => {
+          console.error('Error al compartir:', err);
+          showAlert('Error al compartir el enlace', 'error');
+        });
+      } else {
+        // Fallback para navegadores que no soportan la API
+        showAlert('Usa el botón "Copiar" para compartir manualmente', 'info');
+      }
+    }
+    
+    // Abrir el enlace
+    function openLink() {
+      window.open(linkUrl, '_blank');
+    }
+  </script>
+</body>
+</html>
