@@ -349,6 +349,12 @@
       border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
     }
     
     .numpad button:hover {
@@ -361,6 +367,7 @@
     
     .numpad .clear-btn {
       background-color: #e74c3c;
+      grid-column: span 1;
     }
     
     .numpad .clear-btn:hover {
@@ -369,7 +376,8 @@
     
     .numpad .submit-btn {
       background-color: #2ecc71;
-      grid-column: span 0.95;
+      grid-column: span 2;
+      width: calc(200% + 10px); /* Ajuste para que ocupe dos columnas correctamente */
     }
     
     .numpad .submit-btn:hover {
@@ -505,7 +513,7 @@
         <button onclick="appendPassword('9')">9</button>
         <button class="clear-btn" onclick="clearPassword()"><i class="fas fa-backspace"></i></button>
         <button onclick="appendPassword('0')">0</button>
-        <button class="submit-btn" onclick="checkPassword()"><i class="fas fa-check"></i></button>
+        <button class="submit-btn" onclick="checkPassword()"><i class="fas fa-check"></i> Ingresar</button>
       </div>
     </div>
   </div>
@@ -631,6 +639,24 @@
     let currentPassword = '';
     let positionPasswords = {};
 
+    // Función para bloquear la orientación en horizontal
+    function lockScreenOrientation() {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape')
+          .then(() => console.log('Pantalla bloqueada en horizontal'))
+          .catch(err => console.error('Error al bloquear orientación:', err));
+      } else {
+        console.warn('Screen Orientation API no soportada en este navegador');
+      }
+    }
+
+    // Función para desbloquear la orientación
+    function unlockScreenOrientation() {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    }
+
     // Get month name in Spanish
     function getMonthName(date) {
       const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -736,6 +762,10 @@
         selectedPosition = position;
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('positionSelector').style.display = 'none';
+        
+        // Forzar la pantalla en horizontal después de ingresar la contraseña
+        lockScreenOrientation();
+        
         loadSchedules(position);
       } else {
         document.getElementById('passwordError').textContent = 'Contraseña incorrecta. Intente nuevamente.';
@@ -1063,6 +1093,9 @@
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('positionSelector').style.display = 'block';
       selectedPosition = '';
+      
+      // Desbloquear la orientación al cambiar de posición
+      unlockScreenOrientation();
     };
 
     // Initialize the page
