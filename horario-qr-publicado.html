@@ -5,14 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Impresión de Turnos - Autenticación</title>
   
-  <!-- Meta tags para controlar la orientación -->
-  <meta name="screen-orientation" content="landscape">
-  <meta name="full-screen" content="yes">
-  <meta name="x5-fullscreen" content="true">
-  <meta name="x5-orientation" content="landscape">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-orientations" content="landscape">
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -30,26 +22,61 @@
       --primary: #15a086;
     }
     
-    /* Estilo para pantallas móviles */
-    @media screen and (max-width: 768px) {
-      /* Ajustes para el teclado numérico */
-      .numpad button {
-        height: 60px !important;
-        font-size: 24px !important;
+    /* Estilos para móviles - Forzar vista de escritorio */
+    @media screen and (max-width: 1024px) {
+      body {
+        min-width: 1024px;
+        overflow-x: auto;
       }
       
-      .numpad .clear-btn, 
+      /* Contenedor principal */
+      #mainContent, #positionSelector, #passwordModal {
+        min-width: 1024px;
+      }
+      
+      /* Ajustes específicos para el teclado numérico en móviles */
+      .numpad {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+      
+      .numpad button {
+        height: 80px;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .numpad .clear-btn {
+        grid-column: span 1;
+        height: 80px;
+        font-size: 24px;
+      }
+      
       .numpad .submit-btn {
-        height: 60px !important;
-        font-size: 20px !important;
+        grid-column: span 2;
+        height: 80px;
+        font-size: 24px;
       }
       
       .password-container {
-        width: 80vw !important;
-        max-width: none !important;
+        width: 800px;
+        max-width: 90%;
+      }
+      
+      /* Ajustar tabla para que sea legible */
+      .schedule-table {
+        font-size: 16px;
+      }
+      
+      .schedule-table th, 
+      .schedule-table td {
+        padding: 12px 8px;
       }
     }
     
+    /* Estilos generales */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #2c3e50;
@@ -661,32 +688,6 @@
     let currentPassword = '';
     let positionPasswords = {};
 
-    // Función para bloquear la orientación en horizontal
-    function lockLandscapeOrientation() {
-      // Para navegadores modernos
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape')
-          .then(() => console.log('Orientación bloqueada en horizontal'))
-          .catch(err => console.error('Error al bloquear orientación:', err));
-      } 
-      // Para navegadores más antiguos
-      else if (window.screen.lockOrientation) {
-        window.screen.lockOrientation('landscape');
-      } 
-      // Para Firefox
-      else if (window.screen.mozLockOrientation) {
-        window.screen.mozLockOrientation('landscape');
-      } 
-      // Para IE/Edge
-      else if (window.screen.msLockOrientation) {
-        window.screen.msLockOrientation('landscape');
-      }
-      // Para Safari (no soporta bloqueo de orientación)
-      else {
-        console.warn('Este navegador no soporta el bloqueo de orientación');
-      }
-    }
-
     // Get month name in Spanish
     function getMonthName(date) {
       const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -1123,19 +1124,6 @@
 
     // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
-      // Bloquear orientación al cargar la página
-      lockLandscapeOrientation();
-      
-      // También intentar bloquear cuando cambia la visibilidad
-      document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-          lockLandscapeOrientation();
-        }
-      });
-      
-      // Y cuando cambia el tamaño (por si acaso)
-      window.addEventListener('resize', lockLandscapeOrientation);
-      
       loadPositions();
       loadPositionPasswords();
       
