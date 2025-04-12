@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Impresión de Turnos - Autenticación</title>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -22,61 +21,6 @@
       --primary: #15a086;
     }
     
-    /* Estilos para móviles - Forzar vista de escritorio */
-    @media screen and (max-width: 1024px) {
-      body {
-        min-width: 1024px;
-        overflow-x: auto;
-      }
-      
-      /* Contenedor principal */
-      #mainContent, #positionSelector, #passwordModal {
-        min-width: 1024px;
-      }
-      
-      /* Ajustes específicos para el teclado numérico en móviles */
-      .numpad {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-      }
-      
-      .numpad button {
-        height: 80px;
-        font-size: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .numpad .clear-btn {
-        grid-column: span 1;
-        height: 80px;
-        font-size: 24px;
-      }
-      
-      .numpad .submit-btn {
-        grid-column: span 2;
-        height: 80px;
-        font-size: 24px;
-      }
-      
-      .password-container {
-        width: 800px;
-        max-width: 90%;
-      }
-      
-      /* Ajustar tabla para que sea legible */
-      .schedule-table {
-        font-size: 16px;
-      }
-      
-      .schedule-table th, 
-      .schedule-table td {
-        padding: 12px 8px;
-      }
-    }
-    
-    /* Estilos generales */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #2c3e50;
@@ -405,6 +349,10 @@
       border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 50px;
     }
     
     .numpad button:hover {
@@ -418,6 +366,7 @@
     .numpad .clear-btn {
       background-color: #e74c3c;
       grid-column: span 1;
+      width: 100%;
     }
     
     .numpad .clear-btn:hover {
@@ -427,6 +376,7 @@
     .numpad .submit-btn {
       background-color: #2ecc71;
       grid-column: span 2;
+      width: 100%;
     }
     
     .numpad .submit-btn:hover {
@@ -533,6 +483,51 @@
       
       .page-break {
         page-break-after: always;
+      }
+    }
+
+    /* Estilos para modo horizontal */
+    @media screen and (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .print-header h1 {
+        font-size: 22px;
+      }
+
+      .print-header h2 {
+        font-size: 18px;
+      }
+
+      .print-header h3 {
+        font-size: 16px;
+      }
+
+      .control-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      select, input {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+
+      .password-container {
+        width: 95%;
+        padding: 20px;
+      }
+
+      .numpad button {
+        height: 60px;
+        font-size: 20px;
       }
     }
   </style>
@@ -688,6 +683,29 @@
     let currentPassword = '';
     let positionPasswords = {};
 
+    // Función para forzar orientación horizontal
+    async function lockOrientation() {
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape');
+          console.log('Orientación bloqueada en horizontal');
+        } else if (screen.lockOrientation) {
+          screen.lockOrientation('landscape');
+          console.log('Orientación bloqueada en horizontal (método legacy)');
+        } else if (screen.mozLockOrientation) {
+          screen.mozLockOrientation('landscape');
+          console.log('Orientación bloqueada en horizontal (Firefox legacy)');
+        } else if (screen.msLockOrientation) {
+          screen.msLockOrientation('landscape');
+          console.log('Orientación bloqueada en horizontal (IE legacy)');
+        } else {
+          console.warn('API de orientación no soportada');
+        }
+      } catch (error) {
+        console.error('Error al bloquear orientación:', error);
+      }
+    }
+
     // Get month name in Spanish
     function getMonthName(date) {
       const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -793,6 +811,10 @@
         selectedPosition = position;
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('positionSelector').style.display = 'none';
+        
+        // Forzar orientación horizontal al ingresar correctamente
+        await lockOrientation();
+        
         loadSchedules(position);
       } else {
         document.getElementById('passwordError').textContent = 'Contraseña incorrecta. Intente nuevamente.';
@@ -1120,6 +1142,21 @@
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('positionSelector').style.display = 'block';
       selectedPosition = '';
+      
+      // Intentar desbloquear la orientación al cambiar de posición
+      try {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        } else if (screen.unlockOrientation) {
+          screen.unlockOrientation();
+        } else if (screen.mozUnlockOrientation) {
+          screen.mozUnlockOrientation();
+        } else if (screen.msUnlockOrientation) {
+          screen.msUnlockOrientation();
+        }
+      } catch (error) {
+        console.error('Error al desbloquear orientación:', error);
+      }
     };
 
     // Initialize the page
@@ -1130,6 +1167,22 @@
       // Set up event listeners for filters
       document.getElementById('employeeFilter').addEventListener('input', generateSchedule);
       document.getElementById('viewOption').addEventListener('change', generateSchedule);
+      
+      // Verificar orientación al cargar
+      if (window.matchMedia("(orientation: portrait)").matches) {
+        console.log('Dispositivo en modo vertical');
+      } else {
+        console.log('Dispositivo en modo horizontal');
+      }
+      
+      // Escuchar cambios de orientación
+      window.addEventListener("orientationchange", function() {
+        if (window.orientation === 90 || window.orientation === -90) {
+          console.log('Cambió a modo horizontal');
+        } else {
+          console.log('Cambió a modo vertical');
+        }
+      }, false);
     });
   </script>
 </body>
