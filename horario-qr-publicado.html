@@ -349,11 +349,12 @@
       border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s;
-      width: 100%; /* Asegura que todos los botones tengan el mismo ancho */
-      height: 60px; /* Altura fija para todos los botones */
+      width: 100%;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin: 0;
     }
     
     .numpad button:hover {
@@ -366,7 +367,7 @@
     
     .numpad .clear-btn {
       background-color: #e74c3c;
-      grid-column: span 1; /* Cambiado a span 1 para que ocupe una columna */
+      grid-column: span 1;
     }
     
     .numpad .clear-btn:hover {
@@ -375,7 +376,8 @@
     
     .numpad .submit-btn {
       background-color: #2ecc71;
-      grid-column: span 2; /* Ocupa dos columnas */
+      grid-column: span 2;
+      width: calc(200% + 10px); /* Ajuste para que ocupe dos columnas correctamente */
     }
     
     .numpad .submit-btn:hover {
@@ -482,21 +484,6 @@
       
       .page-break {
         page-break-after: always;
-      }
-    }
-
-    /* Estilo para forzar orientación horizontal en dispositivos móviles */
-    @media screen and (max-width: 768px) {
-      body.horizontal-orientation {
-        transform: rotate(0deg);
-        transform-origin: center center;
-        width: 100vh;
-        height: 100vw;
-        overflow-x: hidden;
-        position: absolute;
-        top: 0;
-        left: 100vw;
-        transform: rotate(90deg);
       }
     }
   </style>
@@ -652,20 +639,21 @@
     let currentPassword = '';
     let positionPasswords = {};
 
-    // Función para forzar orientación horizontal
-    function lockOrientation() {
-      // Primero intentamos con la Screen Orientation API
+    // Función para bloquear la orientación en horizontal
+    function lockScreenOrientation() {
       if (screen.orientation && screen.orientation.lock) {
         screen.orientation.lock('landscape')
-          .then(() => console.log('Orientación bloqueada en horizontal'))
-          .catch(err => {
-            console.error('Error al bloquear orientación:', err);
-            // Fallback CSS para dispositivos que no soportan la API
-            document.body.classList.add('horizontal-orientation');
-          });
+          .then(() => console.log('Pantalla bloqueada en horizontal'))
+          .catch(err => console.error('Error al bloquear orientación:', err));
       } else {
-        // Fallback CSS para navegadores que no soportan la API
-        document.body.classList.add('horizontal-orientation');
+        console.warn('Screen Orientation API no soportada en este navegador');
+      }
+    }
+
+    // Función para desbloquear la orientación
+    function unlockScreenOrientation() {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
       }
     }
 
@@ -736,9 +724,6 @@
       document.getElementById('passwordError').textContent = '';
       currentPassword = '';
       updatePasswordDisplay();
-      
-      // Forzar orientación horizontal cuando se muestra el modal de contraseña
-      lockOrientation();
     }
 
     // Update password display with dots
@@ -777,10 +762,11 @@
         selectedPosition = position;
         document.getElementById('mainContent').style.display = 'block';
         document.getElementById('positionSelector').style.display = 'none';
-        loadSchedules(position);
         
-        // Mantener orientación horizontal después de autenticar
-        lockOrientation();
+        // Forzar la pantalla en horizontal después de ingresar la contraseña
+        lockScreenOrientation();
+        
+        loadSchedules(position);
       } else {
         document.getElementById('passwordError').textContent = 'Contraseña incorrecta. Intente nuevamente.';
         currentPassword = '';
@@ -1108,12 +1094,8 @@
       document.getElementById('positionSelector').style.display = 'block';
       selectedPosition = '';
       
-      // Intentar desbloquear la orientación al cambiar de posición
-      if (screen.orientation && screen.orientation.unlock) {
-        screen.orientation.unlock();
-      } else {
-        document.body.classList.remove('horizontal-orientation');
-      }
+      // Desbloquear la orientación al cambiar de posición
+      unlockScreenOrientation();
     };
 
     // Initialize the page
