@@ -28,6 +28,7 @@
     }
     
     .container {
+      position: relative;
       max-width: 600px;
       width: 100%;
       background-color: rgba(52, 73, 94, 0.8);
@@ -37,6 +38,29 @@
       backdrop-filter: blur(10px);
       border: 1px solid var(--glass-border);
       text-align: center;
+    }
+    
+    .print-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .print-btn:hover {
+      background: var(--secondary);
+      transform: scale(1.1);
     }
     
     h1 {
@@ -87,6 +111,20 @@
       color: var(--primary);
       letter-spacing: 1px;
     }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
     
     @media (max-width: 768px) {
       .container {
@@ -106,10 +144,76 @@
         padding: 15px;
       }
     }
+    
+    /* Estilos para impresión */
+    @media print {
+      body {
+        background-color: white !important;
+        color: #333 !important;
+        padding: 0;
+      }
+      
+      .container {
+        max-width: 100% !important;
+        background-color: white !important;
+        box-shadow: none !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        padding: 20px !important;
+        border-radius: 0 !important;
+      }
+      
+      .print-btn {
+        display: none !important;
+      }
+      
+      .dedication-text {
+        background-color: #f9f9f9 !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important;
+      }
+      
+      .company-name {
+        color: #15a086 !important;
+      }
+      
+      h1 {
+        color: #333 !important;
+      }
+      
+      .instructions {
+        color: #666 !important;
+      }
+      
+      /* Añadir margen para la impresión */
+      @page {
+        margin: 1.5cm;
+      }
+      
+      /* Añadir encabezado y pie de página */
+      @page {
+        @top-center {
+          content: "Acceso a Horarios Laborales";
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 14pt;
+          color: #15a086;
+        }
+        @bottom-right {
+          content: "Página " counter(page);
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 10pt;
+          color: #666;
+        }
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <button class="print-btn" onclick="window.print()">
+      <i class="fas fa-print"></i>
+    </button>
+    
     <h1><i class="fas fa-clock"></i> Acceso a Horarios</h1>
     
     <div class="dedication-text">
@@ -126,10 +230,56 @@
     
     <p class="instructions">Utiliza la cámara de tu smartphone para escanear el código</p>
     
-    <div class="company-name">
-      <p>Recursos Humanos</p>
-      <p>Sistema de Gestión de Seguridad</p>
+    <div class="company-name" id="companyInfo">
+      <p><span class="loading"></span> Cargando información...</p>
     </div>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadCompanyName() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "DatosDeEmpresa"));
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0].data();
+          const companyName = docData.nombreEmpresa || 'la empresa';
+          
+          document.getElementById('companyInfo').innerHTML = `
+            <p>Seguridad de ${companyName}</p>
+           
+          `;
+        } else {
+          document.getElementById('companyInfo').innerHTML = `
+            <p>Security Retom</p>
+            <p>Digital Company</p>
+          `;
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de la empresa:", error);
+        document.getElementById('companyInfo').innerHTML = `
+          <p>Seguridad de la empresa</p>
+          <p>Sistema de Gestión de Seguridad</p>
+        `;
+      }
+    }
+
+    // Cargar el nombre de la empresa cuando la página esté lista
+    document.addEventListener('DOMContentLoaded', loadCompanyName);
+  </script>
 </body>
 </html>
