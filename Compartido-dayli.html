@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizar Reportes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Estilos base */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background-color: #34495e;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .buscadores {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .buscadores input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #2c3e50;
+      color: #fff;
+    }
+    .buscadores input::placeholder {
+      color: #aaa;
+    }
+    .btn-accion {
+      background-color: #15a086;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+    .btn-accion:hover {
+      background-color: #2c3e50;
+    }
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #15a086;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      animation: slideIn 0.5s ease-out, fadeOut 0.5s 2.5s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    .compartido {
+      border: 2px solid #15a086;
+    }
+    .compartido-info {
+      margin-top: 10px;
+      font-style: italic;
+      color: #15a086;
+    }
+    .icono-notificacion {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #15a086;
+      color: white;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .icono-notificacion .punto-rojo {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+    }
+    
+    /* Selector de vistas */
+    .vista-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .vista-btn {
+      background-color: #15a086;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .vista-btn:hover {
+      background-color: #12816d;
+    }
+    .vista-btn.activo {
+      background-color: #2c3e50;
+      border: 1px solid #15a086;
+    }
+    
+    /* Vista Clásica (Original) */
+    .vista-clasica .reporte-item {
+      margin-bottom: 15px;
+    }
+    .vista-clasica .reporte-imagen {
+      max-width: 100%;
+    }
+    
+    /* Vista Profesional */
+    .vista-profesional {
+      background-color: #3d566e;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .vista-profesional .reporte-item {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #15a086;
+    }
+    .vista-profesional .reporte-item:last-child {
+      border-bottom: none;
+    }
+    .vista-profesional .reporte-item label {
+      color: #15a086;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .vista-profesional .reporte-imagen {
+      max-width: 100%;
+      border: 1px solid #15a086;
+      border-radius: 4px;
+    }
+    .vista-profesional .acciones-reporte {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    /* Vista Horizontal */
+    .vista-horizontal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .vista-horizontal .reporte-card {
+      background-color: #3d566e;
+      border-radius: 8px;
+      padding: 15px;
+      width: calc(50% - 20px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    .vista-horizontal .reporte-item {
+      margin-bottom: 10px;
+    }
+    .vista-horizontal .reporte-imagen {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    .vista-horizontal .acciones-reporte {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+    
+    /* Vista Miniatura */
+    .vista-miniatura {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .vista-miniatura .reporte-mini {
+      background-color: #3d566e;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .vista-miniatura .reporte-mini:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .vista-miniatura .reporte-item {
+      margin-bottom: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vista-miniatura .reporte-imagen {
+      display: none;
+    }
+    .vista-miniatura .acciones-reporte {
+      display: none;
+    }
+    
+    /* Vista Tabla */
+    .vista-tabla {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .vista-tabla .reporte-item {
+      display: table-row;
+    }
+    .vista-tabla label {
+      display: table-cell;
+      padding: 10px;
+      border-bottom: 1px solid #15a086;
+      width: 25%;
+      font-weight: bold;
+    }
+    .vista-tabla p {
+      display: table-cell;
+      padding: 10px;
+      border-bottom: 1px solid #15a086;
+    }
+    .vista-tabla .reporte-imagen {
+      max-width: 200px;
+      display: block;
+      margin: 10px 0;
+    }
+    
+    /* Vista Detallada */
+    .vista-detallada {
+      background-color: #3d566e;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .vista-detallada .reporte-header {
+      border-bottom: 2px solid #15a086;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    .vista-detallada .reporte-header h2 {
+      color: #15a086;
+      margin: 0;
+    }
+    .vista-detallada .reporte-header .subtitulo {
+      color: #aaa;
+      font-style: italic;
+    }
+    .vista-detallada .reporte-item {
+      margin-bottom: 20px;
+    }
+    .vista-detallada .reporte-item label {
+      font-weight: bold;
+      color: #15a086;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .vista-detallada .reporte-imagen {
+      max-width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    .vista-detallada .acciones-reporte {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    
+    /* Vista Resumen */
+    .vista-resumen {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .vista-resumen .reporte-resumen {
+      background-color: #3d566e;
+      border-left: 4px solid #15a086;
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+    .vista-resumen .reporte-item {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    .vista-resumen .reporte-item label {
+      font-weight: bold;
+      min-width: 150px;
+      color: #15a086;
+    }
+    .vista-resumen .reporte-imagen {
+      display: none;
+    }
+    .vista-resumen .acciones-reporte {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    
+    /* Vista Galería */
+    .vista-galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .vista-galeria .reporte-galeria {
+      background-color: #3d566e;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .vista-galeria .galeria-imagen {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .vista-galeria .galeria-contenido {
+      padding: 15px;
+    }
+    .vista-galeria .reporte-item {
+      margin-bottom: 8px;
+    }
+    .vista-galeria .reporte-item label {
+      font-weight: bold;
+      color: #15a086;
+    }
+    .vista-galeria .acciones-reporte {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+    
+    /* Modales */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-exportacion .modal-content {
+      width: 90%;
+      max-width: 600px;
+    }
+    .opciones-exportacion {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .opcion-exportacion {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background-color: #2c3e50;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .opcion-exportacion:hover {
+      background-color: #3d566e;
+    }
+    .opcion-exportacion i {
+      margin-right: 15px;
+      font-size: 24px;
+      color: #15a086;
+    }
+    .opcion-exportacion div {
+      flex-grow: 1;
+    }
+    .opcion-exportacion strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .opcion-exportacion p {
+      margin: 0;
+      color: #aaa;
+      font-size: 14px;
+    }
+    
+    /* Media queries para impresión */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .reporte-contenido, .reporte-contenido * {
+        visibility: visible;
+      }
+      .reporte-contenido {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: white;
+        color: #000;
+        padding: 20px;
+      }
+      .btn-accion, .vista-selector {
+        display: none !important;
+      }
+      .titulo-impresion {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #15a086;
+      }
+      .subtitulo-impresion {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reportes Registrados</h1>
+
+    <!-- Selector de vista -->
+    <div class="vista-selector">
+      <button class="vista-btn activo" data-vista="clasica"><i class="fas fa-file-alt"></i> Clásica</button>
+      <button class="vista-btn" data-vista="profesional"><i class="fas fa-briefcase"></i> Profesional</button>
+      <button class="vista-btn" data-vista="horizontal"><i class="fas fa-th-large"></i> Horizontal</button>
+      <button class="vista-btn" data-vista="miniatura"><i class="fas fa-th"></i> Miniatura</button>
+      <button class="vista-btn" data-vista="tabla"><i class="fas fa-table"></i> Tabla</button>
+      <button class="vista-btn" data-vista="detallada"><i class="fas fa-file-invoice"></i> Detallada</button>
+      <button class="vista-btn" data-vista="resumen"><i class="fas fa-list"></i> Resumen</button>
+      <button class="vista-btn" data-vista="galeria"><i class="fas fa-images"></i> Galería</button>
+      <button class="vista-btn" onclick="abrirModalExportacion()"><i class="fas fa-file-export"></i> Exportar</button>
+    </div>
+
+    <!-- Buscador por nombre del caso -->
+    <div class="buscadores">
+      <input type="text" id="buscadorNombre" placeholder="Buscar por nombre del caso">
+    </div>
+
+    <!-- Contenedor de reportes -->
+    <div id="reportesContainer"></div>
+  </div>
+
+  <!-- Icono de notificación -->
+  <div class="icono-notificacion" onclick="abrirModalReportesRecibidos()">
+    <i class="fas fa-bell"></i>
+    <div id="puntoRojo" class="punto-rojo" style="display: none;"></div>
+  </div>
+
+  <!-- Modal para reportes recibidos -->
+  <div class="modal" id="modalReportesRecibidos">
+    <div class="modal-content">
+      <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">Cerrar</button>    
+      <h3>Reportes Recibidos</h3>
+      <ul id="listaReportesRecibidos"></ul>
+    </div>
+  </div>
+
+  <!-- Modal para compartir -->
+  <div class="modal" id="modalCompartir">
+    <div class="modal-content">
+      <h3>Seleccionar Usuarios</h3>
+      <div id="usuariosLista"></div>
+      <button class="btn-accion" onclick="compartirReporte()">Compartir</button>
+      <button class="btn-accion" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal para exportación -->
+  <div class="modal modal-exportacion" id="modalExportacion">
+    <div class="modal-content">
+      <h3><i class="fas fa-file-export"></i> Exportar Reportes</h3>
+      <div class="opciones-exportacion">
+        <div class="opcion-exportacion" onclick="exportarReporteActual('rtmdayli')">
+          <i class="fas fa-file-code"></i>
+          <div>
+            <strong>Exportar reporte actual a .rtmdayli</strong>
+            <p>Formato propietario con todos los datos del reporte</p>
+          </div>
+        </div>
+        <div class="opcion-exportacion" onclick="exportarTodosReportes('rtmdayli')">
+          <i class="fas fa-file-archive"></i>
+          <div>
+            <strong>Exportar TODOS los reportes a .rtmdayli</strong>
+            <p>Paquete completo con todos los reportes en formato propietario</p>
+          </div>
+        </div>
+        <div class="opcion-exportacion" onclick="exportarVistaActual('rtmdayli')">
+          <i class="fas fa-desktop"></i>
+          <div>
+            <strong>Exportar vista actual a .rtmdayli</strong>
+            <p>Incluye todos los reportes visibles en la vista actual</p>
+          </div>
+        </div>
+        <div class="opcion-exportacion" onclick="exportarConfiguracionCompleta('rtmdayli')">
+          <i class="fas fa-cogs"></i>
+          <div>
+            <strong>Exportar configuración completa</strong>
+            <p>Todos los reportes + preferencias de vista + configuración</p>
+          </div>
+        </div>
+      </div>
+      <button class="btn-accion" onclick="cerrarModalExportacion()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div id="alert" class="alert" style="display: none;"></div>
+
+  <!-- Sonido para alertas -->
+  <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    // Variables globales
+    let reporteSeleccionado = null;
+    let currentUser = null;
+    let reportesRecibidos = [];
+    let vistaActual = 'clasica';
+    let todosLosReportes = [];
+    let configuracionUsuario = {};
+
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarPreferenciasUsuario();
+        cargarReportes();
+        cargarReportesRecibidos();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Función para cargar las preferencias del usuario
+    async function cargarPreferenciasUsuario() {
+      const userPrefsRef = doc(db, "userPrefs", currentUser.uid);
+      try {
+        const docSnap = await getDoc(userPrefsRef);
+        if (docSnap.exists()) {
+          configuracionUsuario = docSnap.data();
+          if (configuracionUsuario.vistaReportes) {
+            vistaActual = configuracionUsuario.vistaReportes;
+            actualizarBotonesVista();
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar preferencias:", error);
+      }
+    }
+
+    // Función para guardar las preferencias del usuario
+    async function guardarPreferenciasUsuario() {
+      const userPrefsRef = doc(db, "userPrefs", currentUser.uid);
+      try {
+        await setDoc(userPrefsRef, {
+          vistaReportes: vistaActual,
+          ultimaActualizacion: new Date().toISOString(),
+          usuario: currentUser.email,
+          userId: currentUser.uid
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar preferencias:", error);
+      }
+    }
+
+    // Función para actualizar los botones de vista
+    function actualizarBotonesVista() {
+      document.querySelectorAll('.vista-btn[data-vista]').forEach(btn => {
+        if (btn.dataset.vista === vistaActual) {
+          btn.classList.add('activo');
+        } else {
+          btn.classList.remove('activo');
+        }
+      });
+    }
+
+    // Función para cambiar la vista
+    window.cambiarVista = function(nuevaVista) {
+      vistaActual = nuevaVista;
+      actualizarBotonesVista();
+      renderizarReportes();
+      guardarPreferenciasUsuario();
+    };
+
+    // Función para mostrar alerta
+    function mostrarAlerta(mensaje) {
+      const alert = document.getElementById('alert');
+      alert.textContent = mensaje;
+      alert.style.display = 'block';
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 3000);
+    }
+
+    // Función para formatear la fecha y hora
+    function formatearFecha(fecha) {
+      if (!fecha) return "No especificada";
+      
+      try {
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) {
+          return fecha;
+        }
+        
+        const dia = String(fechaObj.getDate()).padStart(2, '0');
+        const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+        const año = fechaObj.getFullYear();
+        let horas = fechaObj.getHours();
+        const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
+        
+        const ampm = horas >= 12 ? 'pm' : 'am';
+        horas = horas % 12;
+        horas = horas ? horas : 12;
+        
+        return `${dia}/${mes}/${año} ${horas}:${minutos} ${ampm}`;
+      } catch (e) {
+        return fecha;
+      }
+    }
+
+    // Función para formatear las fechas concatenadas
+    function formatearFechasConcatenadas(fechasStr) {
+      if (!fechasStr) return "No especificada";
+      
+      if (Array.isArray(fechasStr)) {
+        return fechasStr.map(f => formatearFecha(f)).join(', ');
+      }
+      
+      if (typeof fechasStr === 'string' && fechasStr.includes(',')) {
+        return fechasStr.split(',').map(f => f.trim()).join(', ');
+      }
+      
+      return formatearFecha(fechasStr);
+    }
+
+    // Función para generar un hash único
+    function generarHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString(16);
+    }
+
+    // Función para convertir datos a formato .rtmdayli
+    function convertirARtmdayli(datos, tipo = 'reporte') {
+      // Estructura del formato .rtmdayli
+      const estructuraRtmdayli = {
+        metadata: {
+          version: "3.0",
+          tipo: tipo,
+          fechaCreacion: new Date().toISOString(),
+          creador: currentUser.uid,
+          aplicacion: "RTMDayli Web",
+          coleccionOrigen: datos.coleccion || "Reportes"
+        },
+        contenido: {
+          datos: datos,
+          elementos: Object.keys(datos).length,
+          relaciones: [],
+          referencias: []
+        },
+        seguridad: {
+          encriptado: false,
+          hashVerificacion: generarHash(JSON.stringify(datos)),
+          marcaAgua: `RTMDayli-${currentUser.uid}-${Date.now()}`,
+          permisos: [currentUser.uid]
+        },
+        sistema: {
+          firebaseConfig: {
+            proyecto: firebaseConfig.projectId,
+            coleccion: datos.coleccion || "Reportes",
+            rutaStorage: datos.fotoURL ? new URL(datos.fotoURL).pathname : null
+          }
+        }
+      };
+      
+      // Convertir a string con formato especial
+      let rtmdayliString = `RTMDAyLI${btoa(JSON.stringify(estructuraRtmdayli))}`;
+      
+      // Añadir firma digital
+      rtmdayliString += `|${currentUser.uid}|${Date.now()}|${generarHash(rtmdayliString)}`;
+      
+      return rtmdayliString;
+    }
+
+    // Función para descargar un archivo
+    function descargarArchivo(contenido, nombreArchivo, tipo) {
+      const blob = new Blob([contenido], { type: tipo });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Función para exportar el reporte actual
+    window.exportarReporteActual = function(formato) {
+      const reporteActivo = document.querySelector('.reporte-contenido.activo');
+      if (!reporteActivo) {
+        mostrarAlerta("Abre un reporte primero para exportarlo");
+        return;
+      }
+
+      const reporteId = reporteActivo.dataset.id;
+      const reporte = todosLosReportes.find(r => r.id === reporteId);
+      
+      if (reporte) {
+        const datosReporte = reporte.data();
+        datosReporte.coleccion = "Reportes";
+        
+        const rtmdayliData = convertirARtmdayli(datosReporte);
+        const nombreArchivo = `Reporte_${datosReporte.nombreCaso.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+        
+        descargarArchivo(rtmdayliData, nombreArchivo, 'text/plain');
+        mostrarAlerta(`Reporte exportado como ${nombreArchivo}`);
+      }
+      
+      cerrarModalExportacion();
+    };
+
+    // Función para exportar TODOS los reportes
+    window.exportarTodosReportes = function(formato) {
+      if (todosLosReportes.length === 0) {
+        mostrarAlerta("No hay reportes para exportar");
+        return;
+      }
+
+      const paqueteReportes = {
+        coleccion: "Reportes",
+        reportes: todosLosReportes.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data
+          };
+        }),
+        metadata: {
+          totalReportes: todosLosReportes.length,
+          fechaExportacion: new Date().toISOString(),
+          usuario: currentUser.email
+        }
+      };
+
+      const rtmdayliData = convertirARtmdayli(paqueteReportes, 'paquete_reportes');
+      const nombreArchivo = `Paquete_Reportes_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+      
+      descargarArchivo(rtmdayliData, nombreArchivo, 'text/plain');
+      mostrarAlerta(`Paquete de ${todosLosReportes.length} reportes exportado como ${nombreArchivo}`);
+      cerrarModalExportacion();
+    };
+
+    // Función para exportar la vista actual
+    window.exportarVistaActual = function(formato) {
+      const reportesVisibles = Array.from(document.querySelectorAll('.reporte-item-container')).filter(el => {
+        return window.getComputedStyle(el).display !== 'none';
+      });
+      
+      if (reportesVisibles.length === 0) {
+        mostrarAlerta("No hay reportes visibles en la vista actual");
+        return;
+      }
+
+      const reportesData = reportesVisibles.map(el => {
+        const reporteId = el.dataset.id;
+        const reporte = todosLosReportes.find(r => r.id === reporteId);
+        return {
+          id: reporteId,
+          ...reporte.data()
+        };
+      });
+
+      const paqueteVista = {
+        coleccion: "Reportes",
+        vista: vistaActual,
+        reportes: reportesData,
+        metadata: {
+          totalReportes: reportesData.length,
+          fechaExportacion: new Date().toISOString(),
+          usuario: currentUser.email
+        }
+      };
+
+      const rtmdayliData = convertirARtmdayli(paqueteVista, 'vista_reportes');
+      const nombreArchivo = `Vista_${vistaActual}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+      
+      descargarArchivo(rtmdayliData, nombreArchivo, 'text/plain');
+      mostrarAlerta(`Vista actual con ${reportesData.length} reportes exportada como ${nombreArchivo}`);
+      cerrarModalExportacion();
+    };
+
+    // Función para exportar la configuración completa
+    window.exportarConfiguracionCompleta = function(formato) {
+      const configuracionCompleta = {
+        coleccion: "Reportes",
+        reportes: todosLosReportes.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data
+          };
+        }),
+        configuracion: {
+          usuario: configuracionUsuario,
+          vistaActual: vistaActual,
+          preferencias: {
+            ultimaVista: vistaActual,
+            fechaUltimaExportacion: new Date().toISOString()
+          }
+        },
+        metadata: {
+          totalReportes: todosLosReportes.length,
+          fechaExportacion: new Date().toISOString(),
+          usuario: currentUser.email,
+          firebaseConfig: {
+            proyecto: firebaseConfig.projectId,
+            coleccion: "Reportes"
+          }
+        }
+      };
+
+      const rtmdayliData = convertirARtmdayli(configuracionCompleta, 'configuracion_completa');
+      const nombreArchivo = `Configuracion_Completa_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+      
+      descargarArchivo(rtmdayliData, nombreArchivo, 'text/plain');
+      mostrarAlerta(`Configuración completa exportada como ${nombreArchivo}`);
+      cerrarModalExportacion();
+    };
+
+    // Función para abrir el modal de exportación
+    window.abrirModalExportacion = function() {
+      document.getElementById('modalExportacion').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal de exportación
+    window.cerrarModalExportacion = function() {
+      document.getElementById('modalExportacion').style.display = 'none';
+    };
+
+    // Función para cargar los reportes desde Firestore
+    async function cargarReportes() {
+      const reportesRef = collection(db, "Reportes");
+      const reportesSnapshot = await getDocs(reportesRef);
+      const reportesContainer = document.getElementById('reportesContainer');
+      reportesContainer.innerHTML = "";
+      todosLosReportes = [];
+
+      reportesSnapshot.forEach((doc) => {
+        const reporte = doc.data();
+        todosLosReportes.push(doc);
+        
+        if (reporte.userId === currentUser.uid || (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid))) {
+          // Todos los reportes se procesarán en renderizarReportes()
+        }
+      });
+
+      renderizarReportes();
+      document.getElementById('buscadorNombre').addEventListener('input', filtrarPorNombre);
+    }
+
+    // Función para renderizar los reportes según la vista actual
+    function renderizarReportes() {
+      const reportesContainer = document.getElementById('reportesContainer');
+      reportesContainer.innerHTML = "";
+
+      todosLosReportes.forEach(doc => {
+        const reporte = doc.data();
+        
+        if (reporte.userId === currentUser.uid || (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid))) {
+          let elementoReporte;
+          
+          switch(vistaActual) {
+            case 'clasica':
+              elementoReporte = crearVistaClasica(doc.id, reporte);
+              break;
+            case 'profesional':
+              elementoReporte = crearVistaProfesional(doc.id, reporte);
+              break;
+            case 'horizontal':
+              elementoReporte = crearVistaHorizontal(doc.id, reporte);
+              break;
+            case 'miniatura':
+              elementoReporte = crearVistaMiniatura(doc.id, reporte);
+              break;
+            case 'tabla':
+              elementoReporte = crearVistaTabla(doc.id, reporte);
+              break;
+            case 'detallada':
+              elementoReporte = crearVistaDetallada(doc.id, reporte);
+              break;
+            case 'resumen':
+              elementoReporte = crearVistaResumen(doc.id, reporte);
+              break;
+            case 'galeria':
+              elementoReporte = crearVistaGaleria(doc.id, reporte);
+              break;
+            default:
+              elementoReporte = crearVistaClasica(doc.id, reporte);
+          }
+          
+          if (reporte.compartidoCon) {
+            elementoReporte.classList.add('compartido');
+          }
+          
+          reportesContainer.appendChild(elementoReporte);
+        }
+      });
+    }
+
+    // Función para crear vista clásica
+    function crearVistaClasica(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const titulo = document.createElement('div');
+      titulo.className = 'acordeon-titulo';
+      titulo.innerHTML = `
+        <span><i class="fas fa-file-alt"></i> ${reporte.nombreCaso} - ${reporte.tipoCaso}</span>
+        <i class="fas fa-chevron-down"></i>
+      `;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-clasica';
+      contenido.innerHTML = `
+        <div class="titulo-impresion">${reporte.nombreCaso}</div>
+        <div class="subtitulo-impresion">${reporte.tipoCaso}</div>
+        <div class="reporte-item">
+          <label>Fecha(s) y Hora(s) del Incidente:</label>
+          <p>${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Reportado Por:</label>
+          <p>${reporte.reportadoPor}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha del Reporte:</label>
+          <p>${formatearFecha(reporte.fechaReporte)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Hora del Reporte:</label>
+          <p>${reporte.horaReporte}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Descripción:</label>
+          <p>${reporte.descripcion}</p>
+        </div>
+        ${reporte.fotoURL ? `<div class="reporte-item">
+          <label>Foto:</label>
+          <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+        </div>` : ''}
+        <div class="info-registro">
+          <p>Reporte realizado por: ${reporte.usuario}</p>
+          <p>En la fecha: ${formatearFecha(reporte.createdAt)}</p>
+        </div>
+        ${reporte.compartidoCon ? `<div class="compartido-info">
+          <p>Compartido por: ${reporte.compartidoPor}</p>
+          <p>Fecha y hora de recepción: ${formatearFecha(reporte.compartidoEl)}</p>
+        </div>` : ''}
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="imprimirReporte('${id}')"><i class="fas fa-print"></i> Imprimir</button>
+          ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${id}')"><i class="fas fa-share"></i> Compartir</button>` : ''}
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i> Exportar</button>
+        </div>
+      `;
+      
+      titulo.addEventListener('click', () => {
+        titulo.classList.toggle('activo');
+        contenido.classList.toggle('activo');
+      });
+      
+      contenedor.appendChild(titulo);
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista profesional
+    function crearVistaProfesional(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-profesional';
+      contenido.innerHTML = `
+        <div class="reporte-header">
+          <h2>${reporte.nombreCaso}</h2>
+          <div class="subtitulo">${reporte.tipoCaso}</div>
+        </div>
+        <div class="reporte-item">
+          <label>Detalles del Incidente</label>
+          <p>${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Información del Reporte</label>
+          <p><strong>Reportado por:</strong> ${reporte.reportadoPor}</p>
+          <p><strong>Fecha:</strong> ${formatearFecha(reporte.fechaReporte)}</p>
+          <p><strong>Hora:</strong> ${reporte.horaReporte}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Descripción Detallada</label>
+          <p>${reporte.descripcion}</p>
+        </div>
+        ${reporte.fotoURL ? `<div class="reporte-item">
+          <label>Evidencia Fotográfica</label>
+          <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+        </div>` : ''}
+        <div class="reporte-item">
+          <label>Metadatos</label>
+          <p><strong>Creado por:</strong> ${reporte.usuario}</p>
+          <p><strong>Fecha creación:</strong> ${formatearFecha(reporte.createdAt)}</p>
+          ${reporte.compartidoCon ? `
+            <p><strong>Compartido por:</strong> ${reporte.compartidoPor}</p>
+            <p><strong>Fecha compartido:</strong> ${formatearFecha(reporte.compartidoEl)}</p>
+          ` : ''}
+        </div>
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="imprimirReporte('${id}')"><i class="fas fa-print"></i> Imprimir</button>
+          ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${id}')"><i class="fas fa-share"></i> Compartir</button>` : ''}
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i> Exportar</button>
+        </div>
+      `;
+      
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista horizontal
+    function crearVistaHorizontal(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-horizontal';
+      
+      const card = document.createElement('div');
+      card.className = 'reporte-card';
+      card.innerHTML = `
+        <h3>${reporte.nombreCaso}</h3>
+        <div class="reporte-item">
+          <label>Tipo:</label>
+          <p>${reporte.tipoCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha:</label>
+          <p>${formatearFecha(reporte.fechaReporte)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Reportado por:</label>
+          <p>${reporte.reportadoPor}</p>
+        </div>
+        ${reporte.fotoURL ? `<img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">` : ''}
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="mostrarDetalleCompleto('${id}')"><i class="fas fa-eye"></i> Detalles</button>
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i></button>
+        </div>
+      `;
+      
+      contenido.appendChild(card);
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista miniatura
+    function crearVistaMiniatura(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-miniatura';
+      
+      const mini = document.createElement('div');
+      mini.className = 'reporte-mini';
+      mini.innerHTML = `
+        <div class="reporte-item">
+          <label>Nombre:</label>
+          <p>${reporte.nombreCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Tipo:</label>
+          <p>${reporte.tipoCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha:</label>
+          <p>${formatearFecha(reporte.fechaReporte)}</p>
+        </div>
+        <div class="acciones-reporte" style="display: none;">
+          <button class="btn-accion" onclick="mostrarDetalleCompleto('${id}')"><i class="fas fa-eye"></i></button>
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i></button>
+        </div>
+      `;
+      
+      mini.addEventListener('mouseenter', () => {
+        mini.querySelector('.acciones-reporte').style.display = 'block';
+      });
+      mini.addEventListener('mouseleave', () => {
+        mini.querySelector('.acciones-reporte').style.display = 'none';
+      });
+      
+      contenido.appendChild(mini);
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista tabla
+    function crearVistaTabla(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-tabla';
+      contenido.innerHTML = `
+        <div class="reporte-item">
+          <label>Nombre del Caso</label>
+          <p>${reporte.nombreCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Tipo de Caso</label>
+          <p>${reporte.tipoCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha Incidente</label>
+          <p>${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Reportado Por</label>
+          <p>${reporte.reportadoPor}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha Reporte</label>
+          <p>${formatearFecha(reporte.fechaReporte)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Descripción</label>
+          <p>${reporte.descripcion}</p>
+        </div>
+        ${reporte.fotoURL ? `<div class="reporte-item">
+          <label>Foto</label>
+          <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+        </div>` : ''}
+        <div class="reporte-item">
+          <label>Información Adicional</label>
+          <p>Creado por: ${reporte.usuario}</p>
+          <p>Fecha creación: ${formatearFecha(reporte.createdAt)}</p>
+          ${reporte.compartidoCon ? `
+            <p>Compartido por: ${reporte.compartidoPor}</p>
+            <p>Fecha compartido: ${formatearFecha(reporte.compartidoEl)}</p>
+          ` : ''}
+        </div>
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="imprimirReporte('${id}')"><i class="fas fa-print"></i> Imprimir</button>
+          ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${id}')"><i class="fas fa-share"></i> Compartir</button>` : ''}
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i> Exportar</button>
+        </div>
+      `;
+      
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista detallada
+    function crearVistaDetallada(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-detallada';
+      contenido.innerHTML = `
+        <div class="reporte-header">
+          <h2>${reporte.nombreCaso}</h2>
+          <div class="subtitulo">${reporte.tipoCaso}</div>
+        </div>
+        
+        <div class="reporte-item">
+          <label>Detalles del Incidente</label>
+          <p><strong>Fecha(s) y hora(s):</strong> ${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
+        </div>
+        
+        <div class="reporte-item">
+          <label>Información del Reporte</label>
+          <p><strong>Reportado por:</strong> ${reporte.reportadoPor}</p>
+          <p><strong>Fecha del reporte:</strong> ${formatearFecha(reporte.fechaReporte)}</p>
+          <p><strong>Hora del reporte:</strong> ${reporte.horaReporte}</p>
+        </div>
+        
+        <div class="reporte-item">
+          <label>Descripción Completa</label>
+          <p>${reporte.descripcion}</p>
+        </div>
+        
+        ${reporte.fotoURL ? `
+        <div class="reporte-item">
+          <label>Evidencia Visual</label>
+          <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+        </div>
+        ` : ''}
+        
+        <div class="reporte-item">
+          <label>Metadatos del Sistema</label>
+          <p><strong>Creado por:</strong> ${reporte.usuario}</p>
+          <p><strong>Fecha de creación:</strong> ${formatearFecha(reporte.createdAt)}</p>
+          ${reporte.compartidoCon ? `
+            <p><strong>Compartido por:</strong> ${reporte.compartidoPor}</p>
+            <p><strong>Fecha de compartición:</strong> ${formatearFecha(reporte.compartidoEl)}</p>
+          ` : ''}
+        </div>
+        
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="imprimirReporte('${id}')"><i class="fas fa-print"></i> Imprimir</button>
+          ${reporte.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${id}')"><i class="fas fa-share"></i> Compartir</button>` : ''}
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i> Exportar</button>
+        </div>
+      `;
+      
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista resumen
+    function crearVistaResumen(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-resumen';
+      
+      const resumen = document.createElement('div');
+      resumen.className = 'reporte-resumen';
+      resumen.innerHTML = `
+        <div class="reporte-item">
+          <label>Nombre del Caso:</label>
+          <p>${reporte.nombreCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Tipo:</label>
+          <p>${reporte.tipoCaso}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha Incidente:</label>
+          <p>${formatearFechasConcatenadas(reporte.fechaHoraIncidente)}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Reportado por:</label>
+          <p>${reporte.reportadoPor}</p>
+        </div>
+        <div class="reporte-item">
+          <label>Fecha Reporte:</label>
+          <p>${formatearFecha(reporte.fechaReporte)}</p>
+        </div>
+        <div class="acciones-reporte">
+          <button class="btn-accion" onclick="mostrarDetalleCompleto('${id}')"><i class="fas fa-eye"></i> Ver completo</button>
+          <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i></button>
+        </div>
+      `;
+      
+      contenido.appendChild(resumen);
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para crear vista galería
+    function crearVistaGaleria(id, reporte) {
+      const contenedor = document.createElement('div');
+      contenedor.className = 'reporte-item-container';
+      contenedor.dataset.id = id;
+      
+      const contenido = document.createElement('div');
+      contenido.className = 'reporte-contenido vista-galeria';
+      
+      const galeria = document.createElement('div');
+      galeria.className = 'reporte-galeria';
+      galeria.innerHTML = `
+        ${reporte.fotoURL ? `
+          <img src="${reporte.fotoURL}" alt="Foto del reporte" class="galeria-imagen">
+        ` : `
+          <div style="height: 200px; background-color: #2c3e50; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-image" style="font-size: 50px; color: #15a086;"></i>
+          </div>
+        `}
+        <div class="galeria-contenido">
+          <div class="reporte-item">
+            <label>Nombre:</label>
+            <p>${reporte.nombreCaso}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Tipo:</label>
+            <p>${reporte.tipoCaso}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Fecha:</label>
+            <p>${formatearFecha(reporte.fechaReporte)}</p>
+          </div>
+          <div class="acciones-reporte">
+            <button class="btn-accion" onclick="mostrarDetalleCompleto('${id}')"><i class="fas fa-eye"></i> Detalles</button>
+            <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i></button>
+          </div>
+        </div>
+      `;
+      
+      contenido.appendChild(galeria);
+      contenedor.appendChild(contenido);
+      return contenedor;
+    }
+
+    // Función para mostrar el detalle completo de un reporte
+    window.mostrarDetalleCompleto = function(id) {
+      const reporte = todosLosReportes.find(r => r.id === id);
+      if (reporte) {
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        modal.style.display = 'flex';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '1000';
+        
+        const contenido = document.createElement('div');
+        contenido.style.backgroundColor = '#34495e';
+        contenido.style.padding = '20px';
+        contenido.style.borderRadius = '10px';
+        contenido.style.maxWidth = '800px';
+        contenido.style.maxHeight = '90vh';
+        contenido.style.overflowY = 'auto';
+        contenido.className = 'reporte-contenido vista-detallada';
+        
+        const reporteData = reporte.data();
+        contenido.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2>${reporteData.nombreCaso}</h2>
+            <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
+          </div>
+          <div class="reporte-item">
+            <label>Tipo de Caso</label>
+            <p>${reporteData.tipoCaso}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Fecha(s) y Hora(s) del Incidente</label>
+            <p>${formatearFechasConcatenadas(reporteData.fechaHoraIncidente)}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Reportado Por</label>
+            <p>${reporteData.reportadoPor}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Fecha del Reporte</label>
+            <p>${formatearFecha(reporteData.fechaReporte)}</p>
+          </div>
+          <div class="reporte-item">
+            <label>Descripción</label>
+            <p>${reporteData.descripcion}</p>
+          </div>
+          ${reporteData.fotoURL ? `<div class="reporte-item">
+            <label>Foto</label>
+            <img src="${reporteData.fotoURL}" alt="Foto del reporte" style="max-width: 100%; margin-top: 10px;">
+          </div>` : ''}
+          <div class="reporte-item">
+            <label>Información Adicional</label>
+            <p><strong>Creado por:</strong> ${reporteData.usuario}</p>
+            <p><strong>Fecha creación:</strong> ${formatearFecha(reporteData.createdAt)}</p>
+            ${reporteData.compartidoCon ? `
+              <p><strong>Compartido por:</strong> ${reporteData.compartidoPor}</p>
+              <p><strong>Fecha compartido:</strong> ${formatearFecha(reporteData.compartidoEl)}</p>
+            ` : ''}
+          </div>
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn-accion" onclick="exportarReporteEspecial('${id}')"><i class="fas fa-file-export"></i> Exportar</button>
+            <button class="btn-accion" onclick="imprimirReporte('${id}')"><i class="fas fa-print"></i> Imprimir</button>
+            ${reporteData.userId === currentUser.uid ? `<button class="btn-accion" onclick="abrirModalCompartir('${id}')"><i class="fas fa-share"></i> Compartir</button>` : ''}
+          </div>
+        `;
+        
+        modal.appendChild(contenido);
+        document.body.appendChild(modal);
+      }
+    };
+
+    // Función para exportar un reporte específico
+    window.exportarReporteEspecial = function(id) {
+      const reporte = todosLosReportes.find(r => r.id === id);
+      if (reporte) {
+        const reporteData = reporte.data();
+        reporteData.coleccion = "Reportes";
+        
+        const rtmdayliData = convertirARtmdayli(reporteData);
+        const nombreArchivo = `Reporte_${reporteData.nombreCaso.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+        
+        descargarArchivo(rtmdayliData, nombreArchivo, 'text/plain');
+        mostrarAlerta(`Reporte exportado como ${nombreArchivo}`);
+      }
+    };
+
+    // Función para imprimir un reporte
+    window.imprimirReporte = function(id) {
+      const reporte = todosLosReportes.find(r => r.id === id);
+      if (reporte) {
+        const reporteData = reporte.data();
+        const contenido = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Reporte ${reporteData.nombreCaso}</title>
+            <style>
+              body { font-family: Arial; padding: 20px; }
+              .titulo-impresion { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #15a086; }
+              .subtitulo-impresion { text-align: center; font-size: 18px; margin-bottom: 20px; }
+              .reporte-item { margin-bottom: 10px; }
+              .reporte-item label { font-weight: bold; color: #15a086; }
+              .reporte-imagen { max-width: 100%; margin-top: 10px; }
+              .info-registro { margin-top: 20px; font-style: italic; color: #555; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="titulo-impresion">${reporteData.nombreCaso}</div>
+            <div class="subtitulo-impresion">${reporteData.tipoCaso}</div>
+            <div class="reporte-item">
+              <label>Fecha(s) y Hora(s) del Incidente:</label>
+              <p>${formatearFechasConcatenadas(reporteData.fechaHoraIncidente)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Reportado Por:</label>
+              <p>${reporteData.reportadoPor}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Fecha del Reporte:</label>
+              <p>${formatearFecha(reporteData.fechaReporte)}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Hora del Reporte:</label>
+              <p>${reporteData.horaReporte}</p>
+            </div>
+            <div class="reporte-item">
+              <label>Descripción:</label>
+              <p>${reporteData.descripcion}</p>
+            </div>
+            ${reporteData.fotoURL ? `<div class="reporte-item">
+              <label>Foto:</label>
+              <img src="${reporteData.fotoURL}" alt="Foto del reporte" class="reporte-imagen">
+            </div>` : ''}
+            <div class="info-registro">
+              <p>Reporte realizado por: ${reporteData.usuario}</p>
+              <p>En la fecha: ${formatearFecha(reporteData.createdAt)}</p>
+              ${reporteData.compartidoCon ? `
+                <p>Compartido por: ${reporteData.compartidoPor}</p>
+                <p>Fecha y hora de recepción: ${formatearFecha(reporteData.compartidoEl)}</p>
+              ` : ''}
+            </div>
+          </body>
+          </html>
+        `;
+        
+        const ventanaImpresion = window.open('', '_blank');
+        ventanaImpresion.document.write(contenido);
+        ventanaImpresion.document.close();
+        ventanaImpresion.focus();
+        setTimeout(() => {
+          ventanaImpresion.print();
+        }, 500);
+      }
+    };
+
+    // Función para filtrar por nombre del caso
+    function filtrarPorNombre() {
+      const texto = this.value.toLowerCase();
+      const elementosReporte = document.querySelectorAll('.reporte-item-container');
+      
+      elementosReporte.forEach(elemento => {
+        let nombre;
+        
+        if (elemento.querySelector('.acordeon-titulo span')) {
+          nombre = elemento.querySelector('.acordeon-titulo span').textContent.toLowerCase();
+        } else if (elemento.querySelector('h2, h3')) {
+          nombre = elemento.querySelector('h2, h3').textContent.toLowerCase();
+        } else if (elemento.querySelector('.reporte-item:first-child p')) {
+          nombre = elemento.querySelector('.reporte-item:first-child p').textContent.toLowerCase();
+        }
+        
+        if (nombre && nombre.includes(texto)) {
+          elemento.style.display = 'block';
+        } else {
+          elemento.style.display = 'none';
+        }
+      });
+    }
+
+    // Función para abrir el modal de compartir
+    window.abrirModalCompartir = function(reporteId) {
+      reporteSeleccionado = reporteId;
+      cargarUsuarios();
+      document.getElementById('modalCompartir').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal
+    window.cerrarModal = function() {
+      document.getElementById('modalCompartir').style.display = 'none';
+    };
+
+    // Función para cargar los usuarios desde Firestore
+    async function cargarUsuarios() {
+      const usuariosRef = collection(db, "users");
+      const usuariosSnapshot = await getDocs(usuariosRef);
+      const usuariosLista = document.getElementById('usuariosLista');
+      usuariosLista.innerHTML = "";
+
+      usuariosSnapshot.forEach((doc) => {
+        const usuario = doc.data();
+        if (doc.id !== currentUser.uid) {
+          const usuarioItem = document.createElement('div');
+          usuarioItem.classList.add('usuario-item');
+          usuarioItem.innerHTML = `
+            <img src="${usuario.photoURL || 'https://via.placeholder.com/40'}" alt="Foto de perfil">
+            <span>${usuario.name} (${usuario.posicion})</span>
+            <input type="checkbox" value="${doc.id}">
+          `;
+          usuariosLista.appendChild(usuarioItem);
+        }
+      });
+    }
+
+    // Función para compartir el reporte con los usuarios seleccionados
+    window.compartirReporte = async function() {
+      const usuariosSeleccionados = Array.from(document.querySelectorAll('#usuariosLista input:checked')).map(input => input.value);
+      if (usuariosSeleccionados.length === 0) {
+        mostrarAlerta("Selecciona al menos un usuario.");
+        return;
+      }
+
+      try {
+        const reporteRef = doc(db, "Reportes", reporteSeleccionado);
+        await updateDoc(reporteRef, {
+          compartidoCon: usuariosSeleccionados,
+          compartidoEl: new Date().toISOString(),
+          compartidoPor: currentUser.displayName || currentUser.email
+        });
+        mostrarAlerta(`Reporte compartido exitosamente el ${formatearFecha(new Date())}.`);
+        cerrarModal();
+      } catch (error) {
+        console.error(error);
+        mostrarAlerta("Error al compartir el reporte.");
+      }
+    };
+
+    // Función para cargar los reportes recibidos
+    async function cargarReportesRecibidos() {
+      const reportesRef = collection(db, "Reportes");
+      const reportesSnapshot = await getDocs(reportesRef);
+      reportesRecibidos = [];
+
+      reportesSnapshot.forEach((doc) => {
+        const reporte = doc.data();
+        if (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid)) {
+          reportesRecibidos.push({
+            id: doc.id,
+            nombreCaso: reporte.nombreCaso,
+            compartidoPor: reporte.compartidoPor,
+            compartidoEl: reporte.compartidoEl,
+            leido: reporte.leidoPor && reporte.leidoPor.includes(currentUser.uid)
+          });
+        }
+      });
+
+      reportesRecibidos.sort((a, b) => new Date(b.compartidoEl) - new Date(a.compartidoEl));
+
+      const reportesNoLeidos = reportesRecibidos.filter(reporte => !reporte.leido);
+      if (reportesNoLeidos.length > 0) {
+        document.getElementById('puntoRojo').style.display = 'block';
+        document.getElementById('alertSound').play();
+      } else {
+        document.getElementById('puntoRojo').style.display = 'none';
+      }
+    }
+
+    // Función para abrir el modal de reportes recibidos
+    window.abrirModalReportesRecibidos = function() {
+      const listaReportesRecibidos = document.getElementById('listaReportesRecibidos');
+      listaReportesRecibidos.innerHTML = "";
+
+      reportesRecibidos.forEach((reporte) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+          <strong>${reporte.nombreCaso}</strong><br>
+          Compartido por: ${reporte.compartidoPor}<br>
+          Fecha y hora: ${formatearFecha(reporte.compartidoEl)}
+        `;
+        item.onclick = () => {
+          const elementos = document.querySelectorAll('.reporte-item-container');
+          for (let i = 0; i < elementos.length; i++) {
+            if (elementos[i].dataset.id === reporte.id) {
+              elementos[i].scrollIntoView({ behavior: 'smooth' });
+              if (elementos[i].querySelector('.acordeon-titulo')) {
+                elementos[i].querySelector('.acordeon-titulo').click();
+              }
+              break;
+            }
+          }
+          cerrarModalReportesRecibidos();
+        };
+        listaReportesRecibidos.appendChild(item);
+      });
+
+      reportesRecibidos.forEach(async (reporte) => {
+        if (!reporte.leido) {
+          const reporteRef = doc(db, "Reportes", reporte.id);
+          await updateDoc(reporteRef, {
+            leidoPor: [...(reporte.leidoPor || []), currentUser.uid]
+          });
+        }
+      });
+
+      document.getElementById('puntoRojo').style.display = 'none';
+      document.getElementById('modalReportesRecibidos').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal de reportes recibidos
+    window.cerrarModalReportesRecibidos = function() {
+      document.getElementById('modalReportesRecibidos').style.display = 'none';
+    };
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(collection(db, "Reportes"), (snapshot) => {
+      cargarReportes();
+      cargarReportesRecibidos();
+    });
+
+    // Event listeners para los botones de vista
+    document.querySelectorAll('.vista-btn[data-vista]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        cambiarVista(btn.dataset.vista);
+      });
+    });
+
+    // Cargar los reportes al cargar la página
+    cargarReportes();
+    cargarReportesRecibidos();
+  </script>
+</body>
+</html>
