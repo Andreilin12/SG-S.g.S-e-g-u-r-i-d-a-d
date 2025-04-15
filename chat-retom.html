@@ -1926,12 +1926,12 @@
       
       document.getElementById("userInfoAvatar").src = user.photoURL || "https://via.placeholder.com/100";
       document.getElementById("userInfoName").textContent = user.name || "No disponible";
-      document.getElementById("userInfoDepartment").textContent = user.department || "No disponible";
-      document.getElementById("userInfoWorkArea").textContent = user.workArea || "No disponible";
-      document.getElementById("userInfoPosition").textContent = user.position || "No disponible";
-      document.getElementById("userInfoBirthDate").textContent = user.birthDate || "No disponible";
+      document.getElementById("userInfoDepartment").textContent = user.departamento || "No disponible";
+      document.getElementById("userInfoWorkArea").textContent = user.areaTrabajo || "No disponible";
+      document.getElementById("userInfoPosition").textContent = user.posicion || "No disponible";
+      document.getElementById("userInfoBirthDate").textContent = user.fechaNacimiento || "No disponible";
       document.getElementById("userInfoEmail").textContent = user.email || "No disponible";
-      document.getElementById("userInfoWorkCode").textContent = user.workCode || "No disponible";
+      document.getElementById("userInfoWorkCode").textContent = user.codigoLaboral || "No disponible";
       
       const copyButtons = document.querySelectorAll('.copy-btn');
       copyButtons.forEach(btn => btn.remove());
