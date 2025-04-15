@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestión de Edificios y Habitaciones</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #15a086;
+      --primary-dark: #2c3e50;
+      --secondary-color: #2c3e50;
+      --background-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #e2e8f0;
+      --text-light: #94a3b8;
+      --border-color: #334155;
+      --success-color: #15a086;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --accent-color: #15a086;
+      --glass-effect: rgba(30, 41, 59, 0.7);
+      --neon-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+      --empty-color: #64748b;
+      --full-color: #ef4444;
+      --partial-color: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-dark));
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+      text-shadow: var(--neon-shadow);
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-left: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::before, .nav-link.active::before {
+      width: 100%;
+    }
+
+    .nav-link i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border-color);
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+      font-weight: 500;
+      font-size: 1.8rem;
+      text-shadow: var(--neon-shadow);
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 198, 255, 0.2);
+    }
+
+    .card h2 {
+      color: var(--text-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .card h2 i {
+      margin-right: 12px;
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 1.75rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      color: var(--text-light);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background-color: rgba(30, 41, 59, 0.7);
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-warning:hover {
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent-color), #7c3aed);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-accent:hover {
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-sm {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .data-item {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .data-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 198, 255, 0.2);
+    }
+
+    .data-item i {
+      font-size: 2.5rem;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .data-item div:last-child {
+      text-align: right;
+    }
+
+    .data-item h3 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .data-item p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .building-card, .room-card {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .building-card:hover, .room-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 198, 255, 0.2);
+    }
+
+    .building-card {
+      border-left: 5px solid var(--primary-color);
+    }
+
+    .room-card {
+      border-left: 5px solid var(--success-color);
+    }
+
+    .card h3 {
+      margin-bottom: 0.75rem;
+      color: var(--text-color);
+      font-size: 1.3rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .card h3 i {
+      margin-right: 10px;
+      color: var(--primary-color);
+    }
+
+    .card p {
+      margin-bottom: 0.75rem;
+      color: var(--text-light);
+    }
+
+    .card p strong {
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-available {
+      background-color: var(--success-color);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-occupied {
+      background-color: var(--danger-color);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    .status-partial {
+      background-color: var(--warning-color);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .status-empty {
+      background-color: var(--empty-color);
+      box-shadow: 0 0 10px rgba(100, 116, 139, 0.5);
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 12px;
+      background-color: var(--border-color);
+      border-radius: 6px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-available {
+      background: linear-gradient(to right, var(--success-color), #34d399);
+    }
+
+    .progress-partial {
+      background: linear-gradient(to right, var(--warning-color), #fbbf24);
+    }
+
+    .progress-occupied {
+      background: linear-gradient(to right, var(--danger-color), #f87171);
+    }
+
+    .progress-empty {
+      background: linear-gradient(to right, var(--empty-color), #94a3b8);
+    }
+
+    .add-more-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.5rem auto;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+    }
+
+    .add-more-btn:hover {
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-title {
+      margin-bottom: 2rem;
+      color: var(--primary-color);
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      text-shadow: var(--neon-shadow);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-notification {
+      position: fixed;
+      top: 100px;
+      right: 30px;
+      background-color: var(--danger-color);
+      color: white;
+      padding: 1.25rem 1.75rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+      display: flex;
+      align-items: center;
+      z-index: 999;
+      animation: slideIn 0.4s ease;
+      border-left: 5px solid white;
+    }
+
+    .alert-notification i {
+      margin-right: 0.75rem;
+      font-size: 1.5rem;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .tab-container {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      color: var(--text-light);
+      position: relative;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+      border-bottom: 3px solid var(--primary-color);
+    }
+
+    .tab:hover {
+      color: var(--text-color);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .collapsible {
+      cursor: pointer;
+      padding: 1.25rem;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .collapsible:hover {
+      background-color: rgba(30, 41, 59, 0.8);
+    }
+
+    .collapsible-content {
+      padding: 0 1.5rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out;
+      background-color: rgba(30, 41, 59, 0.5);
+      border-radius: 0 0 12px 12px;
+      margin-bottom: 1rem;
+    }
+
+    .collapsible.active + .collapsible-content {
+      max-height: 2000px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      border-top: none;
+    }
+
+    .collapsible i {
+      transition: transform 0.3s;
+      color: var(--primary-color);
+    }
+
+    .collapsible.active i {
+      transform: rotate(180deg);
+    }
+
+    .staff-list {
+      margin-top: 1.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      background-color: rgba(30, 41, 59, 0.5);
+    }
+
+    .staff-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .staff-item:last-child {
+      border-bottom: none;
+    }
+
+    .staff-item div:first-child {
+      flex: 1;
+    }
+
+    .staff-item strong {
+      color: var(--text-color);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .staff-item p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .staff-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .floors-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .floor-card {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease;
+    }
+
+    .floor-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .floor-card h4 {
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .floor-card ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .floor-card li {
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      background-color: rgba(30, 41, 59, 0.7);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s ease;
+    }
+
+    .floor-card li:hover {
+      transform: translateX(5px);
+    }
+
+    .search-container {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      padding-left: 3.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 1.5rem center;
+      background-size: 1.2rem;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    .all-staff-container {
+      margin-top: 2rem;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .staff-card {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .staff-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 198, 255, 0.2);
+    }
+
+    .staff-card h3 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .staff-card h3 i {
+      margin-right: 10px;
+    }
+
+    .staff-card p {
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+    }
+
+    .staff-card p strong {
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    .staff-card .staff-location {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .staff-card .staff-location p {
+      display: flex;
+      align-items: center;
+    }
+
+    .staff-card .staff-location i {
+      margin-right: 8px;
+      color: var(--primary-color);
+      width: 20px;
+      text-align: center;
+    }
+
+    .room-status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .room-status-empty {
+      background-color: var(--empty-color);
+      color: white;
+    }
+
+    .room-status-partial {
+      background-color: var(--warning-color);
+      color: white;
+    }
+
+    .room-status-full {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .room-search-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .room-search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      padding-left: 3.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 1.5rem center;
+      background-size: 1.2rem;
+    }
+
+    .room-search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    .staff-photo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1rem;
+      border: 2px solid var(--primary-color);
+    }
+
+    .staff-photo-placeholder {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      font-size: 1.25rem;
+    }
+
+    .staff-details-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .staff-details-row i {
+      width: 20px;
+      text-align: center;
+      margin-right: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    /* Nuevos estilos para el selector de imagen */
+    .photo-upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .photo-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 3px solid var(--primary-color);
+      display: none;
+    }
+
+    .photo-upload-btn {
+      background-color: var(--card-bg);
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .photo-upload-btn:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(30, 41, 59, 0.9);
+    }
+
+    .photo-upload-btn i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .photo-upload-btn p {
+      color: var(--text-light);
+      margin-bottom: 0;
+    }
+
+    .photo-file-input {
+      display: none;
+    }
+
+    /* Estilos mejorados para las habitaciones */
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .room-card-enhanced {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .room-card-enhanced:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 198, 255, 0.2);
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .room-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .room-title i {
+      margin-right: 0.5rem;
+    }
+
+    .room-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .room-meta-item {
+      background-color: rgba(30, 41, 59, 0.7);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .room-meta-item i {
+      margin-right: 0.25rem;
+      font-size: 0.8rem;
+    }
+
+    .room-occupancy {
+      margin-top: 1rem;
+    }
+
+    .occupancy-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .occupancy-count {
+      font-weight: 600;
+    }
+
+    .occupancy-bar {
+      height: 8px;
+      background-color: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .occupancy-progress {
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .room-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    /* Estilos para el audio de alerta */
+    .alert-audio {
+      display: none;
+    }
+
+    @media (max-width: 1024px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .nav-menu {
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      
+      .nav-item {
+        margin-left: 0;
+        margin-right: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .data-grid, .staff-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+      
+      .modal-content {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        padding: 1rem;
+      }
+      
+      .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .main-container {
+        padding: 1.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+      
+      .card {
+        padding: 1.5rem;
+      }
+      
+      .tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .data-grid, .staff-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .floor-card {
+        min-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-menu {
+        justify-content: space-between;
+      }
+      
+      .nav-item {
+        margin-right: 0.5rem;
+      }
+      
+      .modal-content {
+        width: 95%;
+        padding: 1.25rem;
+      }
+      
+      .modal-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .staff-details-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .staff-photo, .staff-photo-placeholder {
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">Administrador de habitaciones</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Panel
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="buildings">
+            <i class="fas fa-building"></i> Edificios
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="rooms">
+            <i class="fas fa-door-open"></i> Habitaciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="staff">
+            <i class="fas fa-users"></i> Colaboradores
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="reports">
+            <i class="fas fa-chart-bar"></i> Reportes
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section active">
+      <h1 class="section-title"><i class="fas fa-tachometer-alt"></i> Panel de Control</h1>
+      
+      <div class="card">
+        <h2><i class="fas fa-chart-pie"></i> Resumen de Ocupación</h2>
+        <div class="data-grid" id="summaryGrid">
+          <!-- Los datos de resumen se cargarán aquí -->
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-exclamation-triangle"></i> Alertas Recientes</h2>
+        <div id="alertsList">
+          <!-- Las alertas se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Buildings Section -->
+    <section id="buildings" class="section">
+      <h1 class="section-title"><i class="fas fa-building"></i> Administración de Edificios</h1>
+      
+      <div class="card">
+        <div class="tab-container">
+          <div class="tab active" data-tab="list-buildings">Lista de Edificios</div>
+          <div class="tab" data-tab="add-building">Agregar Edificio</div>
+        </div>
+        
+        <div class="tab-content active" id="list-buildings">
+          <div id="buildingsList">
+            <!-- La lista de edificios se cargará aquí -->
+          </div>
+        </div>
+        
+        <div class="tab-content" id="add-building">
+          <form id="buildingForm">
+            <div class="form-group">
+              <label for="buildingName">Nombre del Edificio:</label>
+              <input type="text" id="buildingName" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="buildingAddress">Dirección:</label>
+              <input type="text" id="buildingAddress" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="buildingFloors">Número de Pisos:</label>
+              <input type="number" id="buildingFloors" class="form-control" min="1" value="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="buildingDescription">Descripción (opcional):</label>
+              <textarea id="buildingDescription" class="form-control"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-block">
+              <i class="fas fa-save"></i> Guardar Edificio
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rooms Section -->
+    <section id="rooms" class="section">
+      <h1 class="section-title"><i class="fas fa-door-open"></i> Administración de Habitaciones</h1>
+      
+      <div class="card">
+        <div class="tab-container">
+          <div class="tab active" data-tab="list-rooms">Lista de Habitaciones</div>
+          <div class="tab" data-tab="add-room">Agregar Habitación</div>
+          <div class="tab" data-tab="add-staff">Agregar Colaborador</div>
+        </div>
+        
+        <div class="tab-content active" id="list-rooms">
+          <div class="room-search-container">
+            <input type="text" id="roomSearch" class="room-search-input" placeholder="Buscar habitaciones...">
+          </div>
+          
+          <div class="form-group">
+            <label for="filterBuilding">Filtrar por Edificio:</label>
+            <select id="filterBuilding" class="form-control">
+              <option value="">Todos los edificios</option>
+              <!-- Las opciones se llenarán dinámicamente -->
+            </select>
+          </div>
+          
+          <div id="roomsList" class="rooms-grid">
+            <!-- La lista de habitaciones se cargará aquí -->
+          </div>
+        </div>
+        
+        <div class="tab-content" id="add-room">
+          <form id="roomForm">
+            <div class="form-group">
+              <label for="roomBuilding">Edificio:</label>
+              <select id="roomBuilding" class="form-control" required>
+                <!-- Las opciones se llenarán dinámicamente -->
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="roomNumber">Número/Identificador:</label>
+              <input type="text" id="roomNumber" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="roomFloor">Piso:</label>
+              <input type="number" id="roomFloor" class="form-control" min="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="roomType">Tipo de Habitación:</label>
+              <select id="roomType" class="form-control" required>
+                <option value="individual">Individual</option>
+                <option value="doble">Doble</option>
+                <option value="suite">Suite</option>
+                <option value="familiar">Familiar</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="roomCapacity">Capacidad Máxima:</label>
+              <input type="number" id="roomCapacity" class="form-control" min="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="roomDescription">Descripción (opcional):</label>
+              <textarea id="roomDescription" class="form-control"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-block">
+              <i class="fas fa-save"></i> Guardar Habitación
+            </button>
+          </form>
+        </div>
+        
+        <div class="tab-content" id="add-staff">
+          <form id="staffForm">
+            <div class="form-group">
+              <label for="staffRoom">Habitación:</label>
+              <select id="staffRoom" class="form-control" required>
+                <!-- Las opciones se llenarán dinámicamente -->
+              </select>
+            </div>
+            
+            <div class="photo-upload-container">
+              <img id="photoPreview" class="photo-preview" alt="Vista previa de la foto">
+              <label for="staffPhotoFile" class="photo-upload-btn">
+                <i class="fas fa-camera"></i>
+                <p>Seleccionar Foto</p>
+                <input type="file" id="staffPhotoFile" class="photo-file-input" accept="image/*">
+              </label>
+              <input type="hidden" id="staffPhoto" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label for="staffName">Nombre Completo:</label>
+              <input type="text" id="staffName" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staffDocument">Documento de Identidad:</label>
+              <input type="text" id="staffDocument" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staffId">ID:</label>
+              <input type="text" id="staffId" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staffPhone">Teléfono:</label>
+              <input type="tel" id="staffPhone" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label for="staffEmail">Email:</label>
+              <input type="email" id="staffEmail" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label for="staffPosition">Cargo:</label>
+              <input type="text" id="staffPosition" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staffStartDate">Fecha de Inicio:</label>
+              <input type="date" id="staffStartDate" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="staffEndDate">Fecha de Finalización (opcional):</label>
+              <input type="date" id="staffEndDate" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label for="staffNotes">Notas:</label>
+              <textarea id="staffNotes" class="form-control"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-block">
+              <i class="fas fa-plus"></i> Agregar Colaborador
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Staff Section -->
+    <section id="staff" class="section">
+      <h1 class="section-title"><i class="fas fa-users"></i> Gestión de Colaboradores</h1>
+      
+      <div class="card">
+        <div class="search-container">
+          <input type="text" id="staffSearch" class="search-input" placeholder="Buscar colaboradores...">
+        </div>
+        
+        <div class="all-staff-container" id="allStaffContainer">
+          <!-- Todos los colaboradores se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Reports Section -->
+    <section id="reports" class="section">
+      <h1 class="section-title"><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h1>
+      
+      <div class="card">
+        <h2><i class="fas fa-building"></i> Ocupación por Edificio</h2>
+        <div id="buildingReports">
+          <!-- Los reportes por edificio se cargarán aquí -->
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2><i class="fas fa-users"></i> Colaboradores por Habitación</h2>
+        <div id="staffReports">
+          <!-- Los reportes de colaboradores se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal para confirmaciones -->
+  <div class="modal" id="confirmModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="confirmModalTitle"></h3>
+      <p id="confirmModalMessage"></p>
+      <div class="modal-footer">
+        <button id="confirmModalBtn" class="btn btn-danger">Confirmar</button>
+        <button onclick="closeModal()" class="btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para edición -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="editModalTitle"></h3>
+      <div id="editModalContent">
+        <!-- El contenido de edición se cargará aquí -->
+      </div>
+      <div class="modal-footer">
+        <button id="saveEditBtn" class="btn btn-success">Guardar</button>
+        <button onclick="closeModal()" class="btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles -->
+  <div class="modal" id="detailsModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="detailsModalTitle"></h3>
+      <div id="detailsModalContent">
+        <!-- El contenido de detalles se cargará aquí -->
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="alertModalTitle"></h3>
+      <p id="alertModalMessage"></p>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación de alerta -->
+  <div id="notification" class="alert-notification hidden">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="notificationMessage"></span>
+  </div>
+
+  <!-- Audio para alertas -->
+  <audio id="alertAudio" class="alert-audio">
+    <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg">
+  </audio>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      getDocs, 
+      doc, 
+      setDoc, 
+      getDoc,
+      onSnapshot,
+      deleteDoc,
+      updateDoc,
+      query,
+      where,
+      orderBy,
+      arrayUnion,
+      arrayRemove
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let buildings = [];
+    let rooms = [];
+    let allStaff = [];
+    let currentEditId = null;
+    let currentEditType = null;
+    let currentRoomIdForStaff = null;
+    let alertAudio = document.getElementById('alertAudio');
+    let scheduledAlerts = [];
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavigation();
+      setupTabs();
+      setupCollapsibles();
+      loadAllData();
+      setupEventListeners();
+      
+      // Configurar fecha actual por defecto en el formulario de colaboradores
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('staffStartDate').value = today;
+      
+      // Configurar el selector de imagen
+      setupPhotoUpload();
+      
+      // Verificar alertas programadas cada minuto
+      setInterval(checkScheduledAlerts, 60000);
+    });
+
+    // Configurar el selector de imagen
+    function setupPhotoUpload() {
+      const fileInput = document.getElementById('staffPhotoFile');
+      const photoPreview = document.getElementById('photoPreview');
+      
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            photoPreview.src = e.target.result;
+            photoPreview.style.display = 'block';
+            document.getElementById('staffPhoto').value = e.target.result;
+          }
+          
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Configuración de navegación
+    function setupNavigation() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Remover clase active de todos los links
+          navLinks.forEach(l => l.classList.remove('active'));
+          
+          // Agregar clase active al link clickeado
+          link.classList.add('active');
+          
+          // Ocultar todas las secciones
+          document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          // Mostrar la sección correspondiente
+          const sectionId = link.dataset.section;
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+    }
+
+    // Configurar pestañas
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.tab');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          const container = tab.closest('.tab-container');
+          
+          // Remover clase active de todas las pestañas y contenidos
+          container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          container.parentElement.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          // Agregar clase active a la pestaña clickeada y su contenido
+          tab.classList.add('active');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    }
+
+    // Configurar elementos colapsables
+    function setupCollapsibles() {
+      const collapsibles = document.querySelectorAll('.collapsible');
+      
+      collapsibles.forEach(coll => {
+        coll.addEventListener('click', function() {
+          this.classList.toggle('active');
+        });
+      });
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Formulario de edificios
+      document.getElementById('buildingForm').addEventListener('submit', saveBuilding);
+      
+      // Formulario de habitaciones
+      document.getElementById('roomForm').addEventListener('submit', saveRoom);
+      
+      // Formulario de colaboradores
+      document.getElementById('staffForm').addEventListener('submit', addStaffMember);
+      
+      // Filtros
+      document.getElementById('filterBuilding').addEventListener('change', filterRooms);
+      
+      // Buscador de colaboradores
+      document.getElementById('staffSearch').addEventListener('input', filterStaff);
+      
+      // Buscador de habitaciones
+      document.getElementById('roomSearch').addEventListener('input', filterRooms);
+      
+      // Botones de confirmación
+      document.getElementById('confirmModalBtn').addEventListener('click', confirmAction);
+      document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+    }
+
+    // Cargar todos los datos iniciales
+    async function loadAllData() {
+      await loadBuildings();
+      await loadRooms();
+      updateDashboard();
+      updateAllStaff();
+    }
+
+    // Cargar edificios
+    async function loadBuildings() {
+      const querySnapshot = await getDocs(collection(db, "buildings"));
+      buildings = [];
+      querySnapshot.forEach(doc => {
+        buildings.push({ id: doc.id, ...doc.data() });
+      });
+      
+      updateBuildingsList();
+      updateBuildingSelects();
+    }
+
+    // Actualizar lista de edificios
+    function updateBuildingsList() {
+      const container = document.getElementById('buildingsList');
+      container.innerHTML = '';
+      
+      if (buildings.length === 0) {
+        container.innerHTML = '<p>No hay edificios registrados</p>';
+        return;
+      }
+      
+      buildings.forEach(building => {
+        const buildingCard = document.createElement('div');
+        buildingCard.className = 'building-card';
+        buildingCard.innerHTML = `
+          <h3><i class="fas fa-building"></i> ${building.name}</h3>
+          <p><strong>Dirección:</strong> ${building.address}</p>
+          <p><strong>Pisos:</strong> ${building.floors || 1}</p>
+          <p><strong>Habitaciones:</strong> ${rooms.filter(r => r.buildingId === building.id).length}</p>
+          ${building.description ? `<p><strong>Descripción:</strong> ${building.description}</p>` : ''}
+          <div class="actions" style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-sm edit-building" data-id="${building.id}">
+              <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="btn btn-sm btn-danger delete-building" data-id="${building.id}">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+            <button class="btn btn-sm view-floors" data-id="${building.id}">
+              <i class="fas fa-layer-group"></i> Ver Pisos
+            </button>
+          </div>
+        `;
+        container.appendChild(buildingCard);
+      });
+      
+      // Agregar event listeners a los botones
+      document.querySelectorAll('.edit-building').forEach(btn => {
+        btn.addEventListener('click', () => editBuilding(btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.delete-building').forEach(btn => {
+        btn.addEventListener('click', () => showDeleteConfirmation('building', btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.view-floors').forEach(btn => {
+        btn.addEventListener('click', () => viewBuildingFloors(btn.dataset.id));
+      });
+    }
+
+    // Ver pisos de un edificio
+    async function viewBuildingFloors(buildingId) {
+      const building = buildings.find(b => b.id === buildingId);
+      if (!building) return;
+      
+      document.getElementById('detailsModalTitle').textContent = `Pisos del Edificio: ${building.name}`;
+      
+      const content = document.getElementById('detailsModalContent');
+      content.innerHTML = `
+        <h4><i class="fas fa-info-circle"></i> Información del Edificio</h4>
+        <p><strong>Dirección:</strong> ${building.address}</p>
+        <p><strong>Total de Pisos:</strong> ${building.floors || 1}</p>
+        <p><strong>Total de Habitaciones:</strong> ${rooms.filter(r => r.buildingId === building.id).length}</p>
+        
+        <h4 style="margin-top: 1.5rem;"><i class="fas fa-layer-group"></i> Habitaciones por Piso</h4>
+        <div class="floors-container" id="floorsContainer">
+          <!-- Los pisos se cargarán aquí -->
+        </div>
+      `;
+      
+      const floorsContainer = document.getElementById('floorsContainer');
+      
+      // Crear tarjetas para cada piso
+      const totalFloors = building.floors || 1;
+      const buildingRooms = rooms.filter(r => r.buildingId === buildingId);
+      
+      for (let floor = 1; floor <= totalFloors; floor++) {
+        const floorRooms = buildingRooms.filter(r => r.floor == floor);
+        
+        const floorCard = document.createElement('div');
+        floorCard.className = 'floor-card';
+        floorCard.innerHTML = `
+          <h4><i class="fas fa-layer-group"></i> Piso ${floor} (${floorRooms.length} habitaciones)</h4>
+          ${floorRooms.length > 0 ? 
+            `<ul>
+              ${floorRooms.map(room => `
+                <li>
+                  <strong>${room.number}</strong> (${room.type})
+                  <span class="room-status ${getRoomStatusClass(room)}">${getRoomStatusText(room)}</span>
+                  <button class="btn btn-sm view-room" data-id="${room.id}" style="margin-left: 0.5rem;">
+                    <i class="fas fa-eye"></i> Ver
+                  </button>
+                </li>
+              `).join('')}
+            </ul>` : 
+            '<p>No hay habitaciones en este piso</p>'
+          }
+        `;
+        
+        floorsContainer.appendChild(floorCard);
+      }
+      
+      // Agregar event listeners a los botones de ver habitación
+      document.querySelectorAll('.view-room').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('filterBuilding').value = buildingId;
+          filterRooms();
+          document.querySelector('.nav-link[data-section="rooms"]').click();
+          closeModal();
+        });
+      });
+      
+      document.getElementById('detailsModal').classList.add('active');
+    }
+
+    // Obtener clase CSS para el estado de la habitación
+    function getRoomStatusClass(room) {
+      const staffCount = room.staff ? room.staff.length : 0;
+      
+      if (staffCount === 0) {
+        return 'room-status-empty';
+      } else if (staffCount >= room.capacity) {
+        return 'room-status-full';
+      } else {
+        return 'room-status-partial';
+      }
+    }
+
+    // Obtener texto para el estado de la habitación
+    function getRoomStatusText(room) {
+      const staffCount = room.staff ? room.staff.length : 0;
+      
+      if (staffCount === 0) {
+        return 'Vacía';
+      } else if (staffCount >= room.capacity) {
+        return 'Llena';
+      } else {
+        return `${staffCount}/${room.capacity}`;
+      }
+    }
+
+    // Actualizar selects de edificios
+    function updateBuildingSelects() {
+      const buildingSelects = [
+        document.getElementById('roomBuilding'),
+        document.getElementById('filterBuilding')
+      ];
+      
+      buildingSelects.forEach(select => {
+        if (select) {
+          // Guardar el valor seleccionado actual
+          const currentValue = select.value;
+          
+          // Limpiar opciones excepto la primera
+          while (select.options.length > 1) {
+            select.remove(1);
+          }
+          
+          // Agregar opciones de edificios
+          buildings.forEach(building => {
+            const option = document.createElement('option');
+            option.value = building.id;
+            option.textContent = building.name;
+            select.appendChild(option);
+          });
+          
+          // Restaurar el valor seleccionado si existe
+          if (currentValue && buildings.some(b => b.id === currentValue)) {
+            select.value = currentValue;
+          }
+        }
+      });
+      
+      // Actualizar selects de habitaciones para colaboradores
+      updateRoomSelects();
+      
+      // Actualizar filtros si es necesario
+      filterRooms();
+    }
+
+    // Actualizar selects de habitaciones
+    function updateRoomSelects() {
+      const roomSelect = document.getElementById('staffRoom');
+      
+      if (roomSelect) {
+        // Guardar el valor seleccionado actual
+        const currentValue = roomSelect.value;
+        
+        // Limpiar opciones excepto la primera
+        while (roomSelect.options.length > 1) {
+          roomSelect.remove(1);
+        }
+        
+        // Agregar opciones de habitaciones
+        rooms.forEach(room => {
+          const building = buildings.find(b => b.id === room.buildingId);
+          const option = document.createElement('option');
+          option.value = room.id;
+          option.textContent = `${room.number} (${building ? building.name : 'Edificio desconocido'}) - Piso ${room.floor}`;
+          roomSelect.appendChild(option);
+        });
+        
+        // Restaurar el valor seleccionado si existe
+        if (currentValue && rooms.some(r => r.id === currentValue)) {
+          roomSelect.value = currentValue;
+        }
+      }
+    }
+
+    // Guardar edificio
+    async function saveBuilding(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('buildingName').value.trim();
+      const address = document.getElementById('buildingAddress').value.trim();
+      const floors = parseInt(document.getElementById('buildingFloors').value);
+      const description = document.getElementById('buildingDescription').value.trim();
+      
+      try {
+        const docRef = await addDoc(collection(db, "buildings"), {
+          name,
+          address,
+          floors,
+          description: description || null,
+          createdAt: new Date().toISOString()
+        });
+        
+        // Limpiar formulario
+        document.getElementById('buildingForm').reset();
+        
+        // Mostrar mensaje de éxito
+        showAlert('Éxito', 'Edificio guardado correctamente');
+        
+        // Recargar lista de edificios
+        await loadBuildings();
+        updateDashboard();
+      } catch (error) {
+        console.error("Error guardando edificio: ", error);
+        showAlert('Error', 'No se pudo guardar el edificio');
+      }
+    }
+
+    // Editar edificio
+    async function editBuilding(id) {
+      const building = buildings.find(b => b.id === id);
+      if (!building) return;
+      
+      currentEditId = id;
+      currentEditType = 'building';
+      
+      document.getElementById('editModalTitle').textContent = `Editar Edificio: ${building.name}`;
+      
+      const content = document.getElementById('editModalContent');
+      content.innerHTML = `
+        <div class="form-group">
+          <label for="editBuildingName">Nombre del Edificio:</label>
+          <input type="text" id="editBuildingName" class="form-control" value="${building.name}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editBuildingAddress">Dirección:</label>
+          <input type="text" id="editBuildingAddress" class="form-control" value="${building.address}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editBuildingFloors">Número de Pisos:</label>
+          <input type="number" id="editBuildingFloors" class="form-control" value="${building.floors || 1}" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editBuildingDescription">Descripción (opcional):</label>
+          <textarea id="editBuildingDescription" class="form-control">${building.description || ''}</textarea>
+        </div>
+      `;
+      
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    // Mostrar confirmación de eliminación
+    function showDeleteConfirmation(type, id) {
+      let title = '';
+      let message = '';
+      let item = null;
+      
+      if (type === 'building') {
+        item = buildings.find(b => b.id === id);
+        title = 'Eliminar Edificio';
+        message = `¿Estás seguro de que deseas eliminar el edificio "${item.name}"? Esta acción no se puede deshacer.`;
+      } else if (type === 'room') {
+        item = rooms.find(r => r.id === id);
+        title = 'Eliminar Habitación';
+        message = `¿Estás seguro de que deseas eliminar la habitación "${item.number}"? Esta acción no se puede deshacer.`;
+      }
+      
+      if (!item) return;
+      
+      currentEditId = id;
+      currentEditType = type;
+      
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      document.getElementById('confirmModal').classList.add('active');
+    }
+
+    // Confirmar acción (eliminación)
+    async function confirmAction() {
+      if (!currentEditId || !currentEditType) return;
+      
+      try {
+        if (currentEditType === 'building') {
+          // Eliminar edificio y sus habitaciones relacionadas
+          const buildingRooms = rooms.filter(r => r.buildingId === currentEditId);
+          
+          for (const room of buildingRooms) {
+            await deleteDoc(doc(db, "rooms", room.id));
+          }
+          
+          // Finalmente eliminar el edificio
+          await deleteDoc(doc(db, "buildings", currentEditId));
+          
+          showAlert('Éxito', 'Edificio y sus habitaciones relacionadas eliminados correctamente');
+        } else if (currentEditType === 'room') {
+          await deleteDoc(doc(db, "rooms", currentEditId));
+          showAlert('Éxito', 'Habitación eliminada correctamente');
+        }
+        
+        closeModal();
+        await loadAllData(); // Recargar todos los datos
+      } catch (error) {
+        console.error("Error eliminando: ", error);
+        showAlert('Error', 'No se pudo completar la eliminación');
+      }
+    }
+
+    // Guardar edición
+    async function saveEdit() {
+      if (!currentEditId || !currentEditType) return;
+      
+      try {
+        if (currentEditType === 'building') {
+          const name = document.getElementById('editBuildingName').value.trim();
+          const address = document.getElementById('editBuildingAddress').value.trim();
+          const floors = parseInt(document.getElementById('editBuildingFloors').value);
+          const description = document.getElementById('editBuildingDescription').value.trim();
+          
+          await updateDoc(doc(db, "buildings", currentEditId), {
+            name,
+            address,
+            floors,
+            description: description || null,
+            updatedAt: new Date().toISOString()
+          });
+          
+          showAlert('Éxito', 'Edificio actualizado correctamente');
+        } else if (currentEditType === 'room') {
+          const buildingId = document.getElementById('editRoomBuilding').value;
+          const number = document.getElementById('editRoomNumber').value.trim();
+          const floor = document.getElementById('editRoomFloor').value;
+          const type = document.getElementById('editRoomType').value;
+          const capacity = document.getElementById('editRoomCapacity').value;
+          const description = document.getElementById('editRoomDescription').value.trim();
+          
+          await updateDoc(doc(db, "rooms", currentEditId), {
+            buildingId,
+            number,
+            floor: parseInt(floor),
+            type,
+            capacity: parseInt(capacity),
+            description: description || null,
+            updatedAt: new Date().toISOString()
+          });
+          
+          showAlert('Éxito', 'Habitación actualizada correctamente');
+        }
+        
+        closeModal();
+        await loadAllData(); // Recargar todos los datos
+      } catch (error) {
+        console.error("Error actualizando: ", error);
+        showAlert('Error', 'No se pudo completar la actualización');
+      }
+    }
+
+    // Cargar habitaciones - FUNCIÓN CORREGIDA
+    async function loadRooms() {
+      const querySnapshot = await getDocs(collection(db, "rooms"));
+      rooms = [];
+      querySnapshot.forEach(doc => {
+        const roomData = doc.data();
+        // Asegurarse de que el array staff exista y tenga un valor por defecto si no existe
+        rooms.push({ 
+          id: doc.id, 
+          ...roomData,
+          staff: roomData.staff || [] // Esto asegura que siempre haya un array, incluso si no está definido en Firestore
+        });
+      });
+      
+      updateRoomsList();
+      updateRoomSelects();
+      updateAllStaff();
+    }
+
+    // Actualizar lista de habitaciones
+    function updateRoomsList() {
+      const container = document.getElementById('roomsList');
+      container.innerHTML = '';
+      
+      if (rooms.length === 0) {
+        container.innerHTML = '<p>No hay habitaciones registradas</p>';
+        return;
+      }
+      
+      // Filtrar por búsqueda si hay texto
+      const searchTerm = document.getElementById('roomSearch').value.toLowerCase();
+      
+      // Filtrar por edificio si hay un filtro aplicado
+      const filterBuilding = document.getElementById('filterBuilding').value;
+      let filteredRooms = rooms;
+      
+      if (filterBuilding) {
+        filteredRooms = rooms.filter(r => r.buildingId === filterBuilding);
+      }
+      
+      // Aplicar filtro de búsqueda
+      if (searchTerm) {
+        filteredRooms = filteredRooms.filter(room => {
+          const building = buildings.find(b => b.id === room.buildingId);
+          const buildingName = building ? building.name.toLowerCase() : '';
+          
+          return (
+            room.number.toLowerCase().includes(searchTerm) ||
+            room.type.toLowerCase().includes(searchTerm) ||
+            buildingName.includes(searchTerm) ||
+            (room.description && room.description.toLowerCase().includes(searchTerm))
+          );
+        });
+      }
+      
+      if (filteredRooms.length === 0) {
+        container.innerHTML = '<p>No hay habitaciones que coincidan con el filtro</p>';
+        return;
+      }
+      
+      filteredRooms.forEach(room => {
+        const building = buildings.find(b => b.id === room.buildingId);
+        const buildingInfo = building ? building.name : 'Edificio desconocido';
+        
+        // Calcular cantidad de colaboradores
+        const staffCount = room.staff ? room.staff.length : 0;
+        
+        // Determinar estado de la habitación
+        let statusClass = '';
+        let statusText = '';
+        let progressClass = '';
+        let progressWidth = 0;
+        
+        if (staffCount === 0) {
+          statusClass = 'status-empty';
+          statusText = 'Vacía';
+          progressClass = 'progress-empty';
+          progressWidth = 0;
+        } else if (staffCount >= room.capacity) {
+          statusClass = 'status-occupied';
+          statusText = 'Llena';
+          progressClass = 'progress-occupied';
+          progressWidth = 100;
+        } else {
+          statusClass = 'status-partial';
+          statusText = `${staffCount}/${room.capacity}`;
+          progressClass = 'progress-partial';
+          progressWidth = (staffCount / room.capacity) * 100;
+        }
+        
+        const roomCard = document.createElement('div');
+        roomCard.className = 'room-card-enhanced';
+        roomCard.innerHTML = `
+          <div class="room-header">
+            <div class="room-title">
+              <i class="fas fa-door-open"></i> Habitación ${room.number}
+            </div>
+            <span class="room-status ${statusClass}">${statusText}</span>
+          </div>
+          
+          <div class="room-meta">
+            <span class="room-meta-item">
+              <i class="fas fa-building"></i> ${buildingInfo}
+            </span>
+            <span class="room-meta-item">
+              <i class="fas fa-layer-group"></i> Piso ${room.floor}
+            </span>
+            <span class="room-meta-item">
+              <i class="fas fa-tag"></i> ${room.type}
+            </span>
+          </div>
+          
+          <div class="room-occupancy">
+            <div class="occupancy-details">
+              <span>Ocupación:</span>
+              <span class="occupancy-count">${staffCount} / ${room.capacity}</span>
+            </div>
+            <div class="occupancy-bar">
+              <div class="occupancy-progress ${progressClass}" style="width: ${progressWidth}%"></div>
+            </div>
+          </div>
+          
+          ${room.description ? `<p style="margin-top: 1rem;"><strong>Descripción:</strong> ${room.description}</p>` : ''}
+          
+          <div class="room-actions">
+            <button class="btn btn-sm edit-room" data-id="${room.id}">
+              <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="btn btn-sm btn-danger delete-room" data-id="${room.id}">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+            <button class="btn btn-sm view-staff" data-id="${room.id}">
+              <i class="fas fa-users"></i> Ver Colaboradores
+            </button>
+          </div>
+        `;
+        container.appendChild(roomCard);
+      });
+      
+      // Agregar event listeners a los botones
+      document.querySelectorAll('.edit-room').forEach(btn => {
+        btn.addEventListener('click', () => editRoom(btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.delete-room').forEach(btn => {
+        btn.addEventListener('click', () => showDeleteConfirmation('room', btn.dataset.id));
+      });
+      
+      document.querySelectorAll('.view-staff').forEach(btn => {
+        btn.addEventListener('click', () => viewRoomStaff(btn.dataset.id));
+      });
+    }
+
+    // Ver colaboradores de una habitación
+    async function viewRoomStaff(roomId) {
+      const room = rooms.find(r => r.id === roomId);
+      if (!room) return;
+      
+      currentRoomIdForStaff = roomId;
+      
+      const building = buildings.find(b => b.id === room.buildingId);
+      
+      document.getElementById('detailsModalTitle').textContent = `Colaboradores - Habitación ${room.number}`;
+      
+      const content = document.getElementById('detailsModalContent');
+      content.innerHTML = `
+        <p><strong><i class="fas fa-building"></i> Edificio:</strong> ${building ? building.name : 'Edificio desconocido'}</p>
+        <p><strong><i class="fas fa-door-open"></i> Habitación:</strong> ${room.number} (Piso ${room.floor})</p>
+        <p><strong><i class="fas fa-tag"></i> Tipo:</strong> ${room.type}</p>
+        <p><strong><i class="fas fa-users"></i> Ocupación:</strong> ${room.staff ? room.staff.length : 0} / ${room.capacity}</p>
+        
+        <div class="progress-container" style="margin: 1rem 0;">
+          <div class="progress-bar ${room.staff && room.staff.length >= room.capacity ? 'progress-occupied' : 
+            room.staff && room.staff.length > 0 ? 'progress-partial' : 'progress-empty'}" 
+            style="width: ${room.staff ? (room.staff.length / room.capacity) * 100 : 0}%">
+          </div>
+        </div>
+        
+        <div class="staff-actions" style="margin-top: 1.5rem;">
+          <button class="btn btn-sm add-staff">
+            <i class="fas fa-plus"></i> Agregar Colaborador
+          </button>
+        </div>
+        
+        <div class="staff-list" id="staffList">
+          ${room.staff && room.staff.length > 0 ? 
+            room.staff.map(staff => `
+              <div class="staff-item" data-staff-id="${staff.id}">
+                <div class="staff-details-row">
+                  ${staff.photo ? 
+                    `<img src="${staff.photo}" alt="${staff.name}" class="staff-photo">` : 
+                    `<div class="staff-photo-placeholder">
+                      <i class="fas fa-user"></i>
+                    </div>`
+                  }
+                  <div>
+                    <strong>${staff.name}</strong> (${staff.position})
+                    <p><i class="fas fa-id-card"></i> ID: ${staff.id} - ${staff.document}</p>
+                    <p><i class="fas fa-calendar-day"></i> Inicio: ${staff.startDate ? new Date(staff.startDate).toLocaleDateString() : 'Sin fecha'}</p>
+                    ${staff.endDate ? `<p><i class="fas fa-calendar-times"></i> Fin: ${new Date(staff.endDate).toLocaleDateString()}</p>` : ''}
+                  </div>
+                </div>
+                <div class="staff-actions">
+                  <button class="btn btn-sm btn-danger remove-staff" data-staff-id="${staff.id}">
+                    <i class="fas fa-user-minus"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+            `).join('') : 
+            '<p class="no-staff-message">No hay colaboradores registrados en esta habitación</p>'
+          }
+        </div>
+      `;
+      
+      // Agregar event listeners a los botones
+      document.querySelector('.add-staff').addEventListener('click', () => {
+        document.getElementById('staffRoom').value = roomId;
+        document.querySelector('.tab[data-tab="add-staff"]').click();
+        closeModal();
+      });
+      
+      document.querySelectorAll('.remove-staff').forEach(btn => {
+        btn.addEventListener('click', () => removeStaff(btn.dataset.staffId));
+      });
+      
+      document.getElementById('detailsModal').classList.add('active');
+    }
+
+    // Agregar colaborador
+    async function addStaffMember(e) {
+      e.preventDefault();
+      
+      const roomId = document.getElementById('staffRoom').value;
+      const name = document.getElementById('staffName').value.trim();
+      const documentId = document.getElementById('staffDocument').value.trim();
+      const id = document.getElementById('staffId').value.trim();
+      const phone = document.getElementById('staffPhone').value.trim();
+      const email = document.getElementById('staffEmail').value.trim();
+      const position = document.getElementById('staffPosition').value.trim();
+      const startDate = document.getElementById('staffStartDate').value;
+      const endDate = document.getElementById('staffEndDate').value;
+      const notes = document.getElementById('staffNotes').value.trim();
+      const photo = document.getElementById('staffPhoto').value.trim();
+      
+      // Validar campos requeridos
+      if (!name || !documentId || !id || !position || !startDate) {
+        showAlert('Error', 'Por favor complete todos los campos requeridos');
+        return;
+      }
+      
+      // Obtener la habitación para verificar capacidad
+      const room = rooms.find(r => r.id === roomId);
+      if (!room) {
+        showAlert('Error', 'Habitación no encontrada');
+        return;
+      }
+      
+      // Verificar capacidad máxima
+      if (room.staff && room.staff.length >= room.capacity) {
+        showAlert('Error', 'Esta habitación ha alcanzado su capacidad máxima de colaboradores');
+        return;
+      }
+      
+      const staff = {
+        id: id || Date.now().toString(),
+        name,
+        document: documentId,
+        phone: phone || null,
+        email: email || null,
+        position,
+        startDate,
+        endDate: endDate || null,
+        notes: notes || null,
+        photo: photo || null,
+        addedAt: new Date().toISOString()
+      };
+      
+      try {
+        // Agregar colaborador al array de colaboradores de la habitación
+        await updateDoc(doc(db, "rooms", roomId), {
+          staff: arrayUnion(staff)
+        });
+        
+        // Limpiar formulario
+        document.getElementById('staffForm').reset();
+        
+        // Restablecer la vista previa de la foto
+        document.getElementById('photoPreview').style.display = 'none';
+        document.getElementById('photoPreview').src = '';
+        
+        // Establecer la fecha actual por defecto
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('staffStartDate').value = today;
+        
+        // Mostrar mensaje de éxito
+        showAlert('Éxito', 'Colaborador agregado correctamente');
+        
+        // Recargar datos
+        await loadRooms();
+        
+        // Si estamos viendo los colaboradores de una habitación, actualizar la vista
+        if (currentRoomIdForStaff) {
+          viewRoomStaff(currentRoomIdForStaff);
+        }
+        
+        // Si hay fecha de finalización, programar alerta
+        if (endDate) {
+          scheduleAlert(staff, room, building);
+        }
+      } catch (error) {
+        console.error("Error agregando colaborador: ", error);
+        showAlert('Error', 'No se pudo agregar el colaborador');
+      }
+    }
+
+    // Programar alerta para fecha de finalización
+    function scheduleAlert(staff, room, building) {
+      const endDate = new Date(staff.endDate);
+      const alertTime = new Date(endDate.getTime() - (30 * 60 * 1000)); // 30 minutos antes
+      
+      const alertData = {
+        id: staff.id,
+        name: staff.name,
+        position: staff.position,
+        roomNumber: room.number,
+        buildingName: building ? building.name : 'Edificio desconocido',
+        alertTime: alertTime.getTime(),
+        endTime: endDate.getTime(),
+        triggered: false
+      };
+      
+      scheduledAlerts.push(alertData);
+    }
+
+    // Verificar alertas programadas
+    function checkScheduledAlerts() {
+      const now = new Date().getTime();
+      
+      scheduledAlerts.forEach(alert => {
+        if (!alert.triggered && now >= alert.alertTime && now <= alert.endTime) {
+          // Mostrar alerta
+          showNotification(`El colaborador ${alert.name} está próximo a finalizar su contrato a las ${new Date(alert.endTime).toLocaleTimeString()}`);
+          playAlertSound();
+          
+          // Marcar como activada
+          alert.triggered = true;
+        }
+      });
+      
+      // Eliminar alertas pasadas
+      scheduledAlerts = scheduledAlerts.filter(alert => now <= alert.endTime + (60 * 60 * 1000)); // Mantener por 1 hora después
+    }
+
+    // Reproducir sonido de alerta
+    function playAlertSound() {
+      alertAudio.currentTime = 0;
+      alertAudio.play().catch(e => console.log("Error al reproducir sonido:", e));
+    }
+
+    // Remover colaborador
+    async function removeStaff(staffId) {
+      const room = rooms.find(r => r.id === currentRoomIdForStaff);
+      if (!room || !room.staff) return;
+      
+      const staff = room.staff.find(s => s.id === staffId);
+      if (!staff) return;
+      
+      // Mostrar alerta si el colaborador tiene fecha de finalización próxima
+      if (staff.endDate) {
+        const endDate = new Date(staff.endDate);
+        const today = new Date();
+        const diffTime = endDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays <= 7) {
+          showNotification(`El colaborador ${staff.name} está próximo a finalizar su contrato en ${diffDays} días`);
+          playAlertSound();
+        }
+      }
+      
+      try {
+        // Remover colaborador del array de colaboradores de la habitación
+        await updateDoc(doc(db, "rooms", currentRoomIdForStaff), {
+          staff: arrayRemove(staff)
+        });
+        
+        showAlert('Éxito', 'Colaborador removido correctamente');
+        
+        // Recargar datos
+        await loadRooms();
+        
+        // Volver a abrir el modal de gestión de colaboradores
+        viewRoomStaff(currentRoomIdForStaff);
+      } catch (error) {
+        console.error("Error removiendo colaborador: ", error);
+        showAlert('Error', 'No se pudo remover el colaborador');
+      }
+    }
+
+    // Filtrar habitaciones por edificio o búsqueda
+    function filterRooms() {
+      updateRoomsList();
+    }
+
+    // Actualizar lista de todos los colaboradores
+    function updateAllStaff() {
+      allStaff = [];
+      rooms.forEach(room => {
+        if (room.staff && room.staff.length > 0) {
+          room.staff.forEach(staff => {
+            const building = buildings.find(b => b.id === room.buildingId);
+            allStaff.push({
+              ...staff,
+              roomId: room.id,
+              roomNumber: room.number,
+              buildingId: room.buildingId,
+              buildingName: building ? building.name : 'Edificio desconocido',
+              floor: room.floor
+            });
+          });
+        }
+      });
+      
+      renderAllStaff(allStaff);
+    }
+
+    // Renderizar todos los colaboradores
+    function renderAllStaff(staffList) {
+      const container = document.getElementById('allStaffContainer');
+      container.innerHTML = '';
+      
+      if (staffList.length === 0) {
+        container.innerHTML = '<p class="no-staff-message">No hay colaboradores registrados</p>';
+        return;
+      }
+      
+      const staffGrid = document.createElement('div');
+      staffGrid.className = 'staff-grid';
+      
+      staffList.forEach(staff => {
+        const staffCard = document.createElement('div');
+        staffCard.className = 'staff-card';
+        staffCard.innerHTML = `
+          <div class="staff-details-row">
+            ${staff.photo ? 
+              `<img src="${staff.photo}" alt="${staff.name}" class="staff-photo">` : 
+              `<div class="staff-photo-placeholder">
+                <i class="fas fa-user"></i>
+              </div>`
+            }
+            <div>
+              <h3>${staff.name}</h3>
+              <p><strong>Cargo:</strong> ${staff.position}</p>
+            </div>
+          </div>
+          <p><strong>ID:</strong> ${staff.id}</p>
+          <p><strong>Documento:</strong> ${staff.document}</p>
+          ${staff.phone ? `<p><strong>Teléfono:</strong> ${staff.phone}</p>` : ''}
+          ${staff.email ? `<p><strong>Email:</strong> ${staff.email}</p>` : ''}
+          <p><strong>Fecha de inicio:</strong> ${staff.startDate ? new Date(staff.startDate).toLocaleDateString() : 'No especificada'}</p>
+          ${staff.endDate ? `<p><strong>Fecha de finalización:</strong> ${new Date(staff.endDate).toLocaleDateString()}</p>` : ''}
+          
+          <div class="staff-location">
+            <p><i class="fas fa-map-marker-alt"></i> <strong>Ubicación:</strong></p>
+            <p><i class="fas fa-building"></i> ${staff.buildingName}</p>
+            <p><i class="fas fa-door-open"></i> Habitación ${staff.roomNumber} (Piso ${staff.floor})</p>
+          </div>
+          
+          <button class="btn btn-sm btn-accent view-staff-details" data-staff-id="${staff.id}" style="margin-top: 1rem;">
+            <i class="fas fa-info-circle"></i> Ver Detalles
+          </button>
+        `;
+        staffGrid.appendChild(staffCard);
+      });
+      
+      container.appendChild(staffGrid);
+      
+      // Agregar event listeners a los botones de detalles
+      document.querySelectorAll('.view-staff-details').forEach(btn => {
+        btn.addEventListener('click', () => viewStaffDetails(btn.dataset.staffId));
+      });
+    }
+
+    // Ver detalles de un colaborador
+    function viewStaffDetails(staffId) {
+      const staff = allStaff.find(s => s.id === staffId);
+      if (!staff) return;
+      
+      document.getElementById('detailsModalTitle').textContent = `Detalles del Colaborador: ${staff.name}`;
+      
+      const content = document.getElementById('detailsModalContent');
+      content.innerHTML = `
+        <div class="staff-details">
+          <div class="staff-details-row">
+            ${staff.photo ? 
+              `<img src="${staff.photo}" alt="${staff.name}" class="staff-photo">` : 
+              `<div class="staff-photo-placeholder">
+                <i class="fas fa-user"></i>
+              </div>`
+            }
+            <div>
+              <h3>${staff.name}</h3>
+              <p><strong>Cargo:</strong> ${staff.position}</p>
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-id-card"></i> ID:</span>
+            <span class="detail-value">${staff.id}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-file-alt"></i> Documento:</span>
+            <span class="detail-value">${staff.document}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-briefcase"></i> Cargo:</span>
+            <span class="detail-value">${staff.position}</span>
+          </div>
+          ${staff.phone ? `
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-phone"></i> Teléfono:</span>
+            <span class="detail-value">${staff.phone}</span>
+          </div>
+          ` : ''}
+          ${staff.email ? `
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-envelope"></i> Email:</span>
+            <span class="detail-value">${staff.email}</span>
+          </div>
+          ` : ''}
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-calendar-day"></i> Fecha de inicio:</span>
+            <span class="detail-value">${staff.startDate ? new Date(staff.startDate).toLocaleDateString() : 'No especificada'}</span>
+          </div>
+          ${staff.endDate ? `
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-calendar-times"></i> Fecha de finalización:</span>
+            <span class="detail-value">${new Date(staff.endDate).toLocaleDateString()}</span>
+          </div>
+          ` : ''}
+          ${staff.notes ? `
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-sticky-note"></i> Notas:</span>
+            <span class="detail-value">${staff.notes}</span>
+          </div>
+          ` : ''}
+          
+          <h4 style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <i class="fas fa-map-marker-alt"></i> Ubicación
+          </h4>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-building"></i> Edificio:</span>
+            <span class="detail-value">${staff.buildingName}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-door-open"></i> Habitación:</span>
+            <span class="detail-value">${staff.roomNumber} (Piso ${staff.floor})</span>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('detailsModal').classList.add('active');
+    }
+
+    // Filtrar colaboradores por búsqueda
+    function filterStaff() {
+      const searchTerm = document.getElementById('staffSearch').value.toLowerCase();
+      
+      if (!searchTerm) {
+        renderAllStaff(allStaff);
+        return;
+      }
+      
+      const filteredStaff = allStaff.filter(staff => 
+        staff.name.toLowerCase().includes(searchTerm) ||
+        staff.position.toLowerCase().includes(searchTerm) ||
+        staff.id.toLowerCase().includes(searchTerm) ||
+        staff.document.toLowerCase().includes(searchTerm) ||
+        (staff.email && staff.email.toLowerCase().includes(searchTerm)) ||
+        (staff.phone && staff.phone.toLowerCase().includes(searchTerm)) ||
+        staff.buildingName.toLowerCase().includes(searchTerm) ||
+        staff.roomNumber.toLowerCase().includes(searchTerm)
+      );
+      
+      renderAllStaff(filteredStaff);
+    }
+
+    // Guardar habitación
+    async function saveRoom(e) {
+      e.preventDefault();
+      
+      const buildingId = document.getElementById('roomBuilding').value;
+      const number = document.getElementById('roomNumber').value.trim();
+      const floor = document.getElementById('roomFloor').value;
+      const type = document.getElementById('roomType').value;
+      const capacity = document.getElementById('roomCapacity').value;
+      const description = document.getElementById('roomDescription').value.trim();
+      
+      try {
+        const docRef = await addDoc(collection(db, "rooms"), {
+          buildingId,
+          number,
+          floor: parseInt(floor),
+          type,
+          capacity: parseInt(capacity),
+          description: description || null,
+          staff: [], // Inicializar el array de colaboradores vacío
+          createdAt: new Date().toISOString()
+        });
+        
+        // Limpiar formulario
+        document.getElementById('roomForm').reset();
+        
+        // Mostrar mensaje de éxito
+        showAlert('Éxito', 'Habitación guardada correctamente');
+        
+        // Recargar lista de habitaciones
+        await loadRooms();
+        updateDashboard();
+      } catch (error) {
+        console.error("Error guardando habitación: ", error);
+        showAlert('Error', 'No se pudo guardar la habitación');
+      }
+    }
+
+    // Editar habitación
+    async function editRoom(id) {
+      const room = rooms.find(r => r.id === id);
+      if (!room) return;
+      
+      currentEditId = id;
+      currentEditType = 'room';
+      
+      const building = buildings.find(b => b.id === room.buildingId);
+      const buildingInfo = building ? building.name : 'Edificio desconocido';
+      
+      document.getElementById('editModalTitle').textContent = `Editar Habitación: ${room.number} (${buildingInfo})`;
+      
+      const content = document.getElementById('editModalContent');
+      content.innerHTML = `
+        <div class="form-group">
+          <label for="editRoomBuilding">Edificio:</label>
+          <select id="editRoomBuilding" class="form-control" required>
+            ${buildings.map(b => `
+              <option value="${b.id}" ${b.id === room.buildingId ? 'selected' : ''}>${b.name}</option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRoomNumber">Número/Identificador:</label>
+          <input type="text" id="editRoomNumber" class="form-control" value="${room.number}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRoomFloor">Piso:</label>
+          <input type="number" id="editRoomFloor" class="form-control" value="${room.floor}" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRoomType">Tipo de Habitación:</label>
+          <select id="editRoomType" class="form-control" required>
+            <option value="individual" ${room.type === 'individual' ? 'selected' : ''}>Individual</option>
+            <option value="doble" ${room.type === 'doble' ? 'selected' : ''}>Doble</option>
+            <option value="suite" ${room.type === 'suite' ? 'selected' : ''}>Suite</option>
+            <option value="familiar" ${room.type === 'familiar' ? 'selected' : ''}>Familiar</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRoomCapacity">Capacidad Máxima:</label>
+          <input type="number" id="editRoomCapacity" class="form-control" value="${room.capacity}" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRoomDescription">Descripción (opcional):</label>
+          <textarea id="editRoomDescription" class="form-control">${room.description || ''}</textarea>
+        </div>
+      `;
+      
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    // Actualizar dashboard
+    function updateDashboard() {
+      updateSummaryGrid();
+      updateAlertsList();
+      updateReports();
+    }
+
+    // Actualizar resumen en el dashboard
+    function updateSummaryGrid() {
+      const container = document.getElementById('summaryGrid');
+      container.innerHTML = '';
+      
+      // Total de edificios
+      const buildingsCard = document.createElement('div');
+      buildingsCard.className = 'data-item';
+      buildingsCard.innerHTML = `
+        <div>
+          <i class="fas fa-building"></i>
+        </div>
+        <div style="text-align: right;">
+          <h3>${buildings.length}</h3>
+          <p>Edificios</p>
+        </div>
+      `;
+      container.appendChild(buildingsCard);
+      
+      // Total de habitaciones
+      const roomsCard = document.createElement('div');
+      roomsCard.className = 'data-item';
+      roomsCard.innerHTML = `
+        <div>
+          <i class="fas fa-door-open"></i>
+        </div>
+        <div style="text-align: right;">
+          <h3>${rooms.length}</h3>
+          <p>Habitaciones</p>
+        </div>
+      `;
+      container.appendChild(roomsCard);
+      
+      // Total de colaboradores
+      let totalStaff = 0;
+      rooms.forEach(room => {
+        totalStaff += room.staff ? room.staff.length : 0;
+      });
+      
+      const staffCard = document.createElement('div');
+      staffCard.className = 'data-item';
+      staffCard.innerHTML = `
+        <div>
+          <i class="fas fa-users"></i>
+        </div>
+        <div style="text-align: right;">
+          <h3>${totalStaff}</h3>
+          <p>Colaboradores</p>
+        </div>
+      `;
+      container.appendChild(staffCard);
+      
+      // Estadísticas de ocupación
+      let emptyRooms = 0;
+      let partialRooms = 0;
+      let fullRooms = 0;
+      
+      rooms.forEach(room => {
+        const staffCount = room.staff ? room.staff.length : 0;
+        
+        if (staffCount === 0) {
+          emptyRooms++;
+        } else if (staffCount >= room.capacity) {
+          fullRooms++;
+        } else {
+          partialRooms++;
+        }
+      });
+      
+      const occupancyCard = document.createElement('div');
+      occupancyCard.className = 'data-item';
+      occupancyCard.innerHTML = `
+        <div>
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div style="text-align: right;">
+          <h3>${rooms.length > 0 ? Math.round((fullRooms + partialRooms) / rooms.length * 100) : 0}%</h3>
+          <p>Ocupación</p>
+          <p style="font-size: 0.8rem;">
+            <span style="color: var(--danger-color);">Llenas: ${fullRooms}</span> | 
+            <span style="color: var(--warning-color);">Parciales: ${partialRooms}</span> | 
+            <span style="color: var(--empty-color);">Vacías: ${emptyRooms}</span>
+          </p>
+        </div>
+      `;
+      container.appendChild(occupancyCard);
+    }
+
+    // Actualizar lista de alertas
+    function updateAlertsList() {
+      const container = document.getElementById('alertsList');
+      container.innerHTML = '';
+      
+      // Encontrar colaboradores cuyo contrato está por terminar (en los próximos 7 días)
+      const endingContracts = [];
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      
+      rooms.forEach(room => {
+        if (room.staff) {
+          room.staff.forEach(staff => {
+            if (staff.endDate) {
+              const endDate = new Date(staff.endDate);
+              if (endDate >= today && endDate <= nextWeek) {
+                endingContracts.push({
+                  room,
+                  staff,
+                  daysLeft: Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)),
+                  endTime: endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+              }
+            }
+          });
+        }
+      });
+      
+      if (endingContracts.length === 0) {
+        container.innerHTML = '<p class="no-alerts-message">No hay alertas recientes</p>';
+        return;
+      }
+      
+      // Ordenar por días restantes (más próximos primero)
+      endingContracts.sort((a, b) => a.daysLeft - b.daysLeft);
+      
+      // Mostrar alertas de contratos por terminar
+      endingContracts.forEach(item => {
+        const building = buildings.find(b => b.id === item.room.buildingId);
+        
+        const alertItem = document.createElement('div');
+        alertItem.className = 'building-card';
+        alertItem.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--warning-color);"><i class="fas fa-exclamation-triangle"></i> Contrato por Terminar</h3>
+            <span class="status-badge status-partial">Urgente</span>
+          </div>
+          <p><strong>Colaborador:</strong> ${item.staff.name} (${item.staff.position})</p>
+          <p><strong>Habitación:</strong> ${item.room.number} (${item.room.type})</p>
+          <p><strong>Ubicación:</strong> ${building ? building.name : 'Edificio desconocido'} - Piso ${item.room.floor}</p>
+          <p><strong>Fecha de finalización:</strong> ${new Date(item.staff.endDate).toLocaleDateString()}</p>
+          <p><strong>Hora de salida:</strong> ${item.endTime}</p>
+          <p><strong>Tiempo restante:</strong> ${item.daysLeft} días</p>
+          <button class="btn btn-sm view-staff" data-id="${item.room.id}" style="margin-top: 0.5rem;">
+            <i class="fas fa-users"></i> Ver Colaboradores
+          </button>
+        `;
+        container.appendChild(alertItem);
+        
+        // Agregar event listener al botón
+        alertItem.querySelector('.view-staff').addEventListener('click', () => {
+          viewRoomStaff(item.room.id);
+        });
+      });
+    }
+
+    // Actualizar reportes
+    function updateReports() {
+      updateBuildingReports();
+      updateStaffReports();
+    }
+
+    // Actualizar reportes por edificio
+    function updateBuildingReports() {
+      const container = document.getElementById('buildingReports');
+      container.innerHTML = '';
+      
+      if (buildings.length === 0) {
+        container.innerHTML = '<p class="no-data-message">No hay edificios registrados</p>';
+        return;
+      }
+      
+      buildings.forEach(building => {
+        // Obtener habitaciones del edificio
+        const buildingRooms = rooms.filter(r => r.buildingId === building.id);
+        
+        // Calcular estadísticas
+        let totalStaff = 0;
+        let emptyRooms = 0;
+        let partialRooms = 0;
+        let fullRooms = 0;
+        
+        buildingRooms.forEach(room => {
+          const staffCount = room.staff ? room.staff.length : 0;
+          totalStaff += staffCount;
+          
+          if (staffCount === 0) {
+            emptyRooms++;
+          } else if (staffCount >= room.capacity) {
+            fullRooms++;
+          } else {
+            partialRooms++;
+          }
+        });
+        
+        const buildingReport = document.createElement('div');
+        buildingReport.className = 'collapsible';
+        buildingReport.innerHTML = `
+          ${building.name}
+          <span style="margin-left: auto; margin-right: 1rem;">
+            <span style="color: var(--danger-color);">${fullRooms}L</span> | 
+            <span style="color: var(--warning-color);">${partialRooms}P</span> | 
+            <span style="color: var(--empty-color);">${emptyRooms}V</span>
+          </span>
+          <i class="fas fa-chevron-down"></i>
+        `;
+        
+        const content = document.createElement('div');
+        content.className = 'collapsible-content';
+        content.innerHTML = `
+          <p><strong>Dirección:</strong> ${building.address}</p>
+          <p><strong>Pisos:</strong> ${building.floors || 1}</p>
+          <p><strong>Habitaciones:</strong> ${buildingRooms.length}</p>
+          <p><strong>Colaboradores:</strong> ${totalStaff}</p>
+          
+          <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+            <div style="flex: 1; background-color: var(--card-bg); padding: 1rem; border-radius: 8px;">
+              <h4 style="color: var(--danger-color); margin-bottom: 0.5rem;">Habitaciones Llenas</h4>
+              <p style="font-size: 1.5rem; font-weight: bold;">${fullRooms}</p>
+            </div>
+            <div style="flex: 1; background-color: var(--card-bg); padding: 1rem; border-radius: 8px;">
+              <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">Habitaciones Parciales</h4>
+              <p style="font-size: 1.5rem; font-weight: bold;">${partialRooms}</p>
+            </div>
+            <div style="flex: 1; background-color: var(--card-bg); padding: 1rem; border-radius: 8px;">
+              <h4 style="color: var(--empty-color); margin-bottom: 0.5rem;">Habitaciones Vacías</h4>
+              <p style="font-size: 1.5rem; font-weight: bold;">${emptyRooms}</p>
+            </div>
+          </div>
+          
+          <h4 style="margin-top: 1.5rem;"><i class="fas fa-users"></i> Habitaciones con más colaboradores:</h4>
+          <ul style="list-style-type: none; padding-left: 0;">
+            ${buildingRooms
+              .filter(room => room.staff && room.staff.length > 0)
+              .sort((a, b) => (b.staff?.length || 0) - (a.staff?.length || 0))
+              .slice(0, 5)
+              .map(room => `
+                <li>
+                  <strong>${room.number}</strong> (Piso ${room.floor}) - ${room.staff ? room.staff.length : 0}/${room.capacity} colaboradores
+                  <button class="btn btn-sm view-staff" data-id="${room.id}" style="margin-left: 0.5rem;">
+                    <i class="fas fa-eye"></i> Ver
+                  </button>
+                </li>
+              `).join('') || '<li class="no-data-message">No hay habitaciones con colaboradores</li>'}
+          </ul>
+        `;
+        
+        container.appendChild(buildingReport);
+        container.appendChild(content);
+        
+        // Agregar event listeners a los botones
+        content.querySelectorAll('.view-staff').forEach(btn => {
+          btn.addEventListener('click', () => {
+            viewRoomStaff(btn.dataset.id);
+          });
+        });
+      });
+      
+      // Configurar elementos colapsables
+      setupCollapsibles();
+    }
+
+    // Actualizar reportes de colaboradores
+    function updateStaffReports() {
+      const container = document.getElementById('staffReports');
+      container.innerHTML = '';
+      
+      if (allStaff.length === 0) {
+        container.innerHTML = '<p class="no-data-message">No hay colaboradores registrados</p>';
+        return;
+      }
+      
+      // Agrupar por cargo
+      const positions = {};
+      allStaff.forEach(staff => {
+        if (!positions[staff.position]) {
+          positions[staff.position] = [];
+        }
+        positions[staff.position].push(staff);
+      });
+      
+      // Mostrar reporte por cargo
+      Object.entries(positions).forEach(([position, staffList]) => {
+        const positionReport = document.createElement('div');
+        positionReport.className = 'collapsible';
+        positionReport.innerHTML = `
+          ${position} <span class="badge">${staffList.length}</span>
+          <i class="fas fa-chevron-down"></i>
+        `;
+        
+        const content = document.createElement('div');
+        content.className = 'collapsible-content';
+        content.innerHTML = `
+          <ul style="list-style-type: none; padding-left: 0;">
+            ${staffList.map(staff => {
+              return `
+                <li>
+                  <strong>${staff.name}</strong> (ID: ${staff.id})
+                  <p>Documento: ${staff.document}</p>
+                  <p>Habitación: ${staff.roomNumber} (${staff.buildingName})</p>
+                  <p>Inicio: ${staff.startDate ? new Date(staff.startDate).toLocaleDateString() : 'Sin fecha'}</p>
+                  ${staff.endDate ? `<p>Fin: ${new Date(staff.endDate).toLocaleDateString()}</p>` : ''}
+                  <button class="btn btn-sm btn-accent view-staff-details" data-staff-id="${staff.id}" style="margin-top: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Ver Detalles
+                  </button>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+        `;
+        
+        container.appendChild(positionReport);
+        container.appendChild(content);
+      });
+      
+      // Configurar elementos colapsables
+      setupCollapsibles();
+      
+      // Agregar event listeners a los botones de detalles
+      document.querySelectorAll('.view-staff-details').forEach(btn => {
+        btn.addEventListener('click', () => viewStaffDetails(btn.dataset.staffId));
+      });
+    }
+
+    // Mostrar notificación
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      const messageElement = document.getElementById('notificationMessage');
+      
+      messageElement.textContent = message;
+      notification.classList.remove('hidden');
+      
+      // Reproducir sonido de alerta
+      playAlertSound();
+      
+      // Ocultar después de 5 segundos
+      setTimeout(() => {
+        notification.classList.add('hidden');
+      }, 5000);
+    }
+
+    // Mostrar alerta en modal
+    function showAlert(title, message) {
+      document.getElementById('alertModalTitle').textContent = title;
+      document.getElementById('alertModalMessage').textContent = message;
+      document.getElementById('alertModal').classList.add('active');
+    }
+
+    // Cerrar modal
+    window.closeModal = function() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+      });
+      
+      currentEditId = null;
+      currentEditType = null;
+      currentRoomIdForStaff = null;
+    };
+  </script>
+</body>
+</html>
