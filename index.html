@@ -224,6 +224,7 @@
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            position: relative;
         }
         
         .pin-input {
@@ -236,6 +237,8 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             background-color: rgba(0, 0, 0, 0.2);
             color: white;
+            -webkit-text-security: disc; /* Oculta los números del PIN */
+            -moz-text-security: disc;
         }
         
         .pin-input:focus {
@@ -299,17 +302,17 @@
     <!-- Formulario para crear PIN -->
     <form id="pinCreationForm" class="form-step">
         <div class="user-info">
-            <p>Usuario: <strong id="display-email"></strong></p>
+            <p>Usuario: <strong id="display-name"></strong></p>
         </div>
         <p>Por seguridad, crea un PIN numérico de 4 a 6 dígitos:</p>
         
         <div class="pin-container">
-            <input type="number" class="pin-input" id="pin1" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="pin2" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="pin3" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="pin4" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="pin5" maxlength="1" min="0" max="9">
-            <input type="number" class="pin-input" id="pin6" maxlength="1" min="0" max="9">
+            <input type="password" class="pin-input" id="pin1" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="pin2" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="pin3" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="pin4" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="pin5" maxlength="1" min="0" max="9">
+            <input type="password" class="pin-input" id="pin6" maxlength="1" min="0" max="9">
         </div>
         
         <button type="submit" class="btn" id="createPinBtn">Guardar PIN</button>
@@ -319,17 +322,17 @@
     <!-- Formulario para ingresar PIN -->
     <form id="pinLoginForm" class="form-step">
         <div class="user-info">
-            <p>Bienvenido de nuevo <strong id="display-name"></strong></p>
+            <p>Bienvenido de nuevo <strong id="display-username"></strong></p>
             <p>Ingresa tu PIN para continuar</p>
         </div>
         
         <div class="pin-container">
-            <input type="number" class="pin-input" id="loginPin1" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="loginPin2" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="loginPin3" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="loginPin4" maxlength="1" min="0" max="9" required>
-            <input type="number" class="pin-input" id="loginPin5" maxlength="1" min="0" max="9">
-            <input type="number" class="pin-input" id="loginPin6" maxlength="1" min="0" max="9">
+            <input type="password" class="pin-input" id="loginPin1" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="loginPin2" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="loginPin3" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="loginPin4" maxlength="1" min="0" max="9" required>
+            <input type="password" class="pin-input" id="loginPin5" maxlength="1" min="0" max="9">
+            <input type="password" class="pin-input" id="loginPin6" maxlength="1" min="0" max="9">
         </div>
         
         <button type="submit" class="btn" id="loginWithPinBtn">Ingresar</button>
@@ -390,8 +393,8 @@
     const togglePassword = document.getElementById('togglePassword');
     const alertMessage = document.getElementById('alertMessage');
     const loading = document.getElementById('loading');
-    const displayEmail = document.getElementById('display-email');
     const displayName = document.getElementById('display-name');
+    const displayUsername = document.getElementById('display-username');
     const step1 = document.getElementById('step1');
     const step2 = document.getElementById('step2');
     const formTitle = document.getElementById('form-title');
@@ -505,17 +508,21 @@
                 throw new Error('El PIN solo puede contener números');
             }
             
+            // Obtener datos del usuario de Firestore para mostrar el nombre
+            const userDoc = await getUserData(currentUser.uid);
+            const username = userDoc?.name || currentUser.email.split('@')[0];
+            
             // Guardar el PIN en Firestore
             await setDoc(doc(db, "users", currentUser.uid), {
                 email: currentUser.email,
+                name: username,
                 pin: pin,
                 pinCreatedAt: new Date().toISOString(),
-                displayName: currentUser.displayName || currentUser.email.split('@')[0],
                 lastLogin: new Date().toISOString()
             }, { merge: true });
             
             // Registrar el acceso en la colección de logs
-            await registerAccess(currentUser.uid, currentUser.email, 'pin_creation');
+            await registerAccess(currentUser.uid, currentUser.email, 'pin_creation', username);
             
             showAlert('PIN creado exitosamente', 'success');
             
@@ -575,7 +582,7 @@
             });
             
             // Registrar el acceso en la colección de logs
-            await registerAccess(currentUser.uid, currentUser.email, 'pin_login', userDoc.displayName);
+            await registerAccess(currentUser.uid, currentUser.email, 'pin_login', userDoc.name || userDoc.username);
             
             showAlert('PIN correcto. Redirigiendo...', 'success');
             
@@ -596,12 +603,12 @@
     });
 
     // Función para registrar accesos
-    async function registerAccess(userId, email, accessType, displayName = null) {
+    async function registerAccess(userId, email, accessType, username = null) {
         try {
             await addDoc(collection(db, "accessLogs"), {
                 userId: userId,
                 email: email,
-                displayName: displayName || email.split('@')[0],
+                username: username || email.split('@')[0],
                 accessTime: new Date().toISOString(),
                 accessType: accessType,
                 details: accessType === 'pin_login' ? 'Acceso con PIN' : 'Creación de PIN'
@@ -631,7 +638,7 @@
         });
     });
 
-    // Mostrar/ocultar contraseña
+    // Mostrar/ocultar contraseña principal
     togglePassword.addEventListener('click', function() {
         const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
         loginPassword.setAttribute('type', type);
@@ -666,7 +673,12 @@
         step2.classList.add('active');
         
         formTitle.textContent = 'Crear tu PIN de seguridad';
-        displayEmail.textContent = user.email;
+        
+        // Obtener el nombre del usuario desde Firestore
+        getUserData(user.uid).then(userDoc => {
+            const username = userDoc?.name || user.email.split('@')[0];
+            displayName.textContent = username;
+        });
         
         // Limpiar campos de PIN
         clearPinInputs('pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6');
@@ -682,8 +694,12 @@
         step2.classList.add('active');
         
         formTitle.textContent = 'Verificación de seguridad';
-        const userDisplayName = user.displayName || user.email.split('@')[0];
-        displayName.textContent = userDisplayName;
+        
+        // Obtener el nombre del usuario almacenado en Firestore (campo "name")
+        getUserData(user.uid).then(userDoc => {
+            const username = userDoc?.name || user.email.split('@')[0];
+            displayUsername.textContent = username;
+        });
         
         // Limpiar campos de PIN
         clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
@@ -798,7 +814,7 @@
                         const user = {
                             uid: authData.userId,
                             email: userDoc.email,
-                            displayName: userDoc.displayName
+                            displayName: userDoc.name || userDoc.email.split('@')[0]
                         };
                         currentUser = user;
                         userHasPin = true;
