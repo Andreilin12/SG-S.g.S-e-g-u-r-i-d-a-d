@@ -304,7 +304,7 @@
     
     <!-- Mensaje cuando la sesión está cerrada -->
     <div id="sessionClosedMessage" class="session-message hidden">
-        <p><i class="fas fa-info-circle"></i> Debes iniciar sesión para acceder al sistema</p>
+        <p><i class="fas fa-info-circle"></i> La sesión ha finalizado. Por favor, inicia sesión nuevamente.</p>
     </div>
     
     <!-- Formulario de inicio de sesión principal -->
@@ -429,6 +429,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('sessionClosed')) {
         sessionClosed = true;
+        // Limpiar cualquier dato de sesión previa
+        clearLocalAuth();
+        // Forzar cierre de sesión en Firebase
+        signOut(auth).catch(error => {
+            console.error('Error al cerrar sesión:', error);
+        });
         showSessionClosedMessage();
     }
 
@@ -437,13 +443,14 @@
     setupPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
 
     // Verificar si hay una sesión guardada en localStorage
-    checkLocalAuth();
+    if (!sessionClosed) {
+        checkLocalAuth();
+    }
 
     // Verificar estado de autenticación al cargar la página
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
+        if (user && !sessionClosed) {
             currentUser = user;
-            sessionClosed = false;
             sessionClosedMessage.classList.add('hidden');
             
             // Verificar si el usuario ya tiene un PIN registrado
@@ -461,7 +468,7 @@
                 showPinCreationForm(user);
             }
         } else {
-            // No hay usuario autenticado, mostrar formulario principal
+            // No hay usuario autenticado o la sesión está cerrada
             showMainLoginForm();
             if (sessionClosed) {
                 showSessionClosedMessage();
@@ -592,6 +599,11 @@
         showLoading(true);
         
         try {
+            // Si la sesión está cerrada, forzar a iniciar sesión nuevamente
+            if (sessionClosed) {
+                throw new Error('La sesión ha finalizado. Por favor, inicia sesión nuevamente.');
+            }
+            
             // Obtener valores del PIN
             const pin1 = document.getElementById('loginPin1').value;
             const pin2 = document.getElementById('loginPin2').value;
@@ -639,9 +651,15 @@
             showAlert(error.message || 'Error al verificar el PIN', 'error');
             showLoading(false);
             
-            // Limpiar campos de PIN
-            clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
-            document.getElementById('loginPin1').focus();
+            // Si la sesión está cerrada, mostrar el formulario de login principal
+            if (sessionClosed) {
+                showMainLoginForm();
+                showSessionClosedMessage();
+            } else {
+                // Limpiar campos de PIN
+                clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
+                document.getElementById('loginPin1').focus();
+            }
         }
     });
 
