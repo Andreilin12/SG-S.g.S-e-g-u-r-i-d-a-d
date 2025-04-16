@@ -119,6 +119,7 @@
             margin-bottom: 1rem;
             color: var(--text-light);
             font-weight: 400;
+            text-align: center;
         }
         
         .pin-container {
@@ -280,6 +281,58 @@
             gap: 1rem;
         }
         
+        /* Estilos para las sesiones */
+        .session {
+            display: none;
+        }
+        
+        .session.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step.completed {
+            background: var(--primary-dark);
+            color: white;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -332,51 +385,91 @@
         <div class="auth-card">
             <h2>Cambiar PIN de seguridad</h2>
             
+            <!-- Indicador de progreso -->
+            <div class="progress-steps">
+                <div class="step" id="step1">1</div>
+                <div class="step" id="step2">2</div>
+                <div class="step" id="step3">3</div>
+                <div class="step" id="step4">4</div>
+            </div>
+            
             <div id="alertMessage" class="alert"></div>
             
-            <div class="pin-section">
-                <h3>Ingresa tu PIN actual:</h3>
-                <div class="pin-container">
-                    <input type="password" class="pin-input" id="currentPin1" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="currentPin2" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="currentPin3" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="currentPin4" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="currentPin5" maxlength="1" min="0" max="9">
-                    <input type="password" class="pin-input" id="currentPin6" maxlength="1" min="0" max="9">
+            <!-- Sesión 1: PIN actual -->
+            <div class="session active" id="session1">
+                <div class="pin-section">
+                    <h3>Ingresa tu PIN actual:</h3>
+                    <div class="pin-container">
+                        <input type="password" class="pin-input" id="currentPin1" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="currentPin2" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="currentPin3" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="currentPin4" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="currentPin5" maxlength="1" min="0" max="9">
+                        <input type="password" class="pin-input" id="currentPin6" maxlength="1" min="0" max="9">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="nextBtn1">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    <button type="button" class="btn btn-outline" id="cancelBtn"><i class="fas fa-times"></i> Cancelar</button>
                 </div>
             </div>
             
-            <div class="pin-section">
-                <h3>Ingresa tu nuevo PIN (4-6 dígitos):</h3>
-                <div class="pin-container">
-                    <input type="password" class="pin-input" id="newPin1" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="newPin2" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="newPin3" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="newPin4" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="newPin5" maxlength="1" min="0" max="9">
-                    <input type="password" class="pin-input" id="newPin6" maxlength="1" min="0" max="9">
+            <!-- Sesión 2: Nuevo PIN -->
+            <div class="session" id="session2">
+                <div class="pin-section">
+                    <h3>Ingresa tu nuevo PIN (4-6 dígitos):</h3>
+                    <div class="pin-container">
+                        <input type="password" class="pin-input" id="newPin1" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="newPin2" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="newPin3" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="newPin4" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="newPin5" maxlength="1" min="0" max="9">
+                        <input type="password" class="pin-input" id="newPin6" maxlength="1" min="0" max="9">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="nextBtn2">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    <button type="button" class="btn btn-outline" id="backBtn2"><i class="fas fa-arrow-left"></i> Atrás</button>
                 </div>
             </div>
             
-            <div class="pin-section">
-                <h3>Confirma tu nuevo PIN:</h3>
-                <div class="pin-container">
-                    <input type="password" class="pin-input" id="confirmPin1" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="confirmPin2" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="confirmPin3" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="confirmPin4" maxlength="1" min="0" max="9" required>
-                    <input type="password" class="pin-input" id="confirmPin5" maxlength="1" min="0" max="9">
-                    <input type="password" class="pin-input" id="confirmPin6" maxlength="1" min="0" max="9">
+            <!-- Sesión 3: Confirmar nuevo PIN -->
+            <div class="session" id="session3">
+                <div class="pin-section">
+                    <h3>Confirma tu nuevo PIN:</h3>
+                    <div class="pin-container">
+                        <input type="password" class="pin-input" id="confirmPin1" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="confirmPin2" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="confirmPin3" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="confirmPin4" maxlength="1" min="0" max="9" required>
+                        <input type="password" class="pin-input" id="confirmPin5" maxlength="1" min="0" max="9">
+                        <input type="password" class="pin-input" id="confirmPin6" maxlength="1" min="0" max="9">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="confirmChangeBtn"><i class="fas fa-key"></i> Confirmar Cambio</button>
+                    <button type="button" class="btn btn-outline" id="backBtn3"><i class="fas fa-arrow-left"></i> Atrás</button>
+                </div>
+            </div>
+            
+            <!-- Sesión 4: Confirmación exitosa -->
+            <div class="session" id="session4">
+                <div class="pin-section">
+                    <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--primary); display: block; text-align: center; margin-bottom: 1.5rem;"></i>
+                    <h3>¡PIN cambiado con éxito!</h3>
+                    <p>Tu PIN de seguridad ha sido actualizado correctamente.</p>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="finishBtn">Finalizar <i class="fas fa-check"></i></button>
                 </div>
             </div>
             
             <div class="loading" id="loading">
                 <i class="fas fa-spinner"></i> <span>Procesando...</span>
-            </div>
-            
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary" id="changePinBtn"><i class="fas fa-key"></i> Cambiar PIN</button>
-                <button type="button" class="btn btn-outline" id="cancelBtn"><i class="fas fa-times"></i> Cancelar</button>
             </div>
         </div>
     </div>
@@ -426,18 +519,38 @@
         // Variables
         let currentUser = null;
         let userData = null;
-        let hasChanges = false;
+        let currentPin = '';
+        let newPin = '';
 
         // Elementos del DOM
         const currentUserName = document.getElementById('currentUserName');
         const logoutBtn = document.getElementById('logoutBtn');
-        const changePinBtn = document.getElementById('changePinBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
         const alertMessage = document.getElementById('alertMessage');
         const loading = document.getElementById('loading');
         const confirmModal = document.getElementById('confirmModal');
         const confirmExitBtn = document.getElementById('confirmExitBtn');
         const cancelExitBtn = document.getElementById('cancelExitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        // Elementos de sesiones
+        const session1 = document.getElementById('session1');
+        const session2 = document.getElementById('session2');
+        const session3 = document.getElementById('session3');
+        const session4 = document.getElementById('session4');
+        
+        // Botones de navegación
+        const nextBtn1 = document.getElementById('nextBtn1');
+        const nextBtn2 = document.getElementById('nextBtn2');
+        const backBtn2 = document.getElementById('backBtn2');
+        const backBtn3 = document.getElementById('backBtn3');
+        const confirmChangeBtn = document.getElementById('confirmChangeBtn');
+        const finishBtn = document.getElementById('finishBtn');
+        
+        // Pasos del progreso
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const step4 = document.getElementById('step4');
 
         // Configurar inputs de PIN
         setupPinInputs('currentPin1', 'currentPin2', 'currentPin3', 'currentPin4', 'currentPin5', 'currentPin6');
@@ -464,40 +577,74 @@
             }
         });
 
-        // Manejar cambio de PIN
-        changePinBtn.addEventListener('click', async () => {
+        // Navegación entre sesiones
+        nextBtn1.addEventListener('click', () => {
+            clearAlert();
+            
+            // Obtener PIN actual ingresado
+            currentPin = getPinFromInputs('currentPin1', 'currentPin2', 'currentPin3', 'currentPin4', 'currentPin5', 'currentPin6');
+            
+            // Validar que haya un PIN registrado
+            if (!userData || !userData.pin) {
+                showAlert('No se encontró un PIN registrado para este usuario', 'error');
+                return;
+            }
+            
+            // Validar que el PIN coincida
+            if (currentPin !== userData.pin) {
+                showAlert('El PIN actual no es correcto', 'error');
+                return;
+            }
+            
+            // Pasar a la siguiente sesión
+            changeSession(1, 2);
+        });
+        
+        nextBtn2.addEventListener('click', () => {
+            clearAlert();
+            
+            // Obtener nuevo PIN
+            newPin = getPinFromInputs('newPin1', 'newPin2', 'newPin3', 'newPin4', 'newPin5', 'newPin6');
+            
+            // Validaciones
+            if (newPin.length < 4 || newPin.length > 6) {
+                showAlert('El nuevo PIN debe tener entre 4 y 6 dígitos', 'error');
+                return;
+            }
+            
+            if (!/^\d+$/.test(newPin)) {
+                showAlert('El PIN solo puede contener números', 'error');
+                return;
+            }
+            
+            if (newPin === currentPin) {
+                showAlert('El nuevo PIN no puede ser igual al actual', 'error');
+                return;
+            }
+            
+            // Pasar a la siguiente sesión
+            changeSession(2, 3);
+        });
+        
+        backBtn2.addEventListener('click', () => {
+            changeSession(2, 1);
+        });
+        
+        backBtn3.addEventListener('click', () => {
+            changeSession(3, 2);
+        });
+        
+        confirmChangeBtn.addEventListener('click', async () => {
             showLoading(true);
             clearAlert();
             
             try {
-                // Obtener PIN actual
-                const currentPin = getPinFromInputs('currentPin1', 'currentPin2', 'currentPin3', 'currentPin4', 'currentPin5', 'currentPin6');
-                const newPin = getPinFromInputs('newPin1', 'newPin2', 'newPin3', 'newPin4', 'newPin5', 'newPin6');
+                // Obtener PIN de confirmación
                 const confirmPin = getPinFromInputs('confirmPin1', 'confirmPin2', 'confirmPin3', 'confirmPin4', 'confirmPin5', 'confirmPin6');
                 
-                // Validaciones
-                if (!userData || !userData.pin) {
-                    throw new Error('No se encontró un PIN registrado para este usuario');
-                }
-                
-                if (currentPin !== userData.pin) {
-                    throw new Error('El PIN actual no es correcto');
-                }
-                
-                if (newPin.length < 4 || newPin.length > 6) {
-                    throw new Error('El nuevo PIN debe tener entre 4 y 6 dígitos');
-                }
-                
-                if (!/^\d+$/.test(newPin)) {
-                    throw new Error('El PIN solo puede contener números');
-                }
-                
+                // Validar que coincidan
                 if (newPin !== confirmPin) {
                     throw new Error('Los PINs nuevos no coinciden');
-                }
-                
-                if (newPin === currentPin) {
-                    throw new Error('El nuevo PIN no puede ser igual al actual');
                 }
                 
                 // Actualizar PIN en Firestore
@@ -516,13 +663,8 @@
                     details: 'Cambio de PIN de seguridad'
                 });
                 
-                showAlert('PIN cambiado exitosamente. Redirigiendo...', 'success');
-                hasChanges = false;
-                
-                // Redirigir después de 2 segundos
-                setTimeout(() => {
-                    window.location.href = "guia-1.html";
-                }, 2000);
+                // Mostrar sesión de confirmación
+                changeSession(3, 4);
                 
             } catch (error) {
                 console.error('Error al cambiar PIN:', error);
@@ -531,14 +673,14 @@
                 showLoading(false);
             }
         });
+        
+        finishBtn.addEventListener('click', () => {
+            window.location.href = "home.html";
+        });
 
         // Cancelar cambios
         cancelBtn.addEventListener('click', () => {
-            if (hasChanges) {
-                showModal();
-            } else {
-                window.location.href = "home.html";
-            }
+            showModal();
         });
 
         // Cerrar sesión con confirmación
@@ -560,12 +702,42 @@
         // Cancelar salida
         cancelExitBtn.addEventListener('click', hideModal);
 
-        // Detectar cambios en los inputs
-        document.querySelectorAll('.pin-input').forEach(input => {
-            input.addEventListener('input', () => {
-                hasChanges = true;
-            });
-        });
+        // Cambiar entre sesiones
+        function changeSession(from, to) {
+            // Ocultar sesión actual
+            document.getElementById(`session${from}`).classList.remove('active');
+            
+            // Mostrar nueva sesión
+            document.getElementById(`session${to}`).classList.add('active');
+            
+            // Actualizar indicador de progreso
+            updateProgressSteps(to);
+            
+            // Enfocar el primer input de la nueva sesión
+            if (to < 4) {
+                const firstInput = document.querySelector(`#session${to} .pin-input`);
+                if (firstInput) firstInput.focus();
+            }
+        }
+        
+        // Actualizar los pasos del progreso
+        function updateProgressSteps(currentStep) {
+            // Resetear todos los pasos
+            step1.className = 'step';
+            step2.className = 'step';
+            step3.className = 'step';
+            step4.className = 'step';
+            
+            // Marcar pasos completados y activos
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i < currentStep) {
+                    step.classList.add('completed');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                }
+            }
+        }
 
         // Mostrar modal de confirmación
         function showModal() {
@@ -633,14 +805,6 @@
         function showLoading(show) {
             loading.style.display = show ? 'flex' : 'none';
         }
-
-        // Confirmar antes de salir si hay cambios
-        window.addEventListener('beforeunload', (e) => {
-            if (hasChanges) {
-                e.preventDefault();
-                e.returnValue = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
-            }
-        });
     </script>
 </body>
 </html>
