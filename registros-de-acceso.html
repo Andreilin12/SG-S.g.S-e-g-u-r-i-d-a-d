@@ -8,18 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
+            --primary: #15a086;
+            --primary-dark: #2c3e50;
+            --secondary: #15a086;
+            --accent: #15a086;
             --dark: #1b263b;
-            --darker: #0d1b2a;
+            --darker: #2c3e50;
             --light: #f8f9fa;
             --gray: #adb5bd;
             --success: #4cc9f0;
             --warning: #f8961e;
             --danger: #f72585;
-            --info: #560bad;
+            --info: #16e086;
             --card-bg: rgba(255, 255, 255, 0.08);
             --card-border: rgba(255, 255, 255, 0.1);
         }
@@ -76,6 +76,88 @@
         .header-actions {
             display: flex;
             gap: 1rem;
+        }
+
+        /* Search Filters */
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.5rem 0.75rem 2.5rem;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0 1rem;
+            border-radius: 8px;
+        }
+
+        .date-filter label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+        }
+
+        .date-filter input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: inherit;
+            padding: 0.75rem 0;
+            max-width: 150px;
+        }
+
+        .date-filter input:focus {
+            outline: none;
+        }
+
+        .clear-filter {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-left: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .clear-filter:hover {
+            color: var(--danger);
         }
 
         /* Button Styles */
@@ -319,6 +401,14 @@
             .log-details {
                 padding-bottom: 0.5rem;
             }
+
+            .search-filters {
+                flex-direction: column;
+            }
+
+            .search-box, .date-filter {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -330,6 +420,10 @@
             .header-actions {
                 width: 100%;
                 justify-content: flex-end;
+            }
+
+            .date-filter input {
+                max-width: 100%;
             }
         }
 
@@ -363,6 +457,20 @@
             </div>
         </header>
 
+        <div class="search-filters">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="nameSearch" class="search-input" placeholder="Buscar por nombre o email...">
+            </div>
+            <div class="date-filter">
+                <label for="dateFilter"><i class="far fa-calendar-alt"></i></label>
+                <input type="date" id="dateFilter">
+                <button id="clearDateFilter" class="clear-filter" title="Limpiar filtro">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
         <div class="logs-container">
             <div class="logs-header">
                 <div>Usuario</div>
@@ -393,7 +501,9 @@
             getDocs,
             orderBy,
             startAfter,
-            limit
+            limit,
+            where,
+            Timestamp
         } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Firebase Configuration
@@ -415,67 +525,170 @@
         const logsList = document.getElementById('logsList');
         const pagination = document.getElementById('pagination');
         const refreshBtn = document.getElementById('refreshBtn');
+        const nameSearch = document.getElementById('nameSearch');
+        const dateFilter = document.getElementById('dateFilter');
+        const clearDateFilter = document.getElementById('clearDateFilter');
 
         // Global Variables
         let lastVisible = null;
         let currentPage = 1;
         const logsPerPage = 15;
         let totalLogs = 0;
+        let searchTerm = '';
+        let selectedDate = '';
+        let lastDoc = null;
+        let paginationDocs = [];
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            // Load initial logs
             loadLogs();
             
             // Set up event listeners
-            refreshBtn.addEventListener('click', () => {
-                currentPage = 1;
-                lastVisible = null;
-                loadLogs();
+            refreshBtn.addEventListener('click', refreshData);
+
+            // Name search input event with debounce
+            let searchTimeout;
+            nameSearch.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTerm = e.target.value.trim().toLowerCase();
+                searchTimeout = setTimeout(() => {
+                    refreshData();
+                }, 500);
+            });
+
+            // Date filter change event
+            dateFilter.addEventListener('change', (e) => {
+                selectedDate = e.target.value;
+                refreshData();
+            });
+
+            // Clear date filter
+            clearDateFilter.addEventListener('click', () => {
+                dateFilter.value = '';
+                selectedDate = '';
+                refreshData();
             });
         });
 
+        // Refresh data with current filters
+        function refreshData() {
+            currentPage = 1;
+            lastVisible = null;
+            lastDoc = null;
+            paginationDocs = [];
+            loadLogs();
+        }
+
         // Main function to load logs from Firestore
-        async function loadLogs(page = 1) {
+        async function loadLogs() {
             try {
                 // Show loading state
                 logsList.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
                 
-                // Build the query - ordered by accessTime descending
+                // Build the base query
                 let q = query(
                     collection(db, "accessLogs"),
                     orderBy("accessTime", "desc"),
                     limit(logsPerPage)
                 );
-                
-                // For pages beyond the first, start after the last visible document
-                if (page > 1 && lastVisible) {
+
+                // Apply search filter if exists
+                if (searchTerm) {
+                    // Firestore doesn't support native case-insensitive search or OR queries
+                    // We'll need to filter client-side after fetching
+                    // For better performance, consider adding a search field in lowercase
                     q = query(
                         collection(db, "accessLogs"),
                         orderBy("accessTime", "desc"),
-                        startAfter(lastVisible),
+                        limit(100) // Limit for client-side filtering
+                    );
+                }
+
+                // Apply date filter if exists
+                if (selectedDate) {
+                    const date = new Date(selectedDate);
+                    const startDate = new Date(date.setHours(0, 0, 0, 0));
+                    const endDate = new Date(date.setHours(23, 59, 59, 999));
+                    
+                    q = query(
+                        collection(db, "accessLogs"),
+                        where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                        where("accessTime", "<=", Timestamp.fromDate(endDate)),
+                        orderBy("accessTime", "desc"),
                         limit(logsPerPage)
                     );
                 }
-                
+
+                // For pagination beyond first page
+                if (currentPage > 1 && paginationDocs[currentPage - 2]) {
+                    q = query(
+                        q,
+                        startAfter(paginationDocs[currentPage - 2]),
+                        limit(logsPerPage)
+                    );
+                }
+
                 // Execute the query
                 const querySnapshot = await getDocs(q);
                 
-                // Update lastVisible for pagination
-                lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-                
-                // Get total count (only on first page)
-                if (page === 1) {
-                    const countQuery = query(collection(db, "accessLogs"));
+                // Store the last document for pagination
+                if (!querySnapshot.empty) {
+                    lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+                    paginationDocs[currentPage - 1] = lastDoc;
+                }
+
+                // Get filtered logs
+                let filteredLogs = [];
+                querySnapshot.forEach((doc) => {
+                    filteredLogs.push(doc.data());
+                });
+
+                // Apply client-side search filter if needed
+                if (searchTerm) {
+                    filteredLogs = filteredLogs.filter(log => {
+                        const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
+                        const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
+                        return usernameMatch || emailMatch;
+                    });
+                    
+                    // Apply pagination to client-side filtered results
+                    const startIndex = (currentPage - 1) * logsPerPage;
+                    filteredLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
+                }
+
+                // Get total count (only on first page or when filters change)
+                if (currentPage === 1) {
+                    let countQuery = collection(db, "accessLogs");
+                    
+                    if (selectedDate) {
+                        const date = new Date(selectedDate);
+                        const startDate = new Date(date.setHours(0, 0, 0, 0));
+                        const endDate = new Date(date.setHours(23, 59, 59, 999));
+                        countQuery = query(
+                            collection(db, "accessLogs"),
+                            where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                            where("accessTime", "<=", Timestamp.fromDate(endDate))
+                        );
+                    }
+                    
                     const countSnapshot = await getDocs(countQuery);
                     totalLogs = countSnapshot.size;
+                    
+                    // If we're doing client-side search, adjust total count
+                    if (searchTerm) {
+                        totalLogs = filteredLogs.length;
+                    }
                 }
                 
                 // Display the logs
-                displayLogs(querySnapshot);
+                if (filteredLogs.length > 0) {
+                    displayLogs(filteredLogs);
+                } else {
+                    showEmptyState("No se encontraron registros que coincidan con los filtros.");
+                }
                 
                 // Update pagination controls
-                updatePagination(page);
+                updatePagination(currentPage);
                 
             } catch (error) {
                 console.error("Error loading logs:", error);
@@ -484,17 +697,12 @@
         }
 
         // Display logs in the UI
-        function displayLogs(querySnapshot) {
-            if (querySnapshot.empty) {
-                showEmptyState("No se encontraron registros de acceso.");
-                return;
-            }
-            
+        function displayLogs(logs) {
             let html = '';
             
-            querySnapshot.forEach((doc) => {
-                const log = doc.data();
-                const accessTime = new Date(log.accessTime);
+            logs.forEach((log) => {
+                // Convert Firestore Timestamp to Date if needed
+                const accessTime = log.accessTime?.toDate ? log.accessTime.toDate() : new Date(log.accessTime);
                 const formattedDate = accessTime.toLocaleString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
@@ -640,7 +848,7 @@
                     const page = parseInt(btn.dataset.page);
                     if (page !== currentPage) {
                         currentPage = page;
-                        loadLogs(page);
+                        loadLogs();
                     }
                 });
             });
