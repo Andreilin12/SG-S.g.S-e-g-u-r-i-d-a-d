@@ -78,64 +78,6 @@
             gap: 1rem;
         }
 
-        /* Filter Section */
-        .filters-section {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .filter-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--light);
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .filter-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
-        }
-
-        .filter-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .filter-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
         /* Button Styles */
         .btn {
             display: inline-flex;
@@ -161,16 +103,6 @@
             background-color: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background-color: rgba(67, 97, 238, 0.1);
         }
 
         .btn-icon {
@@ -390,15 +322,6 @@
         }
 
         @media (max-width: 480px) {
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .filter-actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
             .header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -440,43 +363,6 @@
             </div>
         </header>
 
-        <section class="filters-section">
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <label for="searchEmail" class="filter-label">Correo electrónico</label>
-                    <input type="text" id="searchEmail" class="filter-input" placeholder="ejemplo@dominio.com">
-                </div>
-                <div class="filter-group">
-                    <label for="searchUsername" class="filter-label">Nombre de usuario</label>
-                    <input type="text" id="searchUsername" class="filter-input" placeholder="Nombre de usuario">
-                </div>
-                <div class="filter-group">
-                    <label for="searchType" class="filter-label">Tipo de acceso</label>
-                    <select id="searchType" class="filter-input">
-                        <option value="">Todos los tipos</option>
-                        <option value="pin_login">Acceso con PIN</option>
-                        <option value="pin_creation">Creación de PIN</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="dateFrom" class="filter-label">Fecha desde</label>
-                    <input type="date" id="dateFrom" class="filter-input">
-                </div>
-                <div class="filter-group">
-                    <label for="dateTo" class="filter-label">Fecha hasta</label>
-                    <input type="date" id="dateTo" class="filter-input">
-                </div>
-            </div>
-            <div class="filter-actions">
-                <button id="resetFiltersBtn" class="btn btn-outline">
-                    <i class="fas fa-times"></i> Limpiar filtros
-                </button>
-                <button id="searchBtn" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-            </div>
-        </section>
-
         <div class="logs-container">
             <div class="logs-header">
                 <div>Usuario</div>
@@ -504,13 +390,10 @@
             getFirestore, 
             collection, 
             query, 
-            where, 
             getDocs,
             orderBy,
             startAfter,
-            limit,
-            doc,
-            getDoc
+            limit
         } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Firebase Configuration
@@ -531,13 +414,6 @@
         // DOM Elements
         const logsList = document.getElementById('logsList');
         const pagination = document.getElementById('pagination');
-        const searchEmail = document.getElementById('searchEmail');
-        const searchUsername = document.getElementById('searchUsername');
-        const searchType = document.getElementById('searchType');
-        const dateFrom = document.getElementById('dateFrom');
-        const dateTo = document.getElementById('dateTo');
-        const searchBtn = document.getElementById('searchBtn');
-        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
         const refreshBtn = document.getElementById('refreshBtn');
 
         // Global Variables
@@ -545,140 +421,42 @@
         let currentPage = 1;
         const logsPerPage = 15;
         let totalLogs = 0;
-        let currentFilters = {};
-        let unsubscribe = null;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            // Set default date range (last 30 days)
-            const today = new Date();
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(today.getDate() - 30);
-            
-            dateFrom.valueAsDate = thirtyDaysAgo;
-            dateTo.valueAsDate = today;
-            
             // Load initial logs
             loadLogs();
             
             // Set up event listeners
-            setupEventListeners();
-        });
-
-        // Set up all event listeners
-        function setupEventListeners() {
-            // Search button click
-            searchBtn.addEventListener('click', () => {
-                currentPage = 1;
-                lastVisible = null;
-                applyFilters();
-            });
-
-            // Reset filters button
-            resetFiltersBtn.addEventListener('click', resetFilters);
-
-            // Refresh button
             refreshBtn.addEventListener('click', () => {
                 currentPage = 1;
                 lastVisible = null;
-                loadLogs(currentPage, currentFilters);
+                loadLogs();
             });
-
-            // Search on Enter key
-            [searchEmail, searchUsername, searchType, dateFrom, dateTo].forEach(input => {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        currentPage = 1;
-                        lastVisible = null;
-                        applyFilters();
-                    }
-                });
-            });
-        }
-
-        // Apply filters from the form
-        function applyFilters() {
-            currentFilters = {
-                email: searchEmail.value.trim(),
-                username: searchUsername.value.trim(),
-                accessType: searchType.value,
-                dateFrom: dateFrom.value,
-                dateTo: dateTo.value
-            };
-            
-            loadLogs(1, currentFilters);
-        }
-
-        // Reset all filters to default
-        function resetFilters() {
-            searchEmail.value = '';
-            searchUsername.value = '';
-            searchType.value = '';
-            
-            // Reset to last 30 days
-            const today = new Date();
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(today.getDate() - 30);
-            
-            dateFrom.valueAsDate = thirtyDaysAgo;
-            dateTo.valueAsDate = today;
-            
-            currentFilters = {};
-            currentPage = 1;
-            lastVisible = null;
-            
-            loadLogs(1);
-        }
+        });
 
         // Main function to load logs from Firestore
-        async function loadLogs(page = 1, filters = {}) {
+        async function loadLogs(page = 1) {
             try {
                 // Show loading state
                 logsList.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
                 
-                // Build the query
-                let q = query(collection(db, "accessLogs"));
+                // Build the query - ordered by accessTime descending
+                let q = query(
+                    collection(db, "accessLogs"),
+                    orderBy("accessTime", "desc"),
+                    limit(logsPerPage)
+                );
                 
-                // Apply filters
-                const conditions = [];
-                
-                // Email filter (case insensitive search)
-                if (filters.email) {
-                    conditions.push(where("email", ">=", filters.email.toLowerCase()));
-                    conditions.push(where("email", "<=", filters.email.toLowerCase() + '\uf8ff'));
-                }
-                
-                // Username filter (case insensitive search)
-                if (filters.username) {
-                    conditions.push(where("username", ">=", filters.username.toLowerCase()));
-                    conditions.push(where("username", "<=", filters.username.toLowerCase() + '\uf8ff'));
-                }
-                
-                // Access type filter
-                if (filters.accessType) {
-                    conditions.push(where("accessType", "==", filters.accessType));
-                }
-                
-                // Date range filter
-                if (filters.dateFrom || filters.dateTo) {
-                    const fromDate = filters.dateFrom ? new Date(filters.dateFrom) : new Date(0);
-                    const toDate = filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : new Date();
-                    conditions.push(where("accessTime", ">=", fromDate.toISOString()));
-                    conditions.push(where("accessTime", "<=", toDate.toISOString()));
-                }
-                
-                // Always order by accessTime descending
-                conditions.push(orderBy("accessTime", "desc"));
-                
-                // Pagination
+                // For pages beyond the first, start after the last visible document
                 if (page > 1 && lastVisible) {
-                    conditions.push(startAfter(lastVisible));
+                    q = query(
+                        collection(db, "accessLogs"),
+                        orderBy("accessTime", "desc"),
+                        startAfter(lastVisible),
+                        limit(logsPerPage)
+                    );
                 }
-                
-                conditions.push(limit(logsPerPage));
-                
-                // Apply all conditions to the query
-                q = query(collection(db, "accessLogs"), ...conditions);
                 
                 // Execute the query
                 const querySnapshot = await getDocs(q);
@@ -686,9 +464,9 @@
                 // Update lastVisible for pagination
                 lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
                 
-                // Get total count (only on first page or when filters change)
-                if (page === 1 || Object.keys(filters).length > 0) {
-                    const countQuery = query(collection(db, "accessLogs"), ...conditions.slice(0, -2));
+                // Get total count (only on first page)
+                if (page === 1) {
+                    const countQuery = query(collection(db, "accessLogs"));
                     const countSnapshot = await getDocs(countQuery);
                     totalLogs = countSnapshot.size;
                 }
@@ -708,7 +486,7 @@
         // Display logs in the UI
         function displayLogs(querySnapshot) {
             if (querySnapshot.empty) {
-                showEmptyState("No se encontraron registros con los filtros aplicados.");
+                showEmptyState("No se encontraron registros de acceso.");
                 return;
             }
             
@@ -862,7 +640,7 @@
                     const page = parseInt(btn.dataset.page);
                     if (page !== currentPage) {
                         currentPage = page;
-                        loadLogs(page, currentFilters);
+                        loadLogs(page);
                     }
                 });
             });
