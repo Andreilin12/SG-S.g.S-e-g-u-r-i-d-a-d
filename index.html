@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Retom - Autenticación</title>
+    <title>Security Retom - Autenticación Segura</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -291,7 +290,7 @@
             <i class="fas fa-eye" id="togglePassword"></i>
         </div>
         <div class="remember-me">
-            <input type="checkbox" id="rememberMe">
+            <input type="checkbox" id="rememberMe" checked>
             <label for="rememberMe">Mantener la sesión abierta</label>
         </div>
         <button type="submit" class="btn" id="mainLoginBtn">Iniciar Sesión</button>
@@ -360,9 +359,7 @@
         setDoc, 
         getDoc,
         updateDoc,
-        query,
-        where,
-        getDocs
+        addDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -382,7 +379,6 @@
     // Variables globales
     let currentUser = null;
     let userHasPin = false;
-    let pinLength = 4; // Longitud predeterminada del PIN
 
     // Elementos del DOM
     const mainLoginForm = document.getElementById('mainLoginForm');
@@ -406,17 +402,24 @@
     setupPinInputs('pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6');
     setupPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
 
+    // Verificar si hay una sesión guardada en localStorage
+    checkLocalAuth();
+
     // Verificar estado de autenticación al cargar la página
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
             
             // Verificar si el usuario ya tiene un PIN registrado
-            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userDoc = await getUserData(user.uid);
             
-            if (userDoc.exists() && userDoc.data().pin) {
+            if (userDoc && userDoc.pin) {
                 userHasPin = true;
                 showPinLoginForm(user);
+                // Guardar información de autenticación en localStorage si está marcado "recordar"
+                if (rememberMe.checked) {
+                    saveAuthToLocalStorage(user.uid);
+                }
             } else {
                 userHasPin = false;
                 showPinCreationForm(user);
@@ -445,11 +448,15 @@
             currentUser = userCredential.user;
             
             // Verificar si el usuario ya tiene un PIN
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userDoc = await getUserData(currentUser.uid);
             
-            if (userDoc.exists() && userDoc.data().pin) {
+            if (userDoc && userDoc.pin) {
                 userHasPin = true;
                 showPinLoginForm(currentUser);
+                // Guardar en localStorage si está marcado "recordar"
+                if (remember) {
+                    saveAuthToLocalStorage(currentUser.uid);
+                }
             } else {
                 userHasPin = false;
                 showPinCreationForm(currentUser);
@@ -503,10 +510,19 @@
                 email: currentUser.email,
                 pin: pin,
                 pinCreatedAt: new Date().toISOString(),
-                displayName: currentUser.displayName || currentUser.email.split('@')[0]
+                displayName: currentUser.displayName || currentUser.email.split('@')[0],
+                lastLogin: new Date().toISOString()
             }, { merge: true });
             
+            // Registrar el acceso en la colección de logs
+            await registerAccess(currentUser.uid, currentUser.email, 'pin_creation');
+            
             showAlert('PIN creado exitosamente', 'success');
+            
+            // Guardar en localStorage si está marcado "recordar"
+            if (rememberMe.checked) {
+                saveAuthToLocalStorage(currentUser.uid);
+            }
             
             // Redirigir después de 1 segundo
             setTimeout(() => {
@@ -540,28 +556,28 @@
             if (pin6) enteredPin += pin6;
             
             // Obtener el PIN almacenado
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userDoc = await getUserData(currentUser.uid);
             
-            if (!userDoc.exists() || !userDoc.data().pin) {
+            if (!userDoc || !userDoc.pin) {
                 throw new Error('No se encontró un PIN registrado para este usuario');
             }
             
-            const storedPin = userDoc.data().pin;
+            const storedPin = userDoc.pin;
             
             // Comparar PINs
             if (enteredPin !== storedPin) {
                 throw new Error('PIN incorrecto. Intenta nuevamente.');
             }
             
-            showAlert('PIN correcto. Redirigiendo...', 'success');
-            
-            // Registrar el acceso
-            await addDoc(collection(db, "accessLogs"), {
-                userId: currentUser.uid,
-                email: currentUser.email,
-                accessTime: new Date().toISOString(),
-                accessType: 'pin'
+            // Actualizar último acceso
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                lastLogin: new Date().toISOString()
             });
+            
+            // Registrar el acceso en la colección de logs
+            await registerAccess(currentUser.uid, currentUser.email, 'pin_login', userDoc.displayName);
+            
+            showAlert('PIN correcto. Redirigiendo...', 'success');
             
             // Redirigir después de 1 segundo
             setTimeout(() => {
@@ -579,9 +595,26 @@
         }
     });
 
+    // Función para registrar accesos
+    async function registerAccess(userId, email, accessType, displayName = null) {
+        try {
+            await addDoc(collection(db, "accessLogs"), {
+                userId: userId,
+                email: email,
+                displayName: displayName || email.split('@')[0],
+                accessTime: new Date().toISOString(),
+                accessType: accessType,
+                details: accessType === 'pin_login' ? 'Acceso con PIN' : 'Creación de PIN'
+            });
+        } catch (error) {
+            console.error('Error al registrar acceso:', error);
+        }
+    }
+
     // Botón para volver al login principal desde la creación de PIN
     backToLoginBtn.addEventListener('click', () => {
         signOut(auth).then(() => {
+            clearLocalAuth();
             showMainLoginForm();
         }).catch(error => {
             console.error('Error al cerrar sesión:', error);
@@ -591,6 +624,7 @@
     // Botón para usar otra cuenta desde el login con PIN
     useDifferentAccountBtn.addEventListener('click', () => {
         signOut(auth).then(() => {
+            clearLocalAuth();
             showMainLoginForm();
         }).catch(error => {
             console.error('Error al cerrar sesión:', error);
@@ -648,7 +682,8 @@
         step2.classList.add('active');
         
         formTitle.textContent = 'Verificación de seguridad';
-        displayName.textContent = user.displayName || user.email.split('@')[0];
+        const userDisplayName = user.displayName || user.email.split('@')[0];
+        displayName.textContent = userDisplayName;
         
         // Limpiar campos de PIN
         clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
@@ -717,6 +752,67 @@
             const input = document.getElementById(id);
             if (input) input.value = '';
         });
+    }
+
+    async function getUserData(userId) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            return userDoc.exists() ? userDoc.data() : null;
+        } catch (error) {
+            console.error('Error al obtener datos del usuario:', error);
+            return null;
+        }
+    }
+
+    function saveAuthToLocalStorage(userId) {
+        try {
+            localStorage.setItem('retomAuth', JSON.stringify({
+                userId: userId,
+                timestamp: new Date().getTime()
+            }));
+        } catch (error) {
+            console.error('Error al guardar en localStorage:', error);
+        }
+    }
+
+    function clearLocalAuth() {
+        try {
+            localStorage.removeItem('retomAuth');
+        } catch (error) {
+            console.error('Error al limpiar localStorage:', error);
+        }
+    }
+
+    async function checkLocalAuth() {
+        try {
+            const savedAuth = localStorage.getItem('retomAuth');
+            if (savedAuth) {
+                const authData = JSON.parse(savedAuth);
+                // Verificar si la sesión es reciente (menos de 7 días)
+                const oneWeek = 7 * 24 * 60 * 60 * 1000;
+                if (new Date().getTime() - authData.timestamp < oneWeek) {
+                    // Verificar si el usuario tiene PIN
+                    const userDoc = await getUserData(authData.userId);
+                    if (userDoc && userDoc.pin) {
+                        // Mostrar directamente el formulario de PIN
+                        const user = {
+                            uid: authData.userId,
+                            email: userDoc.email,
+                            displayName: userDoc.displayName
+                        };
+                        currentUser = user;
+                        userHasPin = true;
+                        showPinLoginForm(user);
+                    }
+                } else {
+                    // Sesión expirada, limpiar
+                    clearLocalAuth();
+                }
+            }
+        } catch (error) {
+            console.error('Error al verificar localStorage:', error);
+            clearLocalAuth();
+        }
     }
 </script>
 
