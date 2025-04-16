@@ -432,20 +432,16 @@
         // Limpiar cualquier dato de sesión previa
         clearLocalAuth();
         // Forzar cierre de sesión en Firebase
-        signOut(auth).catch(error => {
+        await signOut(auth).catch(error => {
             console.error('Error al cerrar sesión:', error);
         });
         showSessionClosedMessage();
+        showMainLoginForm();
     }
 
     // Configurar manejo de inputs de PIN
     setupPinInputs('pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6');
     setupPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
-
-    // Verificar si hay una sesión guardada en localStorage
-    if (!sessionClosed) {
-        checkLocalAuth();
-    }
 
     // Verificar estado de autenticación al cargar la página
     onAuthStateChanged(auth, async (user) => {
@@ -599,11 +595,6 @@
         showLoading(true);
         
         try {
-            // Si la sesión está cerrada, forzar a iniciar sesión nuevamente
-            if (sessionClosed) {
-                throw new Error('La sesión ha finalizado. Por favor, inicia sesión nuevamente.');
-            }
-            
             // Obtener valores del PIN
             const pin1 = document.getElementById('loginPin1').value;
             const pin2 = document.getElementById('loginPin2').value;
@@ -651,15 +642,9 @@
             showAlert(error.message || 'Error al verificar el PIN', 'error');
             showLoading(false);
             
-            // Si la sesión está cerrada, mostrar el formulario de login principal
-            if (sessionClosed) {
-                showMainLoginForm();
-                showSessionClosedMessage();
-            } else {
-                // Limpiar campos de PIN
-                clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
-                document.getElementById('loginPin1').focus();
-            }
+            // Limpiar campos de PIN
+            clearPinInputs('loginPin1', 'loginPin2', 'loginPin3', 'loginPin4', 'loginPin5', 'loginPin6');
+            document.getElementById('loginPin1').focus();
         }
     });
 
@@ -863,7 +848,7 @@
     async function checkLocalAuth() {
         try {
             const savedAuth = localStorage.getItem('retomAuth');
-            if (savedAuth) {
+            if (savedAuth && !sessionClosed) {
                 const authData = JSON.parse(savedAuth);
                 // Verificar si la sesión es reciente (menos de 7 días)
                 const oneWeek = 7 * 24 * 60 * 60 * 1000;
