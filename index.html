@@ -148,6 +148,10 @@
             color: #333;
         }
         
+        .alert.info {
+            background-color: rgba(52, 152, 219, 0.8);
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -267,6 +271,19 @@
         .hidden {
             display: none;
         }
+        
+        .session-message {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(52, 152, 219, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .session-message p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
     </style>
 </head>
 <body>
@@ -284,6 +301,11 @@
     <h3 id="form-title">Bienvenido a SECURITY RETOM</h3>
     
     <div id="alertMessage" class="alert"></div>
+    
+    <!-- Mensaje cuando la sesión está cerrada -->
+    <div id="sessionClosedMessage" class="session-message hidden">
+        <p><i class="fas fa-info-circle"></i> Debes iniciar sesión para acceder al sistema</p>
+    </div>
     
     <!-- Formulario de inicio de sesión principal -->
     <form id="mainLoginForm" class="form-step active">
@@ -382,6 +404,7 @@
     // Variables globales
     let currentUser = null;
     let userHasPin = false;
+    let sessionClosed = false;
 
     // Elementos del DOM
     const mainLoginForm = document.getElementById('mainLoginForm');
@@ -400,6 +423,14 @@
     const formTitle = document.getElementById('form-title');
     const backToLoginBtn = document.getElementById('backToLoginBtn');
     const useDifferentAccountBtn = document.getElementById('useDifferentAccountBtn');
+    const sessionClosedMessage = document.getElementById('sessionClosedMessage');
+
+    // Verificar si hay un parámetro de sesión cerrada en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('sessionClosed')) {
+        sessionClosed = true;
+        showSessionClosedMessage();
+    }
 
     // Configurar manejo de inputs de PIN
     setupPinInputs('pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6');
@@ -412,6 +443,8 @@
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
+            sessionClosed = false;
+            sessionClosedMessage.classList.add('hidden');
             
             // Verificar si el usuario ya tiene un PIN registrado
             const userDoc = await getUserData(user.uid);
@@ -430,8 +463,16 @@
         } else {
             // No hay usuario autenticado, mostrar formulario principal
             showMainLoginForm();
+            if (sessionClosed) {
+                showSessionClosedMessage();
+            }
         }
     });
+
+    // Mostrar mensaje de sesión cerrada
+    function showSessionClosedMessage() {
+        sessionClosedMessage.classList.remove('hidden');
+    }
 
     // Manejar envío del formulario principal de login
     mainLoginForm.addEventListener('submit', async (e) => {
@@ -449,6 +490,8 @@
             // Autenticar usuario
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             currentUser = userCredential.user;
+            sessionClosed = false;
+            sessionClosedMessage.classList.add('hidden');
             
             // Verificar si el usuario ya tiene un PIN
             const userDoc = await getUserData(currentUser.uid);
