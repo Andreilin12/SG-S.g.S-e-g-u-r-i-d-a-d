@@ -295,7 +295,7 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
         }
         
-        /* Modal styles (copied from code 1) */
+        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -465,6 +465,82 @@
             background: rgba(255, 255, 255, 0.2);
         }
         
+        .btn-print {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+        }
+        
+        /* Estilos para la impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printContainer, #printContainer * {
+                visibility: visible;
+            }
+            #printContainer {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white;
+                color: black;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-value {
+                background: transparent !important;
+                border-left: none !important;
+                padding: 0.3rem 0 !important;
+            }
+            .print-images {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .print-header {
+                text-align: center;
+                margin-bottom: 1rem;
+                color: #333;
+            }
+            .print-section {
+                margin-bottom: 1.5rem;
+            }
+            .print-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+            }
+            .print-col {
+                flex: 1;
+                padding: 0 1rem;
+            }
+            .print-label {
+                font-weight: bold;
+                margin-bottom: 0.3rem;
+            }
+            .print-divider {
+                border-bottom: 2px solid #4361ee;
+                padding-bottom: 0.5rem;
+                color: #4361ee;
+                margin-bottom: 0.5rem;
+            }
+            .print-footer {
+                margin-top: 2rem;
+                border-top: 1px solid #eee;
+                padding-top: 1rem;
+                text-align: center;
+                font-size: 0.8rem;
+                color: #777;
+            }
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 1.5rem;
@@ -624,7 +700,7 @@
         </div>
     </div>
     
-    <!-- Modal para mostrar detalles (similar al código 1) -->
+    <!-- Modal para mostrar detalles -->
     <div class="modal" id="recordModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -635,10 +711,14 @@
                 <!-- Los detalles se cargarán aquí dinámicamente -->
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary close"><i class="fas fa-times"></i> Cerrar</button>
+                <button class="btn btn-print no-print" id="printBtn"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn btn-secondary close no-print"><i class="fas fa-times"></i> Cerrar</button>
             </div>
         </div>
     </div>
+    
+    <!-- Contenedor para impresión (oculto) -->
+    <div id="printContainer" style="display: none;"></div>
     
     <div class="loading" id="loading">
         <div class="spinner"></div>
@@ -668,6 +748,7 @@
         
         // Referencia a la colección
         const medicalReportsRef = db.collection("MedicoHuespedes");
+        const activationLogsRef = db.collection("MedicalReportActivationLogs");
         
         // Elementos del DOM
         const searchInput = document.getElementById('searchInput');
@@ -685,9 +766,13 @@
         const modal = document.getElementById('recordModal');
         const modalBody = document.getElementById('modalBody');
         const closeBtns = document.querySelectorAll('.close');
+        const printBtn = document.getElementById('printBtn');
+        const printContainer = document.getElementById('printContainer');
         
         // Variables de estado
         let allRecords = [];
+        let currentUser = null;
+        let currentRecord = null;
         
         // Cargar registros al iniciar
         document.addEventListener('DOMContentLoaded', () => {
@@ -699,11 +784,18 @@
             startDate.valueAsDate = oneMonthAgo;
             endDate.valueAsDate = today;
             
-            loadRecords();
-            
-            // Escuchar cambios en la colección
-            medicalReportsRef.onSnapshot(snapshot => {
-                loadRecords();
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    loadRecords();
+                    
+                    // Escuchar cambios en la colección
+                    medicalReportsRef.onSnapshot(snapshot => {
+                        loadRecords();
+                    });
+                } else {
+                    window.location.href = 'login.html';
+                }
             });
         });
         
@@ -866,8 +958,9 @@
             });
         }
         
-        // Abrir modal con detalles del registro (similar al código 1)
+        // Abrir modal con detalles del registro
         function openModal(record) {
+            currentRecord = record;
             const recordDate = new Date(record.incidentDate);
             const formattedDate = recordDate.toLocaleDateString('es-ES', {
                 day: '2-digit',
@@ -1039,8 +1132,190 @@
                 statusBadge.textContent = 'Resuelto';
             }
             
+            // Configurar el botón de impresión para este registro
+            printBtn.onclick = () => printRecord(record);
+            
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+        }
+        
+        // Función para imprimir el registro
+        function printRecord(record) {
+            const recordDate = new Date(record.incidentDate);
+            const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            const reportDate = new Date(record.reportDate);
+            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const statusText = record.status === 'Código amarillo' ? 'Código Amarillo' :
+                              record.status === 'Código rojo' ? 'Código Rojo' : 'Resuelto';
+            
+            // Crear contenido para imprimir
+            printContainer.innerHTML = `
+                <div style="padding: 20px; font-family: Arial, sans-serif; color: #333;">
+                    <h1 style="text-align: center; margin-bottom: 20px; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px;">
+                        <i class="fas fa-file-medical"></i> Reporte Médico
+                    </h1>
+                    
+                    <div style="text-align: center; margin-bottom: 30px; color: #555; font-size: 14px;">
+                        Generado el ${new Date().toLocaleDateString('es-ES', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Información del Huésped
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Nombre:</strong> ${record.guestName}</p>
+                            <p style="margin-bottom: 10px;"><strong>Habitación:</strong> ${record.roomNumber}</p>
+                            <p style="margin-bottom: 10px;"><strong>Edad:</strong> ${record.guestAge || 'No especificado'} años</p>
+                            <p style="margin-bottom: 10px;"><strong>Grupo de edad:</strong> ${record.ageGroup ? record.ageGroup.charAt(0).toUpperCase() + record.ageGroup.slice(1) : 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Sexo:</strong> ${record.gender ? record.gender.charAt(0).toUpperCase() + record.gender.slice(1) : 'No especificado'}</p>
+                        </div>
+                        
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Información del Incidente
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Fecha y hora:</strong> ${formattedDate} a las ${record.incidentTime}</p>
+                            <p style="margin-bottom: 10px;"><strong>Lugar:</strong> ${record.incidentLocation || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Estado:</strong> ${statusText}</p>
+                            <p style="margin-bottom: 10px;"><strong>Emergencia:</strong> ${record.emergency === 'si' ? 'Sí' : 'No'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Reportado por:</strong> ${record.reportedBy}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                            Detalles Médicos
+                        </h3>
+                        <p style="margin-bottom: 10px;"><strong>Tipo de condición:</strong> 
+                            ${record.medicalCondition === 'otro' && record.otherCondition ? 
+                              record.otherCondition : 
+                              record.medicalCondition.charAt(0).toUpperCase() + record.medicalCondition.slice(1)}
+                        </p>
+                        <p style="margin-bottom: 5px;"><strong>Descripción:</strong></p>
+                        <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                            ${record.incidentDescription}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Atención Médica
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Médico que atendió:</strong> ${record.attendingDoctor || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Medicamento administrado:</strong> ${record.medication === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.medication === 'si' && record.medicationDetails ? `
+                            <p style="margin-bottom: 5px;"><strong>Detalles del medicamento:</strong></p>
+                            <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                                ${record.medicationDetails}
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Traslado y Declinación
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Trasladado a centro médico:</strong> ${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.hospitalTransfer === 'si' ? `
+                            <p style="margin-bottom: 10px;"><strong>Centro médico:</strong> ${record.hospitalName || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Contacto:</strong> ${record.hospitalContact || 'No especificado'}</p>
+                            ` : ''}
+                            <p style="margin-bottom: 10px;"><strong>Atención declinada:</strong> ${record.medicalDeclined === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.medicalDeclined === 'si' && record.declinedReason ? `
+                            <p style="margin-bottom: 5px;"><strong>Razón:</strong></p>
+                            <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                                ${record.declinedReason}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${record.imageUrls && record.imageUrls.length > 0 ? `
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                            Evidencia Fotográfica
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+                            ${record.imageUrls.map(url => `
+                                <div style="border: 1px solid #eee; border-radius: 5px; overflow: hidden;">
+                                    <img src="${url}" alt="Evidencia médica" style="width: 100%; height: auto; display: block;">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777;">
+                        <p>Reporte generado automáticamente por el Sistema de Registros Médicos</p>
+                        <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Esperar un momento para que se cargue el contenido antes de imprimir
+            setTimeout(() => {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Reporte Médico - ${record.guestName}</title>
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            body { font-family: Arial, sans-serif; color: #333; padding: 20px; }
+                            h1 { text-align: center; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; }
+                            h3 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 5px; }
+                            .print-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                            .print-col { flex: 1; padding: 0 15px; }
+                            .print-value { margin-bottom: 10px; }
+                            .print-desc { border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #f9f9f9; }
+                            .print-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+                            .print-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777; }
+                            @page { size: auto; margin: 10mm; }
+                        </style>
+                    </head>
+                    <body>
+                        ${printContainer.innerHTML}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                
+                // Esperar a que se carguen las imágenes antes de imprimir
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                    }, 500);
+                };
+            }, 200);
         }
         
         // Cerrar modal
@@ -1069,14 +1344,6 @@
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
-            }
-        });
-        
-        // Escuchar cambios de autenticación
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                // Redirigir a login si no hay usuario autenticado
-                window.location.href = 'login.html';
             }
         });
     </script>
