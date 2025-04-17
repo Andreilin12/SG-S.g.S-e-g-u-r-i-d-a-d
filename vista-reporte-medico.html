@@ -737,6 +737,7 @@
         // Referencia a las colecciones
         const medicalReportsRef = db.collection("MedicoHuespedes");
         const activationLogsRef = db.collection("MedicalReportActivationLogs");
+        const usersRef = db.collection("users");
         
         // Elementos del DOM
         const recordsGrid = document.getElementById('recordsGrid');
@@ -755,13 +756,28 @@
         let currentFilter = 'all';
         let currentSearch = '';
         let currentUser = null;
+        let currentUserName = '';
         let currentRecord = null;
         
         // Cargar registros al iniciar
         document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
+                    
+                    // Obtener el nombre del usuario desde la colección "users"
+                    try {
+                        const userDoc = await usersRef.doc(user.uid).get();
+                        if (userDoc.exists) {
+                            currentUserName = userDoc.data().name || user.email;
+                        } else {
+                            currentUserName = user.email;
+                        }
+                    } catch (error) {
+                        console.error("Error al obtener nombre de usuario:", error);
+                        currentUserName = user.email;
+                    }
+                    
                     loadRecords();
                     
                     // Escuchar cambios en la colección
@@ -887,16 +903,19 @@
                     visibleInSearch: isVisible,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedBy: currentUser.uid,
-                    updatedByName: currentUser.displayName || currentUser.email
+                    updatedByName: currentUserName
                 });
                 
-                // Registrar el cambio en el log de activaciones
+                // Registrar el cambio en el log de activaciones con nombre de usuario
                 await activationLogsRef.add({
                     reportId: recordId,
                     action: isVisible ? 'activated' : 'deactivated',
                     changedBy: currentUser.uid,
-                    changedByName: currentUser.displayName || currentUser.email,
-                    changedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    changedByName: currentUserName,
+                    changedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString('es-ES'),
+                    time: new Date().toLocaleTimeString('es-ES')
                 });
                 
                 // Actualizar el registro local
@@ -905,7 +924,7 @@
                     allRecords[recordIndex].visibleInSearch = isVisible;
                     allRecords[recordIndex].lastUpdated = new Date();
                     allRecords[recordIndex].updatedBy = currentUser.uid;
-                    allRecords[recordIndex].updatedByName = currentUser.displayName || currentUser.email;
+                    allRecords[recordIndex].updatedByName = currentUserName;
                 }
                 
                 // Reaplicar filtros si es necesario
