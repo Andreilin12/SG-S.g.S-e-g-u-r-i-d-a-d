@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Médico de Huéspedes | Sistema Avanzado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --error: #ef233c;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        /* Estilos de alertas */
+        .alert {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: max-content;
+            animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 4s forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-success {
+            background: rgba(76, 201, 240, 0.15);
+            border-left: 4px solid var(--success);
+            color: var(--light);
+        }
+        
+        .alert-error {
+            background: rgba(239, 35, 60, 0.15);
+            border-left: 4px solid var(--error);
+            color: var(--light);
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        .alert-success .alert-icon {
+            color: var(--success);
+        }
+        
+        .alert-error .alert-icon {
+            color: var(--error);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -100%); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        /* Resto de estilos (igual que antes) */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .required label::after {
+            content: ' *';
+            color: var(--warning);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .col {
+            flex: 1;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .radio-option input {
+            width: auto;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(72, 149, 239, 0.05);
+        }
+        
+        .file-upload i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .file-label {
+            font-weight: 500;
+            color: var(--accent);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .emergency-section {
+            background: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.2); }
+            70% { box-shadow: 0 0 0 10px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+        
+        .emergency-section h3 {
+            color: var(--warning);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .declined-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .alert {
+                width: 90%;
+                padding: 1rem;
+            }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(72, 149, 239, 0),
+                rgba(72, 149, 239, 0.1),
+                rgba(72, 149, 239, 0)
+            );
+            transform: rotate(30deg);
+            animation: glow 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes glow {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container glow-effect">
+        <h1><i class="fas fa-file-medical"></i> Reporte Médico de Huéspedes</h1>
+        
+        <form id="medicalReportForm">
+            <!-- Contenido del formulario (igual que antes) -->
+            <div class="emergency-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> ¿Es una emergencia?</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="emergency" value="si"> Sí
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="emergency" value="no" checked> No
+                    </label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Nombre completo del huésped</label>
+                        <input type="text" id="guestName" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Número de habitación</label>
+                        <input type="text" id="roomNumber" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Edad del huésped</label>
+                        <input type="number" id="guestAge" min="0" max="120">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Grupo de edad</label>
+                        <select id="ageGroup">
+                            <option value="">Seleccionar</option>
+                            <option value="niño">Niño (0-12)</option>
+                            <option value="adolescente">Adolescente (13-19)</option>
+                            <option value="adulto">Adulto (20-59)</option>
+                            <option value="mayor">Adulto mayor (60+)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Sexo</label>
+                        <select id="gender">
+                            <option value="">Seleccionar</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
+                            <option value="prefiere-no-decir">Prefiere no decir</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Lugar donde ocurrió</label>
+                        <input type="text" id="incidentLocation" placeholder="Ej: Habitación 205, Alberca, Restaurante">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Fecha del incidente</label>
+                        <input type="date" id="incidentDate" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Hora del incidente</label>
+                        <input type="time" id="incidentTime" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group required">
+                <label>Tipo de condición médica</label>
+                <select id="medicalCondition" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="accidente">Accidente</option>
+                    <option value="enfermedad">Enfermedad</option>
+                    <option value="alergia">Reacción alérgica</option>
+                    <option value="intoxicacion">Intoxicación alimentaria</option>
+                    <option value="cronica">Condición crónica</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="otherConditionContainer" style="display: none;">
+                <label>Especifique la condición</label>
+                <input type="text" id="otherCondition">
+            </div>
+            
+            <div class="form-group required">
+                <label>Descripción detallada del incidente</label>
+                <textarea id="incidentDescription" required></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Médico que atendió</label>
+                        <input type="text" id="attendingDoctor" placeholder="Nombre del médico">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>¿Se administró medicamento?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="medication" value="si"> Sí
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="medication" value="no" checked> No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="medicationDetailsContainer" style="display: none;">
+                <label>Detalles del medicamento</label>
+                <textarea id="medicationDetails" placeholder="Nombre del medicamento, dosis, etc."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>¿Fue trasladado a un centro médico?</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="hospital" value="si"> Sí
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="hospital" value="no" checked> No
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="hospitalDetailsContainer" style="display: none;">
+                <label>Nombre del centro médico</label>
+                <input type="text" id="hospitalName">
+                
+                <label>Persona de contacto</label>
+                <input type="text" id="hospitalContact">
+            </div>
+            
+            <div class="form-group">
+                <label>Evidencia fotográfica (múltiples imágenes)</label>
+                <div class="file-upload" id="fileUploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div class="file-label">Arrastra archivos aquí o haz clic para seleccionar</div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                </div>
+                <div class="preview-container" id="imagePreview"></div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Reportado por</label>
+                        <input type="text" id="reportedBy" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group required">
+                        <label>Cargo</label>
+                        <input type="text" id="reporterPosition" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group required">
+                <label>Fecha del reporte</label>
+                <input type="date" id="reportDate" required>
+            </div>
+            
+            <div class="declined-section">
+                <div class="form-group">
+                    <label>¿La atención médica fue declinada?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="declined" value="si"> Sí
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="declined" value="no" checked> No
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="declinedReasonContainer" style="display: none;">
+                    <label>Razón por la que se declinó</label>
+                    <textarea id="declinedReason" placeholder="Motivo por el cual se declinó la atención médica"></textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Guardar Reporte
+            </button>
+        </form>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // Referencia a la colección
+        const medicalReportsRef = db.collection("MedicoHuespedes");
+
+        // Mostrar alerta
+        function showAlert(type, title, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${title}</div>
+                    <div class="alert-message">${message}</div>
+                </div>
+                <button class="alert-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Eliminar automáticamente después de 5 segundos
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Mostrar/ocultar campos condicionales
+        document.getElementById('medicalCondition').addEventListener('change', function() {
+            const otherContainer = document.getElementById('otherConditionContainer');
+            otherContainer.style.display = this.value === 'otro' ? 'block' : 'none';
+        });
+        
+        document.querySelectorAll('input[name="medication"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const detailsContainer = document.getElementById('medicationDetailsContainer');
+                detailsContainer.style.display = this.value === 'si' ? 'block' : 'none';
+            });
+        });
+        
+        document.querySelectorAll('input[name="hospital"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const detailsContainer = document.getElementById('hospitalDetailsContainer');
+                detailsContainer.style.display = this.value === 'si' ? 'block' : 'none';
+            });
+        });
+        
+        document.querySelectorAll('input[name="declined"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const detailsContainer = document.getElementById('declinedReasonContainer');
+                detailsContainer.style.display = this.value === 'si' ? 'block' : 'none';
+            });
+        });
+        
+        // Vista previa de imágenes con arrastrar y soltar
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('imagePreview');
+        let filesToUpload = [];
+        
+        // Manejar clic en el área de carga
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        
+        // Manejar cambio de archivos seleccionados
+        fileInput.addEventListener('change', handleFiles);
+        
+        // Manejar arrastrar y soltar
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            fileUploadArea.style.borderColor = '#4895ef';
+            fileUploadArea.style.backgroundColor = 'rgba(72, 149, 239, 0.1)';
+        }
+        
+        function unhighlight() {
+            fileUploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            fileUploadArea.style.backgroundColor = '';
+        }
+        
+        fileUploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            handleFiles();
+        }
+        
+        function handleFiles() {
+            previewContainer.innerHTML = '';
+            filesToUpload = Array.from(fileInput.files);
+            
+            if (filesToUpload.length > 0) {
+                filesToUpload.forEach((file, index) => {
+                    if (!file.type.match('image.*')) return;
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'preview-image';
+                        
+                        const removeBtn = document.createElement('button');
+                        removeBtn.className = 'remove-image';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.addEventListener('click', () => removeImage(index));
+                        
+                        previewItem.appendChild(img);
+                        previewItem.appendChild(removeBtn);
+                        previewContainer.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        function removeImage(index) {
+            filesToUpload.splice(index, 1);
+            
+            // Actualizar el input file
+            const dataTransfer = new DataTransfer();
+            filesToUpload.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+            
+            handleFiles(); // Actualizar la vista previa
+        }
+        
+        // Autoajustar grupo de edad basado en la edad ingresada
+        document.getElementById('guestAge').addEventListener('input', function() {
+            const age = parseInt(this.value) || 0;
+            const ageGroup = document.getElementById('ageGroup');
+            
+            if (age <= 12) ageGroup.value = 'niño';
+            else if (age >= 13 && age <= 19) ageGroup.value = 'adolescente';
+            else if (age >= 20 && age <= 59) ageGroup.value = 'adulto';
+            else if (age >= 60) ageGroup.value = 'mayor';
+        });
+        
+        // Subir imágenes a Firebase Storage
+        async function uploadImages(userId) {
+            const imageUrls = [];
+            
+            if (filesToUpload.length === 0) return imageUrls;
+            
+            try {
+                for (const file of filesToUpload) {
+                    const storageRef = storage.ref(`medical_reports/${userId}/${Date.now()}_${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    const downloadUrl = await snapshot.ref.getDownloadURL();
+                    imageUrls.push(downloadUrl);
+                }
+            } catch (error) {
+                console.error("Error al subir imágenes:", error);
+                throw new Error("Error al subir las imágenes. Por favor intente nuevamente.");
+            }
+            
+            return imageUrls;
+        }
+        
+        // Enviar formulario
+        document.getElementById('medicalReportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validar campos requeridos
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.style.borderColor = 'var(--warning)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+            
+            if (!isValid) {
+                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'flex';
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Obtener valores del formulario
+                const reportData = {
+                    emergency: document.querySelector('input[name="emergency"]:checked').value,
+                    guestName: document.getElementById('guestName').value,
+                    roomNumber: document.getElementById('roomNumber').value,
+                    guestAge: document.getElementById('guestAge').value || null,
+                    ageGroup: document.getElementById('ageGroup').value || null,
+                    gender: document.getElementById('gender').value || null,
+                    incidentLocation: document.getElementById('incidentLocation').value || null,
+                    incidentDate: document.getElementById('incidentDate').value,
+                    incidentTime: document.getElementById('incidentTime').value,
+                    medicalCondition: document.getElementById('medicalCondition').value,
+                    otherCondition: document.getElementById('otherCondition').value || null,
+                    incidentDescription: document.getElementById('incidentDescription').value,
+                    attendingDoctor: document.getElementById('attendingDoctor').value || null,
+                    medication: document.querySelector('input[name="medication"]:checked').value,
+                    medicationDetails: document.getElementById('medicationDetails').value || null,
+                    hospitalTransfer: document.querySelector('input[name="hospital"]:checked').value,
+                    hospitalName: document.getElementById('hospitalName').value || null,
+                    hospitalContact: document.getElementById('hospitalContact').value || null,
+                    reportedBy: document.getElementById('reportedBy').value,
+                    reporterPosition: document.getElementById('reporterPosition').value,
+                    reportDate: document.getElementById('reportDate').value,
+                    medicalDeclined: document.querySelector('input[name="declined"]:checked').value,
+                    declinedReason: document.getElementById('declinedReason').value || null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'active'
+                };
+                
+                // Subir imágenes si hay
+                const user = auth.currentUser;
+                const userId = user ? user.uid : 'anonymous';
+                
+                reportData.imageUrls = await uploadImages(userId);
+                
+                // Guardar en Firestore
+                await medicalReportsRef.add(reportData);
+                
+                // Éxito
+                showAlert('success', 'Éxito', 'Reporte médico guardado correctamente');
+                this.reset();
+                previewContainer.innerHTML = '';
+                filesToUpload = [];
+                
+            } catch (error) {
+                console.error('Error al guardar el reporte:', error);
+                showAlert('error', 'Error', error.message || 'Ocurrió un error al guardar el reporte');
+            } finally {
+                // Ocultar loading
+                document.getElementById('loading').style.display = 'none';
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Establecer fechas por defecto
+        document.getElementById('reportDate').valueAsDate = new Date();
+        document.getElementById('incidentDate').valueAsDate = new Date();
+        
+        // Establecer hora actual
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('incidentTime').value = `${hours}:${minutes}`;
+    </script>
+</body>
+</html>
