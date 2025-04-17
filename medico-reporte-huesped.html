@@ -864,6 +864,12 @@
             submitBtn.disabled = true;
             
             try {
+                // Obtener usuario actual al momento de guardar
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('No hay usuario autenticado');
+                }
+
                 // Obtener valores del formulario
                 const reportData = {
                     emergency: document.querySelector('input[name="emergency"]:checked').value,
@@ -884,19 +890,22 @@
                     hospitalTransfer: document.querySelector('input[name="hospital"]:checked').value,
                     hospitalName: document.getElementById('hospitalName').value || null,
                     hospitalContact: document.getElementById('hospitalContact').value || null,
-                    reportedBy: document.getElementById('reportedBy').value,
+                    reportedBy: user.displayName || 'Usuario no identificado', // Nombre del usuario al momento de guardar
                     reporterPosition: document.getElementById('reporterPosition').value,
-                    reportDate: document.getElementById('reportDate').value,
+                    reportDate: new Date().toISOString(), // Fecha y hora actual al momento de guardar
                     medicalDeclined: document.querySelector('input[name="declined"]:checked').value,
                     declinedReason: document.getElementById('declinedReason').value || null,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'active'
+                    status: 'Código amarillo', // Siempre se guarda como "Código amarillo"
+                    keywords: [
+                        document.getElementById('guestName').value.toLowerCase(),
+                        document.getElementById('roomNumber').value.toLowerCase(),
+                        document.getElementById('incidentDate').value
+                    ].filter(Boolean)
                 };
                 
                 // Subir imágenes si hay
-                const user = auth.currentUser;
-                const userId = user ? user.uid : 'anonymous';
-                
+                const userId = user.uid;
                 reportData.imageUrls = await uploadImages(userId);
                 
                 // Guardar en Firestore
@@ -907,6 +916,14 @@
                 this.reset();
                 previewContainer.innerHTML = '';
                 filesToUpload = [];
+                
+                // Restablecer fechas y hora actual
+                document.getElementById('reportDate').valueAsDate = new Date();
+                document.getElementById('incidentDate').valueAsDate = new Date();
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('incidentTime').value = `${hours}:${minutes}`;
                 
             } catch (error) {
                 console.error('Error al guardar el reporte:', error);
@@ -919,15 +936,23 @@
             }
         });
         
-        // Establecer fechas por defecto
+        // Establecer fechas por defecto al cargar la página
         document.getElementById('reportDate').valueAsDate = new Date();
         document.getElementById('incidentDate').valueAsDate = new Date();
         
-        // Establecer hora actual
+        // Establecer hora actual al cargar la página
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         document.getElementById('incidentTime').value = `${hours}:${minutes}`;
+
+        // Escuchar cambios de autenticación
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Redirigir a login si no hay usuario autenticado
+                window.location.href = 'login.html';
+            }
+        });
     </script>
 </body>
 </html>
