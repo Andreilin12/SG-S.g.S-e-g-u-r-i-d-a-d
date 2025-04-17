@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registros Médicos | Sistema Avanzado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --error: #ef233c;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+        
+        .search-bar button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .search-bar button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .records-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .record-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .record-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .record-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .record-card.emergency::before {
+            background: linear-gradient(90deg, var(--warning), #f72585cc);
+        }
+        
+        .record-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .record-card.emergency .record-icon {
+            color: var(--warning);
+        }
+        
+        .record-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .record-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .record-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .record-meta i {
+            width: 20px;
+            color: var(--accent);
+        }
+        
+        .record-card.emergency .record-meta i {
+            color: var(--warning);
+        }
+        
+        .record-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        .action-btn.activate {
+            color: var(--warning);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--warning);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            max-width: 800px;
+            margin: 2rem auto;
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: modalFadeIn 0.4s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            background: rgba(67, 97, 238, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .modal-header .close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-header .close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+        }
+        
+        .detail-col {
+            flex: 1;
+        }
+        
+        .detail-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-value {
+            font-size: 1.1rem;
+            color: white;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .emergency .detail-value {
+            border-left-color: var(--warning);
+        }
+        
+        .detail-value.multiline {
+            white-space: pre-line;
+            min-height: 100px;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .image-item {
+            border-radius: 8px;
+            overflow: hidden;
+            height: 150px;
+            position: relative;
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .image-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-print {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        
+        .status-yellow {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .status-red {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .status-green {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+            grid-column: 1 / -1;
+        }
+        
+        .no-records i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-content {
+                margin: 1rem auto;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar button {
+                justify-content: center;
+                padding: 0.8rem;
+            }
+            
+            .records-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(72, 149, 239, 0),
+                rgba(72, 149, 239, 0.1),
+                rgba(72, 149, 239, 0)
+            );
+            transform: rotate(30deg);
+            animation: glow 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes glow {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        /* Estilos para la impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printContainer, #printContainer * {
+                visibility: visible;
+            }
+            #printContainer {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white;
+                color: black;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-value {
+                background: transparent !important;
+                border-left: none !important;
+                padding: 0.3rem 0 !important;
+            }
+            .print-images {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .print-header {
+                text-align: center;
+                margin-bottom: 1rem;
+                color: #333;
+            }
+            .print-section {
+                margin-bottom: 1.5rem;
+            }
+            .print-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+            }
+            .print-col {
+                flex: 1;
+                padding: 0 1rem;
+            }
+            .print-label {
+                font-weight: bold;
+                margin-bottom: 0.3rem;
+            }
+            .print-divider {
+                border-bottom: 2px solid #4361ee;
+                padding-bottom: 0.5rem;
+                color: #4361ee;
+                margin-bottom: 0.5rem;
+            }
+            .print-footer {
+                margin-top: 2rem;
+                border-top: 1px solid #eee;
+                padding-top: 1rem;
+                text-align: center;
+                font-size: 0.8rem;
+                color: #777;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container glow-effect">
+        <h1><i class="fas fa-folder-open"></i> Registros Médicos de Huéspedes</h1>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar por nombre, habitación o fecha...">
+            <button id="searchBtn"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="emergency">Emergencias</button>
+            <button class="filter-btn" data-filter="recent">Recientes</button>
+            <button class="filter-btn" data-filter="visible">Visibles en búsqueda</button>
+        </div>
+        
+        <div class="records-grid" id="recordsGrid">
+            <!-- Los registros se cargarán aquí dinámicamente -->
+            <div class="no-records">
+                <i class="fas fa-folder-open"></i>
+                <p>Cargando registros médicos...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para mostrar detalles -->
+    <div class="modal" id="recordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-medical"></i> Detalles del Reporte Médico <span class="status-badge status-yellow">Código Amarillo</span></h2>
+                <button class="close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Los detalles se cargarán aquí dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-print no-print" id="printBtn"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn btn-secondary close no-print"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenedor para impresión (oculto) -->
+    <div id="printContainer" style="display: none;"></div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // Referencia a las colecciones
+        const medicalReportsRef = db.collection("MedicoHuespedes");
+        const activationLogsRef = db.collection("MedicalReportActivationLogs");
+        
+        // Elementos del DOM
+        const recordsGrid = document.getElementById('recordsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const modal = document.getElementById('recordModal');
+        const modalBody = document.getElementById('modalBody');
+        const closeBtns = document.querySelectorAll('.close');
+        const loading = document.getElementById('loading');
+        const printBtn = document.getElementById('printBtn');
+        const printContainer = document.getElementById('printContainer');
+        
+        // Variables de estado
+        let allRecords = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentUser = null;
+        let currentRecord = null;
+        
+        // Cargar registros al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    loadRecords();
+                    
+                    // Escuchar cambios en la colección
+                    medicalReportsRef.onSnapshot(snapshot => {
+                        loadRecords();
+                    });
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+        
+        // Cargar registros desde Firestore
+        async function loadRecords() {
+            try {
+                loading.style.display = 'flex';
+                recordsGrid.innerHTML = '<div class="no-records"><i class="fas fa-spinner fa-spin"></i><p>Cargando registros...</p></div>';
+                
+                const snapshot = await medicalReportsRef.orderBy('createdAt', 'desc').get();
+                allRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                applyFilters();
+            } catch (error) {
+                console.error("Error al cargar registros:", error);
+                recordsGrid.innerHTML = '<div class="no-records"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar los registros</p></div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Aplicar filtros y búsqueda
+        function applyFilters() {
+            let filteredRecords = [...allRecords];
+            
+            // Aplicar filtro seleccionado
+            if (currentFilter === 'emergency') {
+                filteredRecords = filteredRecords.filter(record => record.emergency === 'si');
+            } else if (currentFilter === 'recent') {
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                filteredRecords = filteredRecords.filter(record => {
+                    const recordDate = new Date(record.incidentDate);
+                    return recordDate >= oneWeekAgo;
+                });
+            } else if (currentFilter === 'visible') {
+                filteredRecords = filteredRecords.filter(record => record.visibleInSearch === true);
+            }
+            
+            // Aplicar búsqueda
+            if (currentSearch) {
+                const searchTerm = currentSearch.toLowerCase();
+                filteredRecords = filteredRecords.filter(record => 
+                    record.guestName.toLowerCase().includes(searchTerm) ||
+                    record.roomNumber.toLowerCase().includes(searchTerm) ||
+                    record.incidentDate.includes(searchTerm) ||
+                    (record.medicalCondition && record.medicalCondition.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            displayRecords(filteredRecords);
+        }
+        
+        // Mostrar registros en la cuadrícula
+        function displayRecords(records) {
+            if (records.length === 0) {
+                recordsGrid.innerHTML = '<div class="no-records"><i class="fas fa-folder-open"></i><p>No se encontraron registros</p></div>';
+                return;
+            }
+            
+            recordsGrid.innerHTML = '';
+            
+            records.forEach(record => {
+                const recordDate = new Date(record.incidentDate);
+                const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                
+                const recordCard = document.createElement('div');
+                recordCard.className = `record-card ${record.emergency === 'si' ? 'emergency' : ''}`;
+                recordCard.dataset.id = record.id;
+                
+                recordCard.innerHTML = `
+                    <div class="record-icon">
+                        <i class="fas ${record.emergency === 'si' ? 'fa-exclamation-triangle' : 'fa-file-medical'}"></i>
+                    </div>
+                    <h3 class="record-title">${record.guestName}</h3>
+                    <div class="record-meta">
+                        <span><i class="fas fa-door-open"></i> Habitación: ${record.roomNumber}</span>
+                        <span><i class="fas fa-calendar-alt"></i> Fecha: ${formattedDate}</span>
+                        <span><i class="fas fa-stethoscope"></i> ${record.medicalCondition || 'Sin especificar'}</span>
+                    </div>
+                    <div class="record-actions">
+                        <label class="toggle-switch" title="Visible en búsqueda">
+                            <input type="checkbox" ${record.visibleInSearch ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                `;
+                
+                // Evento para abrir modal al hacer clic en la tarjeta
+                recordCard.addEventListener('click', () => openModal(record));
+                
+                // Evento para toggle de visibilidad
+                const toggle = recordCard.querySelector('.toggle-switch input');
+                toggle.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    updateVisibility(record.id, toggle.checked);
+                });
+                
+                recordsGrid.appendChild(recordCard);
+            });
+        }
+        
+        // Actualizar visibilidad del registro y registrar el cambio
+        async function updateVisibility(recordId, isVisible) {
+            try {
+                loading.style.display = 'flex';
+                
+                // Actualizar el estado en Firestore
+                await medicalReportsRef.doc(recordId).update({
+                    visibleInSearch: isVisible,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: currentUser.uid,
+                    updatedByName: currentUser.displayName || currentUser.email
+                });
+                
+                // Registrar el cambio en el log de activaciones
+                await activationLogsRef.add({
+                    reportId: recordId,
+                    action: isVisible ? 'activated' : 'deactivated',
+                    changedBy: currentUser.uid,
+                    changedByName: currentUser.displayName || currentUser.email,
+                    changedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Actualizar el registro local
+                const recordIndex = allRecords.findIndex(r => r.id === recordId);
+                if (recordIndex !== -1) {
+                    allRecords[recordIndex].visibleInSearch = isVisible;
+                    allRecords[recordIndex].lastUpdated = new Date();
+                    allRecords[recordIndex].updatedBy = currentUser.uid;
+                    allRecords[recordIndex].updatedByName = currentUser.displayName || currentUser.email;
+                }
+                
+                // Reaplicar filtros si es necesario
+                if (currentFilter === 'visible') {
+                    applyFilters();
+                }
+            } catch (error) {
+                console.error("Error al actualizar visibilidad:", error);
+                alert("Error al actualizar la visibilidad del registro");
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Abrir modal con detalles del registro
+        function openModal(record) {
+            currentRecord = record;
+            const recordDate = new Date(record.incidentDate);
+            const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            const reportDate = new Date(record.reportDate);
+            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            modalBody.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Nombre del huésped</div>
+                            <div class="detail-value">${record.guestName}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Número de habitación</div>
+                            <div class="detail-value">${record.roomNumber}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Edad / Grupo de edad</div>
+                            <div class="detail-value">
+                                ${record.guestAge ? record.guestAge + ' años' : 'No especificado'} / 
+                                ${record.ageGroup ? record.ageGroup.charAt(0).toUpperCase() + record.ageGroup.slice(1) : 'No especificado'}
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Sexo</div>
+                            <div class="detail-value">
+                                ${record.gender ? record.gender.charAt(0).toUpperCase() + record.gender.slice(1) : 'No especificado'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Fecha y hora del incidente</div>
+                            <div class="detail-value">${formattedDate} a las ${record.incidentTime}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Lugar del incidente</div>
+                            <div class="detail-value">${record.incidentLocation || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">¿Es una emergencia?</div>
+                            <div class="detail-value ${record.emergency === 'si' ? 'emergency' : ''}">
+                                ${record.emergency === 'si' ? 'Sí' : 'No'}
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Visible en búsqueda</div>
+                            <div class="detail-value">
+                                ${record.visibleInSearch ? 'Sí' : 'No'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Tipo de condición médica</div>
+                            <div class="detail-value">
+                                ${record.medicalCondition === 'otro' && record.otherCondition ? 
+                                  record.otherCondition : 
+                                  record.medicalCondition.charAt(0).toUpperCase() + record.medicalCondition.slice(1)}
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Descripción detallada</div>
+                            <div class="detail-value multiline">${record.incidentDescription}</div>
+                        </div>
+                    </div>
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Médico que atendió</div>
+                            <div class="detail-value">${record.attendingDoctor || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">¿Se administró medicamento?</div>
+                            <div class="detail-value">${record.medication === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medication === 'si' && record.medicationDetails ? `
+                        <div class="detail-group">
+                            <div class="detail-label">Detalles del medicamento</div>
+                            <div class="detail-value multiline">${record.medicationDetails}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">¿Fue trasladado a un centro médico?</div>
+                            <div class="detail-value">${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.hospitalTransfer === 'si' ? `
+                        <div class="detail-group">
+                            <div class="detail-label">Nombre del centro médico</div>
+                            <div class="detail-value">${record.hospitalName || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Persona de contacto</div>
+                            <div class="detail-value">${record.hospitalContact || 'No especificado'}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">¿Atención médica fue declinada?</div>
+                            <div class="detail-value">${record.medicalDeclined === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medicalDeclined === 'si' && record.declinedReason ? `
+                        <div class="detail-group">
+                            <div class="detail-label">Razón por la que se declinó</div>
+                            <div class="detail-value multiline">${record.declinedReason}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Reportado por</div>
+                            <div class="detail-value">${record.reportedBy}</div>
+                        </div>
+                    </div>
+                    <div class="detail-col">
+                        <div class="detail-group">
+                            <div class="detail-label">Fecha del reporte</div>
+                            <div class="detail-value">${formattedReportDate}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${record.imageUrls && record.imageUrls.length > 0 ? `
+                <div class="detail-group">
+                    <div class="detail-label">Evidencia fotográfica</div>
+                    <div class="images-grid">
+                        ${record.imageUrls.map(url => `
+                            <div class="image-item">
+                                <img src="${url}" alt="Evidencia médica">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            // Actualizar el estado en el modal
+            const statusBadge = document.querySelector('.modal-header .status-badge');
+            if (record.status === 'Código amarillo') {
+                statusBadge.className = 'status-badge status-yellow';
+                statusBadge.textContent = 'Código Amarillo';
+            } else if (record.status === 'Código rojo') {
+                statusBadge.className = 'status-badge status-red';
+                statusBadge.textContent = 'Código Rojo';
+            } else {
+                statusBadge.className = 'status-badge status-green';
+                statusBadge.textContent = 'Resuelto';
+            }
+            
+            // Configurar el botón de impresión para este registro
+            printBtn.onclick = () => printRecord(record);
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Función para imprimir el registro
+        function printRecord(record) {
+            const recordDate = new Date(record.incidentDate);
+            const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            const reportDate = new Date(record.reportDate);
+            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const statusText = record.status === 'Código amarillo' ? 'Código Amarillo' :
+                              record.status === 'Código rojo' ? 'Código Rojo' : 'Resuelto';
+            
+            // Crear contenido para imprimir
+            printContainer.innerHTML = `
+                <div style="padding: 20px; font-family: Arial, sans-serif; color: #333;">
+                    <h1 style="text-align: center; margin-bottom: 20px; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px;">
+                        <i class="fas fa-file-medical"></i> Reporte Médico
+                    </h1>
+                    
+                    <div style="text-align: center; margin-bottom: 30px; color: #555; font-size: 14px;">
+                        Generado el ${new Date().toLocaleDateString('es-ES', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Información del Huésped
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Nombre:</strong> ${record.guestName}</p>
+                            <p style="margin-bottom: 10px;"><strong>Habitación:</strong> ${record.roomNumber}</p>
+                            <p style="margin-bottom: 10px;"><strong>Edad:</strong> ${record.guestAge || 'No especificado'} años</p>
+                            <p style="margin-bottom: 10px;"><strong>Grupo de edad:</strong> ${record.ageGroup ? record.ageGroup.charAt(0).toUpperCase() + record.ageGroup.slice(1) : 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Sexo:</strong> ${record.gender ? record.gender.charAt(0).toUpperCase() + record.gender.slice(1) : 'No especificado'}</p>
+                        </div>
+                        
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Información del Incidente
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Fecha y hora:</strong> ${formattedDate} a las ${record.incidentTime}</p>
+                            <p style="margin-bottom: 10px;"><strong>Lugar:</strong> ${record.incidentLocation || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Estado:</strong> ${statusText}</p>
+                            <p style="margin-bottom: 10px;"><strong>Emergencia:</strong> ${record.emergency === 'si' ? 'Sí' : 'No'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Reportado por:</strong> ${record.reportedBy}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                            Detalles Médicos
+                        </h3>
+                        <p style="margin-bottom: 10px;"><strong>Tipo de condición:</strong> 
+                            ${record.medicalCondition === 'otro' && record.otherCondition ? 
+                              record.otherCondition : 
+                              record.medicalCondition.charAt(0).toUpperCase() + record.medicalCondition.slice(1)}
+                        </p>
+                        <p style="margin-bottom: 5px;"><strong>Descripción:</strong></p>
+                        <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                            ${record.incidentDescription}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Atención Médica
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Médico que atendió:</strong> ${record.attendingDoctor || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Medicamento administrado:</strong> ${record.medication === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.medication === 'si' && record.medicationDetails ? `
+                            <p style="margin-bottom: 5px;"><strong>Detalles del medicamento:</strong></p>
+                            <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                                ${record.medicationDetails}
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="flex: 1; padding: 0 15px;">
+                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                                Traslado y Declinación
+                            </h3>
+                            <p style="margin-bottom: 10px;"><strong>Trasladado a centro médico:</strong> ${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.hospitalTransfer === 'si' ? `
+                            <p style="margin-bottom: 10px;"><strong>Centro médico:</strong> ${record.hospitalName || 'No especificado'}</p>
+                            <p style="margin-bottom: 10px;"><strong>Contacto:</strong> ${record.hospitalContact || 'No especificado'}</p>
+                            ` : ''}
+                            <p style="margin-bottom: 10px;"><strong>Atención declinada:</strong> ${record.medicalDeclined === 'si' ? 'Sí' : 'No'}</p>
+                            ${record.medicalDeclined === 'si' && record.declinedReason ? `
+                            <p style="margin-bottom: 5px;"><strong>Razón:</strong></p>
+                            <div style="border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-top: 5px; margin-bottom: 15px; background: #f9f9f9;">
+                                ${record.declinedReason}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${record.imageUrls && record.imageUrls.length > 0 ? `
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
+                            Evidencia Fotográfica
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+                            ${record.imageUrls.map(url => `
+                                <div style="border: 1px solid #eee; border-radius: 5px; overflow: hidden;">
+                                    <img src="${url}" alt="Evidencia médica" style="width: 100%; height: auto; display: block;">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777;">
+                        <p>Reporte generado automáticamente por el Sistema de Registros Médicos</p>
+                        <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Esperar un momento para que se cargue el contenido antes de imprimir
+            setTimeout(() => {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Reporte Médico - ${record.guestName}</title>
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            body { font-family: Arial, sans-serif; color: #333; padding: 20px; }
+                            h1 { text-align: center; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; }
+                            h3 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 5px; }
+                            .print-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                            .print-col { flex: 1; padding: 0 15px; }
+                            .print-value { margin-bottom: 10px; }
+                            .print-desc { border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #f9f9f9; }
+                            .print-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+                            .print-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777; }
+                            @page { size: auto; margin: 10mm; }
+                        </style>
+                    </head>
+                    <body>
+                        ${printContainer.innerHTML}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                
+                // Esperar a que se carguen las imágenes antes de imprimir
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                    }, 500);
+                };
+            }, 200);
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', () => {
+            currentSearch = searchInput.value.trim();
+            applyFilters();
+        });
+        
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                currentSearch = searchInput.value.trim();
+                applyFilters();
+            }
+        });
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                applyFilters();
+            });
+        });
+        
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
