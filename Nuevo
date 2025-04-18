@@ -1,62 +1,38 @@
-@media (max-width: 768px) {
-    .sidebar-collapse-btn {
-        left: 100%; /* Posición inicial en móvil */
-        width: 40px; /* Tamaño original en móvil */
-        height: 40px;
-        border-radius: 50%;
-        top: 10px;
-        right: 10px;
-        transform: none;
-    }
-    
-    .sidebar.collapsed ~ .sidebar-collapse-btn {
-        left: calc(100% - 40px); /* Ajuste para móvil */
-    }
-}
-
-
-
-
-
-
-
-.sidebar-collapse-btn {
-    position: fixed; /* Cambiado de absolute a fixed */
-    left: 280px; /* Mismo ancho que el sidebar */
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--accent-color);
-    width: 60px; /* Aumentado de 40px a 60px */
-    height: 80px; /* Aumentado de 60px a 80px */
-    border-radius: 0 8px 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    color: white;
+/* Estilos para los elementos select */
+.filter-select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background-color: var(--primary); /* Fondo oscuro */
+    color: var(--light); /* Texto claro */
+    font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    appearance: none; /* Elimina el estilo por defecto del navegador */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
 }
 
-.sidebar.collapsed ~ .sidebar-collapse-btn {
-    left: 0; /* Cuando el sidebar está colapsado, el botón se pega al borde izquierdo */
+/* Estilos para las opciones del select */
+.filter-select option {
+    background-color: var(--primary); /* Fondo oscuro para las opciones */
+    color: var(--light); /* Texto claro para las opciones */
+    padding: 10px;
 }
 
+/* Estilo cuando el select está enfocado */
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
+}
 
-
-
-
-sidebarCollapseBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    const icon = sidebarCollapseBtn.querySelector('i');
-    if (sidebar.classList.contains('collapsed')) {
-        icon.classList.remove('fa-chevron-left');
-        icon.classList.add('fa-chevron-right');
-        sidebarCollapseBtn.style.left = '0'; // Se pega al borde izquierdo
-    } else {
-        icon.classList.remove('fa-chevron-right');
-        icon.classList.add('fa-chevron-left');
-        sidebarCollapseBtn.style.left = '280px'; // Vuelve a su posición original
-    }
-});
+/* Estilo para el hover de las opciones */
+.filter-select option:hover {
+    background-color: var(--accent); /* Color de fondo al hacer hover */
+    color: white;
+}
