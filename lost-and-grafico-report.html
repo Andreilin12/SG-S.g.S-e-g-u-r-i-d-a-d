@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes de Entregas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #2c3e50;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+      gap: 20px;
+      flex-direction: column;
+    }
+    .report-container {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .report-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #15a086;
+    }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .controls select, .controls button {
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      border: none;
+      background-color: #15a086;
+      color: white;
+      cursor: pointer;
+    }
+    .controls button {
+      background-color: #e74c3c;
+    }
+    .controls button:hover {
+      background-color: #c0392b;
+    }
+    .controls select:hover {
+      background-color: #12876f;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table th, table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #555;
+    }
+    table th {
+      background-color: #15a086;
+      color: #fff;
+    }
+    table tr:hover {
+      background-color: #2c3e50;
+    }
+    .stats-card {
+      background-color: #34495e;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .chart-card {
+      background-color: #2c3e50;
+      padding: 1rem;
+      border-radius: 5px;
+    }
+    .chart-title {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #15a086;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: #34495e;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .modal-close:hover {
+      background-color: #c0392b;
+    }
+    .details-btn {
+      background-color: #15a086;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    .details-btn:hover {
+      background-color: #12876f;
+    }
+    .highlight {
+      background-color: rgba(21, 160, 134, 0.3);
+    }
+    .buttons-container {
+      display: flex;
+      gap: 1rem;
+      margin-left: auto;
+    }
+    .export-btn {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .export-btn:hover {
+      background-color: #2980b9;
+    }
+    .print-btn {
+      background-color: #9b59b6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .print-btn:hover {
+      background-color: #8e44ad;
+    }
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+        padding: 10px !important;
+        font-size: 12pt;
+      }
+      .container, .report-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background-color: white !important;
+      }
+      .controls, .print-btn, .details-btn {
+        display: none !important;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 10pt !important;
+      }
+      table th {
+        background-color: #f2f2f2 !important;
+        color: black !important;
+        font-weight: bold;
+      }
+      table td {
+        color: black !important;
+        border-bottom: 1px solid #ddd !important;
+      }
+      .chart-card {
+        page-break-inside: avoid !important;
+        margin-bottom: 20px !important;
+      }
+      .stats-card, .charts-container {
+        page-break-inside: avoid !important;
+      }
+      h2, h3, h4 {
+        color: #15a086 !important;
+        page-break-after: avoid !important;
+      }
+      .modal {
+        display: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      @page {
+        size: auto;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="report-container">
+      <h2>Reportes de Entregas</h2>
+      
+      <div class="stats-card">
+        <h3>Estadísticas y Gráficos</h3>
+        <div class="charts-container" id="chartsContainer">
+          <!-- Los gráficos se generarán dinámicamente -->
+        </div>
+      </div>
+      
+      <div class="controls">
+        <select id="monthSelect">
+          <option value="">Seleccione un mes</option>
+          <option value="01">Enero</option>
+          <option value="02">Febrero</option>
+          <option value="03">Marzo</option>
+          <option value="04">Abril</option>
+          <option value="05">Mayo</option>
+          <option value="06">Junio</option>
+          <option value="07">Julio</option>
+          <option value="08">Agosto</option>
+          <option value="09">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
+        </select>
+        
+        <select id="yearSelect">
+          <option value="">Seleccione un año</option>
+          <!-- Los años se llenarán dinámicamente -->
+        </select>
+        
+        <button onclick="loadDeliveries()">Buscar Entregas</button>
+        <button onclick="clearFilters()">Limpiar Filtros</button>
+        
+        <div class="buttons-container">
+          <button class="export-btn" onclick="exportToExcel()">
+            <i class="fas fa-file-excel"></i> Exportar
+          </button>
+          <button class="print-btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimir
+          </button>
+        </div>
+      </div>
+      
+      <table id="deliveriesTable">
+        <thead>
+          <tr>
+            <th>Nombre del objeto</th>
+            <th>Fecha de entrega</th>
+            <th>Hora de entrega</th>
+            <th>Entregado a</th>
+            <th>Entregado por</th>
+            <th class="no-print">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="deliveriesBody">
+          <!-- Las entregas se llenarán dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal para detalles de entrega -->
+  <div class="modal" id="detailsModal">
+    <div class="modal-content">
+      <h3>Detalles Completo de Entrega</h3>
+      <div id="modalDetailsContent"></div>
+      <button class="modal-close" onclick="closeDetailsModal()"><i class="fas fa-times"></i> Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let allDeliveries = [];
+    let currentMonthYear = "";
+    let charts = [];
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', () => {
+      // Escuchar cambios en el estado de autenticación
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          console.log("Usuario autenticado:", user.email);
+          initializeAppData();
+        } else {
+          console.log("No hay usuario autenticado.");
+          window.location.href = "index.html";
+        }
+      });
+    });
+
+    // Inicializar datos de la aplicación
+    async function initializeAppData() {
+      // Llenar selector de años
+      fillYearSelect();
+      
+      // Establecer mes y año actual por defecto
+      const currentDate = new Date();
+      const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const currentYear = currentDate.getFullYear();
+      
+      document.getElementById('monthSelect').value = currentMonth;
+      document.getElementById('yearSelect').value = currentYear;
+      
+      // Cargar entregas del mes actual
+      currentMonthYear = `${currentMonth}-${currentYear}`;
+      await loadDeliveries();
+    }
+
+    // Llenar el selector de años con los últimos 10 años
+    function fillYearSelect() {
+      const yearSelect = document.getElementById('yearSelect');
+      const currentYear = new Date().getFullYear();
+      
+      for (let i = currentYear; i >= currentYear - 10; i--) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+      }
+    }
+
+    // Cargar entregas según los filtros seleccionados
+    window.loadDeliveries = async function() {
+      const month = document.getElementById('monthSelect').value;
+      const year = document.getElementById('yearSelect').value;
+      
+      if (!month && !year) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Por favor seleccione al menos un mes o un año para filtrar.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+      
+      try {
+        let deliveriesQuery;
+        let collectionName;
+        
+        if (month && year) {
+          // Filtrar por mes y año específico
+          currentMonthYear = `${month}-${year}`;
+          collectionName = `Entregas_${currentMonthYear}`;
+        } else if (year) {
+          // Filtrar por año completo
+          currentMonthYear = `${year}`;
+          collectionName = `Entregas_${year}`;
+        } else {
+          // Filtrar por mes en todos los años
+          await searchDeliveriesByMonthAcrossYears(month);
+          return;
+        }
+        
+        // Mostrar carga
+        Swal.fire({
+          title: 'Cargando datos',
+          html: 'Obteniendo información de entregas...',
+          allowOutsideClick: false,
+          background: '#2c3e50',
+          color: '#fff',
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Obtener las entregas de la colección específica
+        deliveriesQuery = collection(db, collectionName);
+        const querySnapshot = await getDocs(deliveriesQuery);
+        
+        allDeliveries = [];
+        querySnapshot.forEach((doc) => {
+          allDeliveries.push({ id: doc.id, ...doc.data() });
+        });
+        
+        renderDeliveries(allDeliveries);
+        renderCharts(allDeliveries);
+        
+        Swal.close();
+        
+      } catch (error) {
+        console.error("Error al cargar entregas:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar las entregas. Verifique que existan datos para el período seleccionado.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Buscar entregas por mes en todos los años
+    async function searchDeliveriesByMonthAcrossYears(month) {
+      try {
+        // Mostrar carga
+        Swal.fire({
+          title: 'Cargando datos',
+          html: 'Buscando entregas en todos los años...',
+          allowOutsideClick: false,
+          background: '#2c3e50',
+          color: '#fff',
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Obtener todas las colecciones de entregas
+        const collections = await getDocs(collection(db, "Entregas"));
+        
+        allDeliveries = [];
+        
+        // Recorrer todas las colecciones de entregas
+        for (const col of collections.docs) {
+          const monthYear = col.id;
+          const [colMonth, colYear] = monthYear.split('-');
+          
+          // Si el mes coincide con el filtro
+          if (colMonth === month) {
+            const deliveries = await getDocs(collection(db, `Entregas_${monthYear}`));
+            
+            deliveries.forEach(doc => {
+              allDeliveries.push({ id: doc.id, ...doc.data() });
+            });
+          }
+        }
+        
+        if (allDeliveries.length === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Sin resultados',
+            text: 'No se encontraron entregas para el mes seleccionado.',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        } else {
+          renderDeliveries(allDeliveries);
+          renderCharts(allDeliveries);
+        }
+        
+        Swal.close();
+        
+      } catch (error) {
+        console.error("Error al buscar entregas por mes:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron buscar las entregas por mes.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    }
+
+    // Mostrar las entregas en la tabla
+    function renderDeliveries(deliveries) {
+      const deliveriesBody = document.getElementById('deliveriesBody');
+      deliveriesBody.innerHTML = '';
+      
+      if (deliveries.length === 0) {
+        deliveriesBody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center;">No se encontraron entregas para los filtros seleccionados</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Ordenar por fecha de entrega (más reciente primero)
+      deliveries.sort((a, b) => new Date(b.deliveryDate) - new Date(a.deliveryDate));
+      
+      deliveries.forEach(delivery => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+          <td>${delivery.objectName}</td>
+          <td>${delivery.deliveryDate}</td>
+          <td>${delivery.deliveryTime || '--:--:--'}</td>
+          <td>${delivery.deliveredTo}</td>
+          <td>${delivery.deliveredBy || 'Desconocido'}</td>
+          <td class="no-print">
+            <button class="details-btn" onclick="showDeliveryDetails('${delivery.id}')">
+              <i class="fas fa-eye"></i> Detalles
+            </button>
+          </td>
+        `;
+        
+        deliveriesBody.appendChild(row);
+      });
+    }
+
+    // Renderizar gráficos con los datos de entregas
+    function renderCharts(deliveries) {
+      // Destruir gráficos anteriores si existen
+      charts.forEach(chart => chart.destroy());
+      charts = [];
+      
+      const chartsContainer = document.getElementById('chartsContainer');
+      chartsContainer.innerHTML = '';
+      
+      if (deliveries.length === 0) {
+        chartsContainer.innerHTML = '<p>No hay datos para mostrar gráficos</p>';
+        return;
+      }
+      
+      // Gráfico 1: Entregas por día
+      const dailyData = calculateDailyData(deliveries);
+      const dailyChartCard = document.createElement('div');
+      dailyChartCard.className = 'chart-card';
+      dailyChartCard.innerHTML = `
+        <h4 class="chart-title">Entregas por Día</h4>
+        <canvas id="dailyChart"></canvas>
+      `;
+      chartsContainer.appendChild(dailyChartCard);
+      
+      const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+      const dailyChart = new Chart(dailyCtx, {
+        type: 'bar',
+        data: {
+          labels: dailyData.labels,
+          datasets: [{
+            label: 'Entregas por día',
+            data: dailyData.values,
+            backgroundColor: 'rgba(21, 160, 134, 0.7)',
+            borderColor: 'rgba(21, 160, 134, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+      charts.push(dailyChart);
+      
+      // Gráfico 2: Entregas por persona
+      const personData = calculatePersonData(deliveries);
+      const personChartCard = document.createElement('div');
+      personChartCard.className = 'chart-card';
+      personChartCard.innerHTML = `
+        <h4 class="chart-title">Entregas por Persona</h4>
+        <canvas id="personChart"></canvas>
+      `;
+      chartsContainer.appendChild(personChartCard);
+      
+      const personCtx = document.getElementById('personChart').getContext('2d');
+      const personChart = new Chart(personCtx, {
+        type: 'pie',
+        data: {
+          labels: personData.labels,
+          datasets: [{
+            label: 'Entregas por persona',
+            data: personData.values,
+            backgroundColor: [
+              'rgba(21, 160, 134, 0.7)',
+              'rgba(52, 152, 219, 0.7)',
+              'rgba(155, 89, 182, 0.7)',
+              'rgba(231, 76, 60, 0.7)',
+              'rgba(241, 196, 15, 0.7)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+      charts.push(personChart);
+      
+      // Gráfico 3: Entregas por tipo de objeto
+      const objectData = calculateObjectData(deliveries);
+      const objectChartCard = document.createElement('div');
+      objectChartCard.className = 'chart-card';
+      objectChartCard.innerHTML = `
+        <h4 class="chart-title">Tipos de Objetos Entregados</h4>
+        <canvas id="objectChart"></canvas>
+      `;
+      chartsContainer.appendChild(objectChartCard);
+      
+      const objectCtx = document.getElementById('objectChart').getContext('2d');
+      const objectChart = new Chart(objectCtx, {
+        type: 'doughnut',
+        data: {
+          labels: objectData.labels,
+          datasets: [{
+            label: 'Tipos de objetos',
+            data: objectData.values,
+            backgroundColor: [
+              'rgba(21, 160, 134, 0.7)',
+              'rgba(52, 152, 219, 0.7)',
+              'rgba(155, 89, 182, 0.7)',
+              'rgba(231, 76, 60, 0.7)',
+              'rgba(241, 196, 15, 0.7)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+      charts.push(objectChart);
+    }
+
+    // Calcular datos para el gráfico de entregas por día
+    function calculateDailyData(deliveries) {
+      const dailyCount = {};
+      
+      deliveries.forEach(delivery => {
+        const date = delivery.deliveryDate;
+        dailyCount[date] = (dailyCount[date] || 0) + 1;
+      });
+      
+      const sortedDates = Object.keys(dailyCount).sort();
+      
+      return {
+        labels: sortedDates,
+        values: sortedDates.map(date => dailyCount[date])
+      };
+    }
+
+    // Calcular datos para el gráfico de entregas por persona
+    function calculatePersonData(deliveries) {
+      const personCount = {};
+      
+      deliveries.forEach(delivery => {
+        const person = delivery.deliveredBy || 'Desconocido';
+        personCount[person] = (personCount[person] || 0) + 1;
+      });
+      
+      // Ordenar de mayor a menor y tomar los primeros 5
+      const sorted = Object.entries(personCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+      
+      return {
+        labels: sorted.map(item => item[0]),
+        values: sorted.map(item => item[1])
+      };
+    }
+
+    // Calcular datos para el gráfico de tipos de objetos
+    function calculateObjectData(deliveries) {
+      const objectCount = {};
+      
+      deliveries.forEach(delivery => {
+        // Extraer la categoría general del nombre del objeto (primera palabra)
+        const category = delivery.objectName.split(' ')[0];
+        objectCount[category] = (objectCount[category] || 0) + 1;
+      });
+      
+      // Ordenar de mayor a menor y tomar los primeros 5
+      const sorted = Object.entries(objectCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+      
+      return {
+        labels: sorted.map(item => item[0]),
+        values: sorted.map(item => item[1])
+      };
+    }
+
+    // Mostrar detalles completos de una entrega
+    window.showDeliveryDetails = async function(deliveryId) {
+      try {
+        // Buscar la entrega en las cargadas
+        let delivery = allDeliveries.find(d => d.id === deliveryId);
+        
+        if (!delivery) {
+          // Si no está en las cargadas, intentar obtenerla de Firestore
+          let deliveryDoc;
+          
+          if (currentMonthYear.includes('-')) {
+            // Es una colección de mes-año
+            deliveryDoc = await getDoc(doc(db, `Entregas_${currentMonthYear}`, deliveryId));
+          } else {
+            // Es una colección de año completo
+            deliveryDoc = await getDoc(doc(db, `Entregas_${currentMonthYear}`, deliveryId));
+          }
+          
+          if (deliveryDoc.exists()) {
+            delivery = { id: deliveryDoc.id, ...deliveryDoc.data() };
+          } else {
+            throw new Error("Entrega no encontrada");
+          }
+        }
+        
+        // Mostrar los detalles en el modal
+        const modalContent = document.getElementById('modalDetailsContent');
+        modalContent.innerHTML = `
+          <p><strong>Nombre del objeto:</strong> ${delivery.objectName}</p>
+          <p><strong>Fecha de encuentro:</strong> ${delivery.meetingDate}</p>
+          <p><strong>Fecha de entrega:</strong> ${delivery.deliveryDate} ${delivery.deliveryTime || ''}</p>
+          <p><strong>Entregado a:</strong> ${delivery.deliveredTo}</p>
+          <p><strong>Entregado por:</strong> ${delivery.deliveredBy || 'Desconocido'}</p>
+          <p><strong>Encontrado por:</strong> ${delivery.foundBy}</p>
+          <p><strong>Código laboral:</strong> ${delivery.workCode}</p>
+          <p><strong>Lugar de encuentro:</strong> ${delivery.meetingPlace}</p>
+          <p><strong>Hora de encuentro:</strong> ${delivery.meetingTime}</p>
+          <p><strong>Comentarios de entrega:</strong> ${delivery.deliveryComments || 'Ninguno'}</p>
+          <p><strong>Comentarios originales:</strong> ${delivery.comments || 'Ninguno'}</p>
+          ${delivery.photoUrls && delivery.photoUrls.length > 0 ? `
+            <p><strong>Fotos:</strong></p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              ${delivery.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;">`).join('')}
+            </div>
+          ` : ''}
+        `;
+        
+        // Mostrar el modal
+        document.getElementById('detailsModal').classList.add('active');
+        
+      } catch (error) {
+        console.error("Error al mostrar detalles:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los detalles de la entrega.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Cerrar el modal de detalles
+    window.closeDetailsModal = function() {
+      document.getElementById('detailsModal').classList.remove('active');
+    };
+
+    // Limpiar filtros
+    window.clearFilters = function() {
+      document.getElementById('monthSelect').value = '';
+      document.getElementById('yearSelect').value = '';
+      document.getElementById('deliveriesBody').innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center;">Seleccione filtros para mostrar entregas</td>
+        </tr>
+      `;
+      document.getElementById('chartsContainer').innerHTML = '';
+    };
+
+    // Exportar a Excel
+    window.exportToExcel = function() {
+      if (allDeliveries.length === 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No hay datos para exportar.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+      
+      try {
+        // Preparar los datos para exportar
+        const data = allDeliveries.map(delivery => ({
+          'Nombre del objeto': delivery.objectName,
+          'Fecha de encuentro': delivery.meetingDate,
+          'Fecha de entrega': delivery.deliveryDate,
+          'Hora de entrega': delivery.deliveryTime || '--:--:--',
+          'Entregado a': delivery.deliveredTo,
+          'Entregado por': delivery.deliveredBy || 'Desconocido',
+          'Encontrado por': delivery.foundBy,
+          'Código laboral': delivery.workCode,
+          'Lugar de encuentro': delivery.meetingPlace,
+          'Hora de encuentro': delivery.meetingTime,
+          'Comentarios de entrega': delivery.deliveryComments || 'Ninguno',
+          'Comentarios originales': delivery.comments || 'Ninguno'
+        }));
+        
+        // Crear hoja de trabajo
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Entregas");
+        
+        // Generar nombre de archivo
+        let fileName = 'Entregas';
+        if (currentMonthYear) {
+          fileName += `_${currentMonthYear}`;
+        }
+        fileName += '.xlsx';
+        
+        // Exportar
+        XLSX.writeFile(wb, fileName);
+        
+      } catch (error) {
+        console.error("Error al exportar a Excel:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo generar el archivo Excel.',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+  </script>
+</body>
+</html>
