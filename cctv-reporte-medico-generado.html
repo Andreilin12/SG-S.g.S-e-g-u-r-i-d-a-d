@@ -35,6 +35,7 @@
             line-height: 1.6;
             padding: 0;
             margin: 0;
+           color: var(--light);
         }
         
         .container {
@@ -166,32 +167,44 @@
             transition: all 0.3s ease;
         }
         
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
-        }
-        
-        .date-range-picker {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .date-range-picker input {
-            padding: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            background-color: rgba(0, 0, 0, 0.1);
-            color: var(--light);
-            font-size: 1rem;
-        }
-        
-        .date-range-picker input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
-        }
+        /* Estilos para los elementos select */
+.filter-select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background-color: var(--primary); /* Fondo oscuro */
+    color: var(--light); /* Texto claro */
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    appearance: none; /* Elimina el estilo por defecto del navegador */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+/* Estilos para las opciones del select */
+.filter-select option {
+    background-color: var(--primary); /* Fondo oscuro para las opciones */
+    color: var(--light); /* Texto claro para las opciones */
+    padding: 10px;
+}
+
+/* Estilo cuando el select está enfocado */
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
+}
+
+/* Estilo para el hover de las opciones */
+.filter-select option:hover {
+    background-color: var(--accent); /* Color de fondo al hacer hover */
+    color: white;
+}
         
         .reports-container {
             display: grid;
@@ -783,10 +796,10 @@
                 <!-- Contenido dinámico -->
             </div>
             <div class="modal-footer">
-                <button class="modal-btn regenerate" id="modalRegenerate"><i class="fas fa-sync-alt"></i> Regenerar Texto</button>
-                <button class="modal-btn print" id="modalPrint"><i class="fas fa-print"></i> Imprimir</button>
-                <button class="modal-btn copy" id="modalCopy"><i class="fas fa-copy"></i> Copiar</button>
-                <button class="modal-btn close" id="modalCloseBtn"><i class="fas fa-times"></i> Cerrar</button>
+                <button class="modal-btn regenerate" id="modalRegenerate"><i class="fas fa-sync-alt"></i></button>
+                <button class="modal-btn print" id="modalPrint"><i class="fas fa-print"></i></button>
+                <button class="modal-btn copy" id="modalCopy"><i class="fas fa-copy"></i></button>
+                <button class="modal-btn close" id="modalCloseBtn"><i class="fas fa-times"></i></button>
             </div>
         </div>
     </div>
@@ -1172,13 +1185,13 @@
                         
                         <div class="report-actions">
                             <button class="action-btn print" data-id="${record.id}">
-                                <i class="fas fa-print"></i> Imprimir
+                                <i class="fas fa-print"></i>
                             </button>
                             <button class="action-btn copy" data-id="${record.id}">
-                                <i class="fas fa-copy"></i> Copiar
+                                <i class="fas fa-copy"></i>
                             </button>
                             <button class="action-btn view" data-id="${record.id}">
-                                <i class="fas fa-eye"></i> Ver completo
+                                <i class="fas fa-eye"></i>
                             </button>
                         </div>
                     </div>
