@@ -469,7 +469,9 @@
 
       try {
         const now = new Date();
-        const deliveryDateTime = now.toLocaleString();
+        const deliveryDate = now.toISOString().split('T')[0]; // Fecha en formato YYYY-MM-DD
+        const deliveryTime = now.toTimeString().split(' ')[0]; // Hora en formato HH:MM:SS
+        const deliveryDateTime = now.toLocaleString(); // Fecha y hora legible
 
         // Obtener el nombre del usuario actual
         const userName = await getCurrentUserName();
@@ -483,7 +485,9 @@
           delivered: true,
           deliveredTo,
           deliveryComments,
-          deliveryDateTime,
+          deliveryDate,       // Guardar fecha de entrega
+          deliveryTime,       // Guardar hora de entrega
+          deliveryDateTime,   // Guardar fecha y hora completa
           deliveredBy: userName // Guardar el nombre del usuario actual
         });
 
@@ -496,7 +500,9 @@
           delivered: true,
           deliveredTo,
           deliveryComments,
-          deliveryDateTime,
+          deliveryDate,       // Guardar fecha de entrega
+          deliveryTime,       // Guardar hora de entrega
+          deliveryDateTime,   // Guardar fecha y hora completa
           deliveredBy: userName,
           originalId: selectedObjectId // Guardar referencia al ID original
         });
