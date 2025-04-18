@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Médico Institucional | Sistema de Gestión Clínica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #15a086;
+            --light-accent: #1abc9c;
+            --dark: #1a1a2e;
+            --light: #ecf0f1;
+            --success: #27ae60;
+            --warning: #e74c3c;
+            --info: #2980b9;
+            --gray: #95a5a6;
+            --light-gray: #bdc3c7;
+            --dark-gray: #7f8c8d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--light);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--light-accent));
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--light);
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: var(--light-gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .search-filters {
+            background-color: var(--secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--light);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: var(--light-gray);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, var(--accent), var(--light-accent));
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(21, 160, 134, 0.3);
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(21, 160, 134, 0.4);
+            background: linear-gradient(135deg, var(--light-accent), var(--accent));
+        }
+        
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            font-weight: 600;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
+        }
+        
+        .date-range-picker {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .date-range-picker input {
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        .date-range-picker input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
+        }
+        
+        .reports-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .report-card {
+            background-color: var(--secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .report-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            position: relative;
+        }
+        
+        .report-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            color: var(--light);
+        }
+        
+        .report-subtitle {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: var(--light-gray);
+        }
+        
+        .report-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .status-yellow {
+            background-color: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+        
+        .status-red {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .status-green {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        
+        .emergency-badge {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .report-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-summary {
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            color: var(--light-gray);
+            position: relative;
+        }
+        
+        .report-details {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light-gray);
+        }
+        
+        .detail-icon {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+        
+        .report-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(21, 160, 134, 0.1);
+        }
+        
+        .action-btn.print {
+            color: var(--success);
+        }
+        
+        .action-btn.print:hover {
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .action-btn.copy {
+            color: var(--info);
+        }
+        
+        .action-btn.copy:hover {
+            background-color: rgba(41, 128, 185, 0.1);
+        }
+        
+        .action-btn.regenerate {
+            color: var(--light-accent);
+        }
+        
+        .action-btn.regenerate:hover {
+            background-color: rgba(26, 188, 156, 0.1);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            grid-column: 1 / -1;
+            color: var(--light-gray);
+            background-color: var(--secondary);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(21, 160, 134, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Modal de reporte completo */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            max-width: 800px;
+            margin: 2rem auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: modalFadeIn 0.4s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--light);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+        
+        .modal-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+            color: var(--accent);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            color: var(--light-gray);
+        }
+        
+        .modal-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--light);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-text {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: var(--light-gray);
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-detail {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: var(--light);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            font-size: 0.9rem;
+        }
+        
+        .modal-btn.print {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .modal-btn.print:hover {
+            background-color: #219955;
+        }
+        
+        .modal-btn.copy {
+            background-color: var(--info);
+            color: white;
+        }
+        
+        .modal-btn.copy:hover {
+            background-color: #2472a4;
+        }
+        
+        .modal-btn.close {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+        
+        .modal-btn.close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-btn.regenerate {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .modal-btn.regenerate:hover {
+            background-color: var(--light-accent);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* Efectos futuristas */
+        .search-btn, .modal-btn, .action-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-btn::after, .modal-btn::after, .action-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            transition: all 0.3s;
+        }
+        
+        .search-btn:hover::after, .modal-btn:hover::after, .action-btn:hover::after {
+            left: 100%;
+        }
+        
+        .report-card {
+            position: relative;
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--light-accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .report-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        /* Ajustes de contraste para legibilidad */
+        strong {
+            color: var(--light);
+        }
+        
+        /* Efecto de vidrio en algunos elementos */
+        .search-filters, .report-card, .modal-content {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-btn {
+                justify-content: center;
+                padding: 0.8rem;
+            }
+            
+            .reports-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 1rem auto;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-file-medical"></i> Registro Médico Institucional</h1>
+            <p class="subtitle">Documentación clínica detallada de incidentes y seguimiento de pacientes</p>
+        </div>
+        
+        <div class="search-filters">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre, habitación o diagnóstico...">
+                <button id="searchBtn" class="search-btn"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+            
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">Tipo de condición</label>
+                    <select id="conditionFilter" class="filter-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="accidente">Accidente</option>
+                        <option value="enfermedad">Enfermedad</option>
+                        <option value="alergia">Reacción alérgica</option>
+                        <option value="intoxicacion">Intoxicación alimentaria</option>
+                        <option value="cronica">Condición crónica</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Estado clínico</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        <option value="Código amarillo">Código Amarillo</option>
+                        <option value="Código rojo">Código Rojo</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Nivel de urgencia</label>
+                    <select id="emergencyFilter" class="filter-select">
+                        <option value="">Todos</option>
+                        <option value="si">Solo emergencias</option>
+                        <option value="no">No emergencias</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">Rango de fechas</label>
+                    <div class="date-range-picker">
+                        <input type="date" id="startDate" class="filter-select">
+                        <span>a</span>
+                        <input type="date" id="endDate" class="filter-select">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Grupo de edad</label>
+                    <select id="ageGroupFilter" class="filter-select">
+                        <option value="">Todos los grupos</option>
+                        <option value="niño">Niño (0-12)</option>
+                        <option value="adolescente">Adolescente (13-19)</option>
+                        <option value="adulto">Adulto (20-59)</option>
+                        <option value="mayor">Adulto mayor (60+)</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Ordenar por</label>
+                    <select id="sortFilter" class="filter-select">
+                        <option value="newest">Más recientes primero</option>
+                        <option value="oldest">Más antiguos primero</option>
+                        <option value="emergency">Emergencias primero</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reports-container" id="resultsContainer">
+            <div class="no-results" id="noResults">
+                <i class="fas fa-folder-open"></i>
+                <p>No se encontraron reportes médicos</p>
+                <p class="subtitle">Utilice los filtros para ajustar su búsqueda</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de reporte completo -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn regenerate" id="modalRegenerate"><i class="fas fa-sync-alt"></i> Regenerar Texto</button>
+                <button class="modal-btn print" id="modalPrint"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="modal-btn copy" id="modalCopy"><i class="fas fa-copy"></i> Copiar</button>
+                <button class="modal-btn close" id="modalCloseBtn"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // Referencia a las colecciones
+        const medicalReportsRef = db.collection("MedicoHuespedes");
+        const activationLogsRef = db.collection("MedicalReportActivationLogs");
+        
+        // Elementos del DOM
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const conditionFilter = document.getElementById('conditionFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const emergencyFilter = document.getElementById('emergencyFilter');
+        const ageGroupFilter = document.getElementById('ageGroupFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const noResults = document.getElementById('noResults');
+        const loading = document.getElementById('loading');
+        const modal = document.getElementById('reportModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalClose = document.getElementById('modalClose');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalPrint = document.getElementById('modalPrint');
+        const modalCopy = document.getElementById('modalCopy');
+        const modalRegenerate = document.getElementById('modalRegenerate');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        // Variables de estado
+        let allRecords = [];
+        let currentUser = null;
+        let currentReport = null;
+        let currentReportVariation = 0;
+        
+        // Textos alternativos para los reportes
+        const reportVariations = [
+            // Variación 1
+            (record) => {
+                let text = `El paciente ${record.guestName}, de ${record.guestAge || 'edad no especificada'} años, `;
+                text += `presentó ${getConditionDescription(record.medicalCondition, record.otherCondition)} `;
+                text += `en ${record.incidentLocation || 'ubicación no especificada'}. `;
+                text += `El incidente ocurrió el ${formatDate(record.incidentDate)} a las ${record.incidentTime}. `;
+                
+                if (record.emergency === 'si') {
+                    text += `Se trató de una situación de emergencia que requirió atención inmediata. `;
+                }
+                
+                if (record.incidentDescription) {
+                    text += `Detalles adicionales: "${record.incidentDescription}"`;
+                }
+                
+                return text;
+            },
+            
+            // Variación 2
+            (record) => {
+                let text = `Reporte médico: ${record.guestName} (Habitación ${record.roomNumber}) - `;
+                text += `${getAgeGroupDescription(record.ageGroup)} de ${record.guestAge || 'edad no especificada'} años. `;
+                text += `Motivo: ${getConditionDescription(record.medicalCondition, record.otherCondition)}. `;
+                text += `Fecha: ${formatDate(record.incidentDate)} ${record.incidentTime}. `;
+                
+                if (record.status) {
+                    text += `Estado: ${record.status}. `;
+                }
+                
+                if (record.incidentDescription) {
+                    text += `Observaciones: ${record.incidentDescription}`;
+                }
+                
+                return text;
+            },
+            
+            // Variación 3
+            (record) => {
+                let text = `Se atendió a ${record.guestName} por `;
+                text += `${getConditionDescription(record.medicalCondition, record.otherCondition)} `;
+                text += `en ${record.incidentLocation || 'el establecimiento'}. `;
+                text += `El paciente, ${record.gender === 'masculino' ? 'un' : 'una'} `;
+                text += `${getAgeGroupDescription(record.ageGroup)} de ${record.guestAge || 'edad no especificada'} años, `;
+                text += `fue atendido${record.gender === 'masculino' ? '' : 'a'} por ${record.attendingDoctor || 'el personal médico'}. `;
+                
+                if (record.emergency === 'si') {
+                    text += `El caso fue manejado como emergencia médica. `;
+                }
+                
+                if (record.incidentDescription) {
+                    text += `Descripción clínica: ${record.incidentDescription}`;
+                }
+                
+                return text;
+            },
+            
+            // Variación 4
+            (record) => {
+                let text = `Incidente médico registrado el ${formatDate(record.incidentDate)}: `;
+                text += `Paciente: ${record.guestName} (${record.guestAge || 'Edad no especificada'} años). `;
+                text += `Tipo: ${getConditionDescription(record.medicalCondition, record.otherCondition)}. `;
+                text += `Ubicación: ${record.incidentLocation || 'No especificada'}. `;
+                
+                if (record.hospitalTransfer === 'si') {
+                    text += `Fue necesario trasladar al paciente a ${record.hospitalName || 'centro médico'}. `;
+                }
+                
+                if (record.incidentDescription) {
+                    text += `Notas: ${record.incidentDescription}`;
+                }
+                
+                return text;
+            }
+        ];
+        
+        // Cargar registros al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Establecer fechas por defecto (últimos 30 días)
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            
+            startDate.valueAsDate = oneMonthAgo;
+            endDate.valueAsDate = today;
+            
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadRecords();
+                    
+                    // Escuchar cambios en la colección
+                    medicalReportsRef.onSnapshot(snapshot => {
+                        loadRecords();
+                    });
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+        
+        // Cargar registros desde Firestore
+        async function loadRecords() {
+            try {
+                loading.style.display = 'flex';
+                resultsContainer.innerHTML = '';
+                
+                const snapshot = await medicalReportsRef.where('visibleInSearch', '==', true).get();
+                allRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Obtener información de activación para cada registro
+                const recordsWithActivation = await Promise.all(allRecords.map(async record => {
+                    try {
+                        const activationSnapshot = await activationLogsRef
+                            .where('reportId', '==', record.id)
+                            .orderBy('changedAt', 'desc')
+                            .limit(1)
+                            .get();
+                        
+                        if (!activationSnapshot.empty) {
+                            const activationData = activationSnapshot.docs[0].data();
+                            const activationDate = activationData.changedAt.toDate();
+                            
+                            return {
+                                ...record,
+                                activatedBy: activationData.changedByName || 'Usuario desconocido',
+                                activationDate: activationDate,
+                                activationDateFormatted: activationDate.toLocaleDateString('es-ES', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric'
+                                }),
+                                activationTime: activationDate.toLocaleTimeString('es-ES', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }),
+                                activationAction: activationData.action
+                            };
+                        }
+                        return record;
+                    } catch (error) {
+                        console.error("Error al cargar información de activación:", error);
+                        return record;
+                    }
+                }));
+                
+                allRecords = recordsWithActivation;
+                applyFilters();
+            } catch (error) {
+                console.error("Error al cargar registros:", error);
+                showToast('Error al cargar los registros médicos', 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Aplicar filtros y búsqueda
+        function applyFilters() {
+            let filteredRecords = [...allRecords];
+            
+            // Aplicar búsqueda de texto
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (searchTerm) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.guestName.toLowerCase().includes(searchTerm) ||
+                    record.roomNumber.toLowerCase().includes(searchTerm) ||
+                    (record.medicalCondition && record.medicalCondition.toLowerCase().includes(searchTerm)) ||
+                    (record.otherCondition && record.otherCondition.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Aplicar filtro de condición
+            const condition = conditionFilter.value;
+            if (condition) {
+                if (condition === 'otro') {
+                    filteredRecords = filteredRecords.filter(record => 
+                        record.medicalCondition === 'otro' && record.otherCondition
+                    );
+                } else {
+                    filteredRecords = filteredRecords.filter(record => 
+                        record.medicalCondition === condition
+                    );
+                }
+            }
+            
+            // Aplicar filtro de estado
+            const status = statusFilter.value;
+            if (status) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.status === status
+                );
+            }
+            
+            // Aplicar filtro de emergencia
+            const emergency = emergencyFilter.value;
+            if (emergency) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.emergency === emergency
+                );
+            }
+            
+            // Aplicar filtro de grupo de edad
+            const ageGroup = ageGroupFilter.value;
+            if (ageGroup) {
+                filteredRecords = filteredRecords.filter(record => 
+                    record.ageGroup === ageGroup
+                );
+            }
+            
+            // Aplicar filtro de fecha
+            const start = startDate.value;
+            const end = endDate.value;
+            if (start && end) {
+                const startDateObj = new Date(start);
+                const endDateObj = new Date(end);
+                endDateObj.setHours(23, 59, 59, 999); // Incluir todo el día final
+                
+                filteredRecords = filteredRecords.filter(record => {
+                    const recordDate = new Date(record.incidentDate);
+                    return recordDate >= startDateObj && recordDate <= endDateObj;
+                });
+            }
+            
+            // Aplicar ordenamiento
+            const sortBy = sortFilter.value;
+            if (sortBy === 'newest') {
+                filteredRecords.sort((a, b) => new Date(b.incidentDate) - new Date(a.incidentDate));
+            } else if (sortBy === 'oldest') {
+                filteredRecords.sort((a, b) => new Date(a.incidentDate) - new Date(b.incidentDate));
+            } else if (sortBy === 'emergency') {
+                filteredRecords.sort((a, b) => {
+                    if (a.emergency === 'si' && b.emergency !== 'si') return -1;
+                    if (a.emergency !== 'si' && b.emergency === 'si') return 1;
+                    return new Date(b.incidentDate) - new Date(a.incidentDate);
+                });
+            }
+            
+            displayResults(filteredRecords);
+        }
+        
+        // Mostrar resultados en formato de tarjetas
+        function displayResults(records) {
+            if (records.length === 0) {
+                noResults.style.display = 'flex';
+                resultsContainer.innerHTML = '';
+                resultsContainer.appendChild(noResults);
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            resultsContainer.innerHTML = '';
+            
+            records.forEach(record => {
+                const recordDate = new Date(record.incidentDate);
+                const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                const condition = record.medicalCondition === 'otro' && record.otherCondition ? 
+                                 record.otherCondition : 
+                                 record.medicalCondition.charAt(0).toUpperCase() + record.medicalCondition.slice(1);
+                
+                const statusBadge = record.status === 'Código amarillo' ? 
+                                   '<span class="report-status status-yellow">Código Amarillo</span>' :
+                                   record.status === 'Código rojo' ?
+                                   '<span class="report-status status-red">Código Rojo</span>' :
+                                   '<span class="report-status status-green">Resuelto</span>';
+                
+                const emergencyBadge = record.emergency === 'si' ? 
+                                      '<span class="emergency-badge"><i class="fas fa-exclamation-triangle"></i> Emergencia</span>' : '';
+                
+                // Generar resumen del reporte
+                const reportSummary = generateReportSummary(record);
+                
+                // Crear tarjeta de reporte
+                const reportCard = document.createElement('div');
+                reportCard.className = 'report-card';
+                reportCard.innerHTML = `
+                    <div class="report-header">
+                        <div>
+                            <div class="report-title">${record.guestName} - Hab. ${record.roomNumber}</div>
+                            <div class="report-subtitle">
+                                <span>${formattedDate}</span>
+                                <span>${statusBadge}${emergencyBadge}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-content">
+                        <div class="report-summary">${reportSummary}</div>
+                        
+                        <div class="report-details">
+                            <div class="detail-item">
+                                <i class="fas fa-user-md detail-icon"></i>
+                                <span>${record.attendingDoctor || 'Médico no especificado'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-pills detail-icon"></i>
+                                <span>${record.medication === 'si' ? 'Medicación administrada' : 'Sin medicación'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-hospital detail-icon"></i>
+                                <span>${record.hospitalTransfer === 'si' ? 'Requirió traslado' : 'Sin traslado'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user-nurse detail-icon"></i>
+                                <span>Reportado por: ${record.reportedBy || 'No especificado'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="report-actions">
+                            <button class="action-btn print" data-id="${record.id}">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                            <button class="action-btn copy" data-id="${record.id}">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button class="action-btn view" data-id="${record.id}">
+                                <i class="fas fa-eye"></i> Ver completo
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Eventos para los botones
+                const viewBtn = reportCard.querySelector('.action-btn.view');
+                const printBtn = reportCard.querySelector('.action-btn.print');
+                const copyBtn = reportCard.querySelector('.action-btn.copy');
+                
+                viewBtn.addEventListener('click', () => openFullReport(record));
+                printBtn.addEventListener('click', () => printReport(record));
+                copyBtn.addEventListener('click', () => copyReportToClipboard(record));
+                
+                resultsContainer.appendChild(reportCard);
+            });
+        }
+        
+        // Generar resumen narrativo del reporte
+        function generateReportSummary(record, variation = 0) {
+            // Usar una variación específica o seleccionar una aleatoria
+            const variationIndex = variation !== undefined ? variation : Math.floor(Math.random() * reportVariations.length);
+            return reportVariations[variationIndex](record);
+        }
+        
+        // Formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        
+        // Generar descripción completa del reporte para el modal
+        function generateFullReport(record, variation = 0) {
+            const recordDate = new Date(record.incidentDate);
+            const formattedDate = formatDate(record.incidentDate);
+            
+            const reportDate = new Date(record.reportDate);
+            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let reportHTML = `
+                <div class="modal-section">
+                    <h3 class="section-title"><i class="fas fa-user-injured"></i> Resumen Clínico</h3>
+                    <p class="modal-text">${generateReportSummary(record, variation)}</p>
+                    
+                    <div class="detail-grid">
+                        <div class="modal-detail">
+                            <div class="detail-label">Fecha del incidente</div>
+                            <div class="detail-value">${formattedDate} a las ${record.incidentTime}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Estado clínico</div>
+                            <div class="detail-value">${getStatusDescription(record.status)}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Nivel de urgencia</div>
+                            <div class="detail-value">${record.emergency === 'si' ? 'Emergencia' : 'No emergencia'}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Lugar del incidente</div>
+                            <div class="detail-value">${record.incidentLocation || 'No especificado'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3 class="section-title"><i class="fas fa-file-medical-alt"></i> Descripción Detallada</h3>
+                    <p class="modal-text">${record.incidentDescription || 'No se proporcionó una descripción detallada.'}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h3 class="section-title"><i class="fas fa-procedures"></i> Atención Médica</h3>
+                    <div class="detail-grid">
+                        <div class="modal-detail">
+                            <div class="detail-label">Médico que atendió</div>
+                            <div class="detail-value">${record.attendingDoctor || 'No especificado'}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Medicación administrada</div>
+                            <div class="detail-value">${record.medication === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medication === 'si' ? `
+                        <div class="modal-detail">
+                            <div class="detail-label">Detalles de medicación</div>
+                            <div class="detail-value">${record.medicationDetails || 'No se proporcionaron detalles'}</div>
+                        </div>
+                        ` : ''}
+                        <div class="modal-detail">
+                            <div class="detail-label">Traslado a centro médico</div>
+                            <div class="detail-value">${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.hospitalTransfer === 'si' ? `
+                        <div class="modal-detail">
+                            <div class="detail-label">Centro médico</div>
+                            <div class="detail-value">${record.hospitalName || 'No especificado'}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Contacto en centro</div>
+                            <div class="detail-value">${record.hospitalContact || 'No especificado'}</div>
+                        </div>
+                        ` : ''}
+                        <div class="modal-detail">
+                            <div class="detail-label">Atención declinada</div>
+                            <div class="detail-value">${record.medicalDeclined === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medicalDeclined === 'si' ? `
+                        <div class="modal-detail">
+                            <div class="detail-label">Razón de declinación</div>
+                            <div class="detail-value">${record.declinedReason || 'No especificada'}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3 class="section-title"><i class="fas fa-user-tie"></i> Información Administrativa</h3>
+                    <div class="detail-grid">
+                        <div class="modal-detail">
+                            <div class="detail-label">Reportado por</div>
+                            <div class="detail-value">${record.reportedBy || 'No especificado'}</div>
+                        </div>
+                        <div class="modal-detail">
+                            <div class="detail-label">Fecha del reporte</div>
+                            <div class="detail-value">${formattedReportDate}</div>
+                        </div>
+                        ${record.activatedBy ? `
+                        <div class="modal-detail">
+                            <div class="detail-label">Última modificación</div>
+                            <div class="detail-value">${record.activatedBy} - ${record.activationDateFormatted} ${record.activationTime}</div>
+                        </div>
+                        ` : ''}
+                        <div class="modal-detail">
+                            <div class="detail-label">Visible en búsqueda</div>
+                            <div class="detail-value">${record.visibleInSearch ? 'Sí' : 'No'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return reportHTML;
+        }
+        
+        // Generar texto plano para copiar al portapapeles
+        function generatePlainTextReport(record, variation = 0) {
+            const recordDate = new Date(record.incidentDate);
+            const formattedDate = formatDate(record.incidentDate);
+            
+            let text = `REPORTE MÉDICO - ${record.guestName}\n`;
+            text += `========================================\n\n`;
+            
+            text += `INFORMACIÓN DEL PACIENTE:\n`;
+            text += `- Nombre: ${record.guestName}\n`;
+            text += `- Habitación: ${record.roomNumber}\n`;
+            text += `- Edad: ${record.guestAge || 'No especificada'} años\n`;
+            text += `- Grupo de edad: ${getAgeGroupDescription(record.ageGroup) || 'No especificado'}\n`;
+            text += `- Sexo: ${record.gender === 'masculino' ? 'Masculino' : 'Femenino'}\n\n`;
+            
+            text += `DETALLES DEL INCIDENTE:\n`;
+            text += `- Fecha: ${formattedDate} a las ${record.incidentTime}\n`;
+            text += `- Lugar: ${record.incidentLocation || 'No especificado'}\n`;
+            text += `- Condición: ${getConditionDescription(record.medicalCondition, record.otherCondition)}\n`;
+            text += `- Estado: ${getStatusDescription(record.status)}\n`;
+            text += `- Emergencia: ${record.emergency === 'si' ? 'Sí' : 'No'}\n\n`;
+            
+            text += `RESUMEN:\n${generateReportSummary(record, variation)}\n\n`;
+            
+            text += `DESCRIPCIÓN:\n${record.incidentDescription || 'No se proporcionó descripción.'}\n\n`;
+            
+            text += `ATENCIÓN MÉDICA:\n`;
+            text += `- Médico que atendió: ${record.attendingDoctor || 'No especificado'}\n`;
+            text += `- Medicación administrada: ${record.medication === 'si' ? 'Sí' : 'No'}\n`;
+            if (record.medication === 'si') {
+                text += `- Detalles de medicación: ${record.medicationDetails || 'No especificados'}\n`;
+            }
+            text += `- Traslado a centro médico: ${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}\n`;
+            if (record.hospitalTransfer === 'si') {
+                text += `- Centro médico: ${record.hospitalName || 'No especificado'}\n`;
+                text += `- Contacto: ${record.hospitalContact || 'No especificado'}\n`;
+            }
+            text += `- Atención declinada: ${record.medicalDeclined === 'si' ? 'Sí' : 'No'}\n`;
+            if (record.medicalDeclined === 'si') {
+                text += `- Razón de declinación: ${record.declinedReason || 'No especificada'}\n`;
+            }
+            text += `\n`;
+            
+            text += `INFORMACIÓN ADMINISTRATIVA:\n`;
+            text += `- Reportado por: ${record.reportedBy || 'No especificado'}\n`;
+            text += `- Fecha del reporte: ${new Date(record.reportDate).toLocaleString('es-ES')}\n`;
+            if (record.activatedBy) {
+                text += `- Última modificación: ${record.activatedBy} - ${record.activationDateFormatted} ${record.activationTime}\n`;
+            }
+            text += `- Visible en búsqueda: ${record.visibleInSearch ? 'Sí' : 'No'}\n\n`;
+            
+            text += `========================================\n`;
+            text += `Generado el ${new Date().toLocaleString('es-ES')}\n`;
+            
+            return text;
+        }
+        
+        // Funciones auxiliares para descripciones
+        function getAgeGroupDescription(ageGroup) {
+            switch(ageGroup) {
+                case 'niño': return 'niño/a';
+                case 'adolescente': return 'adolescente';
+                case 'adulto': return 'adulto/a';
+                case 'mayor': return 'adulto/a mayor';
+                default: return 'paciente';
+            }
+        }
+        
+        function getConditionDescription(condition, otherCondition) {
+            switch(condition) {
+                case 'accidente': return 'un accidente';
+                case 'enfermedad': return 'una enfermedad';
+                case 'alergia': return 'una reacción alérgica';
+                case 'intoxicacion': return 'una intoxicación alimentaria';
+                case 'cronica': return 'una condición crónica';
+                case 'otro': return otherCondition ? `una condición descrita como "${otherCondition}"` : 'una condición no especificada';
+                default: return 'una condición médica';
+            }
+        }
+        
+        function getStatusDescription(status) {
+            switch(status) {
+                case 'Código amarillo': return 'Código Amarillo (atención prioritaria)';
+                case 'Código rojo': return 'Código Rojo (emergencia)';
+                case 'Resuelto': return 'Resuelto';
+                default: return status || 'Estado no especificado';
+            }
+        }
+        
+        // Abrir reporte completo en modal
+        function openFullReport(record) {
+            currentReport = record;
+            currentReportVariation = 0; // Restablecer a la primera variación
+            modalTitle.textContent = `Reporte Médico - ${record.guestName}`;
+            modalBody.innerHTML = generateFullReport(record, currentReportVariation);
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Regenerar el texto del reporte con una variación diferente
+        function regenerateReport() {
+            if (currentReport) {
+                currentReportVariation = (currentReportVariation + 1) % reportVariations.length;
+                modalBody.innerHTML = generateFullReport(currentReport, currentReportVariation);
+                showToast('Texto regenerado', 'success');
+            }
+        }
+        
+        // Imprimir reporte
+        function printReport(record) {
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Reporte Médico - ${record.guestName}</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; }
+                        h1 { color: #2c3e50; border-bottom: 2px solid #15a086; padding-bottom: 10px; }
+                        h2 { color: #2c3e50; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+                        .detail-item { margin-bottom: 10px; }
+                        .detail-label { font-weight: bold; color: #7f8c8d; }
+                        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 10px; }
+                        @page { size: auto; margin: 10mm; }
+                        @media print {
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1><i class="fas fa-file-medical"></i> Reporte Médico Institucional</h1>
+                        <p>Generado el ${new Date().toLocaleString('es-ES')}</p>
+                    </div>
+                    
+                    <h2>Información del Paciente</h2>
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">Nombre</div>
+                            <div>${record.guestName}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Habitación</div>
+                            <div>${record.roomNumber}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Edad</div>
+                            <div>${record.guestAge || 'No especificada'} años</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Grupo de edad</div>
+                            <div>${getAgeGroupDescription(record.ageGroup) || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Sexo</div>
+                            <div>${record.gender === 'masculino' ? 'Masculino' : 'Femenino'}</div>
+                        </div>
+                    </div>
+                    
+                    <h2>Detalles del Incidente</h2>
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">Fecha y hora</div>
+                            <div>${new Date(record.incidentDate).toLocaleString('es-ES')} ${record.incidentTime}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Lugar</div>
+                            <div>${record.incidentLocation || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Condición</div>
+                            <div>${getConditionDescription(record.medicalCondition, record.otherCondition)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Estado</div>
+                            <div>${getStatusDescription(record.status)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Emergencia</div>
+                            <div>${record.emergency === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                    </div>
+                    
+                    <h2>Resumen</h2>
+                    <p>${generateReportSummary(record, currentReportVariation)}</p>
+                    
+                    <h2>Descripción</h2>
+                    <p>${record.incidentDescription || 'No se proporcionó descripción.'}</p>
+                    
+                    <h2>Atención Médica</h2>
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">Médico que atendió</div>
+                            <div>${record.attendingDoctor || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Medicación administrada</div>
+                            <div>${record.medication === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medication === 'si' ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Detalles de medicación</div>
+                            <div>${record.medicationDetails || 'No especificados'}</div>
+                        </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <div class="detail-label">Traslado a centro médico</div>
+                            <div>${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.hospitalTransfer === 'si' ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Centro médico</div>
+                            <div>${record.hospitalName || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Contacto en centro</div>
+                            <div>${record.hospitalContact || 'No especificado'}</div>
+                        </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <div class="detail-label">Atención declinada</div>
+                            <div>${record.medicalDeclined === 'si' ? 'Sí' : 'No'}</div>
+                        </div>
+                        ${record.medicalDeclined === 'si' ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Razón de declinación</div>
+                            <div>${record.declinedReason || 'No especificada'}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <h2>Información Administrativa</h2>
+                    <div class="details">
+                        <div class="detail-item">
+                            <div class="detail-label">Reportado por</div>
+                            <div>${record.reportedBy || 'No especificado'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fecha del reporte</div>
+                            <div>${new Date(record.reportDate).toLocaleString('es-ES')}</div>
+                        </div>
+                        ${record.activatedBy ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Última modificación</div>
+                            <div>${record.activatedBy} - ${record.activationDateFormatted} ${record.activationTime}</div>
+                        </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <div class="detail-label">Visible en búsqueda</div>
+                            <div>${record.visibleInSearch ? 'Sí' : 'No'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Sistema de Gestión Clínica - ${new Date().getFullYear()}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+            // Esperar a que se cargue el contenido antes de imprimir
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+        
+        // Copiar reporte al portapapeles
+        async function copyReportToClipboard(record) {
+            try {
+                const text = generatePlainTextReport(record, currentReportVariation);
+                await navigator.clipboard.writeText(text);
+                showToast('Reporte copiado al portapapeles', 'success');
+            } catch (error) {
+                console.error('Error al copiar:', error);
+                showToast('Error al copiar el reporte', 'error');
+            }
+        }
+        
+        // Mostrar notificación toast
+        function showToast(message, type) {
+            toastMessage.textContent = message;
+            
+            // Cambiar color según el tipo
+            if (type === 'success') {
+                toast.style.backgroundColor = 'var(--success)';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = 'var(--warning)';
+            } else {
+                toast.style.backgroundColor = 'var(--info)';
+            }
+            
+            toast.classList.add('show');
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', applyFilters);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+        
+        [conditionFilter, statusFilter, emergencyFilter, ageGroupFilter, sortFilter, startDate, endDate].forEach(filter => {
+            filter.addEventListener('change', applyFilters);
+        });
+        
+        modalClose.addEventListener('click', closeModal);
+        modalCloseBtn.addEventListener('click', closeModal);
+        modalRegenerate.addEventListener('click', regenerateReport);
+        
+        modalPrint.addEventListener('click', () => {
+            if (currentReport) {
+                printReport(currentReport);
+            }
+        });
+        
+        modalCopy.addEventListener('click', async () => {
+            if (currentReport) {
+                await copyReportToClipboard(currentReport);
+            }
+        });
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
