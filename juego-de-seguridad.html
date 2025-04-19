@@ -1,0 +1,2466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Integral de Seguridad</title>
+    <style>
+        :root {
+            --color-primary: #2c3e50;
+            --color-secondary: #15a086;
+            --color-alert: #e74c3c;
+            --color-success: #2ecc71;
+            --color-warning: #f39c12;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #111;
+            color: #ecf0f1;
+            overflow: hidden;
+        }
+        
+        /* Panel de Usuario */
+        #user-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        #logout-btn {
+            background: var(--color-alert);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        /* Menú Principal */
+        #main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 900;
+        }
+        
+        .game-option {
+            width: 300px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .game-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: var(--color-secondary);
+        }
+        
+        .game-icon {
+            font-size: 24px;
+        }
+        
+        .game-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .game-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* Contenedores de Juego */
+        .game-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Estilos comunes para todos los juegos */
+        .game-panel {
+            background: var(--color-primary);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        
+        .alert {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid var(--color-alert);
+            padding: 10px;
+            margin-bottom: 10px;
+            animation: alert-pulse 1s infinite;
+        }
+        
+        @keyframes alert-pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px dotted #333;
+            padding-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .resource-bar {
+            height: 10px;
+            background: #333;
+            margin: 5px 0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .resource-fill {
+            height: 100%;
+            background: var(--color-secondary);
+            border-radius: 5px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--color-secondary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--color-alert);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--color-warning);
+            color: white;
+        }
+        
+        /* Estilo para cámaras de seguridad */
+        .camera {
+            background: #111;
+            border: 1px solid #333;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .camera-alert {
+            box-shadow: 0 0 15px var(--color-alert);
+            border: 1px solid var(--color-alert);
+            animation: camera-alert-pulse 1s infinite;
+        }
+        
+        @keyframes camera-alert-pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .camera-label {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            font-size: 12px;
+            color: var(--color-secondary);
+        }
+        
+        /* Nuevos estilos para los juegos adicionales */
+        .floor-plan {
+            background-color: #222;
+            position: relative;
+            height: 400px;
+            margin: 20px;
+            border: 2px solid #444;
+        }
+        
+        .room {
+            position: absolute;
+            border: 1px solid #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .sensor-widget {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .sensor-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .sensor-normal { color: var(--color-success); }
+        .sensor-warning { color: var(--color-warning); }
+        .sensor-danger { color: var(--color-alert); }
+        
+        .crisis-step {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .crisis-step:hover {
+            background: rgba(44, 62, 80, 0.5);
+        }
+        
+        .crisis-step.completed {
+            border-left: 3px solid var(--color-success);
+        }
+        
+        .evac-person {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            transition: all 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <!-- Panel de Usuario -->
+    <div id="user-panel" style="display: none;">
+        <div id="user-avatar"></div>
+        <div id="user-info">
+            <div id="user-name"></div>
+            <div id="user-role" style="font-size: 12px;">Agente de Seguridad</div>
+        </div>
+        <button id="logout-btn">Salir</button>
+    </div>
+    
+    <!-- Menú Principal -->
+    <div id="main-menu">
+        <h1 style="color: var(--color-secondary); margin-bottom: 40px;">SISTEMA DE SIMULACIÓN DE SEGURIDAD</h1>
+        
+        <button class="game-option" id="control-center-btn">
+            <div class="game-icon">📡</div>
+            <div>
+                <div class="game-title">CENTRO DE CONTROL</div>
+                <div class="game-desc">Supervisión general de instalaciones y gestión de emergencias</div>
+            </div>
+        </button>
+        
+        <button class="game-option" id="access-control-btn">
+            <div class="game-icon">🚪</div>
+            <div>
+                <div class="game-title">CONTROL DE ACCESOS</div>
+                <div class="game-desc">Gestión de entradas/salidas y verificación de identidades</div>
+            </div>
+        </button>
+        
+        <button class="game-option" id="patrol-btn">
+            <div class="game-icon">🚔</div>
+            <div>
+                <div class="game-title">PATRULLA DE SEGURIDAD</div>
+                <div class="game-desc">Simulación de rondas de vigilancia y respuesta rápida</div>
+            </div>
+        </button>
+        
+        <button class="game-option" id="cyber-btn">
+            <div class="game-icon">💻</div>
+            <div>
+                <div class="game-title">DEFENSA CIBERNÉTICA</div>
+                <div class="game-desc">Protección de sistemas contra ataques digitales</div>
+            </div>
+        </button>
+        
+        <!-- Nuevos juegos agregados -->
+        <button class="game-option" id="evacuation-btn">
+            <div class="game-icon">🚨</div>
+            <div>
+                <div class="game-title">SIMULACIÓN DE EVACUACIÓN</div>
+                <div class="game-desc">Coordinar evacuación en caso de emergencias</div>
+            </div>
+        </button>
+        
+        <button class="game-option" id="sensors-btn">
+            <div class="game-icon">🌡️</div>
+            <div>
+                <div class="game-title">MONITOREO AMBIENTAL</div>
+                <div class="game-desc">Control de temperatura, humedad y gases</div>
+            </div>
+        </button>
+        
+        <button class="game-option" id="crisis-btn">
+            <div class="game-icon">⚠️</div>
+            <div>
+                <div class="game-title">GESTIÓN DE CRISIS</div>
+                <div class="game-desc">Protocolos de actuación ante incidentes</div>
+            </div>
+        </button>
+    </div>
+    
+    <!-- Contenedores para cada juego -->
+    <div id="control-center-game" class="game-container"></div>
+    <div id="access-control-game" class="game-container"></div>
+    <div id="patrol-game" class="game-container"></div>
+    <div id="cyber-game" class="game-container"></div>
+    
+    <!-- Nuevos contenedores para juegos adicionales -->
+    <div id="evacuation-game" class="game-container"></div>
+    <div id="sensors-game" class="game-container"></div>
+    <div id="crisis-game" class="game-container"></div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Elementos del DOM
+        const userPanel = document.getElementById('user-panel');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const logoutBtn = document.getElementById('logout-btn');
+        const mainMenu = document.getElementById('main-menu');
+        const gameContainers = {
+            'control-center': document.getElementById('control-center-game'),
+            'access-control': document.getElementById('access-control-game'),
+            'patrol': document.getElementById('patrol-game'),
+            'cyber': document.getElementById('cyber-game'),
+            'evacuation': document.getElementById('evacuation-game'),
+            'sensors': document.getElementById('sensors-game'),
+            'crisis': document.getElementById('crisis-game')
+        };
+
+        // Variables globales
+        let currentUser = null;
+        let currentGame = null;
+        let gameState = {};
+        let gameInterval;
+
+        // Verificar estado de autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                setupUserPanel(user);
+                userPanel.style.display = 'flex';
+                mainMenu.style.display = 'flex';
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Configurar panel de usuario
+        function setupUserPanel(user) {
+            const displayName = user.displayName || user.email.split('@')[0];
+            userName.textContent = displayName;
+            userAvatar.textContent = displayName.charAt(0).toUpperCase();
+        }
+
+        // Cerrar sesión
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            });
+        });
+
+        // Iniciar juegos
+        document.getElementById('control-center-btn').addEventListener('click', () => startGame('control-center'));
+        document.getElementById('access-control-btn').addEventListener('click', () => startGame('access-control'));
+        document.getElementById('patrol-btn').addEventListener('click', () => startGame('patrol'));
+        document.getElementById('cyber-btn').addEventListener('click', () => startGame('cyber'));
+        document.getElementById('evacuation-btn').addEventListener('click', () => startGame('evacuation'));
+        document.getElementById('sensors-btn').addEventListener('click', () => startGame('sensors'));
+        document.getElementById('crisis-btn').addEventListener('click', () => startGame('crisis'));
+
+        // Función para iniciar un juego
+        function startGame(gameType) {
+            currentGame = gameType;
+            mainMenu.style.display = 'none';
+            
+            // Ocultar todos los juegos primero
+            Object.values(gameContainers).forEach(container => {
+                container.style.display = 'none';
+                container.innerHTML = '';
+            });
+            
+            // Mostrar el juego seleccionado
+            gameContainers[gameType].style.display = 'block';
+            
+            // Inicializar el juego específico
+            switch(gameType) {
+                case 'control-center':
+                    initControlCenter();
+                    break;
+                case 'access-control':
+                    initAccessControl();
+                    break;
+                case 'patrol':
+                    initPatrol();
+                    break;
+                case 'cyber':
+                    initCyber();
+                    break;
+                case 'evacuation':
+                    initEvacuation();
+                    break;
+                case 'sensors':
+                    initSensors();
+                    break;
+                case 'crisis':
+                    initCrisis();
+                    break;
+            }
+        }
+
+        // Volver al menú principal
+        function returnToMenu() {
+            clearInterval(gameInterval);
+            currentGame = null;
+            Object.values(gameContainers).forEach(container => {
+                container.style.display = 'none';
+            });
+            mainMenu.style.display = 'flex';
+        }
+
+        // Guardar resultados en Firebase
+        async function saveGameResult(result) {
+            if (!currentUser) return;
+            
+            try {
+                await addDoc(collection(db, "security_simulations"), {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || currentUser.email,
+                    gameType: currentGame,
+                    score: result.score || 0,
+                    timePlayed: result.timePlayed || 0,
+                    timestamp: serverTimestamp(),
+                    details: result.details || {}
+                });
+                console.log("Resultados guardados en Firebase");
+            } catch (error) {
+                console.error("Error guardando resultados:", error);
+            }
+        }
+
+        /* -------------------------------------------------- */
+        /* IMPLEMENTACIÓN DE LOS NUEVOS JUEGOS */
+        /* -------------------------------------------------- */
+
+        // 5. SIMULACIÓN DE EVACUACIÓN
+        function initEvacuation() {
+            const gameContainer = gameContainers['evacuation'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                evacuationProgress: 0,
+                people: [],
+                alarmsActivated: false,
+                exits: [
+                    { id: 1, x: 80, y: 20, capacity: 15, label: "Salida Principal" },
+                    { id: 2, x: 20, y: 80, capacity: 10, label: "Salida Emergencia" }
+                ],
+                rooms: [
+                    { id: 1, x: 20, y: 20, width: 30, height: 30, label: "Oficina A", people: 5 },
+                    { id: 2, x: 60, y: 20, width: 30, height: 30, label: "Oficina B", people: 7 },
+                    { id: 3, x: 40, y: 60, width: 30, height: 30, label: "Sala Reuniones", people: 8 }
+                ]
+            };
+            
+            // Generar personas iniciales
+            gameState.rooms.forEach(room => {
+                for (let i = 0; i < room.people; i++) {
+                    gameState.people.push({
+                        id: `${room.id}-${i}`,
+                        x: room.x + Math.random() * room.width,
+                        y: room.y + Math.random() * room.height,
+                        room: room.id,
+                        evacuated: false,
+                        panic: Math.random() * 0.5
+                    });
+                }
+            });
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div style="padding: 20px;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">SIMULACIÓN DE EVACUACIÓN</h2>
+                        <div class="floor-plan" id="floor-plan">
+                            <!-- Se generan dinámicamente -->
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                            <button id="activate-alarm" class="btn btn-danger">Activar Alarma</button>
+                            <button id="call-emergency" class="btn btn-warning">Llamar a Emergencias</button>
+                            <button id="guide-people" class="btn btn-primary">Guiar Personas</button>
+                        </div>
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <div id="evacuation-stats">
+                            <h3 style="color: var(--color-secondary);">ESTADO DE EVACUACIÓN</h3>
+                            <div style="margin-bottom: 15px;">
+                                <div>Personas evacuadas: <span id="evacuated-count">0</span>/<span id="total-people">${gameState.people.length}</span></div>
+                                <div class="resource-bar">
+                                    <div id="evacuation-bar" class="resource-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Tiempo transcurrido: <span id="evac-time">0:00</span></div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Puntuación: <span id="score">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div id="evacuation-logs" style="height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <div class="log-entry">[08:00] Sistema de evacuación iniciado</div>
+                        </div>
+                        
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Finalizar Simulación
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Dibujar plano del edificio
+            const floorPlan = document.getElementById('floor-plan');
+            
+            // Dibujar salidas
+            gameState.exits.forEach(exit => {
+                const exitElement = document.createElement('div');
+                exitElement.className = 'room';
+                exitElement.style.left = `${exit.x}%`;
+                exitElement.style.top = `${exit.y}%`;
+                exitElement.style.width = '10%';
+                exitElement.style.height = '10%';
+                exitElement.style.background = 'rgba(46, 204, 113, 0.3)';
+                exitElement.style.borderColor = 'var(--color-success)';
+                exitElement.textContent = exit.label;
+                floorPlan.appendChild(exitElement);
+            });
+            
+            // Dibujar habitaciones
+            gameState.rooms.forEach(room => {
+                const roomElement = document.createElement('div');
+                roomElement.className = 'room';
+                roomElement.style.left = `${room.x}%`;
+                roomElement.style.top = `${room.y}%`;
+                roomElement.style.width = `${room.width}%`;
+                roomElement.style.height = `${room.height}%`;
+                roomElement.textContent = room.label;
+                floorPlan.appendChild(roomElement);
+            });
+            
+            // Dibujar personas
+            gameState.people.forEach(person => {
+                const personElement = document.createElement('div');
+                personElement.className = 'evac-person';
+                personElement.id = `person-${person.id}`;
+                personElement.style.left = `${person.x}%`;
+                personElement.style.top = `${person.y}%`;
+                personElement.style.background = person.panic > 0.3 ? 'var(--color-alert)' : 'var(--color-warning)';
+                personElement.textContent = '👤';
+                floorPlan.appendChild(personElement);
+            });
+            
+            // Funciones auxiliares
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+                document.getElementById('total-people').textContent = gameState.people.length;
+                
+                const evacuatedCount = gameState.people.filter(p => p.evacuated).length;
+                document.getElementById('evacuated-count').textContent = evacuatedCount;
+                
+                const progress = (evacuatedCount / gameState.people.length) * 100;
+                document.getElementById('evacuation-bar').style.width = `${progress}%`;
+                
+                // Actualizar tiempo
+                const minutes = Math.floor(gameState.time / 60);
+                const seconds = gameState.time % 60;
+                document.getElementById('evac-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Actualizar colores según progreso
+                if (progress > 70) {
+                    document.getElementById('evacuation-bar').style.background = 'var(--color-success)';
+                } else if (progress > 30) {
+                    document.getElementById('evacuation-bar').style.background = 'var(--color-warning)';
+                } else {
+                    document.getElementById('evacuation-bar').style.background = 'var(--color-alert)';
+                }
+            }
+            
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('evacuation-logs').appendChild(logEntry);
+                document.getElementById('evacuation-logs').scrollTop = document.getElementById('evacuation-logs').scrollHeight;
+            }
+            
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 3600) + 8;
+                const mins = Math.floor((gameState.time % 3600) / 60);
+                const secs = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            function activateAlarm() {
+                if (gameState.alarmsActivated) return;
+                
+                gameState.alarmsActivated = true;
+                gameState.score += 20;
+                addLog(`[${formatTime()}] ALARMA DE EVACUACIÓN ACTIVADA`);
+                
+                // Comenzar a mover personas
+                startEvacuation();
+            }
+            
+            function startEvacuation() {
+                // Mover cada persona hacia la salida más cercana
+                gameState.people.forEach(person => {
+                    if (person.evacuated) return;
+                    
+                    // Encontrar salida más cercana
+                    const closestExit = gameState.exits.reduce((closest, exit) => {
+                        const distance = Math.sqrt(
+                            Math.pow(person.x - exit.x, 2) + 
+                            Math.pow(person.y - exit.y, 2)
+                        );
+                        
+                        if (!closest || distance < closest.distance) {
+                            return { exit, distance };
+                        }
+                        return closest;
+                    }, null).exit;
+                    
+                    // Mover persona hacia la salida (con algo de aleatoriedad por el pánico)
+                    const moveInterval = setInterval(() => {
+                        if (person.evacuated) {
+                            clearInterval(moveInterval);
+                            return;
+                        }
+                        
+                        // Calcular dirección hacia la salida
+                        let dx = closestExit.x - person.x;
+                        let dy = closestExit.y - person.y;
+                        
+                        // Añadir aleatoriedad basada en el nivel de pánico
+                        dx += (Math.random() - 0.5) * person.panic * 10;
+                        dy += (Math.random() - 0.5) * person.panic * 10;
+                        
+                        // Normalizar dirección
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        if (length > 0) {
+                            dx = dx / length * 0.5;
+                            dy = dy / length * 0.5;
+                        }
+                        
+                        // Actualizar posición
+                        person.x += dx;
+                        person.y += dy;
+                        
+                        // Actualizar posición en pantalla
+                        const personElement = document.getElementById(`person-${person.id}`);
+                        if (personElement) {
+                            personElement.style.left = `${person.x}%`;
+                            personElement.style.top = `${person.y}%`;
+                        }
+                        
+                        // Verificar si llegó a la salida
+                        if (Math.abs(person.x - closestExit.x) < 5 && Math.abs(person.y - closestExit.y) < 5) {
+                            person.evacuated = true;
+                            gameState.score += 10;
+                            addLog(`[${formatTime()}] Persona evacuada por ${closestExit.label}`);
+                            updateUI();
+                            
+                            // Cambiar apariencia de persona evacuada
+                            if (personElement) {
+                                personElement.style.background = 'var(--color-success)';
+                                personElement.textContent = '✅';
+                            }
+                            
+                            clearInterval(moveInterval);
+                            
+                            // Verificar si todas las personas fueron evacuadas
+                            if (gameState.people.every(p => p.evacuated)) {
+                                endEvacuation(true);
+                            }
+                        }
+                    }, 100);
+                });
+            }
+            
+            function endEvacuation(success) {
+                clearInterval(gameInterval);
+                
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        peopleEvacuated: gameState.people.filter(p => p.evacuated).length,
+                        totalPeople: gameState.people.length,
+                        timePerPerson: gameState.time / gameState.people.length
+                    }
+                };
+                
+                saveGameResult(result);
+                
+                if (success) {
+                    addLog(`[${formatTime()}] ¡EVACUACIÓN COMPLETADA CON ÉXITO!`);
+                    alert(`¡Evacuación completada! Todas las personas están a salvo.\nPuntuación: ${gameState.score}`);
+                }
+            }
+            
+            // Configurar eventos
+            document.getElementById('activate-alarm').addEventListener('click', activateAlarm);
+            
+            document.getElementById('call-emergency').addEventListener('click', () => {
+                gameState.score += 15;
+                addLog(`[${formatTime()}] Emergencias notificadas - Equipos en camino`);
+            });
+            
+            document.getElementById('guide-people').addEventListener('click', () => {
+                // Reducir pánico de las personas
+                gameState.people.forEach(person => {
+                    if (!person.evacuated) {
+                        person.panic = Math.max(0, person.panic - 0.2);
+                        const personElement = document.getElementById(`person-${person.id}`);
+                        if (personElement) {
+                            personElement.style.background = person.panic > 0.3 ? 'var(--color-alert)' : 'var(--color-warning)';
+                        }
+                    }
+                });
+                
+                gameState.score += 5;
+                addLog(`[${formatTime()}] Personal guiando a las personas a las salidas`);
+            });
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        peopleEvacuated: gameState.people.filter(p => p.evacuated).length,
+                        totalPeople: gameState.people.length
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+            
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                updateUI();
+                
+                // Penalizar por tiempo transcurrido
+                if (gameState.time % 10 === 0 && gameState.alarmsActivated) {
+                    gameState.score = Math.max(0, gameState.score - 2);
+                }
+                
+                // Finalizar si toma demasiado tiempo
+                if (gameState.time > 300) { // 5 minutos
+                    endEvacuation(false);
+                    alert("¡Tiempo agotado! La evacuación no se completó a tiempo.");
+                }
+            }, 1000);
+        }
+
+        // 6. MONITOREO DE SENSORES AMBIENTALES
+        function initSensors() {
+            const gameContainer = gameContainers['sensors'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                sensors: [
+                    { id: 1, name: "Temperatura", value: 22, unit: "°C", min: 18, max: 25, dangerMin: 10, dangerMax: 35 },
+                    { id: 2, name: "Humedad", value: 45, unit: "%", min: 30, max: 60, dangerMin: 10, dangerMax: 80 },
+                    { id: 3, name: "CO2", value: 500, unit: "ppm", min: 300, max: 800, dangerMin: 0, dangerMax: 1500 },
+                    { id: 4, name: "Humo", value: 0, unit: "LFL", min: 0, max: 0.1, dangerMin: 0, dangerMax: 0.5 }
+                ],
+                alarms: [],
+                adjustments: 0
+            };
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div style="padding: 20px;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">MONITOREO AMBIENTAL</h2>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                            ${gameState.sensors.map(sensor => `
+                                <div class="sensor-widget" data-sensor-id="${sensor.id}">
+                                    <h3 style="margin-top: 0; color: var(--color-secondary);">${sensor.name}</h3>
+                                    <div class="sensor-value sensor-normal">${sensor.value} ${sensor.unit}</div>
+                                    <div class="resource-bar">
+                                        <div class="resource-fill" style="width: ${((sensor.value - sensor.dangerMin) / (sensor.dangerMax - sensor.dangerMin)) * 100}%"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                        <span>${sensor.min}${sensor.unit}</span>
+                                        <span>${sensor.max}${sensor.unit}</span>
+                                    </div>
+                                    <div style="margin-top: 10px;">
+                                        <button class="btn btn-primary adjust-sensor" data-sensor-id="${sensor.id}" style="width: 100%; padding: 5px 10px; font-size: 12px;">
+                                            Ajustar
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div id="sensor-alarms" style="margin-top: 20px;">
+                            <!-- Alertas aparecerán aquí -->
+                        </div>
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <div id="sensor-stats">
+                            <h3 style="color: var(--color-secondary);">ESTADO DEL SISTEMA</h3>
+                            <div style="margin-bottom: 15px;">
+                                <div>Puntuación: <span id="score">0</span></div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Tiempo transcurrido: <span id="sensor-time">0:00</span></div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Ajustes realizados: <span id="adjustments">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div id="sensor-logs" style="height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <div class="log-entry">[08:00] Sistema de monitoreo ambiental iniciado</div>
+                        </div>
+                        
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Finalizar Monitoreo
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Funciones auxiliares
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+                document.getElementById('adjustments').textContent = gameState.adjustments;
+                
+                // Actualizar tiempo
+                const minutes = Math.floor(gameState.time / 60);
+                const seconds = gameState.time % 60;
+                document.getElementById('sensor-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('sensor-logs').appendChild(logEntry);
+                document.getElementById('sensor-logs').scrollTop = document.getElementById('sensor-logs').scrollHeight;
+            }
+            
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 3600) + 8;
+                const mins = Math.floor((gameState.time % 3600) / 60);
+                const secs = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            function updateSensorValues() {
+                gameState.sensors.forEach(sensor => {
+                    // Cambiar valores aleatoriamente (simular fluctuaciones)
+                    const change = (Math.random() - 0.5) * 2;
+                    
+                    // Cambios más drásticos para humo cuando hay alarma
+                    const smokeAlarm = gameState.alarms.find(a => a.sensorId === 4);
+                    if (sensor.id === 4 && smokeAlarm) {
+                        sensor.value = Math.min(sensor.dangerMax, sensor.value + Math.random() * 0.05);
+                    } else {
+                        sensor.value += change * (sensor.id === 4 ? 0.01 : 1);
+                    }
+                    
+                    // Mantener dentro de límites físicos
+                    sensor.value = Math.max(sensor.dangerMin, Math.min(sensor.dangerMax, sensor.value));
+                    
+                    // Actualizar UI del sensor
+                    const sensorElement = document.querySelector(`[data-sensor-id="${sensor.id}"]`);
+                    if (sensorElement) {
+                        const valueElement = sensorElement.querySelector('.sensor-value');
+                        const barElement = sensorElement.querySelector('.resource-fill');
+                        
+                        valueElement.textContent = `${sensor.value.toFixed(sensor.id === 4 ? 2 : 0)} ${sensor.unit}`;
+                        barElement.style.width = `${((sensor.value - sensor.dangerMin) / (sensor.dangerMax - sensor.dangerMin)) * 100}%`;
+                        
+                        // Cambiar color según estado
+                        if (sensor.value < sensor.min || sensor.value > sensor.max) {
+                            valueElement.className = 'sensor-value sensor-warning';
+                            barElement.style.background = 'var(--color-warning)';
+                        } else {
+                            valueElement.className = 'sensor-value sensor-normal';
+                            barElement.style.background = 'var(--color-success)';
+                        }
+                        
+                        if (sensor.value <= sensor.dangerMin * 1.1 || sensor.value >= sensor.dangerMax * 0.9) {
+                            valueElement.className = 'sensor-value sensor-danger';
+                            barElement.style.background = 'var(--color-alert)';
+                        }
+                    }
+                });
+                
+                // Verificar si hay condiciones peligrosas
+                checkForAlarms();
+            }
+            
+            function checkForAlarms() {
+                gameState.sensors.forEach(sensor => {
+                    const existingAlarm = gameState.alarms.find(a => a.sensorId === sensor.id);
+                    
+                    // Condición peligrosa
+                    if (sensor.value <= sensor.dangerMin * 1.1 || sensor.value >= sensor.dangerMax * 0.9) {
+                        if (!existingAlarm) {
+                            const alarm = {
+                                sensorId: sensor.id,
+                                type: sensor.value <= sensor.dangerMin * 1.1 ? 'MINIMO' : 'MAXIMO',
+                                timestamp: gameState.time
+                            };
+                            gameState.alarms.push(alarm);
+                            addAlarmUI(alarm);
+                            addLog(`[${formatTime()}] ALARMA: ${sensor.name} en nivel ${alarm.type}`);
+                        }
+                    } else if (existingAlarm) {
+                        // Eliminar alarma si ya no es peligroso
+                        gameState.alarms = gameState.alarms.filter(a => a.sensorId !== sensor.id);
+                        removeAlarmUI(sensor.id);
+                        addLog(`[${formatTime()}] Alarma ${sensor.name} normalizada`);
+                    }
+                });
+            }
+            
+            function addAlarmUI(alarm) {
+                const sensor = gameState.sensors.find(s => s.id === alarm.sensorId);
+                if (!sensor) return;
+                
+                const alarmElement = document.createElement('div');
+                alarmElement.className = 'alert';
+                alarmElement.dataset.sensorId = alarm.sensorId;
+                alarmElement.innerHTML = `
+                    <h4 style="margin: 0 0 5px 0;">${sensor.name} - Nivel ${alarm.type}</h4>
+                    <p style="margin: 0 0 5px 0;">Valor actual: ${sensor.value.toFixed(sensor.id === 4 ? 2 : 0)}${sensor.unit}</p>
+                    <button class="btn btn-danger resolve-alarm" data-sensor-id="${alarm.sensorId}" style="width: 100%; padding: 5px 10px; font-size: 12px;">
+                        Resolver Alarma
+                    </button>
+                `;
+                
+                document.getElementById('sensor-alarms').appendChild(alarmElement);
+            }
+            
+            function removeAlarmUI(sensorId) {
+                const alarmElement = document.querySelector(`.alert[data-sensor-id="${sensorId}"]`);
+                if (alarmElement) {
+                    alarmElement.remove();
+                }
+            }
+            
+            function adjustSensor(sensorId) {
+                const sensor = gameState.sensors.find(s => s.id === sensorId);
+                if (!sensor) return;
+                
+                // Ajustar el valor hacia el rango normal
+                if (sensor.value < sensor.min) {
+                    sensor.value = sensor.min + (sensor.max - sensor.min) * 0.3;
+                } else if (sensor.value > sensor.max) {
+                    sensor.value = sensor.max - (sensor.max - sensor.min) * 0.3;
+                } else {
+                    // Si está en rango normal, ajustar al punto medio
+                    sensor.value = sensor.min + (sensor.max - sensor.min) / 2;
+                }
+                
+                gameState.adjustments++;
+                gameState.score += 5;
+                
+                addLog(`[${formatTime()}] ${sensor.name} ajustado a ${sensor.value.toFixed(sensor.id === 4 ? 2 : 0)}${sensor.unit}`);
+                updateUI();
+            }
+            
+            // Configurar eventos
+            document.querySelectorAll('.adjust-sensor').forEach(button => {
+                button.addEventListener('click', function() {
+                    const sensorId = parseInt(this.dataset.sensorId);
+                    adjustSensor(sensorId);
+                });
+            });
+            
+            document.getElementById('sensor-alarms').addEventListener('click', function(e) {
+                if (e.target.classList.contains('resolve-alarm')) {
+                    const sensorId = parseInt(e.target.dataset.sensorId);
+                    adjustSensor(sensorId);
+                }
+            });
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        adjustments: gameState.adjustments,
+                        alarmsTriggered: gameState.alarms.length,
+                        sensors: gameState.sensors.map(s => ({
+                            name: s.name,
+                            avgValue: s.value
+                        }))
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+            
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                updateSensorValues();
+                updateUI();
+                
+                // Penalizar por alarmas activas
+                if (gameState.time % 10 === 0 && gameState.alarms.length > 0) {
+                    gameState.score = Math.max(0, gameState.score - gameState.alarms.length * 2);
+                }
+                
+                // Bonificación por tiempo sin alarmas
+                if (gameState.time % 30 === 0 && gameState.alarms.length === 0) {
+                    gameState.score += 10;
+                    addLog(`[${formatTime()}] Bonificación: Ambiente estable por ${Math.floor(gameState.time / 60)} minutos`);
+                }
+            }, 1000);
+        }
+
+        // 7. GESTIÓN DE CRISIS
+        function initCrisis() {
+            const gameContainer = gameContainers['crisis'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                currentScenario: null,
+                stepsCompleted: 0,
+                totalSteps: 0,
+                crisisLevel: 0,
+                scenarios: [
+                    {
+                        id: 1,
+                        title: "Incendio en el Almacén",
+                        description: "Se ha detectado un incendio en el área de almacenamiento de materiales inflamables.",
+                        steps: [
+                            "Activar alarma de incendio",
+                            "Evacuar área afectada",
+                            "Llamar a bomberos",
+                            "Usar extintores si es seguro",
+                            "Cortar suministro eléctrico",
+                            "Establecer punto de reunión",
+                            "Verificar lista de personal"
+                        ],
+                        timeLimit: 300 // 5 minutos
+                    },
+                    {
+                        id: 2,
+                        title: "Intrusión Armada",
+                        description: "Persona no autorizada con arma blanca reportada en el área administrativa.",
+                        steps: [
+                            "Activar protocolo de encierro",
+                            "Notificar a la policía",
+                            "Asegurar áreas sensibles",
+                            "Mover personal a zonas seguras",
+                            "Proporcionar descripción del intruso",
+                            "No confrontar directamente",
+                            "Preparar cámaras para identificación"
+                        ],
+                        timeLimit: 420 // 7 minutos
+                    },
+                    {
+                        id: 3,
+                        title: "Fuga Química",
+                        description: "Se reporta fuga de producto químico en el laboratorio de investigación.",
+                        steps: [
+                            "Aislar el área",
+                            "Identificar producto derramado",
+                            "Usar equipo de protección",
+                            "Activar ventilación de emergencia",
+                            "Evacuar personal afectado",
+                            "Llamar a equipo de materiales peligrosos",
+                            "Proveer MSDS al equipo de respuesta"
+                        ],
+                        timeLimit: 360 // 6 minutos
+                    }
+                ]
+            };
+            
+            // Seleccionar escenario aleatorio
+            gameState.currentScenario = gameState.scenarios[Math.floor(Math.random() * gameState.scenarios.length)];
+            gameState.totalSteps = gameState.currentScenario.steps.length;
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div style="padding: 20px;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">GESTIÓN DE CRISIS</h2>
+                        
+                        <div class="game-panel" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-alert); margin-top: 0;">${gameState.currentScenario.title}</h3>
+                            <p>${gameState.currentScenario.description}</p>
+                        </div>
+                        
+                        <div class="game-panel">
+                            <h3 style="color: var(--color-secondary); margin-top: 0;">PROTOCOLO DE ACTUACIÓN</h3>
+                            <div id="protocol-steps">
+                                ${gameState.currentScenario.steps.map((step, index) => `
+                                    <div class="crisis-step" data-step-id="${index}">
+                                        <input type="checkbox" id="step-${index}" style="margin-right: 10px;">
+                                        <label for="step-${index}">${step}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <div id="crisis-stats">
+                            <h3 style="color: var(--color-secondary);">ESTADO DE LA CRISIS</h3>
+                            <div style="margin-bottom: 15px;">
+                                <div>Pasos completados: <span id="steps-completed">0</span>/<span>${gameState.totalSteps}</span></div>
+                                <div class="resource-bar">
+                                    <div id="steps-bar" class="resource-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Nivel de crisis: <span id="crisis-level">0</span>%</div>
+                                <div class="resource-bar">
+                                    <div id="crisis-bar" class="resource-fill" style="width: 0%; background: var(--color-success)"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Tiempo restante: <span id="time-remaining">${Math.floor(gameState.currentScenario.timeLimit / 60)}:${(gameState.currentScenario.timeLimit % 60).toString().padStart(2, '0')}</span></div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div>Puntuación: <span id="score">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div id="crisis-logs" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <div class="log-entry">[08:00] Iniciando protocolo para: ${gameState.currentScenario.title}</div>
+                        </div>
+                        
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Finalizar Simulación
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Funciones auxiliares
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+                document.getElementById('steps-completed').textContent = gameState.stepsCompleted;
+                
+                const progress = (gameState.stepsCompleted / gameState.totalSteps) * 100;
+                document.getElementById('steps-bar').style.width = `${progress}%`;
+                
+                document.getElementById('crisis-level').textContent = gameState.crisisLevel;
+                document.getElementById('crisis-bar').style.width = `${gameState.crisisLevel}%`;
+                
+                // Cambiar color según nivel de crisis
+                if (gameState.crisisLevel > 70) {
+                    document.getElementById('crisis-bar').style.background = 'var(--color-alert)';
+                } else if (gameState.crisisLevel > 30) {
+                    document.getElementById('crisis-bar').style.background = 'var(--color-warning)';
+                } else {
+                    document.getElementById('crisis-bar').style.background = 'var(--color-success)';
+                }
+                
+                // Actualizar tiempo restante
+                const remaining = gameState.currentScenario.timeLimit - gameState.time;
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                document.getElementById('time-remaining').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                // Cambiar color del tiempo si es crítico
+                if (remaining < 60) {
+                    document.getElementById('time-remaining').style.color = 'var(--color-alert)';
+                } else if (remaining < 120) {
+                    document.getElementById('time-remaining').style.color = 'var(--color-warning)';
+                } else {
+                    document.getElementById('time-remaining').style.color = 'var(--color-success)';
+                }
+            }
+            
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('crisis-logs').appendChild(logEntry);
+                document.getElementById('crisis-logs').scrollTop = document.getElementById('crisis-logs').scrollHeight;
+            }
+            
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 3600) + 8;
+                const mins = Math.floor((gameState.time % 3600) / 60);
+                const secs = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            function completeStep(stepId) {
+                const stepElement = document.querySelector(`.crisis-step[data-step-id="${stepId}"]`);
+                if (stepElement && !stepElement.classList.contains('completed')) {
+                    stepElement.classList.add('completed');
+                    gameState.stepsCompleted++;
+                    gameState.score += 20;
+                    
+                    // Reducir nivel de crisis al completar pasos
+                    gameState.crisisLevel = Math.max(0, gameState.crisisLevel - 10);
+                    
+                    addLog(`[${formatTime()}] Paso completado: ${gameState.currentScenario.steps[stepId]}`);
+                    updateUI();
+                    
+                    // Verificar si se completó todo el protocolo
+                    if (gameState.stepsCompleted >= gameState.totalSteps) {
+                        endCrisis(true);
+                    }
+                }
+            }
+            
+            function endCrisis(success) {
+                clearInterval(gameInterval);
+                
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        scenario: gameState.currentScenario.title,
+                        stepsCompleted: gameState.stepsCompleted,
+                        totalSteps: gameState.totalSteps,
+                        crisisLevel: gameState.crisisLevel,
+                        timeRemaining: gameState.currentScenario.timeLimit - gameState.time
+                    }
+                };
+                
+                saveGameResult(result);
+                
+                if (success) {
+                    addLog(`[${formatTime()}] ¡CRISIS CONTROLADA CON ÉXITO!`);
+                    alert(`¡Protocolo completado con éxito!\nPuntuación: ${gameState.score}`);
+                } else {
+                    addLog(`[${formatTime()}] La crisis no pudo ser controlada a tiempo`);
+                    alert(`¡Tiempo agotado! La crisis no pudo ser controlada completamente.`);
+                }
+            }
+            
+            // Configurar eventos
+            document.querySelectorAll('.crisis-step').forEach(step => {
+                step.addEventListener('click', function() {
+                    const stepId = parseInt(this.dataset.stepId);
+                    completeStep(stepId);
+                });
+            });
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        scenario: gameState.currentScenario.title,
+                        stepsCompleted: gameState.stepsCompleted,
+                        totalSteps: gameState.totalSteps
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+            
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                
+                // Aumentar nivel de crisis con el tiempo
+                if (gameState.time % 15 === 0) {
+                    gameState.crisisLevel = Math.min(100, gameState.crisisLevel + 5);
+                }
+                
+                // Penalizar por crisis alta
+                if (gameState.time % 10 === 0 && gameState.crisisLevel > 50) {
+                    gameState.score = Math.max(0, gameState.score - 5);
+                }
+                
+                updateUI();
+                
+                // Verificar si se agotó el tiempo
+                if (gameState.time >= gameState.currentScenario.timeLimit) {
+                    endCrisis(false);
+                }
+            }, 1000);
+        }
+
+        /* -------------------------------------------------- */
+        /* JUEGOS ORIGINALES (se mantienen igual) */
+        /* -------------------------------------------------- */
+        
+        // 1. CENTRO DE CONTROL PRINCIPAL
+        function initControlCenter() {
+            const gameContainer = gameContainers['control-center'];
+            
+            // Estado del juego
+            gameState = {
+                guards: 5,
+                securityLevel: 100,
+                threats: [],
+                score: 0,
+                time: 0
+            };
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div id="security-feeds" style="background: #000; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px;">
+                        ${Array.from({length: 4}, (_, i) => `
+                            <div class="camera" data-camera-id="${i+1}">
+                                <div class="camera-label">Cámara ${i+1}: ${['Entrada Principal', 'Sala de Servidores', 'Almacén', 'Patio'][i]}</div>
+                                <img src="cam${i+1}.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">CENTRO DE CONTROL</h2>
+                        <div id="alerts"></div>
+                        <div id="decision-panel">
+                            <h3 style="color: var(--color-secondary);">DECISIONES:</h3>
+                        </div>
+                        <div id="resources">
+                            <h3 style="color: var(--color-secondary);">RECURSOS:</h3>
+                            <div>
+                                <div>Guardias: <span id="guards-available">${gameState.guards}</span>/5</div>
+                                <div class="resource-bar">
+                                    <div id="guards-bar" class="resource-fill" style="width: ${(gameState.guards/5)*100}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div>Nivel de Seguridad: <span id="security-level">${gameState.securityLevel}</span>%</div>
+                                <div class="resource-bar">
+                                    <div id="security-bar" class="resource-fill" style="width: ${gameState.securityLevel}%; background: ${getSecurityColor(gameState.securityLevel)}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="score-display" style="margin: 10px 0;">Puntuación: <span id="score">0</span></div>
+                        <div id="logs" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                            <div class="log-entry">[08:00] Sistema iniciado. Todos los sistemas operativos.</div>
+                        </div>
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%; margin-top: 10px;">
+                            Volver al Menú Principal
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Funciones auxiliares
+            function getSecurityColor(level) {
+                if (level < 30) return 'var(--color-alert)';
+                if (level < 60) return 'var(--color-warning)';
+                return 'var(--color-success)';
+            }
+
+            function updateUI() {
+                document.getElementById('guards-available').textContent = gameState.guards;
+                document.getElementById('guards-bar').style.width = `${(gameState.guards/5)*100}%`;
+                document.getElementById('security-level').textContent = gameState.securityLevel;
+                document.getElementById('security-bar').style.width = `${gameState.securityLevel}%`;
+                document.getElementById('security-bar').style.background = getSecurityColor(gameState.securityLevel);
+                document.getElementById('score').textContent = gameState.score;
+            }
+
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('logs').appendChild(logEntry);
+                document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+            }
+
+            function generateThreat() {
+                if (gameState.threats.length >= 3) return;
+                
+                const threatTypes = [
+                    { id: 1, name: "Intruso en la entrada principal", difficulty: 2 },
+                    { id: 2, name: "Fuga de datos en servidores", difficulty: 3 },
+                    { id: 3, name: "Movimiento sospechoso en almacén", difficulty: 1 },
+                    { id: 4, name: "Persona no autorizada en patio", difficulty: 2 }
+                ];
+                
+                const threat = threatTypes[Math.floor(Math.random() * threatTypes.length)];
+                threat.timestamp = Date.now();
+                threat.handled = false;
+                
+                gameState.threats.push(threat);
+                displayThreat(threat);
+                
+                // Resaltar cámara afectada
+                const camera = document.querySelector(`.camera[data-camera-id="${threat.id}"]`);
+                if (camera) camera.classList.add('camera-alert');
+                
+                addLog(`[${formatTime()}] ALERTA: ${threat.name}`);
+            }
+
+            function displayThreat(threat) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert';
+                alertDiv.dataset.threatId = threat.timestamp;
+                alertDiv.innerHTML = `
+                    <strong>${threat.name}</strong>
+                    <p>Nivel de amenaza: ${'⚠️'.repeat(threat.difficulty)}</p>
+                    <div class="resource-bar" style="height: 3px; margin-top: 5px;">
+                        <div class="progress-bar" style="height: 100%; background: var(--color-alert); width: 0%"></div>
+                    </div>
+                `;
+                
+                document.getElementById('alerts').appendChild(alertDiv);
+                
+                // Mostrar opciones de decisión
+                const decisionDiv = document.createElement('div');
+                decisionDiv.className = 'decision-options';
+                decisionDiv.innerHTML = `
+                    <button class="btn btn-primary" data-action="send-guard" style="width: 100%; margin-bottom: 5px;">
+                        Enviar guardia
+                    </button>
+                    <button class="btn btn-warning" data-action="ignore" style="width: 100%;">
+                        Ignorar (riesgo)
+                    </button>
+                `;
+                
+                document.getElementById('decision-panel').appendChild(decisionDiv);
+                
+                // Configurar botones
+                decisionDiv.querySelector('[data-action="send-guard"]').addEventListener('click', () => {
+                    if (gameState.guards > 0) {
+                        gameState.guards--;
+                        resolveThreat(threat, true);
+                        addLog(`[${formatTime()}] Guardia enviado a ${threat.name}`);
+                        
+                        // El guardia regresa después de un tiempo
+                        setTimeout(() => {
+                            gameState.guards++;
+                            updateUI();
+                            addLog(`[${formatTime()}] Guardia ha regresado a su puesto`);
+                        }, 10000);
+                    } else {
+                        addLog(`[${formatTime()}] Error: No hay guardias disponibles`);
+                    }
+                    updateUI();
+                });
+                
+                decisionDiv.querySelector('[data-action="ignore"]').addEventListener('click', () => {
+                    resolveThreat(threat, false);
+                    addLog(`[${formatTime()}] Amenaza ignorada: ${threat.name}`);
+                });
+                
+                // Progreso de la amenaza
+                const progressInterval = setInterval(() => {
+                    if (threat.handled) {
+                        clearInterval(progressInterval);
+                        return;
+                    }
+                    
+                    const progressBar = alertDiv.querySelector('.progress-bar');
+                    if (!progressBar) {
+                        clearInterval(progressInterval);
+                        return;
+                    }
+                    
+                    const currentWidth = parseFloat(progressBar.style.width) || 0;
+                    const newWidth = currentWidth + (100 / (20 - threat.difficulty * 3));
+                    
+                    progressBar.style.width = `${newWidth}%`;
+                    
+                    if (newWidth >= 100) {
+                        clearInterval(progressInterval);
+                        gameState.securityLevel -= threat.difficulty * 10;
+                        gameState.score = Math.max(0, gameState.score - 20);
+                        
+                        const camera = document.querySelector(`.camera[data-camera-id="${threat.id}"]`);
+                        if (camera) camera.classList.remove('camera-alert');
+                        
+                        addLog(`[${formatTime()}] FALLA: ${threat.name} no fue contenida`);
+                        alertDiv.remove();
+                        decisionDiv.remove();
+                        
+                        gameState.threats = gameState.threats.filter(t => t.timestamp !== threat.timestamp);
+                        updateUI();
+                        
+                        if (gameState.securityLevel <= 0) {
+                            endGame("Nivel de seguridad crítico");
+                        }
+                    }
+                }, 1000);
+            }
+
+            function resolveThreat(threat, success) {
+                threat.handled = true;
+                const alertDiv = document.querySelector(`[data-threat-id="${threat.timestamp}"]`);
+                if (alertDiv) {
+                    alertDiv.style.animation = 'none';
+                    alertDiv.style.background = success ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.2)';
+                    alertDiv.style.borderLeft = success ? '3px solid var(--color-success)' : '3px solid var(--color-alert)';
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 2000);
+                }
+                
+                // Quitar resaltado de cámara
+                const camera = document.querySelector(`.camera[data-camera-id="${threat.id}"]`);
+                if (camera) camera.classList.remove('camera-alert');
+                
+                // Quitar panel de decisiones
+                const decisions = document.querySelectorAll('.decision-options');
+                if (decisions.length > 0) decisions[0].remove();
+                
+                if (success) {
+                    gameState.securityLevel = Math.min(100, gameState.securityLevel + 5);
+                    gameState.score += 15;
+                }
+                
+                gameState.threats = gameState.threats.filter(t => t.timestamp !== threat.timestamp);
+                updateUI();
+            }
+
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 60) + 8;
+                const mins = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            }
+
+            function endGame(reason) {
+                clearInterval(gameInterval);
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        securityLevel: gameState.securityLevel,
+                        threatsHandled: gameState.threats.filter(t => t.handled).length
+                    }
+                };
+                
+                saveGameResult(result);
+                
+                alert(`¡Juego terminado! Razón: ${reason}\nPuntuación: ${gameState.score}`);
+                returnToMenu();
+            }
+
+            // Botón de retorno
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        securityLevel: gameState.securityLevel,
+                        threatsHandled: gameState.threats.filter(t => t.handled).length
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                
+                // Generar amenazas aleatorias
+                if (Math.random() < 0.2) {
+                    generateThreat();
+                }
+                
+                // Aumentar puntuación por tiempo sobrevivido
+                if (gameState.time % 10 === 0) {
+                    gameState.score += 5;
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // 2. CONTROL DE ACCESOS
+        function initAccessControl() {
+            const gameContainer = gameContainers['access-control'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                correctDecisions: 0,
+                incorrectDecisions: 0,
+                currentVisitor: null,
+                currentVehicle: null
+            };
+            
+            // Tipos de visitantes
+            const visitorTypes = [
+                { id: 1, name: "Juan Pérez", role: "Empleado", authorized: true, photo: "👨" },
+                { id: 2, name: "María García", role: "Proveedor", authorized: true, photo: "👩" },
+                { id: 3, name: "Carlos López", role: "Cliente", authorized: true, photo: "🧔" },
+                { id: 4, name: "Roberto Sánchez", role: "Visitante", authorized: false, photo: "👨‍🦰" },
+                { id: 5, name: "Laura Martínez", role: "Contratista", authorized: true, photo: "👩‍💼" }
+            ];
+            
+            // Tipos de vehículos
+            const vehicleTypes = [
+                { id: 1, plate: "ABC-1234", model: "Toyota Corolla", authorized: true },
+                { id: 2, plate: "XYZ-5678", model: "Honda Civic", authorized: true },
+                { id: 3, plate: "DEF-9012", model: "Ford F-150", authorized: false },
+                { id: 4, plate: "GHI-3456", model: "Chevrolet Spark", authorized: true }
+            ];
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div style="background: #000; padding: 20px; display: grid; grid-template-rows: 1fr 1fr; gap: 20px;">
+                        <div class="game-panel" id="visitor-panel">
+                            <h3 style="color: var(--color-secondary); margin-top: 0;">ENTRADA PRINCIPAL</h3>
+                            <div id="visitor-display" style="height: 150px; background: #111; margin-bottom: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div style="font-size: 48px;">👤</div>
+                                <p style="margin: 5px 0 0 0; color: #777;">Esperando visitante...</p>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button id="grant-access" class="btn btn-primary">Autorizar</button>
+                                <button id="deny-access" class="btn btn-danger">Denegar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="game-panel" id="vehicle-panel">
+                            <h3 style="color: var(--color-secondary); margin-top: 0;">PUERTA DE ESTACIONAMIENTO</h3>
+                            <div id="vehicle-display" style="height: 150px; background: #111; margin-bottom: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div style="font-size: 48px;">🚗</div>
+                                <p style="margin: 5px 0 0 0; color: #777;">Esperando vehículo...</p>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button id="open-gate" class="btn btn-primary">Abrir Puerta</button>
+                                <button id="verify-exit" class="btn btn-warning">Verificar Salida</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">CONTROL DE ACCESOS</h2>
+                        <div id="stats" style="margin-bottom: 20px;">
+                            <div>Puntuación: <span id="score">0</span></div>
+                            <div>Decisiones correctas: <span id="correct-decisions">0</span></div>
+                            <div>Decisiones incorrectas: <span id="incorrect-decisions">0</span></div>
+                        </div>
+                        <div id="logs" style="height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <div class="log-entry">[08:00] Sistema de control de accesos iniciado</div>
+                        </div>
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Volver al Menú Principal
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Funciones auxiliares
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+                document.getElementById('correct-decisions').textContent = gameState.correctDecisions;
+                document.getElementById('incorrect-decisions').textContent = gameState.incorrectDecisions;
+            }
+
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('logs').appendChild(logEntry);
+                document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+            }
+
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 60) + 8;
+                const mins = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            }
+
+            function generateVisitor() {
+                const visitor = visitorTypes[Math.floor(Math.random() * visitorTypes.length)];
+                gameState.currentVisitor = visitor;
+                
+                document.getElementById('visitor-display').innerHTML = `
+                    <div style="font-size: 48px;">${visitor.photo}</div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <p style="margin: 0; font-weight: bold;">${visitor.name}</p>
+                        <p style="margin: 0; font-size: 12px;">${visitor.role}</p>
+                    </div>
+                `;
+                
+                addLog(`[${formatTime()}] Visitante en entrada: ${visitor.name} (${visitor.role})`);
+            }
+
+            function generateVehicle() {
+                const vehicle = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+                gameState.currentVehicle = vehicle;
+                
+                document.getElementById('vehicle-display').innerHTML = `
+                    <div style="font-size: 48px;">🚗</div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <p style="margin: 0; font-weight: bold;">${vehicle.plate}</p>
+                        <p style="margin: 0; font-size: 12px;">${vehicle.model}</p>
+                    </div>
+                `;
+                
+                addLog(`[${formatTime()}] Vehículo en puerta: ${vehicle.plate} (${vehicle.model})`);
+            }
+
+            function handleVisitorDecision(grantAccess) {
+                if (!gameState.currentVisitor) return;
+                
+                const visitor = gameState.currentVisitor;
+                const correctDecision = (grantAccess && visitor.authorized) || (!grantAccess && !visitor.authorized);
+                
+                if (correctDecision) {
+                    gameState.correctDecisions++;
+                    gameState.score += 10;
+                    addLog(`[${formatTime()}] Decisión correcta: ${visitor.name} ${grantAccess ? 'autorizado' : 'denegado'}`);
+                } else {
+                    gameState.incorrectDecisions++;
+                    gameState.score = Math.max(0, gameState.score - 15);
+                    addLog(`[${formatTime()}] ERROR: ${visitor.name} ${visitor.authorized ? 'debería haber sido autorizado' : 'no debería haber sido autorizado'}`);
+                }
+                
+                // Resetear visitante
+                document.getElementById('visitor-display').innerHTML = `
+                    <div style="font-size: 48px;">👤</div>
+                    <p style="margin: 5px 0 0 0; color: #777;">Esperando visitante...</p>
+                `;
+                gameState.currentVisitor = null;
+                
+                updateUI();
+                
+                // Generar nuevo visitante después de un tiempo
+                setTimeout(generateVisitor, 2000 + Math.random() * 3000);
+            }
+
+            function handleVehicleDecision(openGate) {
+                if (!gameState.currentVehicle) return;
+                
+                const vehicle = gameState.currentVehicle;
+                const correctDecision = (openGate && vehicle.authorized) || (!openGate && !vehicle.authorized);
+                
+                if (correctDecision) {
+                    gameState.correctDecisions++;
+                    gameState.score += 10;
+                    addLog(`[${formatTime()}] Decisión correcta: Vehículo ${vehicle.plate} ${openGate ? 'autorizado' : 'denegado'}`);
+                } else {
+                    gameState.incorrectDecisions++;
+                    gameState.score = Math.max(0, gameState.score - 15);
+                    addLog(`[${formatTime()}] ERROR: Vehículo ${vehicle.plate} ${vehicle.authorized ? 'debería haber sido autorizado' : 'no debería haber sido autorizado'}`);
+                }
+                
+                // Resetear vehículo
+                document.getElementById('vehicle-display').innerHTML = `
+                    <div style="font-size: 48px;">🚗</div>
+                    <p style="margin: 5px 0 0 0; color: #777;">Esperando vehículo...</p>
+                `;
+                gameState.currentVehicle = null;
+                
+                updateUI();
+                
+                // Generar nuevo vehículo después de un tiempo
+                setTimeout(generateVehicle, 2000 + Math.random() * 3000);
+            }
+
+            // Configurar eventos
+            document.getElementById('grant-access').addEventListener('click', () => handleVisitorDecision(true));
+            document.getElementById('deny-access').addEventListener('click', () => handleVisitorDecision(false));
+            document.getElementById('open-gate').addEventListener('click', () => handleVehicleDecision(true));
+            document.getElementById('verify-exit').addEventListener('click', () => handleVehicleDecision(false));
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        correctDecisions: gameState.correctDecisions,
+                        incorrectDecisions: gameState.incorrectDecisions
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+
+            // Iniciar generación de visitantes y vehículos
+            generateVisitor();
+            generateVehicle();
+            
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                
+                // Aumentar puntuación por tiempo sobrevivido
+                if (gameState.time % 10 === 0) {
+                    gameState.score += 5;
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // 3. PATRULLA DE SEGURIDAD
+        function initPatrol() {
+            const gameContainer = gameContainers['patrol'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                position: { x: 50, y: 50 },
+                tasks: [
+                    { id: 1, name: "Verificar puertas almacén", completed: false },
+                    { id: 2, name: "Revisar cámaras sector 3", completed: false },
+                    { id: 3, name: "Reportar luces estacionamiento", completed: false }
+                ],
+                incidents: [
+                    { id: 1, name: "Puerta trasera no cerrada", resolved: false },
+                    { id: 2, name: "Ventana rota en oficina", resolved: false }
+                ]
+            };
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div id="patrol-map" style="background: #000; position: relative; overflow: hidden;">
+                        <img src="map.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div id="patrol-agent" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: var(--color-secondary); border-radius: 50%;"></div>
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">PATRULLA DE SEGURIDAD</h2>
+                        <div id="agent-status" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-secondary);">ESTADO DEL AGENTE</h3>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                                <p style="margin: 0 0 10px 0;">Agente: <strong>${currentUser?.displayName || 'Agente'}</strong></p>
+                                <p style="margin: 0 0 10px 0;">Ubicación: <strong id="agent-location">Zona A</strong></p>
+                                <p style="margin: 0 0 10px 0;">Puntuación: <strong id="score">0</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div id="tasks-panel" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-secondary);">TAREAS PENDIENTES</h3>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;" id="tasks-list">
+                                ${gameState.tasks.map(task => `
+                                    <div class="task-item" data-task-id="${task.id}" style="padding: 8px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                                        <span>${task.name}</span>
+                                        <button class="btn btn-primary complete-task" style="padding: 3px 8px; font-size: 12px;">Completar</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div id="incidents-panel" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-secondary);">INCIDENTES</h3>
+                            <div style="background: rgba(231, 76, 60, 0.2); padding: 10px; border-radius: 5px; border-left: 3px solid var(--color-alert);" id="incidents-list">
+                                ${gameState.incidents.map(incident => `
+                                    <div class="incident-item" data-incident-id="${incident.id}" style="margin-bottom: 8px;">
+                                        <p style="margin: 0 0 5px 0;">${incident.name}</p>
+                                        <button class="btn btn-danger resolve-incident" style="padding: 3px 8px; font-size: 12px;">Resolver</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Finalizar Patrulla
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Funciones auxiliares
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+                
+                // Actualizar ubicación basada en posición
+                const locations = [
+                    { x: [0, 25], y: [0, 25], name: "Zona A" },
+                    { x: [25, 50], y: [0, 25], name: "Zona B" },
+                    { x: [50, 75], y: [0, 25], name: "Zona C" },
+                    { x: [75, 100], y: [0, 25], name: "Zona D" },
+                    { x: [0, 25], y: [25, 50], name: "Zona E" },
+                    { x: [25, 50], y: [25, 50], name: "Zona F" },
+                    { x: [50, 75], y: [25, 50], name: "Zona G" },
+                    { x: [75, 100], y: [25, 50], name: "Zona H" }
+                ];
+                
+                const currentLocation = locations.find(loc => 
+                    gameState.position.x >= loc.x[0] && gameState.position.x <= loc.x[1] && 
+                    gameState.position.y >= loc.y[0] && gameState.position.y <= loc.y[1]
+                );
+                
+                if (currentLocation) {
+                    document.getElementById('agent-location').textContent = currentLocation.name;
+                }
+            }
+
+            function addLog(message) {
+                // Implementar si se añade un sistema de logs
+            }
+
+            function completeTask(taskId) {
+                const task = gameState.tasks.find(t => t.id === taskId);
+                if (task && !task.completed) {
+                    task.completed = true;
+                    gameState.score += 20;
+                    
+                    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (taskElement) {
+                        taskElement.style.opacity = '0.5';
+                        taskElement.querySelector('button').disabled = true;
+                    }
+                    
+                    updateUI();
+                    
+                    // Generar nueva tarea después de un tiempo
+                    setTimeout(() => {
+                        const newTaskId = gameState.tasks.length + 1;
+                        const newTask = {
+                            id: newTaskId,
+                            name: `Nueva tarea ${newTaskId}`,
+                            completed: false
+                        };
+                        
+                        gameState.tasks.push(newTask);
+                        
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.dataset.taskId = newTaskId;
+                        taskItem.innerHTML = `
+                            <span>${newTask.name}</span>
+                            <button class="btn btn-primary complete-task" style="padding: 3px 8px; font-size: 12px;">Completar</button>
+                        `;
+                        
+                        document.getElementById('tasks-list').appendChild(taskItem);
+                        taskItem.querySelector('.complete-task').addEventListener('click', () => completeTask(newTaskId));
+                    }, 5000 + Math.random() * 10000);
+                }
+            }
+
+            function resolveIncident(incidentId) {
+                const incident = gameState.incidents.find(i => i.id === incidentId);
+                if (incident && !incident.resolved) {
+                    incident.resolved = true;
+                    gameState.score += 30;
+                    
+                    const incidentElement = document.querySelector(`[data-incident-id="${incidentId}"]`);
+                    if (incidentElement) {
+                        incidentElement.style.opacity = '0.5';
+                        incidentElement.querySelector('button').disabled = true;
+                    }
+                    
+                    updateUI();
+                    
+                    // Generar nuevo incidente después de un tiempo
+                    setTimeout(() => {
+                        const newIncidentId = gameState.incidents.length + 1;
+                        const incidentTypes = [
+                            "Ventana abierta",
+                            "Puerta sin cerrar",
+                            "Objeto sospechoso",
+                            "Área iluminación deficiente"
+                        ];
+                        
+                        const newIncident = {
+                            id: newIncidentId,
+                            name: incidentTypes[Math.floor(Math.random() * incidentTypes.length)],
+                            resolved: false
+                        };
+                        
+                        gameState.incidents.push(newIncident);
+                        
+                        const incidentItem = document.createElement('div');
+                        incidentItem.className = 'incident-item';
+                        incidentItem.dataset.incidentId = newIncidentId;
+                        incidentItem.innerHTML = `
+                            <p style="margin: 0 0 5px 0;">${newIncident.name}</p>
+                            <button class="btn btn-danger resolve-incident" style="padding: 3px 8px; font-size: 12px;">Resolver</button>
+                        `;
+                        
+                        document.getElementById('incidents-list').appendChild(incidentItem);
+                        incidentItem.querySelector('.resolve-incident').addEventListener('click', () => resolveIncident(newIncidentId));
+                    }, 8000 + Math.random() * 15000);
+                }
+            }
+
+            // Configurar eventos
+            document.querySelectorAll('.complete-task').forEach(button => {
+                button.addEventListener('click', function() {
+                    const taskId = parseInt(this.closest('.task-item').dataset.taskId);
+                    completeTask(taskId);
+                });
+            });
+            
+            document.querySelectorAll('.resolve-incident').forEach(button => {
+                button.addEventListener('click', function() {
+                    const incidentId = parseInt(this.closest('.incident-item').dataset.incidentId);
+                    resolveIncident(incidentId);
+                });
+            });
+            
+            // Movimiento del agente
+            document.getElementById('patrol-map').addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                gameState.position = { x, y };
+                document.getElementById('patrol-agent').style.left = `${x}%`;
+                document.getElementById('patrol-agent').style.top = `${y}%`;
+                
+                updateUI();
+            });
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        tasksCompleted: gameState.tasks.filter(t => t.completed).length,
+                        incidentsResolved: gameState.incidents.filter(i => i.resolved).length
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                
+                // Aumentar puntuación por tiempo sobrevivido
+                if (gameState.time % 10 === 0) {
+                    gameState.score += 5;
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // 4. DEFENSA CIBERNÉTICA
+        function initCyber() {
+            const gameContainer = gameContainers['cyber'];
+            
+            // Estado del juego
+            gameState = {
+                score: 0,
+                time: 0,
+                servers: [
+                    { id: 1, name: "Servidor Principal", status: "secure", threats: [] },
+                    { id: 2, name: "Base de Datos", status: "compromised", threats: ["Intrusión detectada"] },
+                    { id: 3, name: "Correo Electrónico", status: "warning", threats: ["Phishing detectado"] },
+                    { id: 4, name: "Red Interna", status: "secure", threats: [] }
+                ],
+                threats: [
+                    { id: 1, type: "Malware", severity: "high", target: 2 },
+                    { id: 2, type: "Phishing", severity: "medium", target: 3 }
+                ]
+            };
+            
+            // Interfaz del juego
+            gameContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 300px; height: 100vh;">
+                    <div id="servers-grid" style="background: #000; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        ${gameState.servers.map(server => `
+                            <div class="server-node" data-server-id="${server.id}" style="
+                                background: ${getServerBackground(server)};
+                                border: 2px solid ${getServerBorder(server)};
+                                border-radius: 8px;
+                                padding: 15px;
+                                cursor: pointer;
+                            ">
+                                <h3 style="color: ${getServerColor(server)}; margin-top: 0;">${server.name}</h3>
+                                <div style="height: 120px; background: #111; margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 24px;">${getServerIcon(server)}</div>
+                                        <p style="margin: 5px 0 0 0; color: ${getServerColor(server)};">${getServerStatusText(server)}</div>
+                                    </div>
+                                </div>
+                                <button class="btn server-action-btn" style="width: 100%; background: ${getServerButtonColor(server)};">
+                                    ${getServerButtonText(server)}
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="game-panel" style="overflow-y: auto;">
+                        <h2 style="color: var(--color-secondary); margin-top: 0;">DEFENSA CIBERNÉTICA</h2>
+                        <div id="cyber-alerts" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-secondary);">ALERTAS</h3>
+                            <div id="alerts-list">
+                                ${gameState.threats.map(threat => `
+                                    <div class="alert" data-threat-id="${threat.id}" style="margin-bottom: 10px;">
+                                        <p style="margin: 0;">${threat.type} en ${getServerName(threat.target)}</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 12px;">Severidad: ${threat.severity === 'high' ? 'Alta' : threat.severity === 'medium' ? 'Media' : 'Baja'}</p>
+                                        <button class="btn btn-danger resolve-threat" style="margin-top: 8px; padding: 5px 10px; font-size: 12px;">Contener Amenaza</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div id="cyber-tools" style="margin-bottom: 20px;">
+                            <h3 style="color: var(--color-secondary);">HERRAMIENTAS</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button class="btn btn-primary cyber-tool" data-tool="scan">Escaneo de Red</button>
+                                <button class="btn btn-primary cyber-tool" data-tool="firewall">Firewall</button>
+                                <button class="btn btn-primary cyber-tool" data-tool="antivirus">Antivirus</button>
+                                <button class="btn btn-primary cyber-tool" data-tool="logs">Registros</button>
+                            </div>
+                        </div>
+                        
+                        <div id="score-display" style="margin-bottom: 15px;">
+                            <p style="margin: 0;">Puntuación: <strong id="score">0</strong></p>
+                        </div>
+                        
+                        <div id="cyber-logs" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <div class="log-entry">[10:30] Sistema de defensa cibernética iniciado</div>
+                            ${gameState.threats.map(threat => `
+                                <div class="log-entry">[10:35] Alerta: ${threat.type} detectado en ${getServerName(threat.target)}</div>
+                            `).join('')}
+                        </div>
+                        
+                        <button id="return-btn" class="btn btn-warning" style="width: 100%;">
+                            Salir del Sistema
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Funciones auxiliares
+            function getServerName(serverId) {
+                const server = gameState.servers.find(s => s.id === serverId);
+                return server ? server.name : 'Servidor desconocido';
+            }
+
+            function getServerBackground(server) {
+                switch(server.status) {
+                    case 'compromised': return 'rgba(231, 76, 60, 0.2)';
+                    case 'warning': return 'rgba(243, 156, 18, 0.2)';
+                    default: return 'rgba(44, 62, 80, 0.5)';
+                }
+            }
+
+            function getServerBorder(server) {
+                switch(server.status) {
+                    case 'compromised': return 'var(--color-alert)';
+                    case 'warning': return 'var(--color-warning)';
+                    default: return 'var(--color-secondary)';
+                }
+            }
+
+            function getServerColor(server) {
+                switch(server.status) {
+                    case 'compromised': return 'var(--color-alert)';
+                    case 'warning': return 'var(--color-warning)';
+                    default: return 'var(--color-secondary)';
+                }
+            }
+
+            function getServerIcon(server) {
+                switch(server.id) {
+                    case 1: return '🖥️';
+                    case 2: return '💾';
+                    case 3: return '📧';
+                    case 4: return '🌐';
+                    default: return '❓';
+                }
+            }
+
+            function getServerStatusText(server) {
+                switch(server.status) {
+                    case 'compromised': return 'COMPROMETIDO';
+                    case 'warning': return 'ADVERTENCIA';
+                    default: return 'SEGURO';
+                }
+            }
+
+            function getServerButtonText(server) {
+                switch(server.status) {
+                    case 'compromised': return 'Contener Amenaza';
+                    case 'warning': return 'Analizar Problema';
+                    default: return 'Verificar Estado';
+                }
+            }
+
+            function getServerButtonColor(server) {
+                switch(server.status) {
+                    case 'compromised': return 'var(--color-alert)';
+                    case 'warning': return 'var(--color-warning)';
+                    default: return 'var(--color-secondary)';
+                }
+            }
+
+            function updateUI() {
+                document.getElementById('score').textContent = gameState.score;
+            }
+
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = message;
+                document.getElementById('cyber-logs').appendChild(logEntry);
+                document.getElementById('cyber-logs').scrollTop = document.getElementById('cyber-logs').scrollHeight;
+            }
+
+            function formatTime() {
+                const hours = Math.floor(gameState.time / 60) + 10;
+                const mins = gameState.time % 60;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            }
+
+            function resolveThreat(threatId) {
+                const threat = gameState.threats.find(t => t.id === threatId);
+                if (threat) {
+                    // Encontrar el servidor afectado
+                    const server = gameState.servers.find(s => s.id === threat.target);
+                    if (server) {
+                        // Eliminar la amenaza del servidor
+                        server.threats = server.threats.filter(t => t !== threat.type);
+                        
+                        // Si no hay más amenazas, cambiar estado
+                        if (server.threats.length === 0) {
+                            server.status = 'secure';
+                        }
+                        
+                        // Eliminar la amenaza global
+                        gameState.threats = gameState.threats.filter(t => t.id !== threatId);
+                        
+                        // Actualizar puntuación
+                        gameState.score += threat.severity === 'high' ? 50 : 
+                                          threat.severity === 'medium' ? 30 : 20;
+                        
+                        // Actualizar UI
+                        updateServerDisplay(server);
+                        document.querySelector(`[data-threat-id="${threatId}"]`).remove();
+                        addLog(`[${formatTime()}] Amenaza contenida: ${threat.type} en ${server.name}`);
+                        updateUI();
+                        
+                        // Generar nueva amenaza después de un tiempo
+                        setTimeout(generateThreat, 5000 + Math.random() * 10000);
+                    }
+                }
+            }
+
+            function generateThreat() {
+                const threatTypes = [
+                    { type: "Ataque DDoS", severity: "high" },
+                    { type: "Intrusión", severity: "high" },
+                    { type: "Phishing", severity: "medium" },
+                    { type: "Malware", severity: "medium" },
+                    { type: "Spam", severity: "low" }
+                ];
+                
+                const serverIds = gameState.servers.map(s => s.id);
+                const randomServerId = serverIds[Math.floor(Math.random() * serverIds.length)];
+                const randomThreat = threatTypes[Math.floor(Math.random() * threatTypes.length)];
+                
+                const newThreat = {
+                    id: gameState.threats.length + 1,
+                    ...randomThreat,
+                    target: randomServerId
+                };
+                
+                gameState.threats.push(newThreat);
+                
+                // Actualizar servidor
+                const server = gameState.servers.find(s => s.id === randomServerId);
+                if (server) {
+                    server.threats.push(newThreat.type);
+                    server.status = randomThreat.severity === 'high' ? 'compromised' : 'warning';
+                    updateServerDisplay(server);
+                }
+                
+                // Añadir alerta
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert';
+                alertDiv.dataset.threatId = newThreat.id;
+                alertDiv.innerHTML = `
+                    <p style="margin: 0;">${newThreat.type} en ${getServerName(newThreat.target)}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px;">Severidad: ${newThreat.severity === 'high' ? 'Alta' : newThreat.severity === 'medium' ? 'Media' : 'Baja'}</p>
+                    <button class="btn btn-danger resolve-threat" style="margin-top: 8px; padding: 5px 10px; font-size: 12px;">Contener Amenaza</button>
+                `;
+                
+                document.getElementById('alerts-list').appendChild(alertDiv);
+                alertDiv.querySelector('.resolve-threat').addEventListener('click', () => resolveThreat(newThreat.id));
+                
+                addLog(`[${formatTime()}] Alerta: ${newThreat.type} detectado en ${getServerName(newThreat.target)}`);
+            }
+
+            function updateServerDisplay(server) {
+                const serverNode = document.querySelector(`[data-server-id="${server.id}"]`);
+                if (serverNode) {
+                    serverNode.style.background = getServerBackground(server);
+                    serverNode.style.borderColor = getServerBorder(server);
+                    
+                    const title = serverNode.querySelector('h3');
+                    if (title) title.style.color = getServerColor(server);
+                    
+                    const statusText = serverNode.querySelector('p');
+                    if (statusText) {
+                        statusText.textContent = getServerStatusText(server);
+                        statusText.style.color = getServerColor(server);
+                    }
+                    
+                    const button = serverNode.querySelector('button');
+                    if (button) {
+                        button.textContent = getServerButtonText(server);
+                        button.style.background = getServerButtonColor(server);
+                    }
+                }
+            }
+
+            // Configurar eventos
+            document.querySelectorAll('.server-action-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const serverId = parseInt(this.closest('.server-node').dataset.serverId);
+                    const server = gameState.servers.find(s => s.id === serverId);
+                    
+                    if (server) {
+                        if (server.status === 'secure') {
+                            addLog(`[${formatTime()}] Verificando estado de ${server.name} - Todo seguro`);
+                        } else {
+                            addLog(`[${formatTime()}] Iniciando acciones en ${server.name}`);
+                        }
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.resolve-threat').forEach(button => {
+                button.addEventListener('click', function() {
+                    const threatId = parseInt(this.closest('.alert').dataset.threatId);
+                    resolveThreat(threatId);
+                });
+            });
+            
+            document.querySelectorAll('.cyber-tool').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tool = this.dataset.tool;
+                    addLog(`[${formatTime()}] Herramienta utilizada: ${this.textContent}`);
+                    
+                    // Efecto de herramienta
+                    if (tool === 'scan') {
+                        gameState.score += 5;
+                    } else if (tool === 'firewall') {
+                        // Reducir probabilidad de nuevas amenazas temporalmente
+                    }
+                    
+                    updateUI();
+                });
+            });
+            
+            document.getElementById('return-btn').addEventListener('click', () => {
+                const result = {
+                    score: gameState.score,
+                    timePlayed: gameState.time,
+                    details: {
+                        threatsResolved: gameState.threats.length,
+                        serversSecured: gameState.servers.filter(s => s.status === 'secure').length
+                    }
+                };
+                
+                saveGameResult(result);
+                returnToMenu();
+            });
+
+            // Iniciar bucle del juego
+            gameInterval = setInterval(() => {
+                gameState.time++;
+                
+                // Aumentar puntuación por tiempo sobrevivido
+                if (gameState.time % 10 === 0) {
+                    gameState.score += 5;
+                    updateUI();
+                }
+                
+                // Generar nuevas amenazas aleatoriamente
+                if (Math.random() < 0.1) {
+                    generateThreat();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
