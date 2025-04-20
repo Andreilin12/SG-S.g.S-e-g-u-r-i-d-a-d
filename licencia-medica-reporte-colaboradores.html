@@ -309,6 +309,7 @@
         
         .report-section {
             margin-bottom: 1.5rem;
+            position: relative;
         }
         
         .report-section-title {
@@ -640,6 +641,7 @@
         let allReports = [];
         let currentUser = null;
         let countMode = 'all'; // all, business, noSundays
+        let currentReportData = null;
 
         // Plantillas de texto para reportes
         const reportTemplates = [
@@ -648,7 +650,7 @@
                 template: (data) => `
                     A quien corresponda:
 
-                    Por medio del presente se informa que el colaborador ${data.employeeName}, 
+                    Por medio del presente se informa que el colaborador/a ${data.employeeName}, 
                     identificado con código ${data.employeeCode}, quien desempeña el cargo de 
                     ${data.position} en el área de ${data.department}, se encuentra en 
                     licencia médica desde el ${new Date(data.startDate).toLocaleDateString()} 
@@ -670,7 +672,7 @@
                 template: (data) => `
                     REPORTE MÉDICO - LICENCIA LABORAL
 
-                    Colaborador: ${data.employeeName} (${data.employeeCode})
+                    Colaborador/a: ${data.employeeName} (${data.employeeCode})
                     Cargo: ${data.position}
                     Departamento: ${data.department}
                     Período: ${new Date(data.startDate).toLocaleDateString()} al ${new Date(data.endDate).toLocaleDateString()}
@@ -902,6 +904,9 @@
                 const modalTitle = document.getElementById('modalTitle');
                 const modalBody = document.getElementById('modalBody');
                 
+                // Guardar datos del reporte actual
+                currentReportData = reportData;
+                
                 // Configurar título del modal
                 modalTitle.textContent = `Reporte Médico - ${reportData.employeeName}`;
                 
@@ -921,12 +926,14 @@
                 
                 templateSelectorHTML += `</div>`;
                 
-                // Crear contenido del reporte
-                modalBody.innerHTML = `
-                    ${templateSelectorHTML}
+                // Crear contenedor para el texto del reporte con el botón de copiar
+                const reportTextHTML = `
                     <div class="report-section">
-                        <div class="report-text" id="reportText">
-                            ${reportTemplates[0].template(reportData)}
+                        ${templateSelectorHTML}
+                        <div class="report-text-container" style="position: relative;">
+                            <div class="report-text" id="reportText">
+                                ${reportTemplates[0].template(reportData)}
+                            </div>
                             <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
                                 <i class="fas fa-copy"></i>
                             </button>
@@ -934,13 +941,31 @@
                     </div>
                 `;
                 
+                // Crear contenido del modal
+                modalBody.innerHTML = reportTextHTML;
+                
                 // Configurar eventos para cambiar plantillas
                 document.querySelectorAll('.template-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const templateIndex = parseInt(btn.dataset.template);
                         document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
-                        document.getElementById('reportText').textContent = reportTemplates[templateIndex].template(reportData);
+                        
+                        // Actualizar el contenido del reporte manteniendo el botón de copiar
+                        const reportTextContainer = document.querySelector('.report-text-container');
+                        reportTextContainer.innerHTML = `
+                            <div class="report-text" id="reportText">
+                                ${reportTemplates[templateIndex].template(currentReportData)}
+                            </div>
+                            <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        `;
+                        
+                        // Reasignar el evento de copiar
+                        document.getElementById('copyReportBtn').addEventListener('click', () => {
+                            copyToClipboard(document.getElementById('reportText').textContent);
+                        });
                     });
                 });
                 
@@ -1108,12 +1133,22 @@
                 
                 // Si hay un modal abierto, actualizarlo
                 if (document.getElementById('reportModal').style.display === 'flex') {
-                    const currentReportId = document.querySelector('.report-card.active')?.dataset.id;
-                    if (currentReportId) {
-                        const currentReport = allReports.find(r => r.id === currentReportId);
-                        if (currentReport) {
-                            openReportModal(currentReportId, currentReport);
-                        }
+                    const activeTemplateIndex = document.querySelector('.template-btn.active')?.dataset.template;
+                    if (currentReportData && activeTemplateIndex !== undefined) {
+                        const reportTextContainer = document.querySelector('.report-text-container');
+                        reportTextContainer.innerHTML = `
+                            <div class="report-text" id="reportText">
+                                ${reportTemplates[activeTemplateIndex].template(currentReportData)}
+                            </div>
+                            <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        `;
+                        
+                        // Reasignar el evento de copiar
+                        document.getElementById('copyReportBtn').addEventListener('click', () => {
+                            copyToClipboard(document.getElementById('reportText').textContent);
+                        });
                     }
                 }
             }
