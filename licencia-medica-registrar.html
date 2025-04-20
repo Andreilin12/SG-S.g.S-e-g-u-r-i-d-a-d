@@ -830,6 +830,14 @@
                     throw new Error('No hay usuario autenticado');
                 }
 
+                // Obtener el nombre del usuario actual desde la colección "users"
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if (!userDoc.exists) {
+                    throw new Error('No se encontró información del usuario');
+                }
+                
+                const userName = userDoc.data().name || 'Usuario no identificado';
+                
                 // Calcular días de licencia
                 const businessDays = calculateBusinessDays(startDate, endDate);
                 
@@ -852,7 +860,7 @@
                     doctorPhone: document.getElementById('doctorPhone').value || null,
                     medicalCenter: document.getElementById('medicalCenter').value || null,
                     observations: document.getElementById('observations').value || null,
-                    registeredBy: user.displayName || 'Usuario no identificado',
+                    registeredBy: userName, // Usamos el nombre del usuario
                     registeredEmail: user.email,
                     registerDate: new Date().toISOString(),
                     status: 'active', // Por defecto se marca como activa
