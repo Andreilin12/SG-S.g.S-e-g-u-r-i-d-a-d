@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Licencias Médicas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #15a086;
+            --secondary: #15a086;
+            --accent: #15a086;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #15a086;
+            --warning: #15a086;
+            --error: #ef233c;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+
+        /* Estilos para el buscador */
+        .search-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+            padding-left: 3rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Configuración de cálculo */
+        .config-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .config-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .config-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .config-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-option input {
+            cursor: pointer;
+        }
+
+        .config-option label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        /* Estilos de reportes */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .report-id {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .report-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .report-detail i {
+            color: var(--accent);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .report-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        
+        .status-active {
+            background: rgba(21, 160, 134, 0.2);
+            color: var(--accent);
+        }
+        
+        .status-inactive {
+            background: rgba(239, 35, 60, 0.2);
+            color: var(--error);
+        }
+        
+        /* Modal futurista */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: modalFadeIn 0.4s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .modal-title i {
+            color: var(--accent);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .medical-report {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .report-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-section-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .report-section-title i {
+            font-size: 1.2rem;
+        }
+        
+        .report-field {
+            margin-bottom: 1rem;
+        }
+        
+        .report-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.3rem;
+        }
+        
+        .report-value {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .report-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            white-space: pre-line;
+            position: relative;
+        }
+        
+        .template-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .template-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .template-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .template-btn.active {
+            background: var(--accent);
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #11866f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(21, 160, 134, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Estilos para el botón de copiar en el modal */
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .copy-btn i {
+            font-size: 1rem;
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .print-content, .print-content * {
+                visibility: visible;
+            }
+            
+            .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .report-text {
+                background: white !important;
+                border-left: 3px solid #15a086 !important;
+                color: black !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .template-selector {
+                flex-wrap: wrap;
+            }
+
+            .config-options {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-medical-alt"></i> Reportes de Licencias Médicas</h1>
+        
+        <!-- Configuración de cálculo -->
+        <div class="config-section">
+            <div class="config-title">
+                <i class="fas fa-calculator"></i>
+                <span>Configuración de Cálculo de Días</span>
+            </div>
+            <div class="config-options">
+                <div class="config-option">
+                    <input type="radio" id="countAllDays" name="countMode" value="all" checked>
+                    <label for="countAllDays">Contar todos los días (incluyendo fines de semana)</label>
+                </div>
+                <div class="config-option">
+                    <input type="radio" id="countBusinessDays" name="countMode" value="business">
+                    <label for="countBusinessDays">Contar solo días hábiles (lunes a viernes)</label>
+                </div>
+                <div class="config-option">
+                    <input type="radio" id="countWithoutSundays" name="countMode" value="noSundays">
+                    <label for="countWithoutSundays">Contar sin domingos (sábados incluidos)</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barra de búsqueda -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar licencias...">
+        </div>
+        
+        <div class="reports-grid" id="reportsGrid">
+            <!-- Los reportes se cargarán aquí dinámicamente -->
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>No hay licencias médicas registradas</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para ver detalles -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-medical"></i> <span id="modalTitle">Reporte Médico</span></h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido del reporte se cargará aquí -->
+            </div>
+            <div class="modal-footer no-print">
+                <button class="btn btn-primary" id="printReport"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn btn-secondary" id="closeModal"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenido para imprimir (oculto) -->
+    <div id="printContent" class="print-content" style="display: none;"></div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Notificación de copiado exitoso -->
+    <div class="copy-success" id="copySuccess">¡Copiado al portapapeles!</div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Referencias a colecciones
+        const medicalLicensesRef = db.collection("LicenciasMedicas");
+        const userConfigRef = db.collection("UserConfig");
+
+        // Variables globales
+        let allReports = [];
+        let currentUser = null;
+        let countMode = 'all'; // all, business, noSundays
+
+        // Plantillas de texto para reportes
+        const reportTemplates = [
+            {
+                name: "Formal",
+                template: (data) => `
+                    A quien corresponda:
+
+                    Por medio del presente se informa que el colaborador ${data.employeeName}, 
+                    identificado con código ${data.employeeCode}, quien desempeña el cargo de 
+                    ${data.position} en el área de ${data.department}, se encuentra en 
+                    licencia médica desde el ${new Date(data.startDate).toLocaleDateString()} 
+                    hasta el ${new Date(data.endDate).toLocaleDateString()}, por un total de 
+                    ${calculateDays(data.startDate, data.endDate)} días ${getDaysLabel()}.
+
+                    Diagnóstico: ${data.diagnosis}
+                    Tratamiento indicado: ${data.treatment || 'No especificado'}
+
+                    El médico tratante es el Dr./Dra. ${data.doctorName} y se adjunta la 
+                    documentación médica correspondiente que respalda esta licencia.
+
+                    Atentamente,
+                    ${data.registeredBy || 'El departamento de Recursos Humanos'}
+                `
+            },
+            {
+                name: "Resumido",
+                template: (data) => `
+                    REPORTE MÉDICO - LICENCIA LABORAL
+
+                    Colaborador: ${data.employeeName} (${data.employeeCode})
+                    Cargo: ${data.position}
+                    Departamento: ${data.department}
+                    Período: ${new Date(data.startDate).toLocaleDateString()} al ${new Date(data.endDate).toLocaleDateString()}
+                    Días ${getDaysLabel()}: ${calculateDays(data.startDate, data.endDate)}
+
+                    MOTIVO:
+                    ${data.diagnosis}
+
+                    TRATAMIENTO:
+                    ${data.treatment || 'No especificado'}
+
+                    MÉDICO TRATANTE:
+                    ${data.doctorName}
+
+                    Registrado por: ${data.registeredBy || 'RRHH'}
+                    Fecha: ${new Date(data.registerDate).toLocaleDateString()}
+                `
+            },
+            {
+                name: "Detallado",
+                template: (data) => `
+                    INFORME MÉDICO LABORAL
+
+                    1. DATOS DEL COLABORADOR:
+                    - Nombre completo: ${data.employeeName}
+                    - Código de empleado: ${data.employeeCode}
+                    - Cargo: ${data.position}
+                    - Departamento: ${data.department}
+                    - Fecha de registro: ${new Date(data.registerDate).toLocaleDateString()}
+
+                    2. DATOS DE LA LICENCIA:
+                    - Tipo: ${data.licenseType === 'otro' ? data.otherType : data.licenseType}
+                    - Fecha de inicio: ${new Date(data.startDate).toLocaleDateString()}
+                    - Fecha de término: ${new Date(data.endDate).toLocaleDateString()}
+                    - Días ${getDaysLabel()}: ${calculateDays(data.startDate, data.endDate)}
+                    - Estado: ${data.status === 'active' ? 'Activa' : 'Finalizada'}
+
+                    3. DIAGNÓSTICO MÉDICO:
+                    ${data.diagnosis}
+
+                    4. TRATAMIENTO INDICADO:
+                    ${data.treatment || 'No se especificó tratamiento'}
+
+                    5. MÉDICO TRATANTE:
+                    - Nombre: ${data.doctorName}
+                    ${data.medicalCenter ? `- Centro médico: ${data.medicalCenter}` : ''}
+                    ${data.doctorPhone ? `- Teléfono: ${data.doctorPhone}` : ''}
+
+                    6. OBSERVACIONES:
+                    ${data.observations || 'Ninguna'}
+
+                    Este documento ha sido generado por ${data.registeredBy || 'el sistema'} 
+                    el ${new Date().toLocaleDateString()}.
+                `
+            }
+        ];
+
+        // Función para calcular días según la configuración
+        function calculateDays(startDateStr, endDateStr) {
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            
+            // Ajustar fechas para que sean a medianoche
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(0, 0, 0, 0);
+            
+            // Calcular diferencia en milisegundos
+            const diffTime = endDate - startDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 para incluir el día inicial
+            
+            if (countMode === 'all') {
+                return diffDays;
+            }
+            
+            // Calcular días hábiles
+            let businessDays = 0;
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.getDay();
+                
+                if (countMode === 'business') {
+                    // Solo lunes a viernes
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                        businessDays++;
+                    }
+                } else if (countMode === 'noSundays') {
+                    // Todos los días excepto domingos
+                    if (dayOfWeek !== 0) {
+                        businessDays++;
+                    }
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return businessDays;
+        }
+
+        // Obtener etiqueta para los días según configuración
+        function getDaysLabel() {
+            switch(countMode) {
+                case 'business': return 'hábiles';
+                case 'noSundays': return 'sin domingos';
+                default: return '';
+            }
+        }
+
+        // Cargar configuración del usuario
+        async function loadUserConfig() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await userConfigRef.doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const config = doc.data();
+                    countMode = config.countMode || 'all';
+                    
+                    // Actualizar UI
+                    document.getElementById(`count${countMode.charAt(0).toUpperCase() + countMode.slice(1)}`).checked = true;
+                }
+            } catch (error) {
+                console.error("Error al cargar configuración:", error);
+            }
+        }
+
+        // Guardar configuración del usuario
+        async function saveUserConfig() {
+            if (!currentUser) return;
+            
+            try {
+                await userConfigRef.doc(currentUser.uid).set({
+                    countMode: countMode,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error al guardar configuración:", error);
+            }
+        }
+
+        // Cargar reportes desde Firestore
+        async function loadReports() {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                const reportsGrid = document.getElementById('reportsGrid');
+                reportsGrid.innerHTML = '';
+                
+                const querySnapshot = await medicalLicensesRef.orderBy('createdAt', 'desc').get();
+                
+                if (querySnapshot.empty) {
+                    reportsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No se encontraron licencias médicas</p>
+                        </div>
+                    `;
+                    allReports = [];
+                    return;
+                }
+                
+                allReports = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    allReports.push(data);
+                    renderReportCard(data);
+                });
+                
+            } catch (error) {
+                console.error("Error al cargar reportes:", error);
+                alert('No se pudieron cargar los reportes');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Renderizar tarjeta de reporte
+        function renderReportCard(data) {
+            const reportsGrid = document.getElementById('reportsGrid');
+            const today = new Date();
+            const endDate = new Date(data.endDate);
+            const isActive = data.status === 'active' && today <= endDate;
+            
+            const reportCard = document.createElement('div');
+            reportCard.className = 'report-card';
+            reportCard.dataset.id = data.id;
+            
+            reportCard.innerHTML = `
+                <div class="report-id">ID: ${data.employeeCode}</div>
+                <div class="report-name">${data.employeeName}</div>
+                <div class="report-details">
+                    <div class="report-detail">
+                        <i class="fas fa-briefcase"></i>
+                        <span>${data.position}</span>
+                    </div>
+                    <div class="report-detail">
+                        <i class="fas fa-building"></i>
+                        <span>${data.department}</span>
+                    </div>
+                    <div class="report-detail">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>${new Date(data.startDate).toLocaleDateString()} - ${new Date(data.endDate).toLocaleDateString()}</span>
+                    </div>
+                    <div class="report-detail">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>${calculateDays(data.startDate, data.endDate)} días ${getDaysLabel()}</span>
+                    </div>
+                </div>
+                <div class="report-status ${isActive ? 'status-active' : 'status-inactive'}">
+                    ${isActive ? 'Activa' : 'Finalizada'}
+                </div>
+            `;
+            
+            reportCard.addEventListener('click', () => openReportModal(data.id, data));
+            
+            // Si es el primer reporte, eliminar el estado vacío
+            if (document.querySelector('.empty-state')) {
+                document.querySelector('.empty-state').remove();
+            }
+            
+            reportsGrid.appendChild(reportCard);
+        }
+        
+        // Abrir modal con detalles del reporte
+        async function openReportModal(reportId, reportData) {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                const modal = document.getElementById('reportModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+                
+                // Configurar título del modal
+                modalTitle.textContent = `Reporte Médico - ${reportData.employeeName}`;
+                
+                // Crear selector de plantillas
+                let templateSelectorHTML = `
+                    <div class="template-selector">
+                        <div class="report-section-title"><i class="fas fa-file-alt"></i> Plantillas de Reporte</div>
+                `;
+                
+                reportTemplates.forEach((template, index) => {
+                    templateSelectorHTML += `
+                        <button class="template-btn ${index === 0 ? 'active' : ''}" data-template="${index}">
+                            ${template.name}
+                        </button>
+                    `;
+                });
+                
+                templateSelectorHTML += `</div>`;
+                
+                // Crear contenido del reporte
+                modalBody.innerHTML = `
+                    ${templateSelectorHTML}
+                    <div class="report-section">
+                        <div class="report-text" id="reportText">
+                            ${reportTemplates[0].template(reportData)}
+                            <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Configurar eventos para cambiar plantillas
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const templateIndex = parseInt(btn.dataset.template);
+                        document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById('reportText').textContent = reportTemplates[templateIndex].template(reportData);
+                    });
+                });
+                
+                // Configurar evento para copiar contenido
+                document.getElementById('copyReportBtn').addEventListener('click', () => {
+                    copyToClipboard(document.getElementById('reportText').textContent);
+                });
+                
+                // Preparar contenido para imprimir
+                const printContent = document.getElementById('printContent');
+                printContent.innerHTML = `
+                    <h2 style="text-align: center; margin-bottom: 1.5rem; color: #15a086;">Reporte Médico</h2>
+                    <div style="font-size: 1rem; line-height: 1.6; white-space: pre-line; border-left: 3px solid #15a086; padding-left: 15px;">
+                        ${reportTemplates[0].template(reportData)}
+                    </div>
+                    <div style="margin-top: 2rem; text-align: right; font-size: 0.9rem;">
+                        Generado el ${new Date().toLocaleDateString()}
+                    </div>
+                `;
+                
+                // Mostrar modal
+                modal.style.display = 'flex';
+                
+            } catch (error) {
+                console.error("Error al abrir reporte:", error);
+                alert('No se pudo cargar el reporte');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Imprimir reporte
+        function printReport() {
+            const printContent = document.getElementById('printContent');
+            printContent.style.display = 'block';
+            
+            // Clonar el contenido para evitar problemas con la impresión
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Reporte Médico - Impresión</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            color: #333;
+                        }
+                        h2 {
+                            text-align: center;
+                            color: #15a086;
+                        }
+                        .report-text {
+                            font-size: 1rem;
+                            line-height: 1.6;
+                            white-space: pre-line;
+                            border-left: 3px solid #15a086;
+                            padding-left: 15px;
+                        }
+                        .footer {
+                            margin-top: 2rem;
+                            text-align: right;
+                            font-size: 0.9rem;
+                        }
+                        @page {
+                            size: A4;
+                            margin: 10mm;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+            printContent.style.display = 'none';
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+
+        // Función para copiar texto al portapapeles
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showCopySuccess();
+                })
+                .catch(err => {
+                    console.error('Error al copiar: ', err);
+                    // Fallback para navegadores que no soportan navigator.clipboard
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showCopySuccess();
+                });
+        }
+
+        // Mostrar mensaje de éxito al copiar
+        function showCopySuccess() {
+            const copySuccess = document.getElementById('copySuccess');
+            copySuccess.style.display = 'block';
+            setTimeout(() => {
+                copySuccess.style.display = 'none';
+            }, 2000);
+        }
+
+        // Filtrar reportes por búsqueda
+        function filterReports(searchTerm) {
+            const reportsGrid = document.getElementById('reportsGrid');
+            reportsGrid.innerHTML = '';
+            
+            if (searchTerm.trim() === '') {
+                allReports.forEach(report => renderReportCard(report));
+                return;
+            }
+            
+            const filteredReports = allReports.filter(report => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                    report.employeeName.toLowerCase().includes(searchLower) ||
+                    report.employeeCode.toLowerCase().includes(searchLower) ||
+                    report.position.toLowerCase().includes(searchLower) ||
+                    report.department.toLowerCase().includes(searchLower) ||
+                    report.diagnosis.toLowerCase().includes(searchLower) ||
+                    report.doctorName.toLowerCase().includes(searchLower)
+                );
+            });
+            
+            if (filteredReports.length === 0) {
+                reportsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>No se encontraron resultados para "${searchTerm}"</p>
+                    </div>
+                `;
+            } else {
+                filteredReports.forEach(report => renderReportCard(report));
+            }
+        }
+
+        // Actualizar cálculo de días cuando cambia la configuración
+        function updateCalculationMode() {
+            const selectedMode = document.querySelector('input[name="countMode"]:checked').value;
+            if (selectedMode !== countMode) {
+                countMode = selectedMode;
+                saveUserConfig();
+                
+                // Recargar reportes para actualizar los cálculos
+                if (allReports.length > 0) {
+                    const reportsGrid = document.getElementById('reportsGrid');
+                    reportsGrid.innerHTML = '';
+                    allReports.forEach(report => renderReportCard(report));
+                }
+                
+                // Si hay un modal abierto, actualizarlo
+                if (document.getElementById('reportModal').style.display === 'flex') {
+                    const currentReportId = document.querySelector('.report-card.active')?.dataset.id;
+                    if (currentReportId) {
+                        const currentReport = allReports.find(r => r.id === currentReportId);
+                        if (currentReport) {
+                            openReportModal(currentReportId, currentReport);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('printReport').addEventListener('click', printReport);
+        
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterReports(e.target.value);
+        });
+        
+        // Configuración de cálculo
+        document.querySelectorAll('input[name="countMode"]').forEach(radio => {
+            radio.addEventListener('change', updateCalculationMode);
+        });
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('reportModal')) {
+                closeModal();
+            }
+        });
+        
+        // Escuchar cambios de autenticación
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Redirigir a login si no hay usuario autenticado
+                window.location.href = 'login.html';
+            } else {
+                currentUser = user;
+                // Cargar configuración y luego los reportes
+                loadUserConfig().then(() => {
+                    loadReports();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
