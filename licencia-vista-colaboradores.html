@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Licencias Médicas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #15a086;
+            --secondary: #15a086;
+            --accent: #15a086;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #15a086;
+            --warning: #15a086;
+            --error: #ef233c;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        /* Estilos de alertas */
+        .alert {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: max-content;
+            animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 4s forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-success {
+            background: rgba(76, 201, 240, 0.15);
+            border-left: 4px solid var(--success);
+            color: var(--light);
+        }
+        
+        .alert-error {
+            background: rgba(239, 35, 60, 0.15);
+            border-left: 4px solid var(--error);
+            color: var(--light);
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        .alert-success .alert-icon {
+            color: var(--success);
+        }
+        
+        .alert-error .alert-icon {
+            color: var(--error);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -100%); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        /* Estilos de reportes */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .report-id {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .report-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .report-detail i {
+            color: var(--accent);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .report-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        
+        .status-active {
+            background: rgba(21, 160, 134, 0.2);
+            color: var(--accent);
+        }
+        
+        .status-inactive {
+            background: rgba(239, 35, 60, 0.2);
+            color: var(--error);
+        }
+        
+        /* Modal futurista */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: modalFadeIn 0.4s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .modal-title i {
+            color: var(--accent);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .medical-report {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .report-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-section-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .report-section-title i {
+            font-size: 1.2rem;
+        }
+        
+        .report-field {
+            margin-bottom: 1rem;
+        }
+        
+        .report-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.3rem;
+        }
+        
+        .report-value {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .report-documents {
+            grid-column: span 2;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s;
+        }
+        
+        .document-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .document-icon {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .document-name {
+            flex: 1;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .document-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .document-btn:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+        
+        .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #11866f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(21, 160, 134, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.2);
+        }
+        
+        .search-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-btn:hover {
+            background: #11866f;
+        }
+        
+        .filters {
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-group {
+            flex: 1;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .filter-select, .filter-date {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .filter-select:focus, .filter-date:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+        
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .print-content, .print-content * {
+                visibility: visible;
+            }
+            
+            .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .report-section-title {
+                color: black !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            
+            .report-value {
+                background: white !important;
+                border-left: 3px solid #15a086 !important;
+            }
+            
+            .image-preview {
+                max-width: 300px;
+                max-height: 300px;
+                border: 1px solid #ddd !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .medical-report {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-documents {
+                grid-column: span 1;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(72, 149, 239, 0),
+                rgba(72, 149, 239, 0.1),
+                rgba(72, 149, 239, 0)
+            );
+            transform: rotate(30deg);
+            animation: glow 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes glow {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container glow-effect">
+        <h1><i class="fas fa-file-medical-alt"></i> Reportes de Licencias Médicas</h1>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre o código...">
+            <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">Todos</option>
+                        <option value="active">Activas</option>
+                        <option value="inactive">Finalizadas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Desde</label>
+                    <input type="date" class="filter-date" id="dateFrom">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Hasta</label>
+                    <input type="date" class="filter-date" id="dateTo">
+                </div>
+            </div>
+        </div>
+        
+        <div class="reports-grid" id="reportsGrid">
+            <!-- Los reportes se cargarán aquí dinámicamente -->
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>No hay licencias médicas registradas</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para ver detalles -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-medical"></i> <span id="modalTitle">Licencia Médica</span></h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido del reporte se cargará aquí -->
+            </div>
+            <div class="modal-footer no-print">
+                <button class="btn btn-primary" id="printReport"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn btn-secondary" id="closeModal"><i class="fas fa-times"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenido para imprimir (oculto) -->
+    <div id="printContent" class="print-content" style="display: none;"></div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // Referencia a la colección de licencias médicas
+        const medicalLicensesRef = db.collection("LicenciasMedicas");
+
+        // Mostrar alerta
+        function showAlert(type, title, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${title}</div>
+                    <div class="alert-message">${message}</div>
+                </div>
+                <button class="alert-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Eliminar automáticamente después de 5 segundos
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Cargar reportes desde Firestore
+        async function loadReports() {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                const reportsGrid = document.getElementById('reportsGrid');
+                reportsGrid.innerHTML = '';
+                
+                // Obtener filtros
+                const statusFilter = document.getElementById('statusFilter').value;
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                // Construir consulta
+                let query = medicalLicensesRef.orderBy('createdAt', 'desc');
+                
+                // Aplicar filtro de estado
+                if (statusFilter === 'active') {
+                    query = query.where('status', '==', 'active');
+                } else if (statusFilter === 'inactive') {
+                    query = query.where('status', '==', 'inactive');
+                }
+                
+                // Aplicar filtro de fechas
+                if (dateFrom) {
+                    query = query.where('startDate', '>=', dateFrom);
+                }
+                if (dateTo) {
+                    query = query.where('endDate', '<=', dateTo);
+                }
+                
+                const querySnapshot = await query.get();
+                
+                if (querySnapshot.empty) {
+                    reportsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No se encontraron licencias médicas</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let hasResults = false;
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // Aplicar filtro de búsqueda
+                    const matchesSearch = searchTerm === '' || 
+                        data.employeeName.toLowerCase().includes(searchTerm) || 
+                        data.employeeCode.toLowerCase().includes(searchTerm);
+                    
+                    if (!matchesSearch) return;
+                    
+                    hasResults = true;
+                    
+                    // Determinar estado
+                    const today = new Date();
+                    const endDate = new Date(data.endDate);
+                    const isActive = data.status === 'active' && today <= endDate;
+                    
+                    const reportCard = document.createElement('div');
+                    reportCard.className = 'report-card';
+                    reportCard.dataset.id = doc.id;
+                    
+                    reportCard.innerHTML = `
+                        <div class="report-id">ID: ${data.employeeCode}</div>
+                        <div class="report-name">${data.employeeName}</div>
+                        <div class="report-details">
+                            <div class="report-detail">
+                                <i class="fas fa-briefcase"></i>
+                                <span>${data.position}</span>
+                            </div>
+                            <div class="report-detail">
+                                <i class="fas fa-building"></i>
+                                <span>${data.department}</span>
+                            </div>
+                            <div class="report-detail">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${new Date(data.startDate).toLocaleDateString()} - ${new Date(data.endDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="report-status ${isActive ? 'status-active' : 'status-inactive'}">
+                            ${isActive ? 'Activa' : 'Finalizada'}
+                        </div>
+                    `;
+                    
+                    reportCard.addEventListener('click', () => openReportModal(doc.id, data));
+                    reportsGrid.appendChild(reportCard);
+                });
+                
+                if (!hasResults) {
+                    reportsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <p>No se encontraron resultados para tu búsqueda</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error("Error al cargar reportes:", error);
+                showAlert('error', 'Error', 'No se pudieron cargar los reportes');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Abrir modal con detalles del reporte
+        async function openReportModal(reportId, reportData) {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                const modal = document.getElementById('reportModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+                
+                // Configurar título del modal
+                modalTitle.textContent = `Licencia Médica - ${reportData.employeeName}`;
+                
+                // Formatear fechas
+                const startDate = new Date(reportData.startDate).toLocaleDateString();
+                const endDate = new Date(reportData.endDate).toLocaleDateString();
+                const registerDate = new Date(reportData.registerDate).toLocaleString();
+                
+                // Separar documentos en imágenes y otros archivos
+                let imagesHTML = '';
+                let otherDocsHTML = '';
+                
+                if (reportData.documents && reportData.documents.length > 0) {
+                    reportData.documents.forEach(doc => {
+                        if (doc.type.includes('image')) {
+                            imagesHTML += `
+                                <div class="image-preview-container">
+                                    <img src="${doc.url}" alt="${doc.name}" class="image-preview">
+                                </div>
+                            `;
+                        } else {
+                            otherDocsHTML += `
+                                <div class="document-item">
+                                    <div class="document-icon">
+                                        ${doc.type.includes('pdf') ? '<i class="fas fa-file-pdf"></i>' : 
+                                          doc.type.includes('word') ? '<i class="fas fa-file-word"></i>' : 
+                                          '<i class="fas fa-file"></i>'}
+                                    </div>
+                                    <div class="document-name">${doc.name}</div>
+                                    <div class="document-actions">
+                                        <button class="document-btn" onclick="viewDocument('${doc.url}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="document-btn" onclick="downloadDocument('${doc.url}', '${doc.name}')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                } else {
+                    otherDocsHTML = '<p>No hay documentos adjuntos</p>';
+                }
+                
+                // Construir HTML del reporte
+                modalBody.innerHTML = `
+                    <div class="medical-report">
+                        <div class="report-section">
+                            <h4 class="report-section-title"><i class="fas fa-user"></i> Datos del Colaborador</h4>
+                            <div class="report-field">
+                                <div class="report-label">Código de Empleado</div>
+                                <div class="report-value">${reportData.employeeCode || 'N/A'}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Nombre Completo</div>
+                                <div class="report-value">${reportData.employeeName}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Sexo</div>
+                                <div class="report-value">${reportData.gender || 'N/A'}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Área/Departamento</div>
+                                <div class="report-value">${reportData.department}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Cargo</div>
+                                <div class="report-value">${reportData.position}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-section">
+                            <h4 class="report-section-title"><i class="fas fa-heartbeat"></i> Datos Médicos</h4>
+                            <div class="report-field">
+                                <div class="report-label">Tipo de Licencia</div>
+                                <div class="report-value">${reportData.licenseType === 'otro' ? reportData.otherType : reportData.licenseType}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Período</div>
+                                <div class="report-value">${startDate} - ${endDate} (${reportData.businessDays} días hábiles)</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Diagnóstico</div>
+                                <div class="report-value">${reportData.diagnosis}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Tratamiento</div>
+                                <div class="report-value">${reportData.treatment || 'N/A'}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Médico Tratante</div>
+                                <div class="report-value">${reportData.doctorName}</div>
+                            </div>
+                        </div>
+                        
+                        ${imagesHTML ? `
+                        <div class="report-section">
+                            <h4 class="report-section-title"><i class="fas fa-images"></i> Imágenes Adjuntas</h4>
+                            ${imagesHTML}
+                        </div>
+                        ` : ''}
+                        
+                        <div class="report-section report-documents">
+                            <h4 class="report-section-title"><i class="fas fa-file-upload"></i> Documentos Adjuntos</h4>
+                            ${otherDocsHTML}
+                        </div>
+                        
+                        <div class="report-section">
+                            <h4 class="report-section-title"><i class="fas fa-info-circle"></i> Información Adicional</h4>
+                            <div class="report-field">
+                                <div class="report-label">Observaciones</div>
+                                <div class="report-value">${reportData.observations || 'Ninguna'}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Registrado por</div>
+                                <div class="report-value">${reportData.registeredBy || 'N/A'}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Fecha de Registro</div>
+                                <div class="report-value">${registerDate}</div>
+                            </div>
+                            <div class="report-field">
+                                <div class="report-label">Estado</div>
+                                <div class="report-value">
+                                    <span class="report-status ${reportData.status === 'active' ? 'status-active' : 'status-inactive'}">
+                                        ${reportData.status === 'active' ? 'Activa' : 'Finalizada'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Preparar contenido para imprimir (sin botones ni iconos)
+                const printContent = document.getElementById('printContent');
+                printContent.innerHTML = `
+                    <h2 style="text-align: center; margin-bottom: 1.5rem;">Licencia Médica - ${reportData.employeeName}</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: #15a086; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;">Datos del Colaborador</h3>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Código de Empleado</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.employeeCode || 'N/A'}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Nombre Completo</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.employeeName}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Sexo</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.gender || 'N/A'}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Área/Departamento</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.department}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Cargo</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.position}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: #15a086; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;">Datos Médicos</h3>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Tipo de Licencia</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.licenseType === 'otro' ? reportData.otherType : reportData.licenseType}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Período</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${startDate} - ${endDate} (${reportData.businessDays} días hábiles)</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Diagnóstico</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.diagnosis}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Tratamiento</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.treatment || 'N/A'}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Médico Tratante</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.doctorName}</div>
+                            </div>
+                        </div>
+                        
+                        ${imagesHTML ? `
+                        <div style="grid-column: span 2; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: #15a086; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;">Imágenes Adjuntas</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                ${reportData.documents.filter(doc => doc.type.includes('image')).map(doc => `
+                                    <img src="${doc.url}" alt="${doc.name}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px;">
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="grid-column: span 2; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.1rem; color: #15a086; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd;">Información Adicional</h3>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Observaciones</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.observations || 'Ninguna'}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Registrado por</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${reportData.registeredBy || 'N/A'}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Fecha de Registro</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">${registerDate}</div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.3rem;">Estado</div>
+                                <div style="font-size: 1rem; font-weight: 500; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid #15a086;">
+                                    ${reportData.status === 'active' ? 'Activa' : 'Finalizada'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Mostrar modal
+                modal.style.display = 'flex';
+                
+            } catch (error) {
+                console.error("Error al abrir reporte:", error);
+                showAlert('error', 'Error', 'No se pudo cargar el reporte');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Ver documento en nueva pestaña
+        function viewDocument(url) {
+            window.open(url, '_blank');
+        }
+        
+        // Descargar documento
+        function downloadDocument(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Imprimir reporte
+        function printReport() {
+            const printContent = document.getElementById('printContent');
+            printContent.style.display = 'block';
+            
+            // Clonar el contenido para evitar problemas con la impresión
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Licencia Médica - Impresión</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            color: #333;
+                        }
+                        h2 {
+                            text-align: center;
+                            color: #15a086;
+                        }
+                        h3 {
+                            color: #15a086;
+                            border-bottom: 1px solid #ddd;
+                            padding-bottom: 5px;
+                        }
+                        .report-section {
+                            margin-bottom: 20px;
+                        }
+                        .report-field {
+                            margin-bottom: 15px;
+                        }
+                        .report-label {
+                            font-size: 0.85rem;
+                            color: #555;
+                            margin-bottom: 5px;
+                        }
+                        .report-value {
+                            font-size: 1rem;
+                            padding: 8px;
+                            background: #f9f9f9;
+                            border-radius: 4px;
+                            border-left: 3px solid #15a086;
+                        }
+                        .image-container {
+                            margin-top: 10px;
+                        }
+                        .image-container img {
+                            max-width: 100%;
+                            height: auto;
+                            border: 1px solid #ddd;
+                            margin-bottom: 10px;
+                        }
+                        @page {
+                            size: A4;
+                            margin: 10mm;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Esperar a que se carguen las imágenes antes de imprimir
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+                printContent.style.display = 'none';
+            }, 500);
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+        
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', loadReports);
+        document.getElementById('statusFilter').addEventListener('change', loadReports);
+        document.getElementById('dateFrom').addEventListener('change', loadReports);
+        document.getElementById('dateTo').addEventListener('change', loadReports);
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') loadReports();
+        });
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('printReport').addEventListener('click', printReport);
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('reportModal')) {
+                closeModal();
+            }
+        });
+        
+        // Escuchar cambios de autenticación
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Redirigir a login si no hay usuario autenticado
+                window.location.href = 'login.html';
+            } else {
+                // Cargar reportes cuando el usuario esté autenticado
+                loadReports();
+            }
+        });
+    </script>
+</body>
+</html>
