@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Licencias Médicas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #15a086;
+            --secondary: #15a086;
+            --accent: #15a086;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #15a086;
+            --warning: #15a086;
+            --error: #ef233c;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        /* Estilos de alertas */
+        .alert {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: max-content;
+            animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 4s forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-success {
+            background: rgba(76, 201, 240, 0.15);
+            border-left: 4px solid var(--success);
+            color: var(--light);
+        }
+        
+        .alert-error {
+            background: rgba(239, 35, 60, 0.15);
+            border-left: 4px solid var(--error);
+            color: var(--light);
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        .alert-success .alert-icon {
+            color: var(--success);
+        }
+        
+        .alert-error .alert-icon {
+            color: var(--error);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -100%); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        /* Estilos del formulario */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .required label::after {
+            content: ' *';
+            color: var(--warning);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .col {
+            flex: 1;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .radio-option input {
+            width: auto;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(72, 149, 239, 0.05);
+        }
+        
+        .file-upload i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .file-label {
+            font-weight: 500;
+            color: var(--accent);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .medical-section {
+            background: rgba(21, 160, 134, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .medical-section h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .alert {
+                width: 90%;
+                padding: 1rem;
+            }
+        }
+        
+        .glow-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(72, 149, 239, 0),
+                rgba(72, 149, 239, 0.1),
+                rgba(72, 149, 239, 0)
+            );
+            transform: rotate(30deg);
+            animation: glow 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes glow {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container glow-effect">
+        <h1><i class="fas fa-file-medical-alt"></i> Registro de Licencias Médicas</h1>
+        
+        <form id="licenseForm">
+            <div class="medical-section">
+                <h3><i class="fas fa-user"></i> Datos del Colaborador</h3>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Código del Empleado</label>
+                            <input type="text" id="employeeCode" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Nombre completo</label>
+                            <input type="text" id="employeeName" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Sexo</label>
+                            <select id="gender" required>
+                                <option value="">Seleccionar</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Área/Departamento</label>
+                            <input type="text" id="department" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Cargo</label>
+                            <input type="text" id="position" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Supervisor/Jefe directo</label>
+                            <input type="text" id="supervisor">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="medical-section">
+                <h3><i class="fas fa-heartbeat"></i> Datos de la Licencia Médica</h3>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Tipo de licencia</label>
+                            <select id="licenseType" required>
+                                <option value="">Seleccionar</option>
+                                <option value="enfermedad">Enfermedad común</option>
+                                <option value="accidente">Accidente laboral</option>
+                                <option value="maternidad">Maternidad/Paternidad</option>
+                                <option value="cronica">Enfermedad crónica</option>
+                                <option value="preventiva">Licencia preventiva</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group" id="otherTypeContainer" style="display: none;">
+                            <label>Especifique tipo de licencia</label>
+                            <input type="text" id="otherType">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Fecha de inicio</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Fecha de término</label>
+                            <input type="date" id="endDate" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group required">
+                    <label>Diagnóstico</label>
+                    <textarea id="diagnosis" required placeholder="Descripción del diagnóstico médico"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tratamiento indicado</label>
+                    <textarea id="treatment" placeholder="Medicamentos, reposo, terapias, etc."></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Médico tratante</label>
+                            <input type="text" id="doctorName" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Teléfono contacto médico</label>
+                            <input type="tel" id="doctorPhone">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Centro médico</label>
+                    <input type="text" id="medicalCenter">
+                </div>
+            </div>
+            
+            <div class="medical-section">
+                <h3><i class="fas fa-file-upload"></i> Documentación</h3>
+                
+                <div class="form-group">
+                    <label>Subir documentos (Licencia médica, certificados, etc.)</label>
+                    <div class="file-upload" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="file-label">Arrastra archivos aquí o haz clic para seleccionar</div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept="image/*,.pdf,.doc,.docx">
+                    </div>
+                    <div class="preview-container" id="documentPreview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Observaciones adicionales</label>
+                    <textarea id="observations" placeholder="Información adicional relevante"></textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Guardar Licencia
+            </button>
+        </form>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // Referencia a la colección de licencias médicas
+        const medicalLicensesRef = db.collection("LicenciasMedicas");
+
+        // Mostrar alerta
+        function showAlert(type, title, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${title}</div>
+                    <div class="alert-message">${message}</div>
+                </div>
+                <button class="alert-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Eliminar automáticamente después de 5 segundos
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Mostrar/ocultar campos condicionales
+        document.getElementById('licenseType').addEventListener('change', function() {
+            const otherContainer = document.getElementById('otherTypeContainer');
+            otherContainer.style.display = this.value === 'otro' ? 'block' : 'none';
+        });
+        
+        // Vista previa de documentos con arrastrar y soltar
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('documentPreview');
+        let filesToUpload = [];
+        
+        // Manejar clic en el área de carga
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        
+        // Manejar cambio de archivos seleccionados
+        fileInput.addEventListener('change', handleFiles);
+        
+        // Manejar arrastrar y soltar
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            fileUploadArea.style.borderColor = 'var(--accent)';
+            fileUploadArea.style.backgroundColor = 'rgba(21, 160, 134, 0.1)';
+        }
+        
+        function unhighlight() {
+            fileUploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            fileUploadArea.style.backgroundColor = '';
+        }
+        
+        fileUploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            handleFiles();
+        }
+        
+        function handleFiles() {
+            previewContainer.innerHTML = '';
+            filesToUpload = Array.from(fileInput.files);
+            
+            if (filesToUpload.length > 0) {
+                filesToUpload.forEach((file, index) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    const fileIcon = document.createElement('i');
+                    
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'preview-image';
+                            previewItem.appendChild(img);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Icono para documentos
+                        if (file.type.includes('pdf')) {
+                            fileIcon.className = 'fas fa-file-pdf';
+                            fileIcon.style.color = '#e74c3c';
+                        } else if (file.type.includes('word') || file.type.includes('document')) {
+                            fileIcon.className = 'fas fa-file-word';
+                            fileIcon.style.color = '#2c3e50';
+                        } else {
+                            fileIcon.className = 'fas fa-file';
+                            fileIcon.style.color = '#95a5a6';
+                        }
+                        
+                        fileIcon.style.fontSize = '3rem';
+                        fileIcon.style.margin = '20px auto';
+                        previewItem.appendChild(fileIcon);
+                        
+                        const fileName = document.createElement('div');
+                        fileName.textContent = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
+                        fileName.style.textAlign = 'center';
+                        fileName.style.fontSize = '0.8rem';
+                        fileName.style.color = 'white';
+                        previewItem.appendChild(fileName);
+                    }
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-image';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', () => removeFile(index));
+                    
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                });
+            }
+        }
+        
+        function removeFile(index) {
+            filesToUpload.splice(index, 1);
+            
+            // Actualizar el input file
+            const dataTransfer = new DataTransfer();
+            filesToUpload.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+            
+            handleFiles(); // Actualizar la vista previa
+        }
+        
+        // Subir documentos a Firebase Storage
+        async function uploadDocuments(userId) {
+            const documentUrls = [];
+            
+            if (filesToUpload.length === 0) return documentUrls;
+            
+            try {
+                for (const file of filesToUpload) {
+                    const storageRef = storage.ref(`medical_licenses/${userId}/${Date.now()}_${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    const downloadUrl = await snapshot.ref.getDownloadURL();
+                    documentUrls.push({
+                        url: downloadUrl,
+                        name: file.name,
+                        type: file.type
+                    });
+                }
+            } catch (error) {
+                console.error("Error al subir documentos:", error);
+                throw new Error("Error al subir los documentos. Por favor intente nuevamente.");
+            }
+            
+            return documentUrls;
+        }
+        
+        // Calcular días hábiles entre dos fechas (excluyendo fines de semana)
+        function calculateBusinessDays(startDate, endDate) {
+            let count = 0;
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            // Asegurarse de que las fechas sean válidas
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+            
+            // Asegurarse de que la fecha de inicio sea anterior a la de fin
+            if (start > end) return 0;
+            
+            const current = new Date(start);
+            while (current <= end) {
+                const day = current.getDay();
+                if (day !== 0 && day !== 6) { // No es sábado ni domingo
+                    count++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            
+            return count;
+        }
+        
+        // Enviar formulario
+        document.getElementById('licenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validar campos requeridos
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.style.borderColor = 'var(--warning)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+            
+            // Validar fechas
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                showAlert('error', 'Error de fechas', 'La fecha de inicio no puede ser posterior a la fecha de término');
+                document.getElementById('startDate').style.borderColor = 'var(--warning)';
+                document.getElementById('endDate').style.borderColor = 'var(--warning)';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'flex';
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Obtener usuario actual al momento de guardar
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('No hay usuario autenticado');
+                }
+
+                // Calcular días de licencia
+                const businessDays = calculateBusinessDays(startDate, endDate);
+                
+                // Obtener valores del formulario
+                const licenseData = {
+                    employeeCode: document.getElementById('employeeCode').value,
+                    employeeName: document.getElementById('employeeName').value,
+                    gender: document.getElementById('gender').value,
+                    department: document.getElementById('department').value,
+                    position: document.getElementById('position').value,
+                    supervisor: document.getElementById('supervisor').value || null,
+                    licenseType: document.getElementById('licenseType').value,
+                    otherType: document.getElementById('otherType').value || null,
+                    startDate: startDate,
+                    endDate: endDate,
+                    businessDays: businessDays,
+                    diagnosis: document.getElementById('diagnosis').value,
+                    treatment: document.getElementById('treatment').value || null,
+                    doctorName: document.getElementById('doctorName').value,
+                    doctorPhone: document.getElementById('doctorPhone').value || null,
+                    medicalCenter: document.getElementById('medicalCenter').value || null,
+                    observations: document.getElementById('observations').value || null,
+                    registeredBy: user.displayName || 'Usuario no identificado',
+                    registeredEmail: user.email,
+                    registerDate: new Date().toISOString(),
+                    status: 'active', // Por defecto se marca como activa
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    keywords: [
+                        document.getElementById('employeeCode').value.toLowerCase(),
+                        document.getElementById('employeeName').value.toLowerCase(),
+                        document.getElementById('department').value.toLowerCase()
+                    ].filter(Boolean)
+                };
+                
+                // Subir documentos si hay
+                const userId = user.uid;
+                licenseData.documents = await uploadDocuments(userId);
+                
+                // Guardar en Firestore
+                await medicalLicensesRef.add(licenseData);
+                
+                // Éxito
+                showAlert('success', 'Éxito', 'Licencia médica registrada correctamente');
+                this.reset();
+                previewContainer.innerHTML = '';
+                filesToUpload = [];
+                
+            } catch (error) {
+                console.error('Error al guardar la licencia:', error);
+                showAlert('error', 'Error', error.message || 'Ocurrió un error al registrar la licencia');
+            } finally {
+                // Ocultar loading
+                document.getElementById('loading').style.display = 'none';
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Escuchar cambios de autenticación
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                // Redirigir a login si no hay usuario autenticado
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
