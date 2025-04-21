@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
-            --dark: #1a1a2e;
+            --primary: #15a086;
+            --secondary: #15a086;
+            --accent: #15a086;
+            --dark: #2c3e50;
             --light: #f8f9fa;
-            --success: #4cc9f0;
+            --success: #15a086;
             --warning: #f72585;
             --error: #ef233c;
             --gray: #6c757d;
@@ -26,7 +26,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: #2c3e50;
             color: var(--light);
             min-height: 100vh;
             padding: 2rem;
@@ -91,7 +91,7 @@
         .search-bar input:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 0 0 3px rgba(21, 160, 134, 0.3);
         }
         
         .search-bar button {
@@ -107,12 +107,12 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 4px 15px rgba(21, 160, 134, 0.3);
         }
         
         .search-bar button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            box-shadow: 0 6px 20px rgba(21, 160, 134, 0.4);
         }
         
         .filters {
@@ -135,7 +135,7 @@
         
         .filter-btn.active {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 4px 15px rgba(21, 160, 134, 0.3);
         }
         
         .filter-btn:hover {
@@ -328,7 +328,7 @@
         
         .modal-header {
             padding: 1.5rem;
-            background: rgba(67, 97, 238, 0.1);
+            background: rgba(21, 160, 134, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
@@ -448,12 +448,12 @@
         .btn-primary {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 4px 15px rgba(21, 160, 134, 0.3);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            box-shadow: 0 6px 20px rgba(21, 160, 134, 0.4);
         }
         
         .btn-secondary {
@@ -466,14 +466,14 @@
         }
         
         .btn-print {
-            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            background: linear-gradient(135deg, #15a086, #4895ef);
             color: white;
-            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+            box-shadow: 0 4px 15px rgba(21, 160, 134, 0.3);
         }
         
         .btn-print:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+            box-shadow: 0 6px 20px rgba(21, 160, 134, 0.4);
         }
         
         .status-badge {
@@ -568,103 +568,10 @@
                 grid-template-columns: 1fr;
             }
         }
-        
-        .glow-effect {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .glow-effect::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(72, 149, 239, 0),
-                rgba(72, 149, 239, 0.1),
-                rgba(72, 149, 239, 0)
-            );
-            transform: rotate(30deg);
-            animation: glow 6s linear infinite;
-            z-index: -1;
-        }
-        
-        @keyframes glow {
-            0% { transform: rotate(30deg) translate(-30%, -30%); }
-            100% { transform: rotate(30deg) translate(30%, 30%); }
-        }
-        
-        /* Estilos para la impresión */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printContainer, #printContainer * {
-                visibility: visible;
-            }
-            #printContainer {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                padding: 20px;
-                background: white;
-                color: black;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-value {
-                background: transparent !important;
-                border-left: none !important;
-                padding: 0.3rem 0 !important;
-            }
-            .print-images {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-            .print-header {
-                text-align: center;
-                margin-bottom: 1rem;
-                color: #333;
-            }
-            .print-section {
-                margin-bottom: 1.5rem;
-            }
-            .print-row {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 1rem;
-            }
-            .print-col {
-                flex: 1;
-                padding: 0 1rem;
-            }
-            .print-label {
-                font-weight: bold;
-                margin-bottom: 0.3rem;
-            }
-            .print-divider {
-                border-bottom: 2px solid #4361ee;
-                padding-bottom: 0.5rem;
-                color: #4361ee;
-                margin-bottom: 0.5rem;
-            }
-            .print-footer {
-                margin-top: 2rem;
-                border-top: 1px solid #eee;
-                padding-top: 1rem;
-                text-align: center;
-                font-size: 0.8rem;
-                color: #777;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container glow-effect">
+    <div class="container">
         <h1><i class="fas fa-folder-open"></i> Registros Médicos de Huéspedes</h1>
         
         <div class="search-bar">
@@ -680,7 +587,6 @@
         </div>
         
         <div class="records-grid" id="recordsGrid">
-            <!-- Los registros se cargarán aquí dinámicamente -->
             <div class="no-records">
                 <i class="fas fa-folder-open"></i>
                 <p>Cargando registros médicos...</p>
@@ -688,7 +594,6 @@
         </div>
     </div>
     
-    <!-- Modal para mostrar detalles -->
     <div class="modal" id="recordModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -699,20 +604,16 @@
                 <!-- Los detalles se cargarán aquí dinámicamente -->
             </div>
             <div class="modal-footer">
-                <button class="btn btn-print no-print" id="printBtn"><i class="fas fa-print"></i> Imprimir</button>
-                <button class="btn btn-secondary close no-print"><i class="fas fa-times"></i> Cerrar</button>
+                <button class="btn btn-print" id="printBtn"><i class="fas fa-print"></i> Imprimir</button>
+                <button class="btn btn-secondary close"><i class="fas fa-times"></i> Cerrar</button>
             </div>
         </div>
     </div>
-    
-    <!-- Contenedor para impresión (oculto) -->
-    <div id="printContainer" style="display: none;"></div>
     
     <div class="loading" id="loading">
         <div class="spinner"></div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -749,7 +650,6 @@
         const closeBtns = document.querySelectorAll('.close');
         const loading = document.getElementById('loading');
         const printBtn = document.getElementById('printBtn');
-        const printContainer = document.getElementById('printContainer');
         
         // Variables de estado
         let allRecords = [];
@@ -850,8 +750,12 @@
             recordsGrid.innerHTML = '';
             
             records.forEach(record => {
+                // Corregir problema de fecha (ajustar zona horaria)
                 const recordDate = new Date(record.incidentDate);
-                const formattedDate = recordDate.toLocaleDateString('es-ES', {
+                // Ajustar para evitar el problema de un día menos
+                const adjustedDate = new Date(recordDate.getTime() + recordDate.getTimezoneOffset() * 60000);
+                
+                const formattedDate = adjustedDate.toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
@@ -880,7 +784,12 @@
                 `;
                 
                 // Evento para abrir modal al hacer clic en la tarjeta
-                recordCard.addEventListener('click', () => openModal(record));
+                recordCard.addEventListener('click', (e) => {
+                    // Evitar que el modal se abra al hacer clic en el toggle
+                    if (!e.target.closest('.toggle-switch')) {
+                        openModal(record);
+                    }
+                });
                 
                 // Evento para toggle de visibilidad
                 const toggle = recordCard.querySelector('.toggle-switch input');
@@ -893,12 +802,11 @@
             });
         }
         
-        // Actualizar visibilidad del registro y registrar el cambio
+        // Actualizar visibilidad del registro
         async function updateVisibility(recordId, isVisible) {
             try {
                 loading.style.display = 'flex';
                 
-                // Actualizar el estado en Firestore
                 await medicalReportsRef.doc(recordId).update({
                     visibleInSearch: isVisible,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
@@ -906,19 +814,14 @@
                     updatedByName: currentUserName
                 });
                 
-                // Registrar el cambio en el log de activaciones con nombre de usuario
                 await activationLogsRef.add({
                     reportId: recordId,
                     action: isVisible ? 'activated' : 'deactivated',
                     changedBy: currentUser.uid,
                     changedByName: currentUserName,
-                    changedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    timestamp: new Date().toISOString(),
-                    date: new Date().toLocaleDateString('es-ES'),
-                    time: new Date().toLocaleTimeString('es-ES')
+                    changedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Actualizar el registro local
                 const recordIndex = allRecords.findIndex(r => r.id === recordId);
                 if (recordIndex !== -1) {
                     allRecords[recordIndex].visibleInSearch = isVisible;
@@ -927,7 +830,6 @@
                     allRecords[recordIndex].updatedByName = currentUserName;
                 }
                 
-                // Reaplicar filtros si es necesario
                 if (currentFilter === 'visible') {
                     applyFilters();
                 }
@@ -942,20 +844,25 @@
         // Abrir modal con detalles del registro
         function openModal(record) {
             currentRecord = record;
+            
+            // Corregir problema de fecha (ajustar zona horaria)
             const recordDate = new Date(record.incidentDate);
-            const formattedDate = recordDate.toLocaleDateString('es-ES', {
+            const adjustedRecordDate = new Date(recordDate.getTime() + recordDate.getTimezoneOffset() * 60000);
+            
+            const formattedDate = adjustedRecordDate.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric'
             });
             
+            // Mostrar solo la fecha sin hora para reportDate
             const reportDate = new Date(record.reportDate);
-            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+            const adjustedReportDate = new Date(reportDate.getTime() + reportDate.getTimezoneOffset() * 60000);
+            
+            const formattedReportDate = adjustedReportDate.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric'
             });
             
             modalBody.innerHTML = `
@@ -1113,7 +1020,6 @@
                 statusBadge.textContent = 'Resuelto';
             }
             
-            // Configurar el botón de impresión para este registro
             printBtn.onclick = () => printRecord(record);
             
             modal.style.display = 'block';
@@ -1122,47 +1028,64 @@
         
         // Función para imprimir el registro
         function printRecord(record) {
+            // Corregir problema de fecha (ajustar zona horaria)
             const recordDate = new Date(record.incidentDate);
-            const formattedDate = recordDate.toLocaleDateString('es-ES', {
+            const adjustedRecordDate = new Date(recordDate.getTime() + recordDate.getTimezoneOffset() * 60000);
+            
+            const formattedDate = adjustedRecordDate.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric'
             });
             
+            // Mostrar solo la fecha sin hora para reportDate
             const reportDate = new Date(record.reportDate);
-            const formattedReportDate = reportDate.toLocaleDateString('es-ES', {
+            const adjustedReportDate = new Date(reportDate.getTime() + reportDate.getTimezoneOffset() * 60000);
+            
+            const formattedReportDate = adjustedReportDate.toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric'
             });
             
             const statusText = record.status === 'Código amarillo' ? 'Código Amarillo' :
                               record.status === 'Código rojo' ? 'Código Rojo' : 'Resuelto';
             
-            // Crear contenido para imprimir
-            printContainer.innerHTML = `
-                <div style="padding: 20px; font-family: Arial, sans-serif; color: #333;">
-                    <h1 style="text-align: center; margin-bottom: 20px; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px;">
-                        <i class="fas fa-file-medical"></i> Reporte Médico
-                    </h1>
+            // Abrir ventana de impresión
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Reporte Médico - ${record.guestName}</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        body { font-family: Arial, sans-serif; color: #333; padding: 20px; }
+                        h1 { text-align: center; color: #15a086; border-bottom: 2px solid #15a086; padding-bottom: 10px; }
+                        h3 { color: #15a086; border-bottom: 2px solid #15a086; padding-bottom: 5px; }
+                        .print-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                        .print-col { flex: 1; padding: 0 15px; }
+                        .print-value { margin-bottom: 10px; }
+                        .print-desc { border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #f9f9f9; }
+                        .print-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+                        .print-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777; }
+                        @page { size: auto; margin: 10mm; }
+                    </style>
+                </head>
+                <body>
+                    <h1><i class="fas fa-file-medical"></i> Reporte Médico</h1>
                     
                     <div style="text-align: center; margin-bottom: 30px; color: #555; font-size: 14px;">
                         Generado el ${new Date().toLocaleDateString('es-ES', { 
                             day: '2-digit', 
                             month: 'long', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            year: 'numeric'
                         })}
                     </div>
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
                         <div style="flex: 1; padding: 0 15px;">
-                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                                Información del Huésped
-                            </h3>
+                            <h3>Información del Huésped</h3>
                             <p style="margin-bottom: 10px;"><strong>Nombre:</strong> ${record.guestName}</p>
                             <p style="margin-bottom: 10px;"><strong>Habitación:</strong> ${record.roomNumber}</p>
                             <p style="margin-bottom: 10px;"><strong>Edad:</strong> ${record.guestAge || 'No especificado'} años</p>
@@ -1171,9 +1094,7 @@
                         </div>
                         
                         <div style="flex: 1; padding: 0 15px;">
-                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                                Información del Incidente
-                            </h3>
+                            <h3>Información del Incidente</h3>
                             <p style="margin-bottom: 10px;"><strong>Fecha y hora:</strong> ${formattedDate} a las ${record.incidentTime}</p>
                             <p style="margin-bottom: 10px;"><strong>Lugar:</strong> ${record.incidentLocation || 'No especificado'}</p>
                             <p style="margin-bottom: 10px;"><strong>Estado:</strong> ${statusText}</p>
@@ -1183,9 +1104,7 @@
                     </div>
                     
                     <div style="margin-bottom: 30px;">
-                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                            Detalles Médicos
-                        </h3>
+                        <h3>Detalles Médicos</h3>
                         <p style="margin-bottom: 10px;"><strong>Tipo de condición:</strong> 
                             ${record.medicalCondition === 'otro' && record.otherCondition ? 
                               record.otherCondition : 
@@ -1199,9 +1118,7 @@
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
                         <div style="flex: 1; padding: 0 15px;">
-                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                                Atención Médica
-                            </h3>
+                            <h3>Atención Médica</h3>
                             <p style="margin-bottom: 10px;"><strong>Médico que atendió:</strong> ${record.attendingDoctor || 'No especificado'}</p>
                             <p style="margin-bottom: 10px;"><strong>Medicamento administrado:</strong> ${record.medication === 'si' ? 'Sí' : 'No'}</p>
                             ${record.medication === 'si' && record.medicationDetails ? `
@@ -1213,9 +1130,7 @@
                         </div>
                         
                         <div style="flex: 1; padding: 0 15px;">
-                            <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                                Traslado y Declinación
-                            </h3>
+                            <h3>Traslado y Declinación</h3>
                             <p style="margin-bottom: 10px;"><strong>Trasladado a centro médico:</strong> ${record.hospitalTransfer === 'si' ? 'Sí' : 'No'}</p>
                             ${record.hospitalTransfer === 'si' ? `
                             <p style="margin-bottom: 10px;"><strong>Centro médico:</strong> ${record.hospitalName || 'No especificado'}</p>
@@ -1233,9 +1148,7 @@
                     
                     ${record.imageUrls && record.imageUrls.length > 0 ? `
                     <div style="margin-bottom: 30px;">
-                        <h3 style="border-bottom: 2px solid #4361ee; padding-bottom: 5px; color: #4361ee; margin-bottom: 15px;">
-                            Evidencia Fotográfica
-                        </h3>
+                        <h3>Evidencia Fotográfica</h3>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
                             ${record.imageUrls.map(url => `
                                 <div style="border: 1px solid #eee; border-radius: 5px; overflow: hidden;">
@@ -1251,52 +1164,22 @@
                         <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES', { 
                             day: '2-digit', 
                             month: 'long', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                            year: 'numeric'
                         })}</p>
                     </div>
-                </div>
-            `;
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
             
-            // Esperar un momento para que se cargue el contenido antes de imprimir
-            setTimeout(() => {
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Reporte Médico - ${record.guestName}</title>
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                        <style>
-                            body { font-family: Arial, sans-serif; color: #333; padding: 20px; }
-                            h1 { text-align: center; color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; }
-                            h3 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 5px; }
-                            .print-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
-                            .print-col { flex: 1; padding: 0 15px; }
-                            .print-value { margin-bottom: 10px; }
-                            .print-desc { border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #f9f9f9; }
-                            .print-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-                            .print-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 12px; color: #777; }
-                            @page { size: auto; margin: 10mm; }
-                        </style>
-                    </head>
-                    <body>
-                        ${printContainer.innerHTML}
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-                printWindow.focus();
-                
-                // Esperar a que se carguen las imágenes antes de imprimir
-                printWindow.onload = function() {
-                    setTimeout(() => {
-                        printWindow.print();
-                        printWindow.close();
-                    }, 500);
-                };
-            }, 200);
+            // Esperar a que se carguen las imágenes antes de imprimir
+            printWindow.onload = function() {
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            };
         }
         
         // Cerrar modal
