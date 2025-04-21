@@ -150,6 +150,8 @@
             text-align: left;
             color: white;
             font-size: 0.95rem;
+            border: none;
+            outline: none;
         }
 
         .config-btn.active {
@@ -936,7 +938,10 @@
             });
             
             // Agregar clase active al botón correspondiente
-            document.getElementById(`${countMode}DaysBtn`).classList.add('active');
+            const activeBtn = document.querySelector(`.config-btn[data-mode="${countMode}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
         }
 
         // Guardar configuración del usuario
@@ -1265,29 +1270,27 @@
 
         // Cambiar el modo de cálculo
         function changeCalculationMode(mode) {
-            if (mode !== countMode) {
-                countMode = mode;
-                
-                // Actualizar UI
-                updateActiveButton();
-                
-                // Guardar configuración
-                saveUserConfig();
-                
-                // Recargar reportes para actualizar los cálculos
-                if (allReports.length > 0) {
-                    const reportsGrid = document.getElementById('reportsGrid');
-                    reportsGrid.innerHTML = '';
-                    allReports.forEach(report => renderReportCard(report));
-                }
-                
-                // Si hay un modal abierto, actualizarlo
-                if (document.getElementById('reportModal').style.display === 'flex') {
-                    const activeTemplateIndex = document.querySelector('.template-btn.active')?.dataset.template;
-                    if (currentReportData && activeTemplateIndex !== undefined) {
-                        const reportText = document.getElementById('reportText');
-                        reportText.textContent = reportTemplates[activeTemplateIndex].template(currentReportData);
-                    }
+            countMode = mode;
+            
+            // Actualizar UI
+            updateActiveButton();
+            
+            // Guardar configuración
+            saveUserConfig();
+            
+            // Recargar reportes para actualizar los cálculos
+            if (allReports.length > 0) {
+                const reportsGrid = document.getElementById('reportsGrid');
+                reportsGrid.innerHTML = '';
+                allReports.forEach(report => renderReportCard(report));
+            }
+            
+            // Si hay un modal abierto, actualizarlo
+            if (document.getElementById('reportModal').style.display === 'flex') {
+                const activeTemplateIndex = document.querySelector('.template-btn.active')?.dataset.template;
+                if (currentReportData && activeTemplateIndex !== undefined) {
+                    const reportText = document.getElementById('reportText');
+                    reportText.textContent = reportTemplates[activeTemplateIndex].template(currentReportData);
                 }
             }
         }
@@ -1303,9 +1306,17 @@
         });
         
         // Configuración de cálculo - Botones
-        document.getElementById('allDaysBtn').addEventListener('click', () => changeCalculationMode('all'));
-        document.getElementById('businessDaysBtn').addEventListener('click', () => changeCalculationMode('business'));
-        document.getElementById('noSundaysBtn').addEventListener('click', () => changeCalculationMode('noSundays'));
+        document.getElementById('allDaysBtn').addEventListener('click', () => {
+            changeCalculationMode('all');
+        });
+        
+        document.getElementById('businessDaysBtn').addEventListener('click', () => {
+            changeCalculationMode('business');
+        });
+        
+        document.getElementById('noSundaysBtn').addEventListener('click', () => {
+            changeCalculationMode('noSundays');
+        });
         
         // Cerrar modal al hacer clic fuera del contenido
         document.getElementById('reportModal').addEventListener('click', (e) => {
