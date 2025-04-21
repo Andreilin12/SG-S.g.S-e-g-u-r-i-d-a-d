@@ -5,123 +5,250 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reportes Registrados</title>
   <style>
+    :root {
+      --primary-color: #15a086;
+      --secondary-color: #15a086;
+      --dark-bg: #2c3e50;
+      --darker-bg: #2c3e50;
+      --light-text: #e2e8f0;
+      --accent-color: #15a086;
+      --chart-bg: rgba(15, 23, 42, 0.7);
+    }
+    
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #2c3e50;
-      color: #ecf0f1;
+      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+      color: var(--light-text);
+      min-height: 100vh;
     }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
     h1, h2 {
       text-align: center;
-      color: #ecf0f1;
+      color: var(--light-text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 10px;
     }
+    
     h1 {
       margin-top: 20px;
       font-size: 2.5em;
+      font-weight: 300;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 30px;
     }
+    
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      border-radius: 3px;
+    }
+    
     h2 {
-      font-size: 1.8em;
-      margin-top: 30px;
+      font-size: 1.5em;
+      font-weight: 400;
+      margin: 30px 0 20px;
+      color: var(--primary-color);
     }
+    
     .total-general {
       text-align: center;
       font-size: 1.8em;
-      margin: 20px 0;
-      color: #15a086;
-      background-color: #34495e;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      display: inline-block;
-      margin-left: 50%;
-      transform: translateX(-50%);
+      margin: 20px auto 40px;
+      color: var(--accent-color);
+      background: rgba(0, 200, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      max-width: 500px;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .total-general::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(0, 200, 255, 0.1),
+        rgba(0, 200, 255, 0)
+      );
+      transform: rotate(30deg);
+      z-index: -1;
+    }
+    
     .total-general span {
       font-weight: bold;
-      color: #15a086;
+      color: var(--accent-color);
+      font-size: 1.2em;
     }
+    
+    .charts-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
     .chart-container {
-      width: 30%;
-      margin: 20px auto;
-      background-color: #34495e;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      min-width: 300px;
+      background: var(--chart-bg);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 200, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+    
+    .chart-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 200, 255, 0.2);
+    }
+    
     canvas {
-      background-color: #2c3e50;
-      border-radius: 10px;
-      padding: 10px;
+      width: 100% !important;
+      height: auto !important;
     }
+    
     .menu {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 30px;
+      right: 30px;
       display: flex;
-      gap: 10px;
+      gap: 15px;
+      z-index: 100;
     }
+    
     .menu button, .menu a {
-      background-color: #15a086;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: white;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 119, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-
-        .menu button:hover {
-      transform: scale(1.1);
-      background-color: #2c3e50;
+    
+    .menu button::before, .menu a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-
+    
+    .menu button:hover, .menu a:hover {
+      transform: scale(1.1) translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 119, 255, 0.4);
+    }
+    
+    .menu button:hover::before, .menu a:hover::before {
+      opacity: 1;
+    }
+    
     .modal {
       display: none;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #34495e;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      color: #ecf0f1;
+      background: rgba(15, 23, 42, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 15px 50px rgba(0, 200, 255, 0.2);
+      z-index: 1001;
+      color: var(--light-text);
       text-align: center;
-      max-width: 400px;
+      max-width: 500px;
       width: 90%;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      animation: modalFadeIn 0.5s ease-out;
     }
+    
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+    
     .modal h3 {
       margin-top: 0;
       font-size: 1.8em;
-      color: #2ecc71;
+      color: var(--accent-color);
+      font-weight: 300;
+      margin-bottom: 20px;
     }
+    
     .modal p {
       font-size: 1.2em;
       line-height: 1.6;
+      margin-bottom: 25px;
     }
+    
     .modal button {
-      background-color: #15a086;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
+      padding: 12px 25px;
+      border-radius: 50px;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 10px;
       font-size: 1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
     }
-
-       .modal button:hover {
-      transform: scale(1.1);
-      background-color: #2c3e50;
+    
+    .modal button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 119, 255, 0.4);
     }
+    
     .overlay {
       display: none;
       position: fixed;
@@ -129,72 +256,149 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 999;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      backdrop-filter: blur(5px);
     }
+    
+    /* Efectos futuristas */
+    .glow {
+      text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(0, 200, 255, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 200, 255, 0);
+      }
+    }
+    
+    /* Estilos para impresión - CORREGIDOS */
     @media print {
       body {
-        background-color: white;
-        color: black;
-      }
-      h1 {
-        display: block !important; /* Mostrar el título principal */
+        background-color: white !important;
         color: black !important;
-        font-size: 2em;
-        margin-top: 10px;
-      }
-      .total-general {
-        background-color: white;
-        color: #2c3e50;
-        box-shadow: none;
-        border: 2px solid #2c3e50;
-      }
-      .total-general span {
-        color: #15a086;
-      }
-      .chart-container {
         width: 100%;
-        margin: 10px 0;
-        box-shadow: none;
-        background-color: white;
-        padding: 10px;
+        height: auto;
+        margin: 0 !important;
+        padding: 0 !important;
       }
-      canvas {
-        background-color: white;
-        height: 384px !important; /* Reducir el tamaño de los gráficos */
-        width: 100% !important; /* Asegurar que ocupen el ancho completo */
+      
+      .container {
+        max-width: 100% !important;
+        padding: 10px !important;
+        margin: 0 !important;
       }
-      .menu, h2 {
-        display: none;
-      }
-      .chart-container {
-        page-break-inside: avoid; /* Evita que los gráficos se dividan en varias páginas */
-      }
-      @page {
-        size: auto; /* Ajustar automáticamente a vertical u horizontal */
-        margin: 10mm; /* Reducir márgenes para aprovechar el espacio */
-      }
-      /* Estilos para los títulos y textos de los gráficos */
-      .chartjs-size-monitor,
-      .chartjs-render-monitor {
+      
+      h1 {
         color: black !important;
+        background: none !important;
+        -webkit-text-fill-color: black !important;
+        font-size: 24pt !important;
+        margin-top: 10px !important;
+        margin-bottom: 20px !important;
       }
+      
+      .total-general {
+        background-color: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        border: 2px solid #0077ff !important;
+        max-width: 80% !important;
+        margin: 20px auto !important;
+        font-size: 16pt !important;
+      }
+      
+      .total-general span {
+        color: #0077ff !important;
+      }
+      
+      .charts-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-around !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      
+      .chart-container {
+        width: 48% !important;
+        height: auto !important;
+        min-width: unset !important;
+        background-color: white !important;
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        padding: 15px !important;
+        margin: 0 !important;
+      }
+      
+      canvas {
+        width: 100% !important;
+        height: 300px !important; /* Altura fija para consistencia */
+        max-height: 300px !important;
+      }
+      
+      .menu, .modal, .overlay {
+        display: none !important;
+      }
+      
+      @page {
+        size: landscape;
+        margin: 10mm;
+      }
+      
+      /* Asegurar que los gráficos mantengan sus colores al imprimir */
       .chartjs-render-monitor text {
         fill: black !important;
       }
+      
       .chartjs-render-monitor .chartjs-grid-line {
         stroke: rgba(0, 0, 0, 0.1) !important;
       }
-      .chartjs-render-monitor .chartjs-tooltip {
-        background-color: rgba(255, 255, 255, 0.9) !important;
+      
+      /* Mejorar legibilidad de los gráficos */
+      .chartjs-tooltip {
+        color: black !important;
+        background: white !important;
         border: 1px solid #ccc !important;
-        color: black !important;
       }
-      .chartjs-render-monitor .chartjs-legend {
-        color: black !important;
+      
+      /* Asegurar que todo quede en una sola página */
+      body, .container, .charts-row {
+        height: auto !important;
+        overflow: visible !important;
       }
-      .chartjs-render-monitor .chartjs-legend-text {
-        color: black !important;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .charts-row {
+        flex-direction: column;
+      }
+      
+      .chart-container {
+        min-width: 100%;
+      }
+      
+      h1 {
+        font-size: 2em;
+      }
+      
+      .total-general {
+        font-size: 1.5em;
       }
     }
   </style>
@@ -204,28 +408,32 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Reportes de CCTV</h1>
-  <div class="total-general" id="totalGeneral">Total de Reportes: <span>0</span></div>
+  <div class="container">
+    <h1 class="glow">Reportes de CCTV</h1>
+    <div class="total-general pulse" id="totalGeneral">Total de Reportes: <span>0</span></div>
 
-  <h2>Gráfico de Reportes por operadores</h2>
-  <div class="chart-container">
-    <canvas id="graficoUsuario"></canvas>
-  </div>
-
-  <h2>Gráfico de Reportes por Códigos de emergencias </h2>
-  <div class="chart-container">
-    <canvas id="graficoTipoCaso"></canvas>
+    <div class="charts-row">
+      <div class="chart-container">
+        <h2>Reportes por Operadores</h2>
+        <canvas id="graficoUsuario"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <h2>Reportes por Códigos de Emergencia</h2>
+        <canvas id="graficoTipoCaso"></canvas>
+      </div>
+    </div>
   </div>
 
   <!-- Menú de acciones -->
   <div class="menu">
-    <button id="botonUsuario">
-      <i class="fas fa-user"></i>
+    <button id="botonUsuario" title="Colaborador del Mes">
+      <i class="fas fa-trophy"></i>
     </button>
-    <button id="botonImprimir">
+    <button id="botonImprimir" title="Imprimir Reporte">
       <i class="fas fa-print"></i>
     </button>
-    <a href="#" id="botonCertificado">
+    <a href="#" id="botonCertificado" title="Certificado">
       <i class="fas fa-award"></i>
     </a>
   </div>
@@ -303,15 +511,11 @@
 
           // Filtrar reportes del mes actual
           if (fechaCreacion >= primerDiaMes && fechaCreacion <= ultimoDiaMes) {
-            const usuario = reporte.usuario || "Usuario Desconocido"; // Usar un valor predeterminado si no hay usuario
-            const tipoCaso = reporte.tipoCaso || "Tipo de Caso Desconocido"; // Usar un valor predeterminado si no hay tipo de caso
+            const usuario = reporte.usuario || "Usuario Desconocido";
+            const tipoCaso = reporte.tipoCaso || "Tipo de Caso Desconocido";
 
             // Contar los reportes por usuario
-            if (reportesPorUsuario[usuario]) {
-              reportesPorUsuario[usuario]++;
-            } else {
-              reportesPorUsuario[usuario] = 1;
-            }
+            reportesPorUsuario[usuario] = (reportesPorUsuario[usuario] || 0) + 1;
 
             // Identificar el usuario con más reportes
             if (reportesPorUsuario[usuario] > maxReportes) {
@@ -320,11 +524,7 @@
             }
 
             // Contar los reportes por tipo de caso
-            if (reportesPorTipoCaso[tipoCaso]) {
-              reportesPorTipoCaso[tipoCaso]++;
-            } else {
-              reportesPorTipoCaso[tipoCaso] = 1;
-            }
+            reportesPorTipoCaso[tipoCaso] = (reportesPorTipoCaso[tipoCaso] || 0) + 1;
 
             // Sumar al total general
             totalReportes++;
@@ -342,6 +542,15 @@
         `;
         document.getElementById('mensajeFelicitacion').innerHTML = mensaje;
 
+        // Paleta de colores optimizada para impresión
+        const colors = [
+          '#00c8ff',
+          '#0077ff',
+          '#00ffcc',
+          '#ff6600',
+          '#cc00ff'
+        ];
+
         // Crear gráfico de reportes por usuario
         const ctxUsuario = document.getElementById('graficoUsuario').getContext('2d');
         new Chart(ctxUsuario, {
@@ -351,35 +560,49 @@
             datasets: [{
               label: 'Reportes por Usuario',
               data: Object.values(reportesPorUsuario),
-              backgroundColor: 'rgba(52, 152, 219, 0.6)',
-              borderColor: 'rgba(52, 152, 219, 1)',
-              borderWidth: 1
+              backgroundColor: colors,
+              borderColor: colors.map(color => color + 'cc'),
+              borderWidth: 2,
+              borderRadius: 5,
+              borderSkipped: false
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                enabled: true,
+                mode: 'index',
+                intersect: false
+              }
+            },
             scales: {
               y: {
                 beginAtZero: true,
                 grid: {
-                  color: 'rgba(255, 255, 255, 0.1)'
+                  color: 'rgba(0, 0, 0, 0.1)',
+                  drawTicks: false
                 },
                 ticks: {
-                  color: '#ecf0f1'
+                  color: 'rgba(0, 0, 0, 0.7)',
+                  font: {
+                    size: 12
+                  }
                 }
               },
               x: {
                 grid: {
-                  color: 'rgba(255, 255, 255, 0.1)'
+                  display: false
                 },
                 ticks: {
-                  color: '#ecf0f1'
-                }
-              }
-            },
-            plugins: {
-              legend: {
-                labels: {
-                  color: '#ecf0f1'
+                  color: 'rgba(0, 0, 0, 0.7)',
+                  font: {
+                    size: 12
+                  }
                 }
               }
             }
@@ -389,42 +612,33 @@
         // Crear gráfico de reportes por tipo de caso
         const ctxTipoCaso = document.getElementById('graficoTipoCaso').getContext('2d');
         new Chart(ctxTipoCaso, {
-          type: 'pie',
+          type: 'doughnut',
           data: {
             labels: Object.keys(reportesPorTipoCaso),
             datasets: [{
               label: 'Reportes por Tipo de Caso',
               data: Object.values(reportesPorTipoCaso),
-              backgroundColor: [
-                'rgba(231, 76, 60, 0.6)',
-                'rgba(46, 204, 113, 0.6)',
-                'rgba(52, 152, 219, 0.6)',
-                'rgba(155, 89, 182, 0.6)',
-                'rgba(241, 196, 15, 0.6)'
-              ],
-              borderColor: [
-                'rgba(231, 76, 60, 1)',
-                'rgba(46, 204, 113, 1)',
-                'rgba(52, 152, 219, 1)',
-                'rgba(155, 89, 182, 1)',
-                'rgba(241, 196, 15, 1)'
-              ],
-              borderWidth: 1
+              backgroundColor: colors,
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              borderWidth: 2,
+              cutout: '70%'
             }]
           },
           options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: {
               legend: {
-                position: 'top',
+                position: 'right',
                 labels: {
-                  color: '#ecf0f1'
+                  color: 'rgba(0, 0, 0, 0.8)',
+                  font: {
+                    size: 12
+                  },
+                  padding: 20,
+                  usePointStyle: true,
+                  pointStyle: 'circle'
                 }
-              },
-              title: {
-                display: true,
-                text: 'Reportes por Tipo de Caso',
-                color: '#ecf0f1'
               }
             }
           }
@@ -452,12 +666,11 @@
       window.print();
     });
 
-// Enlace tipo certificado (puedes cambiar el enlace)
-document.getElementById('botonCertificado').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.href = "certificado-cctv.html";
-});
-
+    // Enlace tipo certificado
+    document.getElementById('botonCertificado').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = "certificado-cctv.html";
+    });
   </script>
 </body>
 </html>
