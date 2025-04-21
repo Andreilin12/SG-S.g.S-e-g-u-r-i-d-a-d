@@ -103,43 +103,110 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Configuración de cálculo */
+        /* NUEVO ESTILO PARA CONFIGURACIÓN DE CÁLCULO */
         .config-section {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 12px;
+            padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border-left: 3px solid var(--accent);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .config-section:hover {
+            border-color: var(--accent);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .config-title {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
             color: var(--accent);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .config-title i {
+            font-size: 1.3rem;
         }
 
         .config-options {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
-            flex-wrap: wrap;
         }
 
-        .config-option {
+        .config-btn {
+            position: relative;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: left;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .config-btn.active {
+            background: rgba(21, 160, 134, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .config-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .config-btn .option-content {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
         }
 
-        .config-option input {
-            cursor: pointer;
+        .config-btn .checkmark {
+            position: relative;
+            height: 20px;
+            width: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s;
         }
 
-        .config-option label {
-            cursor: pointer;
-            font-size: 0.9rem;
+        .config-btn.active .checkmark {
+            background-color: var(--accent);
+        }
+
+        .config-btn .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .config-btn.active .checkmark:after {
+            display: block;
+        }
+
+        .config-btn .option-title {
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .config-btn .option-description {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
         }
         
         /* Estilos de reportes */
@@ -228,7 +295,7 @@
             color: var(--error);
         }
         
-        /* Modal futurista */
+        /* Modal mejorado */
         .modal {
             display: none;
             position: fixed;
@@ -241,6 +308,7 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
         }
         
         .modal-content {
@@ -253,12 +321,14 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             position: relative;
-            animation: modalFadeIn 0.4s ease-out;
+            transform: scale(0.95);
+            opacity: 0;
+            animation: modalFadeIn 0.3s ease-out forwards;
         }
         
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
         
         .modal-header {
@@ -267,6 +337,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: rgba(21, 160, 134, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
         
         .modal-title {
@@ -289,10 +363,17 @@
             font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
         
         .modal-close:hover {
             color: white;
+            background: rgba(255, 255, 255, 0.1);
             transform: rotate(90deg);
         }
         
@@ -356,12 +437,14 @@
             border-left: 3px solid var(--accent);
             white-space: pre-line;
             position: relative;
+            min-height: 150px;
         }
         
         .template-selector {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
         
         .template-btn {
@@ -372,6 +455,10 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .template-btn:hover {
@@ -388,6 +475,9 @@
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
+            background: rgba(26, 26, 46, 0.8);
+            position: sticky;
+            bottom: 0;
         }
         
         .btn {
@@ -537,8 +627,19 @@
             }
 
             .config-options {
-                flex-direction: column;
-                gap: 0.5rem;
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .modal-header, .modal-footer {
+                padding: 1rem;
+            }
+            
+            .modal-title {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -547,25 +648,40 @@
     <div class="container">
         <h1><i class="fas fa-file-medical-alt"></i> Reportes de Licencias Médicas</h1>
         
-        <!-- Configuración de cálculo -->
+        <!-- Configuración de cálculo - NUEVO DISEÑO -->
         <div class="config-section">
             <div class="config-title">
                 <i class="fas fa-calculator"></i>
                 <span>Configuración de Cálculo de Días</span>
             </div>
             <div class="config-options">
-                <div class="config-option">
-                    <input type="radio" id="countAllDays" name="countMode" value="all" checked>
-                    <label for="countAllDays">Contar todos los días (incluyendo fines de semana)</label>
-                </div>
-                <div class="config-option">
-                    <input type="radio" id="countBusinessDays" name="countMode" value="business">
-                    <label for="countBusinessDays">Contar solo días hábiles (lunes a viernes)</label>
-                </div>
-                <div class="config-option">
-                    <input type="radio" id="countWithoutSundays" name="countMode" value="noSundays">
-                    <label for="countWithoutSundays">Contar sin domingos (sábados incluidos)</label>
-                </div>
+                <button class="config-btn" id="allDaysBtn" data-mode="all">
+                    <div class="option-content">
+                        <span class="checkmark"></span>
+                        <div>
+                            <div class="option-title">Contar todos los días</div>
+                            <div class="option-description">Incluye fines de semana y festivos</div>
+                        </div>
+                    </div>
+                </button>
+                <button class="config-btn" id="businessDaysBtn" data-mode="business">
+                    <div class="option-content">
+                        <span class="checkmark"></span>
+                        <div>
+                            <div class="option-title">Contar solo días hábiles</div>
+                            <div class="option-description">Lunes a viernes (excluye fines de semana)</div>
+                        </div>
+                    </div>
+                </button>
+                <button class="config-btn" id="noSundaysBtn" data-mode="noSundays">
+                    <div class="option-content">
+                        <span class="checkmark"></span>
+                        <div>
+                            <div class="option-title">Contar sin domingos</div>
+                            <div class="option-description">Incluye sábados pero excluye domingos</div>
+                        </div>
+                    </div>
+                </button>
             </div>
         </div>
         
@@ -650,7 +766,7 @@
                 template: (data) => `
                     A quien corresponda:
 
-                    Por medio del presente se informa que el colaborador/a ${data.employeeName}, 
+                    Por medio del presente se informa que el colaborador ${data.employeeName}, 
                     identificado con código ${data.employeeCode}, quien desempeña el cargo de 
                     ${data.position} en el área de ${data.department}, se encuentra en 
                     licencia médica desde el ${new Date(data.startDate).toLocaleDateString()} 
@@ -672,7 +788,7 @@
                 template: (data) => `
                     REPORTE MÉDICO - LICENCIA LABORAL
 
-                    Colaborador/a: ${data.employeeName} (${data.employeeCode})
+                    Colaborador: ${data.employeeName} (${data.employeeCode})
                     Cargo: ${data.position}
                     Departamento: ${data.department}
                     Período: ${new Date(data.startDate).toLocaleDateString()} al ${new Date(data.endDate).toLocaleDateString()}
@@ -792,11 +908,35 @@
                     countMode = config.countMode || 'all';
                     
                     // Actualizar UI
-                    document.getElementById(`count${countMode.charAt(0).toUpperCase() + countMode.slice(1)}`).checked = true;
+                    updateActiveButton();
+                } else {
+                    // Si no existe configuración, crear una con valores por defecto
+                    await userConfigRef.doc(currentUser.uid).set({
+                        countMode: 'all',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Establecer UI por defecto
+                    countMode = 'all';
+                    updateActiveButton();
                 }
             } catch (error) {
                 console.error("Error al cargar configuración:", error);
+                // Establecer UI por defecto en caso de error
+                countMode = 'all';
+                updateActiveButton();
             }
+        }
+
+        // Actualizar el botón activo visualmente
+        function updateActiveButton() {
+            // Remover clase active de todos los botones
+            document.querySelectorAll('.config-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Agregar clase active al botón correspondiente
+            document.getElementById(`${countMode}DaysBtn`).classList.add('active');
         }
 
         // Guardar configuración del usuario
@@ -807,7 +947,9 @@
                 await userConfigRef.doc(currentUser.uid).set({
                     countMode: countMode,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                }, { merge: true });
+                
+                console.log("Configuración guardada correctamente");
             } catch (error) {
                 console.error("Error al guardar configuración:", error);
             }
@@ -919,6 +1061,7 @@
                 reportTemplates.forEach((template, index) => {
                     templateSelectorHTML += `
                         <button class="template-btn ${index === 0 ? 'active' : ''}" data-template="${index}">
+                            <i class="fas fa-${index === 0 ? 'file-alt' : index === 1 ? 'file-signature' : 'file-invoice'}"></i>
                             ${template.name}
                         </button>
                     `;
@@ -952,20 +1095,8 @@
                         btn.classList.add('active');
                         
                         // Actualizar el contenido del reporte manteniendo el botón de copiar
-                        const reportTextContainer = document.querySelector('.report-text-container');
-                        reportTextContainer.innerHTML = `
-                            <div class="report-text" id="reportText">
-                                ${reportTemplates[templateIndex].template(currentReportData)}
-                            </div>
-                            <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        `;
-                        
-                        // Reasignar el evento de copiar
-                        document.getElementById('copyReportBtn').addEventListener('click', () => {
-                            copyToClipboard(document.getElementById('reportText').textContent);
-                        });
+                        const reportText = document.getElementById('reportText');
+                        reportText.textContent = reportTemplates[templateIndex].template(currentReportData);
                     });
                 });
                 
@@ -1093,16 +1224,31 @@
                 return;
             }
             
+            const searchLower = searchTerm.toLowerCase();
             const filteredReports = allReports.filter(report => {
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                    report.employeeName.toLowerCase().includes(searchLower) ||
-                    report.employeeCode.toLowerCase().includes(searchLower) ||
-                    report.position.toLowerCase().includes(searchLower) ||
-                    report.department.toLowerCase().includes(searchLower) ||
-                    report.diagnosis.toLowerCase().includes(searchLower) ||
-                    report.doctorName.toLowerCase().includes(searchLower)
-                );
+                // Convertir todas las propiedades relevantes a cadena y buscar
+                const fieldsToSearch = [
+                    report.employeeName || '',
+                    report.employeeCode || '',
+                    report.position || '',
+                    report.department || '',
+                    report.diagnosis || '',
+                    report.doctorName || '',
+                    report.medicalCenter || '',
+                    report.treatment || '',
+                    report.observations || '',
+                    report.licenseType || '',
+                    report.otherType || '',
+                    report.id || '',
+                    new Date(report.startDate).toLocaleDateString(),
+                    new Date(report.endDate).toLocaleDateString(),
+                    new Date(report.registerDate).toLocaleDateString(),
+                    report.status === 'active' ? 'Activa' : 'Finalizada',
+                    calculateDays(report.startDate, report.endDate) + ' días ' + getDaysLabel()
+                ].map(field => field.toString().toLowerCase());
+                
+                // Buscar en todos los campos
+                return fieldsToSearch.some(field => field.includes(searchLower));
             });
             
             if (filteredReports.length === 0) {
@@ -1117,11 +1263,15 @@
             }
         }
 
-        // Actualizar cálculo de días cuando cambia la configuración
-        function updateCalculationMode() {
-            const selectedMode = document.querySelector('input[name="countMode"]:checked').value;
-            if (selectedMode !== countMode) {
-                countMode = selectedMode;
+        // Cambiar el modo de cálculo
+        function changeCalculationMode(mode) {
+            if (mode !== countMode) {
+                countMode = mode;
+                
+                // Actualizar UI
+                updateActiveButton();
+                
+                // Guardar configuración
                 saveUserConfig();
                 
                 // Recargar reportes para actualizar los cálculos
@@ -1135,20 +1285,8 @@
                 if (document.getElementById('reportModal').style.display === 'flex') {
                     const activeTemplateIndex = document.querySelector('.template-btn.active')?.dataset.template;
                     if (currentReportData && activeTemplateIndex !== undefined) {
-                        const reportTextContainer = document.querySelector('.report-text-container');
-                        reportTextContainer.innerHTML = `
-                            <div class="report-text" id="reportText">
-                                ${reportTemplates[activeTemplateIndex].template(currentReportData)}
-                            </div>
-                            <button class="copy-btn" id="copyReportBtn" title="Copiar al portapapeles">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        `;
-                        
-                        // Reasignar el evento de copiar
-                        document.getElementById('copyReportBtn').addEventListener('click', () => {
-                            copyToClipboard(document.getElementById('reportText').textContent);
-                        });
+                        const reportText = document.getElementById('reportText');
+                        reportText.textContent = reportTemplates[activeTemplateIndex].template(currentReportData);
                     }
                 }
             }
@@ -1164,10 +1302,10 @@
             filterReports(e.target.value);
         });
         
-        // Configuración de cálculo
-        document.querySelectorAll('input[name="countMode"]').forEach(radio => {
-            radio.addEventListener('change', updateCalculationMode);
-        });
+        // Configuración de cálculo - Botones
+        document.getElementById('allDaysBtn').addEventListener('click', () => changeCalculationMode('all'));
+        document.getElementById('businessDaysBtn').addEventListener('click', () => changeCalculationMode('business'));
+        document.getElementById('noSundaysBtn').addEventListener('click', () => changeCalculationMode('noSundays'));
         
         // Cerrar modal al hacer clic fuera del contenido
         document.getElementById('reportModal').addEventListener('click', (e) => {
