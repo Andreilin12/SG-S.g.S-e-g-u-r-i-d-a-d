@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Médico de Huéspedes | Sistema Avanzado</title>
+    <title>Reporte Médico de Huéspedes - Security Retom</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -151,7 +151,7 @@
             to { opacity: 0; visibility: hidden; }
         }
         
-        /* Resto de estilos (igual que antes) */
+        /* Estilos del formulario */
         .form-group {
             margin-bottom: 1.5rem;
             position: relative;
@@ -240,6 +240,14 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         
         .file-upload {
@@ -340,6 +348,20 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
+        .medical-section {
+            display: none;
+            background: rgba(21, 160, 134, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .medical-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
         .loading {
             display: none;
             position: fixed;
@@ -366,6 +388,71 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Estilos para la navegación por pasos */
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            background: rgba(21, 160, 134, 0.3);
+            color: white;
+        }
+        
+        .step.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
+        
+        .step-line {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 18px;
+        }
+        
+        .step-line.active {
+            background: var(--accent);
+        }
+        
+        .step-line.completed {
+            background: rgba(21, 160, 134, 0.3);
+        }
+        
+        .confirmation-section {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
         @media (max-width: 768px) {
             .row {
                 flex-direction: column;
@@ -379,6 +466,20 @@
             .alert {
                 width: 90%;
                 padding: 1rem;
+            }
+            
+            .step-indicator {
+                gap: 0.5rem;
+            }
+            
+            .step {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            
+            .step-line {
+                margin-top: 13px;
             }
         }
         
@@ -415,214 +516,278 @@
     <div class="container glow-effect">
         <h1><i class="fas fa-file-medical"></i> Reporte Médico de Huéspedes</h1>
         
+        <!-- Indicador de pasos -->
+        <div class="step-indicator">
+            <div class="step active" data-step="1">1</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">2</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">3</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">4</div>
+        </div>
+        
         <form id="medicalReportForm">
-            <!-- Contenido del formulario (igual que antes) -->
-            <div class="emergency-section">
-                <h3><i class="fas fa-exclamation-triangle"></i> ¿Es una emergencia?</h3>
-                <div class="radio-group">
-                    <label class="radio-option">
-                        <input type="radio" name="emergency" value="si"> Sí
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="emergency" value="no" checked> No
-                    </label>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Nombre completo del huésped</label>
-                        <input type="text" id="guestName" required>
+            <!-- Paso 1: Información Básica -->
+            <div class="medical-section active" id="step1">
+                <div class="emergency-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> ¿Es una emergencia?</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="emergency" value="si"> Sí
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="emergency" value="no" checked> No
+                        </label>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Número de habitación</label>
-                        <input type="text" id="roomNumber" required>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Nombre completo del huésped</label>
+                            <input type="text" id="guestName" required>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label>Edad del huésped</label>
-                        <input type="number" id="guestAge" min="0" max="120">
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label>Grupo de edad</label>
-                        <select id="ageGroup">
-                            <option value="">Seleccionar</option>
-                            <option value="niño">Niño (0-12)</option>
-                            <option value="adolescente">Adolescente (13-19)</option>
-                            <option value="adulto">Adulto (20-59)</option>
-                            <option value="mayor">Adulto mayor (60+)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label>Sexo</label>
-                        <select id="gender">
-                            <option value="">Seleccionar</option>
-                            <option value="masculino">Masculino</option>
-                            <option value="femenino">Femenino</option>
-                            <option value="otro">Otro</option>
-                            <option value="prefiere-no-decir">Prefiere no decir</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label>Lugar donde ocurrió</label>
-                        <input type="text" id="incidentLocation" placeholder="Ej: Habitación 205, Alberca, Restaurante">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Fecha del incidente</label>
-                        <input type="date" id="incidentDate" required>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Hora del incidente</label>
-                        <input type="time" id="incidentTime" required>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group required">
-                <label>Tipo de condición médica</label>
-                <select id="medicalCondition" required>
-                    <option value="">Seleccione una opción</option>
-                    <option value="accidente">Accidente</option>
-                    <option value="enfermedad">Enfermedad</option>
-                    <option value="alergia">Reacción alérgica</option>
-                    <option value="intoxicacion">Intoxicación alimentaria</option>
-                    <option value="cronica">Condición crónica</option>
-                    <option value="otro">Otro</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="otherConditionContainer" style="display: none;">
-                <label>Especifique la condición</label>
-                <input type="text" id="otherCondition">
-            </div>
-            
-            <div class="form-group required">
-                <label>Descripción detallada del incidente</label>
-                <textarea id="incidentDescription" required></textarea>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label>Médico que atendió</label>
-                        <input type="text" id="attendingDoctor" placeholder="Nombre del médico">
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label>¿Se administró medicamento?</label>
-                        <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="medication" value="si"> Sí
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="medication" value="no" checked> No
-                            </label>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Número de habitación</label>
+                            <input type="text" id="roomNumber" required>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="form-group" id="medicationDetailsContainer" style="display: none;">
-                <label>Detalles del medicamento</label>
-                <textarea id="medicationDetails" placeholder="Nombre del medicamento, dosis, etc."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>¿Fue trasladado a un centro médico?</label>
-                <div class="radio-group">
-                    <label class="radio-option">
-                        <input type="radio" name="hospital" value="si"> Sí
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="hospital" value="no" checked> No
-                    </label>
-                </div>
-            </div>
-            
-            <div class="form-group" id="hospitalDetailsContainer" style="display: none;">
-                <label>Nombre del centro médico</label>
-                <input type="text" id="hospitalName">
                 
-                <label>Persona de contacto</label>
-                <input type="text" id="hospitalContact">
-            </div>
-            
-            <div class="form-group">
-                <label>Evidencia fotográfica (múltiples imágenes)</label>
-                <div class="file-upload" id="fileUploadArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <div class="file-label">Arrastra archivos aquí o haz clic para seleccionar</div>
-                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
-                </div>
-                <div class="preview-container" id="imagePreview"></div>
-            </div>
-            
-            <div class="row">
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Reportado por</label>
-                        <input type="text" id="reportedBy" required>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Edad del huésped</label>
+                            <input type="number" id="guestAge" min="0" max="120">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Grupo de edad</label>
+                            <select id="ageGroup">
+                                <option value="">Seleccionar</option>
+                                <option value="niño">Niño (0-12)</option>
+                                <option value="adolescente">Adolescente (13-19)</option>
+                                <option value="adulto">Adulto (20-59)</option>
+                                <option value="mayor">Adulto mayor (60+)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="form-group required">
-                        <label>Cargo</label>
-                        <input type="text" id="reporterPosition" required>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Sexo</label>
+                            <select id="gender">
+                                <option value="">Seleccionar</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                                <option value="prefiere-no-decir">Prefiere no decir</option>
+                            </select>
+                        </div>
                     </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Lugar donde ocurrió</label>
+                            <input type="text" id="incidentLocation" placeholder="Ej: Habitación 205, Alberca, Restaurante">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" disabled>
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn next-step" data-next="2">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             
-            <div class="form-group required">
-                <label>Fecha del reporte</label>
-                <input type="date" id="reportDate" required>
+            <!-- Paso 2: Detalles del Incidente -->
+            <div class="medical-section" id="step2">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Fecha del incidente</label>
+                            <input type="date" id="incidentDate" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Hora del incidente</label>
+                            <input type="time" id="incidentTime" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group required">
+                    <label>Tipo de condición médica</label>
+                    <select id="medicalCondition" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="accidente">Accidente</option>
+                        <option value="enfermedad">Enfermedad</option>
+                        <option value="alergia">Reacción alérgica</option>
+                        <option value="intoxicacion">Intoxicación alimentaria</option>
+                        <option value="cronica">Condición crónica</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="otherConditionContainer" style="display: none;">
+                    <label>Especifique la condición</label>
+                    <input type="text" id="otherCondition">
+                </div>
+                
+                <div class="form-group required">
+                    <label>Descripción detallada del incidente</label>
+                    <textarea id="incidentDescription" required></textarea>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary prev-step" data-prev="1">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn next-step" data-next="3">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
             
-            <div class="declined-section">
+            <!-- Paso 3: Atención Médica y Documentación -->
+            <div class="medical-section" id="step3">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Médico que atendió</label>
+                            <input type="text" id="attendingDoctor" placeholder="Nombre del médico">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>¿Se administró medicamento?</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="medication" value="si"> Sí
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="medication" value="no" checked> No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="medicationDetailsContainer" style="display: none;">
+                    <label>Detalles del medicamento</label>
+                    <textarea id="medicationDetails" placeholder="Nombre del medicamento, dosis, etc."></textarea>
+                </div>
+                
                 <div class="form-group">
-                    <label>¿La atención médica fue declinada?</label>
+                    <label>¿Fue trasladado a un centro médico?</label>
                     <div class="radio-group">
                         <label class="radio-option">
-                            <input type="radio" name="declined" value="si"> Sí
+                            <input type="radio" name="hospital" value="si"> Sí
                         </label>
                         <label class="radio-option">
-                            <input type="radio" name="declined" value="no" checked> No
+                            <input type="radio" name="hospital" value="no" checked> No
                         </label>
                     </div>
                 </div>
                 
-                <div class="form-group" id="declinedReasonContainer" style="display: none;">
-                    <label>Razón por la que se declinó</label>
-                    <textarea id="declinedReason" placeholder="Motivo por el cual se declinó la atención médica"></textarea>
+                <div class="form-group" id="hospitalDetailsContainer" style="display: none;">
+                    <label>Nombre del centro médico</label>
+                    <input type="text" id="hospitalName">
+                    
+                    <label>Persona de contacto</label>
+                    <input type="text" id="hospitalContact">
+                </div>
+                
+                <div class="form-group">
+                    <label>Evidencia fotográfica (múltiples imágenes)</label>
+                    <div class="file-upload" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="file-label">Arrastra archivos aquí o haz clic para seleccionar</div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                    </div>
+                    <div class="preview-container" id="imagePreview"></div>
+                </div>
+                
+                <div class="declined-section">
+                    <div class="form-group">
+                        <label>¿La atención médica fue declinada?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="declined" value="si"> Sí
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="declined" value="no" checked> No
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="declinedReasonContainer" style="display: none;">
+                        <label>Razón por la que se declinó</label>
+                        <textarea id="declinedReason" placeholder="Motivo por el cual se declinó la atención médica"></textarea>
+                    </div>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary prev-step" data-prev="2">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn next-step" data-next="4">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             
-            <button type="submit" class="btn">
-                <i class="fas fa-save"></i> Guardar Reporte
-            </button>
+            <!-- Paso 4: Información del Reporte -->
+            <div class="medical-section" id="step4">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Reportado por</label>
+                            <input type="text" id="reportedBy" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group required">
+                            <label>Cargo</label>
+                            <input type="text" id="reporterPosition" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group required">
+                    <label>Fecha del reporte</label>
+                    <input type="date" id="reportDate" required>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary prev-step" data-prev="3">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar Reporte
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Paso 5: Confirmación -->
+            <div class="medical-section" id="step5" style="text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--success); margin-bottom: 2rem;"></i>
+                <h3 style="color: var(--success);">¡Reporte Médico Registrado Exitosamente!</h3>
+                <p style="margin-bottom: 2rem; font-size: 1.1rem;">El reporte médico ha sido guardado correctamente en el sistema.</p>
+                <button type="button" class="btn" id="newRegisterBtn" style="max-width: 300px; margin: 0 auto;">
+                    <i class="fas fa-plus"></i> Nuevo Reporte
+                </button>
+            </div>
         </form>
     </div>
 
@@ -682,6 +847,124 @@
             }, 5000);
         }
 
+        // Navegación entre pasos
+        function goToStep(stepNumber) {
+            // Ocultar todos los pasos
+            document.querySelectorAll('.medical-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar el paso seleccionado
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            
+            // Actualizar el indicador de pasos
+            updateStepIndicator(stepNumber);
+        }
+        
+        // Actualizar el indicador visual de pasos
+        function updateStepIndicator(currentStep) {
+            const steps = document.querySelectorAll('.step');
+            const lines = document.querySelectorAll('.step-line');
+            
+            steps.forEach((step, index) => {
+                const stepNum = parseInt(step.dataset.step);
+                
+                if (stepNum < currentStep) {
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+            
+            lines.forEach((line, index) => {
+                if (index < currentStep - 1) {
+                    line.classList.add('completed');
+                    line.classList.remove('active');
+                } else if (index === currentStep - 1) {
+                    line.classList.add('active');
+                    line.classList.remove('completed');
+                } else {
+                    line.classList.remove('active', 'completed');
+                }
+            });
+        }
+        
+        // Validar paso actual antes de avanzar
+        function validateStep(stepNumber) {
+            let isValid = true;
+            
+            // Validar campos requeridos del paso actual
+            const currentStep = document.getElementById(`step${stepNumber}`);
+            const requiredFields = currentStep.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.style.borderColor = 'var(--warning)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+            
+            if (!isValid) {
+                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+            }
+            
+            return isValid;
+        }
+        
+        // Event listeners para navegación
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const nextStep = parseInt(this.dataset.next);
+                if (validateStep(nextStep - 1)) {
+                    goToStep(nextStep);
+                    
+                    // Desplazamiento suave hacia arriba
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const prevStep = parseInt(this.dataset.prev);
+                goToStep(prevStep);
+                
+                // Desplazamiento suave hacia arriba
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Botón para nuevo registro
+        document.getElementById('newRegisterBtn').addEventListener('click', function() {
+            // Resetear formulario
+            document.getElementById('medicalReportForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            filesToUpload = [];
+            
+            // Restablecer fechas y hora actual
+            document.getElementById('reportDate').valueAsDate = new Date();
+            document.getElementById('incidentDate').valueAsDate = new Date();
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('incidentTime').value = `${hours}:${minutes}`;
+            
+            // Volver al paso 1
+            goToStep(1);
+        });
+        
         // Mostrar/ocultar campos condicionales
         document.getElementById('medicalCondition').addEventListener('change', function() {
             const otherContainer = document.getElementById('otherConditionContainer');
@@ -838,21 +1121,8 @@
         document.getElementById('medicalReportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validar campos requeridos
-            let isValid = true;
-            const requiredFields = document.querySelectorAll('[required]');
-            
-            requiredFields.forEach(field => {
-                if (!field.value) {
-                    field.style.borderColor = 'var(--warning)';
-                    isValid = false;
-                } else {
-                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }
-            });
-            
-            if (!isValid) {
-                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+            // Validar campos requeridos del paso 4
+            if (!validateStep(4)) {
                 return;
             }
             
@@ -890,18 +1160,18 @@
                     hospitalTransfer: document.querySelector('input[name="hospital"]:checked').value,
                     hospitalName: document.getElementById('hospitalName').value || null,
                     hospitalContact: document.getElementById('hospitalContact').value || null,
-                    reportedBy: user.displayName || 'Usuario no identificado', // Nombre del usuario al momento de guardar
+                    reportedBy: document.getElementById('reportedBy').value,
                     reporterPosition: document.getElementById('reporterPosition').value,
-                    reportDate: new Date().toISOString(), // Fecha y hora actual al momento de guardar
+                    reportDate: document.getElementById('reportDate').value, // Solo la fecha, sin hora
                     medicalDeclined: document.querySelector('input[name="declined"]:checked').value,
                     declinedReason: document.getElementById('declinedReason').value || null,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'Código amarillo', // Siempre se guarda como "Código amarillo"
+                    status: 'Código amarillo',
                     keywords: [
                         document.getElementById('guestName').value.toLowerCase(),
                         document.getElementById('roomNumber').value.toLowerCase(),
                         document.getElementById('incidentDate').value
-                    ].filter(Boolean)
+                    ].filter(Boolean),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() // Usamos serverTimestamp para la fecha/hora de creación
                 };
                 
                 // Subir imágenes si hay
@@ -911,19 +1181,8 @@
                 // Guardar en Firestore
                 await medicalReportsRef.add(reportData);
                 
-                // Éxito
-                showAlert('success', 'Éxito', 'Reporte médico guardado correctamente');
-                this.reset();
-                previewContainer.innerHTML = '';
-                filesToUpload = [];
-                
-                // Restablecer fechas y hora actual
-                document.getElementById('reportDate').valueAsDate = new Date();
-                document.getElementById('incidentDate').valueAsDate = new Date();
-                const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                document.getElementById('incidentTime').value = `${hours}:${minutes}`;
+                // Éxito - ir al paso 5 (confirmación)
+                goToStep(5);
                 
             } catch (error) {
                 console.error('Error al guardar el reporte:', error);
@@ -937,13 +1196,13 @@
         });
         
         // Establecer fechas por defecto al cargar la página
-        document.getElementById('reportDate').valueAsDate = new Date();
-        document.getElementById('incidentDate').valueAsDate = new Date();
+        const today = new Date();
+        document.getElementById('reportDate').valueAsDate = today;
+        document.getElementById('incidentDate').valueAsDate = today;
         
         // Establecer hora actual al cargar la página
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const hours = String(today.getHours()).padStart(2, '0');
+        const minutes = String(today.getMinutes()).padStart(2, '0');
         document.getElementById('incidentTime').value = `${hours}:${minutes}`;
 
         // Escuchar cambios de autenticación
