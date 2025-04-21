@@ -242,6 +242,14 @@
             box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
         
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
         .file-upload {
             border: 2px dashed rgba(255, 255, 255, 0.2);
             border-radius: 8px;
@@ -317,6 +325,12 @@
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
+            display: none; /* Ocultamos todas las secciones por defecto */
+        }
+        
+        .medical-section.active {
+            display: block; /* Mostramos solo la sección activa */
+            animation: fadeIn 0.5s ease-out;
         }
         
         .medical-section h3 {
@@ -353,6 +367,66 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Estilos para la navegación por pasos */
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            background: rgba(21, 160, 134, 0.3);
+            color: white;
+        }
+        
+        .step.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+        }
+        
+        .step-line {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 18px;
+        }
+        
+        .step-line.active {
+            background: var(--accent);
+        }
+        
+        .step-line.completed {
+            background: rgba(21, 160, 134, 0.3);
+        }
+        
         @media (max-width: 768px) {
             .row {
                 flex-direction: column;
@@ -366,6 +440,20 @@
             .alert {
                 width: 90%;
                 padding: 1rem;
+            }
+            
+            .step-indicator {
+                gap: 0.5rem;
+            }
+            
+            .step {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            
+            .step-line {
+                margin-top: 13px;
             }
         }
         
@@ -402,8 +490,20 @@
     <div class="container glow-effect">
         <h1><i class="fas fa-file-medical-alt"></i> Registro de Licencias Médicas</h1>
         
+        <!-- Indicador de pasos -->
+        <div class="step-indicator">
+            <div class="step active" data-step="1">1</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">2</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">3</div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">4</div>
+        </div>
+        
         <form id="licenseForm">
-            <div class="medical-section">
+            <!-- Paso 1: Datos del Colaborador -->
+            <div class="medical-section active" id="step1">
                 <h3><i class="fas fa-user"></i> Datos del Colaborador</h3>
                 
                 <div class="row">
@@ -455,9 +555,19 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" disabled>
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn next-step" data-next="2">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
             
-            <div class="medical-section">
+            <!-- Paso 2: Datos de la Licencia Médica -->
+            <div class="medical-section" id="step2">
                 <h3><i class="fas fa-heartbeat"></i> Datos de la Licencia Médica</h3>
                 
                 <div class="row">
@@ -527,9 +637,19 @@
                     <label>Centro médico</label>
                     <input type="text" id="medicalCenter">
                 </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary prev-step" data-prev="1">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn next-step" data-next="3">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
             
-            <div class="medical-section">
+            <!-- Paso 3: Documentación -->
+            <div class="medical-section" id="step3">
                 <h3><i class="fas fa-file-upload"></i> Documentación</h3>
                 
                 <div class="form-group">
@@ -546,11 +666,26 @@
                     <label>Observaciones adicionales</label>
                     <textarea id="observations" placeholder="Información adicional relevante"></textarea>
                 </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary prev-step" data-prev="2">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar Licencia
+                    </button>
+                </div>
             </div>
             
-            <button type="submit" class="btn">
-                <i class="fas fa-save"></i> Guardar Licencia
-            </button>
+            <!-- Paso 4: Confirmación (se mostrará después de enviar) -->
+            <div class="medical-section" id="step4" style="text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--success); margin-bottom: 2rem;"></i>
+                <h3 style="color: var(--success);">¡Registro Exitoso!</h3>
+                <p style="margin-bottom: 2rem; font-size: 1.1rem;">La licencia médica ha sido registrada correctamente en el sistema.</p>
+                <button type="button" class="btn" id="newRegisterBtn" style="max-width: 300px; margin: 0 auto;">
+                    <i class="fas fa-plus"></i> Nuevo Registro
+                </button>
+            </div>
         </form>
     </div>
 
@@ -610,6 +745,129 @@
             }, 5000);
         }
 
+        // Navegación entre pasos
+        function goToStep(stepNumber) {
+            // Ocultar todos los pasos
+            document.querySelectorAll('.medical-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar el paso seleccionado
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            
+            // Actualizar el indicador de pasos
+            updateStepIndicator(stepNumber);
+        }
+        
+        // Actualizar el indicador visual de pasos
+        function updateStepIndicator(currentStep) {
+            const steps = document.querySelectorAll('.step');
+            const lines = document.querySelectorAll('.step-line');
+            
+            steps.forEach((step, index) => {
+                const stepNum = parseInt(step.dataset.step);
+                
+                if (stepNum < currentStep) {
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+            
+            lines.forEach((line, index) => {
+                if (index < currentStep - 1) {
+                    line.classList.add('completed');
+                    line.classList.remove('active');
+                } else if (index === currentStep - 1) {
+                    line.classList.add('active');
+                    line.classList.remove('completed');
+                } else {
+                    line.classList.remove('active', 'completed');
+                }
+            });
+        }
+        
+        // Validar paso actual antes de avanzar
+        function validateStep(stepNumber) {
+            let isValid = true;
+            
+            // Validar campos requeridos del paso actual
+            const currentStep = document.getElementById(`step${stepNumber}`);
+            const requiredFields = currentStep.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.style.borderColor = 'var(--warning)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+            
+            // Validaciones específicas para el paso 2 (fechas)
+            if (stepNumber === 2) {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                if (new Date(startDate) > new Date(endDate)) {
+                    showAlert('error', 'Error de fechas', 'La fecha de inicio no puede ser posterior a la fecha de término');
+                    document.getElementById('startDate').style.borderColor = 'var(--warning)';
+                    document.getElementById('endDate').style.borderColor = 'var(--warning)';
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+            }
+            
+            return isValid;
+        }
+        
+        // Event listeners para navegación
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const nextStep = parseInt(this.dataset.next);
+                if (validateStep(nextStep - 1)) {
+                    goToStep(nextStep);
+                    
+                    // Desplazamiento suave hacia arriba
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', function() {
+                const prevStep = parseInt(this.dataset.prev);
+                goToStep(prevStep);
+                
+                // Desplazamiento suave hacia arriba
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Botón para nuevo registro
+        document.getElementById('newRegisterBtn').addEventListener('click', function() {
+            // Resetear formulario
+            document.getElementById('licenseForm').reset();
+            document.getElementById('documentPreview').innerHTML = '';
+            filesToUpload = [];
+            
+            // Volver al paso 1
+            goToStep(1);
+        });
+        
         // Mostrar/ocultar campos condicionales
         document.getElementById('licenseType').addEventListener('change', function() {
             const otherContainer = document.getElementById('otherTypeContainer');
@@ -787,32 +1045,8 @@
         document.getElementById('licenseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validar campos requeridos
-            let isValid = true;
-            const requiredFields = document.querySelectorAll('[required]');
-            
-            requiredFields.forEach(field => {
-                if (!field.value) {
-                    field.style.borderColor = 'var(--warning)';
-                    isValid = false;
-                } else {
-                    field.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }
-            });
-            
-            // Validar fechas
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            if (new Date(startDate) > new Date(endDate)) {
-                showAlert('error', 'Error de fechas', 'La fecha de inicio no puede ser posterior a la fecha de término');
-                document.getElementById('startDate').style.borderColor = 'var(--warning)';
-                document.getElementById('endDate').style.borderColor = 'var(--warning)';
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                showAlert('error', 'Campos requeridos', 'Por favor complete todos los campos obligatorios');
+            // Validar campos requeridos del paso 3
+            if (!validateStep(3)) {
                 return;
             }
             
@@ -839,6 +1073,8 @@
                 const userName = userDoc.data().name || 'Usuario no identificado';
                 
                 // Calcular días de licencia
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
                 const businessDays = calculateBusinessDays(startDate, endDate);
                 
                 // Obtener valores del formulario
@@ -880,11 +1116,8 @@
                 // Guardar en Firestore
                 await medicalLicensesRef.add(licenseData);
                 
-                // Éxito
-                showAlert('success', 'Éxito', 'Licencia médica registrada correctamente');
-                this.reset();
-                previewContainer.innerHTML = '';
-                filesToUpload = [];
+                // Éxito - ir al paso 4
+                goToStep(4);
                 
             } catch (error) {
                 console.error('Error al guardar la licencia:', error);
