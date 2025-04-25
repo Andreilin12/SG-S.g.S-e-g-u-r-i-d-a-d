@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizar Reportes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #15a086;
+      --secondary-color: #2c3e50;
+      --background-color: #1a2a3a;
+      --card-color: #34495e;
+      --text-color: #ffffff;
+      --highlight-color: #1abc9c;
+      --danger-color: #e74c3c;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      background-color: var(--card-color);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 700;
+      color: var(--highlight-color);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 2.2rem;
+      position: relative;
+    }
+
+    h1::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: var(--primary-color);
+      margin: 10px auto;
+      border-radius: 2px;
+    }
+
+    .buscadores {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .buscadores input {
+      flex: 1;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: none;
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+      font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .buscadores input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--highlight-color);
+    }
+
+    .buscadores input::placeholder {
+      color: #aaa;
+    }
+
+    .acordeon {
+      margin-bottom: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .acordeon:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .acordeon-titulo {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .acordeon-titulo:hover {
+      background-color: var(--highlight-color);
+    }
+
+    .acordeon-titulo span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .acordeon-titulo .badge {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: normal;
+    }
+
+    .acordeon-contenido {
+      background-color: var(--secondary-color);
+      padding: 20px;
+      display: none;
+    }
+
+    .acordeon-contenido.activo {
+      display: block;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .acordeon-titulo i {
+      transition: transform 0.3s;
+      font-size: 1.2rem;
+    }
+
+    .acordeon-titulo.activo i {
+      transform: rotate(180deg);
+    }
+
+    .reporte-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .reporte-item {
+      margin-bottom: 15px;
+    }
+
+    .reporte-item label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+      color: var(--highlight-color);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .reporte-item p {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 1rem;
+      line-height: 1.5;
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .reporte-item .date-time {
+      display: flex;
+      gap: 10px;
+    }
+
+    .reporte-item .date-time p {
+      flex: 1;
+    }
+
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .image-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      aspect-ratio: 1;
+    }
+
+    .image-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-item .zoom-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .image-item:hover .zoom-icon {
+      opacity: 1;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-accion {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-accion:hover {
+      background-color: var(--highlight-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-accion.secondary {
+      background-color: #7f8c8d;
+    }
+
+    .btn-accion.danger {
+      background-color: var(--danger-color);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background-color: var(--card-color);
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      animation: modalFadeIn 0.4s ease-out;
+    }
+
+    .modal-content h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--highlight-color);
+      font-size: 1.5rem;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .usuario-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .usuario-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .usuario-item img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin-right: 15px;
+      object-fit: cover;
+      border: 2px solid var(--primary-color);
+    }
+
+    .usuario-item .user-info {
+      flex: 1;
+    }
+
+    .usuario-item .user-name {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .usuario-item .user-position {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    .usuario-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.5s ease-out, fadeOut 0.5s 2.5s ease-out;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert i {
+      font-size: 1.2rem;
+    }
+
+    .confirm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .confirm-content {
+      background-color: var(--card-color);
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .confirm-content h3 {
+      margin-bottom: 20px;
+      color: var(--text-color);
+    }
+
+    .icono-notificacion {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: var(--primary-color);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .icono-notificacion:hover {
+      background-color: var(--highlight-color);
+      transform: scale(1.1);
+    }
+
+    .icono-notificacion .punto-rojo {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 12px;
+      height: 12px;
+      background-color: var(--danger-color);
+      border-radius: 50%;
+      border: 2px solid var(--primary-color);
+    }
+
+    .modal-reportes-recibidos {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-reportes-recibidos .modal-content {
+      background-color: var(--card-color);
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-reportes-recibidos .modal-content h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--highlight-color);
+    }
+
+    .reporte-recibido-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .reporte-recibido-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .reporte-recibido-item.unread {
+      border-left: 4px solid var(--highlight-color);
+      background-color: rgba(26, 188, 156, 0.1);
+    }
+
+    .reporte-recibido-item .reporte-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .reporte-recibido-item .reporte-meta {
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    .reporte-recibido-item .reporte-date {
+      font-size: 0.8rem;
+      color: var(--highlight-color);
+    }
+
+    .compartido {
+      border: 2px solid var(--highlight-color);
+    }
+
+    .compartido-info {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: rgba(26, 188, 156, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .compartido-info p {
+      margin: 5px 0;
+      color: var(--highlight-color);
+    }
+
+    .info-registro {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    .info-registro p {
+      margin: 5px 0;
+      background: none;
+      padding: 0;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Estilos para impresión */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .acordeon-contenido.activo, .acordeon-contenido.activo * {
+        visibility: visible;
+      }
+      .acordeon-contenido.activo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: white;
+        color: #000;
+        padding: 20px;
+      }
+      .reporte-grid {
+        display: block;
+      }
+      .reporte-item p {
+        background-color: transparent !important;
+        color: #000 !important;
+      }
+      .reporte-item label {
+        color: var(--primary-color) !important;
+      }
+      .btn-accion {
+        display: none !important;
+      }
+      .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .image-item {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      .reporte-grid {
+        grid-template-columns: 1fr;
+      }
+      .buscadores {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reportes Registrados</h1>
+
+    <!-- Buscador por nombre del caso -->
+    <div class="buscadores">
+      <input type="text" id="buscadorNombre" placeholder="Buscar por nombre del caso...">
+    </div>
+
+    <!-- Contenedor de acordeones -->
+    <div id="acordeonContainer"></div>
+  </div>
+
+  <!-- Icono de notificación -->
+  <div class="icono-notificacion" onclick="abrirModalReportesRecibidos()">
+    <i class="fas fa-bell"></i>
+    <div id="puntoRojo" class="punto-rojo" style="display: none;"></div>
+  </div>
+
+  <!-- Modal para reportes recibidos -->
+  <div class="modal-reportes-recibidos" id="modalReportesRecibidos" style="display: none;">
+    <div class="modal-content">
+      <h3>Reportes Recibidos</h3>
+      <div id="listaReportesRecibidos"></div>
+      <div class="modal-buttons">
+        <button class="btn-accion" onclick="cerrarModalReportesRecibidos()">
+          <i class="fas fa-times"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para compartir -->
+  <div class="modal" id="modalCompartir">
+    <div class="modal-content">
+      <h3>Compartir Reporte</h3>
+      <div id="usuariosLista"></div>
+      <div class="modal-buttons">
+        <button class="btn-accion" onclick="compartirReporte()">
+          <i class="fas fa-share"></i> Compartir
+        </button>
+        <button class="btn-accion secondary" onclick="cerrarModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmación de eliminación -->
+  <div id="confirmModal" class="confirm-modal" style="display: none;">
+    <div class="confirm-content">
+      <h3>¿Estás seguro de eliminar este reporte?</h3>
+      <p>Esta acción no se puede deshacer.</p>
+      <div class="modal-buttons">
+        <button class="btn-accion danger" onclick="confirmarEliminar()">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+        <button class="btn-accion secondary" onclick="cerrarConfirmModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div id="alert" class="alert" style="display: none;"></div>
+
+  <!-- Sonido para alertas -->
+  <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Variables globales
+    let reporteSeleccionado = null;
+    let reporteAEliminar = null;
+    let currentUser = null;
+    let reportesRecibidos = [];
+
+    // Verificar si el usuario está logueado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarReportes();
+        cargarReportesRecibidos();
+      } else {
+        window.location.href = "login.html"; // Redirigir si no está logueado
+      }
+    });
+
+    // Función para mostrar alerta
+    function mostrarAlerta(mensaje, tipo = 'success') {
+      const alert = document.getElementById('alert');
+      alert.innerHTML = `
+        <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+        <span>${mensaje}</span>
+      `;
+      alert.style.display = 'flex';
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 3000);
+    }
+
+    // Función para mostrar confirmación de eliminación
+    function mostrarConfirmModal(reporteId) {
+      reporteAEliminar = reporteId;
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    // Función para cerrar confirmación de eliminación
+    function cerrarConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+    }
+
+    // Función para confirmar eliminación
+    async function confirmarEliminar() {
+      if (reporteAEliminar) {
+        try {
+          await deleteDoc(doc(db, "Reportes", reporteAEliminar));
+          mostrarAlerta("Reporte eliminado exitosamente.");
+          cargarReportes();
+        } catch (error) {
+          console.error(error);
+          mostrarAlerta("Error al eliminar el reporte.", 'error');
+        }
+        cerrarConfirmModal();
+      }
+    }
+
+    // Función para formatear la fecha y hora
+    function formatearFecha(fecha) {
+      if (!fecha) return "No especificada";
+      
+      try {
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) return "Fecha inválida";
+        
+        const dia = String(fechaObj.getDate()).padStart(2, '0');
+        const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+        const año = fechaObj.getFullYear();
+        const horas = String(fechaObj.getHours()).padStart(2, '0');
+        const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+      } catch (e) {
+        console.error("Error al formatear fecha:", e);
+        return "Fecha inválida";
+      }
+    }
+
+    // Función para cargar los reportes desde Firestore
+    async function cargarReportes() {
+      try {
+        const reportesRef = collection(db, "Reportes");
+        const reportesSnapshot = await getDocs(reportesRef);
+        const acordeonContainer = document.getElementById('acordeonContainer');
+        acordeonContainer.innerHTML = ""; // Limpiar el contenedor antes de cargar
+
+        reportesSnapshot.forEach((doc) => {
+          const reporte = doc.data();
+          // Mostrar solo si el usuario actual es el creador o si el reporte fue compartido con él
+          if (reporte.userId === currentUser.uid || (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid))) {
+            const acordeon = document.createElement('div');
+            acordeon.classList.add('acordeon');
+            if (reporte.compartidoCon) {
+              acordeon.classList.add('compartido');
+            }
+
+            const titulo = document.createElement('div');
+            titulo.classList.add('acordeon-titulo');
+            titulo.innerHTML = `
+              <span>
+                <i class="fas fa-file-alt"></i> 
+                ${reporte.nombreCaso || 'Sin nombre'} 
+                <span class="badge">${reporte.tipoCaso || 'Sin tipo'}</span>
+                ${reporte.compartidoCon ? '<span class="badge"><i class="fas fa-share-alt"></i> Compartido</span>' : ''}
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            `;
+
+            const contenido = document.createElement('div');
+            contenido.classList.add('acordeon-contenido');
+            
+            // Crear galería de imágenes si existen
+            let imagenesHTML = '';
+            if (reporte.fotoURLs && reporte.fotoURLs.length > 0) {
+              imagenesHTML = `
+                <div class="reporte-item">
+                  <label>Imágenes Adjuntas:</label>
+                  <div class="image-gallery">
+                    ${reporte.fotoURLs.map(url => `
+                      <div class="image-item">
+                        <img src="${url}" alt="Imagen del reporte">
+                        <div class="zoom-icon" onclick="ampliarImagen('${url}')">
+                          <i class="fas fa-search-plus"></i>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            } else if (reporte.fotoURL) {
+              // Para compatibilidad con reportes antiguos que solo tienen fotoURL
+              imagenesHTML = `
+                <div class="reporte-item">
+                  <label>Imagen Adjunta:</label>
+                  <div class="image-gallery">
+                    <div class="image-item">
+                      <img src="${reporte.fotoURL}" alt="Imagen del reporte">
+                      <div class="zoom-icon" onclick="ampliarImagen('${reporte.fotoURL}')">
+                        <i class="fas fa-search-plus"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }
+
+            contenido.innerHTML = `
+              <div class="reporte-grid">
+                <div class="reporte-item">
+                  <label>Nombre del Caso:</label>
+                  <p>${reporte.nombreCaso || 'No especificado'}</p>
+                </div>
+                <div class="reporte-item">
+                  <label>Tipo de Caso:</label>
+                  <p>${reporte.tipoCaso || 'No especificado'}</p>
+                </div>
+                <div class="reporte-item">
+                  <label>Fecha y Hora del Incidente:</label>
+                  <p>${reporte.fechaHoraIncidente ? (Array.isArray(reporte.fechaHoraIncidente) ? 
+                    reporte.fechaHoraIncidente.map(d => formatearFecha(d)).join('<br>') : 
+                    formatearFecha(reporte.fechaHoraIncidente)) : 'No especificada'}</p>
+                </div>
+                <div class="reporte-item">
+                  <label>Reportado Por:</label>
+                  <p>${reporte.reportadoPor || 'No especificado'}</p>
+                </div>
+                <div class="reporte-item">
+                  <label>Fecha del Reporte:</label>
+                  <p>${formatearFecha(reporte.fechaReporte)}</p>
+                </div>
+                <div class="reporte-item">
+                  <label>Hora del Reporte:</label>
+                  <p>${reporte.horaReporte || 'No especificada'}</p>
+                </div>
+              </div>
+              
+              <div class="reporte-item">
+                <label>Descripción:</label>
+                <p>${reporte.descripcion || 'No hay descripción proporcionada.'}</p>
+              </div>
+              
+              ${imagenesHTML}
+              
+              <div class="info-registro">
+                <p><i class="fas fa-user"></i> Reporte realizado por: ${reporte.usuario || 'Usuario desconocido'}</p>
+                <p><i class="fas fa-calendar-alt"></i> Fecha de registro: ${formatearFecha(reporte.createdAt)}</p>
+                <p><i class="fas fa-hashtag"></i> Número de registro: ${reporte.numeroRegistro || 'N/A'}</p>
+              </div>
+              
+              ${reporte.compartidoCon ? `
+                <div class="compartido-info">
+                  <p><i class="fas fa-share-alt"></i> Compartido por: ${reporte.compartidoPor || 'Usuario desconocido'}</p>
+                  <p><i class="fas fa-clock"></i> Fecha de recepción: ${formatearFecha(reporte.compartidoEl)}</p>
+                </div>
+              ` : ''}
+              
+              <div class="action-buttons">
+                <button class="btn-accion" onclick="imprimirAcordeon(this)">
+                  <i class="fas fa-print"></i> Imprimir
+                </button>
+                ${reporte.userId === currentUser.uid ? `
+                  <button class="btn-accion" onclick="abrirModalCompartir('${doc.id}')">
+                    <i class="fas fa-share"></i> Compartir
+                  </button>
+                  <button class="btn-accion danger" onclick="mostrarConfirmModal('${doc.id}')">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                ` : ''}
+              </div>
+            `;
+
+            // Agregar evento para abrir/cerrar el acordeón
+            titulo.addEventListener('click', () => {
+              titulo.classList.toggle('activo');
+              contenido.classList.toggle('activo');
+              
+              // Marcar como leído si es un reporte compartido
+              if (reporte.compartidoCon && !reporte.leidoPor?.includes(currentUser.uid)) {
+                marcarComoLeido(doc.id, reporte);
+              }
+            });
+
+            acordeon.appendChild(titulo);
+            acordeon.appendChild(contenido);
+            acordeonContainer.appendChild(acordeon);
+          }
+        });
+
+        // Agregar evento al buscador por nombre
+        document.getElementById('buscadorNombre').addEventListener('input', filtrarPorNombre);
+      } catch (error) {
+        console.error("Error al cargar reportes:", error);
+        mostrarAlerta("Error al cargar los reportes. Intenta recargar la página.", 'error');
+      }
+    }
+
+    // Función para marcar un reporte como leído
+    async function marcarComoLeido(reporteId, reporte) {
+      try {
+        const reporteRef = doc(db, "Reportes", reporteId);
+        await updateDoc(reporteRef, {
+          leidoPor: [...(reporte.leidoPor || []), currentUser.uid]
+        });
+      } catch (error) {
+        console.error("Error al marcar como leído:", error);
+      }
+    }
+
+    // Función para filtrar por nombre del caso
+    function filtrarPorNombre() {
+      const texto = this.value.toLowerCase();
+      const acordeones = document.querySelectorAll('.acordeon');
+      acordeones.forEach(acordeon => {
+        const nombre = acordeon.querySelector('.acordeon-titulo span').textContent.toLowerCase();
+        if (nombre.includes(texto)) {
+          acordeon.style.display = 'block';
+        } else {
+          acordeon.style.display = 'none';
+        }
+      });
+    }
+
+    // Función para imprimir el contenido del acordeón
+    window.imprimirAcordeon = function(btn) {
+      const contenido = btn.closest('.acordeon-contenido');
+      const contenidoClonado = contenido.cloneNode(true);
+      
+      // Eliminar botones de acción
+      const actionButtons = contenidoClonado.querySelector('.action-buttons');
+      if (actionButtons) actionButtons.remove();
+      
+      const contenedorTemporal = document.createElement('div');
+      contenedorTemporal.appendChild(contenidoClonado);
+      document.body.appendChild(contenedorTemporal);
+      
+      // Aplicar estilos para impresión
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @page { size: auto; margin: 10mm; }
+        body { font-family: Arial, sans-serif; color: #000; }
+        .reporte-item label { color: #15a086; font-weight: bold; }
+        .image-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .image-item { page-break-inside: avoid; }
+      `;
+      document.head.appendChild(style);
+      
+      window.print();
+      
+      // Limpiar después de imprimir
+      document.body.removeChild(contenedorTemporal);
+      document.head.removeChild(style);
+    };
+
+    // Función para ampliar imagen
+    window.ampliarImagen = function(url) {
+      const modal = document.createElement('div');
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100%';
+      modal.style.height = '100%';
+      modal.style.backgroundColor = 'rgba(0,0,0,0.9)';
+      modal.style.display = 'flex';
+      modal.style.justifyContent = 'center';
+      modal.style.alignItems = 'center';
+      modal.style.zIndex = '2000';
+      modal.style.cursor = 'zoom-out';
+      
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.maxWidth = '90%';
+      img.style.maxHeight = '90%';
+      img.style.objectFit = 'contain';
+      img.style.borderRadius = '8px';
+      
+      modal.appendChild(img);
+      modal.onclick = () => document.body.removeChild(modal);
+      
+      document.body.appendChild(modal);
+    };
+
+    // Función para abrir el modal de compartir
+    window.abrirModalCompartir = function(reporteId) {
+      reporteSeleccionado = reporteId;
+      cargarUsuarios();
+      document.getElementById('modalCompartir').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal
+    window.cerrarModal = function() {
+      document.getElementById('modalCompartir').style.display = 'none';
+    };
+
+    // Función para cargar los usuarios desde Firestore
+    async function cargarUsuarios() {
+      try {
+        const usuariosRef = collection(db, "users");
+        const usuariosSnapshot = await getDocs(usuariosRef);
+        const usuariosLista = document.getElementById('usuariosLista');
+        usuariosLista.innerHTML = ""; // Limpiar la lista antes de cargar
+
+        usuariosSnapshot.forEach((doc) => {
+          const usuario = doc.data();
+          // No mostrar al usuario actual en la lista
+          if (doc.id !== currentUser.uid) {
+            const usuarioItem = document.createElement('div');
+            usuarioItem.classList.add('usuario-item');
+            usuarioItem.innerHTML = `
+              <img src="${usuario.photoURL || 'https://via.placeholder.com/45'}" alt="Foto de perfil">
+              <div class="user-info">
+                <div class="user-name">${usuario.name || 'Usuario sin nombre'}</div>
+                <div class="user-position">${usuario.posicion || 'Sin posición'}</div>
+              </div>
+              <input type="checkbox" value="${doc.id}">
+            `;
+            usuariosLista.appendChild(usuarioItem);
+          }
+        });
+      } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+        mostrarAlerta("Error al cargar la lista de usuarios.", 'error');
+      }
+    }
+
+    // Función para compartir el reporte con los usuarios seleccionados
+    window.compartirReporte = async function() {
+      const usuariosSeleccionados = Array.from(document.querySelectorAll('#usuariosLista input:checked')).map(input => input.value);
+      if (usuariosSeleccionados.length === 0) {
+        mostrarAlerta("Selecciona al menos un usuario.", 'error');
+        return;
+      }
+
+      try {
+        const reporteRef = doc(db, "Reportes", reporteSeleccionado);
+        await updateDoc(reporteRef, {
+          compartidoCon: usuariosSeleccionados,
+          compartidoEl: new Date().toISOString(),
+          compartidoPor: currentUser.displayName || currentUser.email,
+          leidoPor: [] // Resetear estado de leído
+        });
+        
+        mostrarAlerta(`Reporte compartido con ${usuariosSeleccionados.length} usuario(s)`);
+        cerrarModal();
+        cargarReportes();
+      } catch (error) {
+        console.error(error);
+        mostrarAlerta("Error al compartir el reporte.", 'error');
+      }
+    };
+
+    // Función para cargar los reportes recibidos
+    async function cargarReportesRecibidos() {
+      try {
+        const reportesRef = collection(db, "Reportes");
+        const reportesSnapshot = await getDocs(reportesRef);
+        reportesRecibidos = [];
+
+        reportesSnapshot.forEach((doc) => {
+          const reporte = doc.data();
+          if (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid)) {
+            reportesRecibidos.push({
+              id: doc.id,
+              nombreCaso: reporte.nombreCaso || 'Sin nombre',
+              compartidoPor: reporte.compartidoPor || 'Usuario desconocido',
+              compartidoEl: reporte.compartidoEl,
+              leido: reporte.leidoPor && reporte.leidoPor.includes(currentUser.uid)
+            });
+          }
+        });
+
+        // Ordenar de más nuevo a más viejo
+        reportesRecibidos.sort((a, b) => new Date(b.compartidoEl) - new Date(a.compartidoEl));
+
+        // Mostrar el punto rojo si hay reportes no leídos
+        const reportesNoLeidos = reportesRecibidos.filter(reporte => !reporte.leido);
+        if (reportesNoLeidos.length > 0) {
+          document.getElementById('puntoRojo').style.display = 'block';
+          // Reproducir sonido cuando hay reportes no leídos
+          document.getElementById('alertSound').play().catch(e => console.log("Error al reproducir sonido:", e));
+        } else {
+          document.getElementById('puntoRojo').style.display = 'none';
+        }
+      } catch (error) {
+        console.error("Error al cargar reportes recibidos:", error);
+      }
+    }
+
+    // Función para abrir el modal de reportes recibidos
+    window.abrirModalReportesRecibidos = function() {
+      const listaReportesRecibidos = document.getElementById('listaReportesRecibidos');
+      listaReportesRecibidos.innerHTML = ""; // Limpiar la lista antes de cargar
+
+      if (reportesRecibidos.length === 0) {
+        listaReportesRecibidos.innerHTML = '<p style="text-align: center; color: #aaa;">No hay reportes recibidos</p>';
+      } else {
+        reportesRecibidos.forEach((reporte) => {
+          const item = document.createElement('div');
+          item.classList.add('reporte-recibido-item');
+          if (!reporte.leido) {
+            item.classList.add('unread');
+          }
+          
+          item.innerHTML = `
+            <div class="reporte-title">
+              <span>${reporte.nombreCaso}</span>
+              ${!reporte.leido ? '<span class="badge">Nuevo</span>' : ''}
+            </div>
+            <div class="reporte-meta">Compartido por: ${reporte.compartidoPor}</div>
+            <div class="reporte-date">${formatearFecha(reporte.compartidoEl)}</div>
+          `;
+          
+          item.onclick = () => {
+            // Encontrar y abrir el acordeón correspondiente
+            const acordeonTitulo = Array.from(document.querySelectorAll('.acordeon-titulo span'))
+              .find(span => span.textContent.includes(reporte.nombreCaso));
+            
+            if (acordeonTitulo) {
+              acordeonTitulo.parentElement.click(); // Simular clic para abrir
+            }
+            
+            cerrarModalReportesRecibidos();
+          };
+          
+          listaReportesRecibidos.appendChild(item);
+        });
+      }
+
+      // Mostrar el modal
+      document.getElementById('modalReportesRecibidos').style.display = 'flex';
+    };
+
+    // Función para cerrar el modal de reportes recibidos
+    window.cerrarModalReportesRecibidos = function() {
+      document.getElementById('modalReportesRecibidos').style.display = 'none';
+    };
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(collection(db, "Reportes"), (snapshot) => {
+      cargarReportes();
+      cargarReportesRecibidos();
+    });
+
+    // Cargar los reportes al cargar la página
+    cargarReportes();
+    cargarReportesRecibidos();
+  </script>
+</body>
+</html>
