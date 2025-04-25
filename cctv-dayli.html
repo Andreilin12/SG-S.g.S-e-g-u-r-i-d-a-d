@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>report142.173.5.1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #2c3e50;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow: auto;
+        }
+        .form-container {
+            background-color: #34495e;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            overflow: auto;
+            margin-top: 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+            flex: 1;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group select, .input-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .input-group textarea {
+            height: 100px;
+            resize: vertical;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #15a086;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-label:hover {
+            background-color: #2c3e50;
+        }
+        .file-label i {
+            margin-right: 8px;
+        }
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-top: 10px;
+            border: 2px solid #15a086;
+        }
+        .btn {
+            background-color: #15a086;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2c3e50;
+        }
+        .btn-secondary {
+            background-color: #7f8c8d;
+            margin-right: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #2c3e50;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #15a086;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .add-icon {
+            cursor: pointer;
+            color: #15a086;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        .add-icon:hover {
+            color: #2c3e50;
+        }
+        .remove-icon {
+            cursor: pointer;
+            color: #e74c3c;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        .remove-icon:hover {
+            color: #c0392b;
+        }
+        .datetime-container {
+            display: flex;
+            align-items: center;
+        }
+        .floating-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #15a086;
+            color: #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-decoration: none;
+            z-index: 100;
+        }
+        .floating-button:hover {
+            transform: scale(1.1);
+            background-color: #2c3e50;
+        }
+        .links {
+            position: fixed;
+            bottom: 100px;
+            right: 35px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            z-index: 100;
+        }
+        .links a {
+            background-color: #15a086;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 5px 0;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .links a:hover {
+            background-color: #2c3e50;
+        }
+        .links a i {
+            margin-right: 8px;
+        }
+        .show-links .links {
+            display: flex;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #7f8c8d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            position: relative;
+        }
+        .step.active {
+            background-color: #15a086;
+        }
+        .step.completed {
+            background-color: #27ae60;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background-color: #7f8c8d;
+            right: -20px;
+        }
+        .step.completed:not(:last-child)::after {
+            background-color: #27ae60;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview-item {
+            position: relative;
+        }
+        .remove-image {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .success-message {
+            text-align: center;
+            padding: 20px;
+        }
+        .success-icon {
+            font-size: 60px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container" id="formContainer" style="display: none;">
+        <h2>Reporte de Incidentes</h2>
+        
+        <!-- Indicador de pasos -->
+        <div class="step-indicator">
+            <div class="step active" id="step1-indicator">1</div>
+            <div class="step" id="step2-indicator">2</div>
+            <div class="step" id="step3-indicator">3</div>
+        </div>
+        
+        <!-- Paso 1: Información básica -->
+        <div class="form-step active" id="step1">
+            <form id="step1Form">
+                <!-- Fila 1: Nombre del Caso y Tipo de Caso -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="nombreCaso">Nombre del Caso</label>
+                        <input type="text" id="nombreCaso" placeholder="Nombre del Caso" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="tipoCaso">Tipo de Caso</label>
+                        <select id="tipoCaso" required>
+                            <option value="" disabled selected>Seleccione el tipo de caso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fila 2: Reportado por -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="reportadoPor">Reportado por:</label>
+                        <input type="text" id="reportadoPor" placeholder="Reportado por" required>
+                    </div>
+                </div>
+
+                <!-- Fila 3: Fecha y Hora del Incidente -->
+                <div class="row" id="fechaHoraIncidenteContainer">
+                    <div class="input-group">
+                        <label>Fecha y Hora del Incidente</label>
+                        <div class="datetime-container">
+                            <input type="datetime-local" class="fechaHoraIncidente" required>
+                            <i class="fas fa-plus add-icon" onclick="addFechaHoraIncidente()"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila 4: Fecha del Reporte y Hora del Reporte -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="fechaReporte">Fecha del Reporte</label>
+                        <input type="date" id="fechaReporte" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="horaReporte">Hora del Reporte</label>
+                        <input type="time" id="horaReporte" required>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <div></div> <!-- Espacio vacío para alinear el botón a la derecha -->
+                    <button type="button" class="btn" onclick="nextStep(1)">Siguiente</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Paso 2: Detalles e imágenes -->
+        <div class="form-step" id="step2">
+            <form id="step2Form">
+                <!-- Fila 5: Descripción del Incidente -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="descripcion">Descripción del Incidente</label>
+                        <textarea id="descripcion" placeholder="Descripción del incidente" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Fila 6: Seleccionar Fotos -->
+                <div class="row">
+                    <div class="input-group">
+                        <label for="fotos">Seleccionar Fotos (Múltiples)</label>
+                        <label for="fotos" class="file-label">
+                            <i class="fas fa-image"></i> Seleccionar Fotos
+                        </label>
+                        <input type="file" id="fotos" class="file-input" accept="image/*" multiple>
+                    </div>
+                </div>
+                
+                <!-- Vista previa de imágenes -->
+                <div class="row">
+                    <div class="input-group">
+                        <label>Vista Previa de Imágenes</label>
+                        <div class="image-preview-container" id="imagePreviewContainer">
+                            <!-- Las imágenes se agregarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Anterior</button>
+                    <button type="button" class="btn" onclick="nextStep(2)">Siguiente</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Paso 3: Confirmación y envío -->
+        <div class="form-step" id="step3">
+            <div class="success-message">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>¡Revisa los datos antes de enviar!</h3>
+                <p id="confirmationText"></p>
+                
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Anterior</button>
+                    <button type="button" class="btn" id="submitFinalButton">Enviar Reporte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para acceso denegado -->
+    <div class="modal" id="deniedModal">
+        <div class="modal-content">
+            <p>Acceso denegado. Solo usuarios del área de CCTV pueden registrar incidentes.</p>
+        </div>
+    </div>
+
+    <!-- Modal para alertas -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <p id="alertMessage"></p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Botón flotante -->
+    <a href="#" class="floating-button" id="floatingButton" onclick="toggleLinks()">
+        <i class="fa-solid fa-file"></i>
+    </a>
+
+    <!-- Enlaces ocultos que aparecen al hacer clic en el botón -->
+    <div class="links">
+        <a href="Compartido-dayli.html"><i class="fa-solid fa-file"></i> Reportes</a>
+        <a href="eliminar-reporte.html"><i class="fa-sharp fa-solid fa-trash"></i> Eliminar Reporte</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Variables globales
+        let currentUser = null;
+        let codigos = [];
+        let isCCTVUser = false;
+        let selectedImages = []; // Array para almacenar las imágenes seleccionadas
+
+        // Verificar si el usuario está logueado y pertenece al área de CCTV
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
+                if (!userDoc.empty) {
+                    const userData = userDoc.docs[0].data();
+                    isCCTVUser = userData.areaTrabajo === "CCTV";
+                    
+                    if (isCCTVUser) {
+                        document.getElementById('formContainer').style.display = 'block';
+                        document.getElementById('floatingButton').style.display = 'flex';
+                        await loadCodigos();
+                    } else {
+                        document.getElementById('deniedModal').style.display = 'flex';
+                    }
+                }
+            } else {
+                document.getElementById('deniedModal').style.display = 'flex';
+            }
+        });
+
+        // Cargar los códigos desde Firestore
+        async function loadCodigos() {
+            const querySnapshot = await getDocs(collection(db, "CodigoSgReport"));
+            codigos = querySnapshot.docs.map(doc => doc.data().nombreCodigo);
+            const tipoCasoSelect = document.getElementById('tipoCaso');
+            codigos.forEach(codigo => {
+                const option = document.createElement('option');
+                option.value = codigo;
+                option.textContent = codigo;
+                tipoCasoSelect.appendChild(option);
+            });
+        }
+
+        // Mostrar alerta
+        function showAlert(message) {
+            const alertModal = document.getElementById('alertModal');
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alertModal.style.display = 'flex';
+            setTimeout(() => {
+                alertModal.style.display = 'none';
+            }, 3000);
+        }
+
+        // Mostrar loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        // Ocultar loading
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Función para formatear la fecha en formato legible
+        function formatDateTime(datetimeValue) {
+            if (!datetimeValue) return null;
+            
+            const date = new Date(datetimeValue);
+            if (isNaN(date.getTime())) return null;
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            // Formato de 12 horas con AM/PM
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // La hora 0 debe ser 12
+            
+            return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+        }
+
+        // Agregar más campos de fecha y hora del incidente
+        window.addFechaHoraIncidente = function() {
+            const container = document.getElementById('fechaHoraIncidenteContainer');
+            const newInputGroup = document.createElement('div');
+            newInputGroup.classList.add('input-group');
+            newInputGroup.innerHTML = `
+                <label>Fecha y Hora del Incidente</label>
+                <div class="datetime-container">
+                    <input type="datetime-local" class="fechaHoraIncidente" required>
+                    <i class="fas fa-times remove-icon" onclick="this.parentElement.parentElement.remove()"></i>
+                </div>
+            `;
+            container.appendChild(newInputGroup);
+        };
+
+        // Manejar la selección de múltiples imágenes
+        document.getElementById('fotos').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            previewContainer.innerHTML = ''; // Limpiar contenedor
+            
+            selectedImages = []; // Reiniciar el array de imágenes
+            
+            if (files && files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Crear elemento de imagen
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'preview-image';
+                        
+                        // Botón para eliminar imagen
+                        const removeBtn = document.createElement('span');
+                        removeBtn.className = 'remove-image';
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.onclick = function() {
+                            removeImageFromSelection(i);
+                        };
+                        
+                        previewItem.appendChild(img);
+                        previewItem.appendChild(removeBtn);
+                        previewContainer.appendChild(previewItem);
+                        
+                        // Agregar al array de imágenes seleccionadas
+                        selectedImages.push({
+                            file: file,
+                            preview: e.target.result
+                        });
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Eliminar imagen de la selección
+        function removeImageFromSelection(index) {
+            selectedImages.splice(index, 1);
+            updateImagePreviews();
+            
+            // Actualizar el input file para reflejar los cambios
+            const dataTransfer = new DataTransfer();
+            selectedImages.forEach(img => {
+                dataTransfer.items.add(img.file);
+            });
+            document.getElementById('fotos').files = dataTransfer.files;
+        }
+
+        // Actualizar las vistas previas de imágenes
+        function updateImagePreviews() {
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            previewContainer.innerHTML = '';
+            
+            selectedImages.forEach((img, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = img.preview;
+                imgElement.className = 'preview-image';
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = function() {
+                    removeImageFromSelection(index);
+                };
+                
+                previewItem.appendChild(imgElement);
+                previewItem.appendChild(removeBtn);
+                previewContainer.appendChild(previewItem);
+            });
+        }
+
+        // Navegación entre pasos
+        window.nextStep = function(currentStep) {
+            // Validar campos del paso actual antes de avanzar
+            if (currentStep === 1) {
+                const nombreCaso = document.getElementById('nombreCaso').value;
+                const tipoCaso = document.getElementById('tipoCaso').value;
+                const reportadoPor = document.getElementById('reportadoPor').value;
+                const fechaReporte = document.getElementById('fechaReporte').value;
+                const horaReporte = document.getElementById('horaReporte').value;
+                
+                // Validar fechas y horas del incidente
+                const fechasHoraIncidente = Array.from(document.querySelectorAll('.fechaHoraIncidente'));
+                let fechasValidas = true;
+                
+                fechasHoraIncidente.forEach(input => {
+                    if (!input.value) {
+                        fechasValidas = false;
+                        input.focus();
+                    }
+                });
+                
+                if (!nombreCaso || !tipoCaso || !reportadoPor || !fechasValidas || !fechaReporte || !horaReporte) {
+                    showAlert("Por favor complete todos los campos requeridos en este paso.");
+                    return;
+                }
+            } else if (currentStep === 2) {
+                const descripcion = document.getElementById('descripcion').value;
+                
+                if (!descripcion) {
+                    showAlert("Por favor complete la descripción del incidente.");
+                    return;
+                }
+                
+                // Generar texto de confirmación para el paso 3
+                generateConfirmationText();
+            }
+            
+            // Actualizar indicadores de pasos
+            document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+            document.getElementById(`step${currentStep}-indicator`).classList.add('completed');
+            document.getElementById(`step${currentStep + 1}-indicator`).classList.add('active');
+            
+            // Ocultar paso actual y mostrar siguiente
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep + 1}`).classList.add('active');
+        };
+
+        window.prevStep = function(currentStep) {
+            // Actualizar indicadores de pasos
+            document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+            document.getElementById(`step${currentStep - 1}-indicator`).classList.add('active');
+            document.getElementById(`step${currentStep - 1}-indicator`).classList.remove('completed');
+            
+            // Ocultar paso actual y mostrar anterior
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep - 1}`).classList.add('active');
+        };
+
+        // Generar texto de confirmación
+        function generateConfirmationText() {
+            const nombreCaso = document.getElementById('nombreCaso').value;
+            const tipoCaso = document.getElementById('tipoCaso').value;
+            const reportadoPor = document.getElementById('reportadoPor').value;
+            const fechaReporte = document.getElementById('fechaReporte').value;
+            const horaReporte = document.getElementById('horaReporte').value;
+            const descripcion = document.getElementById('descripcion').value;
+            
+            // Obtener y formatear todas las fechas válidas
+            const fechasHoraIncidente = Array.from(document.querySelectorAll('.fechaHoraIncidente'))
+                .map(input => formatDateTime(input.value))
+                .filter(date => date !== null);
+            
+            const confirmationText = document.getElementById('confirmationText');
+            confirmationText.innerHTML = `
+                <p><strong>Nombre del Caso:</strong> ${nombreCaso}</p>
+                <p><strong>Tipo de Caso:</strong> ${tipoCaso}</p>
+                <p><strong>Reportado por:</strong> ${reportadoPor}</p>
+                <p><strong>Fecha(s) y Hora(s) del Incidente:</strong> ${fechasHoraIncidente.join('<br>')}</p>
+                <p><strong>Fecha del Reporte:</strong> ${fechaReporte}</p>
+                <p><strong>Hora del Reporte:</strong> ${horaReporte}</p>
+                <p><strong>Descripción:</strong> ${descripcion}</p>
+                <p><strong>Número de imágenes:</strong> ${selectedImages.length}</p>
+            `;
+        }
+
+        // Configurar el botón de envío final
+        document.getElementById('submitFinalButton').addEventListener('click', async function() {
+            const nombreCaso = document.getElementById('nombreCaso').value;
+            const tipoCaso = document.getElementById('tipoCaso').value;
+            const reportadoPor = document.getElementById('reportadoPor').value;
+            
+            // Obtener y formatear todas las fechas válidas
+            const fechasHoraIncidente = Array.from(document.querySelectorAll('.fechaHoraIncidente'))
+                .map(input => {
+                    const formatted = formatDateTime(input.value);
+                    if (!formatted) {
+                        showAlert("Por favor ingresa una fecha y hora válida");
+                        input.focus();
+                        throw new Error("Fecha inválida");
+                    }
+                    return formatted;
+                });
+            
+            // Unir todas las fechas en un solo string separado por comas
+            const fechaHoraIncidenteConcatenada = fechasHoraIncidente.join(", ");
+            
+            const fechaReporte = document.getElementById('fechaReporte').value;
+            const horaReporte = document.getElementById('horaReporte').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            try {
+                showLoading();
+
+                // Subir las imágenes a Firebase Storage y obtener sus URLs
+                let fotoURLs = [];
+                for (const img of selectedImages) {
+                    const fotoRef = ref(storage, `reportes/${currentUser.uid}/${Date.now()}_${img.file.name}`);
+                    await uploadBytes(fotoRef, img.file);
+                    const url = await getDownloadURL(fotoRef);
+                    fotoURLs.push(url);
+                }
+
+                // Obtener el nombre del usuario actual
+                const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", currentUser.email)));
+                const userName = userDoc.docs[0].data().name;
+
+                // Obtener el número de registro
+                const reportesRef = collection(db, "Reportes");
+                const reportesSnapshot = await getDocs(reportesRef);
+                const numeroRegistro = reportesSnapshot.size + 1;
+
+                // Guardar el reporte en Firestore con las fechas concatenadas
+                await addDoc(collection(db, "Reportes"), {
+                    nombreCaso,
+                    tipoCaso,
+                    reportadoPor,
+                    fechaHoraIncidente: fechaHoraIncidenteConcatenada, // Campo único con todas las fechas
+                    fechaReporte,
+                    horaReporte,
+                    descripcion,
+                    fotoURLs, // Array de URLs de imágenes
+                    numeroRegistro,
+                    usuario: userName,
+                    userId: currentUser.uid,
+                    createdAt: new Date().toISOString()
+                });
+
+                hideLoading();
+                
+                // Mostrar mensaje de éxito y reiniciar formulario
+                document.getElementById('step3').innerHTML = `
+                    <div class="success-message">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>¡Reporte enviado exitosamente!</h3>
+                        <p>El reporte ha sido registrado correctamente en el sistema.</p>
+                        <button type="button" class="btn" onclick="resetForm()">Crear nuevo reporte</button>
+                    </div>
+                `;
+                
+                // Actualizar indicador de paso 3
+                document.getElementById('step3-indicator').classList.add('completed');
+            } catch (error) {
+                hideLoading();
+                console.error("Error al guardar el reporte:", error);
+                if (error.message !== "Fecha inválida") {
+                    showAlert("Error al registrar el reporte: " + error.message);
+                }
+            }
+        });
+
+        // Reiniciar formulario
+        window.resetForm = function() {
+            // Reiniciar todos los campos del formulario
+            document.getElementById('nombreCaso').value = '';
+            document.getElementById('tipoCaso').value = '';
+            document.getElementById('reportadoPor').value = '';
+            document.getElementById('fechaReporte').value = '';
+            document.getElementById('horaReporte').value = '';
+            document.getElementById('descripcion').value = '';
+            document.getElementById('fotos').value = '';
+            
+            // Limpiar campos adicionales de fecha y hora
+            const container = document.getElementById('fechaHoraIncidenteContainer');
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+            
+            // Limpiar vista previa de imágenes
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            selectedImages = [];
+            
+            // Reiniciar indicadores de pasos
+            document.getElementById('step1-indicator').classList.add('active');
+            document.getElementById('step1-indicator').classList.remove('completed');
+            document.getElementById('step2-indicator').classList.remove('active', 'completed');
+            document.getElementById('step3-indicator').classList.remove('active', 'completed');
+            
+            // Volver al paso 1
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+        };
+    </script>
+
+    <script>
+        function toggleLinks() {
+            document.body.classList.toggle('show-links');
+        }
+    </script>
+</body>
+</html>
