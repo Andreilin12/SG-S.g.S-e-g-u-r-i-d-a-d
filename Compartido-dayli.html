@@ -846,6 +846,13 @@
               `;
             }
 
+            // MODIFICACIÓN: Usar la misma fecha de "Fecha(s) Incidente:" en "Fecha y Hora del Incidente:"
+            const fechaIncidente = reporte.fechaHoraIncidente ? 
+              (Array.isArray(reporte.fechaHoraIncidente) ? 
+                reporte.fechaHoraIncidente.map(d => formatearFecha(d)).join('<br>') : 
+                formatearFecha(reporte.fechaHoraIncidente)) : 
+              'No especificada';
+
             contenido.innerHTML = `
               <div class="reporte-grid">
                 <div class="reporte-item">
@@ -858,9 +865,7 @@
                 </div>
                 <div class="reporte-item">
                   <label>Fecha y Hora del Incidente:</label>
-                  <p>${reporte.fechaHoraIncidente ? (Array.isArray(reporte.fechaHoraIncidente) ? 
-                    reporte.fechaHoraIncidente.map(d => formatearFecha(d)).join('<br>') : 
-                    formatearFecha(reporte.fechaHoraIncidente)) : 'No especificada'}</p>
+                  <p>${reporte.fechaHoraIncidente}</p>
                 </div>
                 <div class="reporte-item">
                   <label>Reportado Por:</label>
@@ -1179,7 +1184,7 @@
     // Escuchar cambios en tiempo real
     onSnapshot(collection(db, "Reportes"), (snapshot) => {
       cargarReportes();
-      cargarReportesRecibidos();
+      cargarReportesRecibidos(); 
     });
 
     // Cargar los reportes al cargar la página
