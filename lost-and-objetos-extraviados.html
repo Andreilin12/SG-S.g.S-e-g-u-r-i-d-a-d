@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Objetos Extraviados | Futurista</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ 
+  <style>
+    :root {
+      --primary-color: #15a086;
+      --secondary-color: #15aa86;
+      --dark-bg: #2c3e60;
+      --darker-bg: #2c3e50;
+      --light-bg: #1e293b;
+      --text-color: #e2e8f0;
+      --text-muted: #94a3b8;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-radius: 8px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --box-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.3);
+      --glass-effect: rgba(16, 24, 39, 0.7);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'roboto', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: 1.8rem;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+    }
+
+    .sidebar {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      border: var(--glass-border);
+      box-shadow: var(--box-shadow);
+      height: fit-content;
+    }
+
+    .sidebar-title {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sidebar-title i {
+      font-size: 1.1rem;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(0, 198, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .main-content {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      border: var(--glass-border);
+      box-shadow: var(--box-shadow);
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .content-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem 1.25rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      font-family: 'Montserrat', sans-serif;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.2);
+    }
+
+    .search-date {
+      padding: 0.75rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 198, 255, 0.1);
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: var(--border-radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+
+    table th {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table tr:hover td {
+      background: rgba(0, 198, 255, 0.05);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-process {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success-color);
+      border: 1px solid var(--success-color);
+    }
+
+    .status-warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning-color);
+      border: 1px solid var(--warning-color);
+    }
+
+    .status-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+
+    .details-row {
+      display: none;
+    }
+
+    .details-row.active {
+      display: table-row;
+    }
+
+    .details-content {
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .detail-item {
+      margin-bottom: 1rem;
+    }
+
+    .detail-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .detail-value {
+      font-weight: 500;
+    }
+
+    .image-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .image-preview img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    .image-preview img:hover {
+      transform: scale(1.05);
+      border-color: var(--primary-color);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-container {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      color: var(--danger-color);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      font-family: 'Montserrat', sans-serif;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-container {
+        flex-direction: column;
+      }
+      
+      .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #15a086;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header fade-in">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-cube"></i>
+        </div>
+        <h1 class="logo-text">Lost And Found</h1>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <span id="userName">Usuario</span>
+      </div>
+    </header>
+
+    <div class="dashboard fade-in">
+      <aside class="sidebar">
+        <h2 class="sidebar-title">
+          <i class="fas fa-sliders-h"></i> Panel
+        </h2>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="#" class="nav-link active">
+              <i class="fas fa-box-open"></i> Objetos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-clipboard-check"></i> Entregas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-chart-line"></i> Estadísticas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-cog"></i> Configuración
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <div class="content-header">
+          <h2 class="content-title">REGISTRO DE OBJETOS EXTRAVIADOS</h2>
+          <button class="btn btn-outline" onclick="highlightExpired()">
+            <i class="fas fa-exclamation-triangle"></i> Ver vencidos
+          </button>
+        </div>
+
+        <div class="search-container">
+          <input type="text" id="searchName" class="search-input" placeholder="Buscar objeto..." oninput="filterObjects()">
+          <input type="date" id="searchDate" class="search-date" oninput="filterObjects()">
+        </div>
+
+        <div class="table-responsive">
+          <table id="objectsTable">
+            <thead>
+              <tr>
+                <th>Objeto</th>
+                <th>Fecha</th>
+                <th>Encontrado por</th>
+                <th>Código</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Filas de la tabla se generarán dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal para expandir fotos -->
+  <div class="modal-overlay" id="imageModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">Vista previa</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="expandedImage" src="#" alt="Imagen expandida" class="modal-image">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para entregar objeto -->
+  <div class="modal-overlay" id="deliveryModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Entrega</h3>
+        <button class="modal-close" onclick="closeDeliveryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="deliveredTo" class="form-label">Entregado a:</label>
+          <input type="text" id="deliveredTo" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="deliveryComments" class="form-label">Comentarios:</label>
+          <textarea id="deliveryComments" class="form-control" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeDeliveryModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn btn-primary" onclick="confirmDelivery()">
+          <i class="fas fa-check"></i> Confirmar Entrega
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let selectedObjectId = null;
+    let allObjects = [];
+    let currentUser = null;
+
+    // Función para obtener el nombre del usuario desde Firebase
+    async function getCurrentUserName() {
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          return userData.name || currentUser.displayName || "Usuario";
+        }
+      }
+      return "Usuario";
+    }
+
+    // Actualizar la información del usuario en la UI
+    async function updateUserUI() {
+      const userName = await getCurrentUserName();
+      document.getElementById('userName').textContent = userName;
+      document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+    }
+
+    // Escuchar cambios en el estado de autenticación
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        updateUserUI();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    // Función para calcular los días restantes y el estado
+    function calculateStatus(meetingDate) {
+      const now = new Date();
+      const meeting = new Date(meetingDate);
+      const deadline = new Date(meeting);
+      deadline.setDate(meeting.getDate() + 90);
+      const diffTime = deadline - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) {
+        return { status: "Vencido", daysLeft: 0, statusClass: "status-danger" };
+      } else if (diffDays <= 10) {
+        return { status: `Faltan ${diffDays} días`, daysLeft: diffDays, statusClass: "status-warning" };
+      } else {
+        return { status: "En proceso", daysLeft: diffDays, statusClass: "status-process" };
+      }
+    }
+
+    // Función para obtener el mes y año actual en formato MM-YYYY
+    function getCurrentMonthYear() {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      return `${month}-${year}`;
+    }
+
+    // Función para mostrar los objetos en la tabla
+    function renderObjects(objects) {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      const expiredObjects = [];
+
+      objects.forEach((obj) => {
+        const { status, daysLeft, statusClass } = calculateStatus(obj.meetingDate);
+
+        if (daysLeft === 0) {
+          expiredObjects.push(obj);
+        }
+
+        const row = document.createElement("tr");
+
+        // Campos principales
+        row.innerHTML = `
+          <td>
+            <strong>${obj.objectName}</strong>
+            ${obj.quantity > 1 ? `<span class="detail-label">Cantidad: ${obj.quantity}</span>` : ''}
+          </td>
+          <td>${obj.meetingDate}</td>
+          <td>${obj.foundBy}</td>
+          <td>${obj.workCode}</td>
+          <td><span class="status ${statusClass}">${status}</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn" onclick="toggleDetails(this)" title="Ver detalles">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <button class="action-btn" onclick="openDeliveryModal('${obj.id}')" title="Entregar">
+                <i class="fas fa-hand-holding"></i>
+              </button>
+            </div>
+          </td>
+        `;
+
+        // Fila de detalles
+        const detailsRow = document.createElement("tr");
+        detailsRow.classList.add("details-row");
+        detailsRow.innerHTML = `
+          <td colspan="6">
+            <div class="details-content">
+              <div class="details-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Lugar de encuentro</span>
+                  <span class="detail-value">${obj.meetingPlace}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Hora de encuentro</span>
+                  <span class="detail-value">${obj.meetingTime}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Informado a</span>
+                  <span class="detail-value">${obj.informedTo}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Comentarios</span>
+                  <span class="detail-value">${obj.comments || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Días restantes</span>
+                  <span class="detail-value">${daysLeft > 0 ? daysLeft : 'Vencido'}</span>
+                </div>
+              </div>
+              ${obj.photoUrls && obj.photoUrls.length > 0 ? `
+                <div class="detail-item">
+                  <span class="detail-label">Fotos</span>
+                  <div class="image-preview">
+                    ${obj.photoUrls.map(url => `<img src="${url}" alt="Foto del objeto" onclick="expandImage('${url}')">`).join("")}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+        tableBody.appendChild(detailsRow);
+      });
+
+      // Mostrar alerta con todos los productos vencidos
+      if (expiredObjects.length > 0) {
+        const expiredList = expiredObjects.map(obj => `- ${obj.objectName}`).join("<br>");
+        Swal.fire({
+          icon: 'error',
+          title: 'Artículos No Reclamados',
+          html: `Los siguientes artículos han vencido:<br>${expiredList}`,
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#15a086',
+          timer: 10000,
+          timerProgressBar: true,
+          didOpen: () => {
+            const audio = new Audio('https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/audio%2FSD_ALERT_27.mp3?alt=media&token=387de74a-8551-4e83-974c-5f1b8dd27528');
+            audio.play();
+          }
+        });
+      }
+    }
+
+    // Escuchar cambios en tiempo real
+    const unsubscribe = onSnapshot(collection(db, "ObjetosRegistrados"), (querySnapshot) => {
+      allObjects = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (!data.delivered) {
+          allObjects.push({ id: doc.id, ...data });
+        }
+      });
+      filterObjects();
+    });
+
+    // Función para filtrar objetos por nombre y fecha
+    window.filterObjects = function () {
+      const searchName = document.getElementById("searchName").value.toLowerCase();
+      const searchDate = document.getElementById("searchDate").value;
+
+      const filteredObjects = allObjects.filter((obj) => {
+        const matchesName = obj.objectName.toLowerCase().includes(searchName);
+        const matchesDate = searchDate ? obj.meetingDate === searchDate : true;
+        return matchesName && matchesDate;
+      });
+
+      renderObjects(filteredObjects);
+    };
+
+    // Función para resaltar productos vencidos
+    window.highlightExpired = function () {
+      const rows = document.querySelectorAll("#tableBody tr");
+      let hasExpired = false;
+      
+      rows.forEach((row) => {
+        const statusCell = row.querySelector(".status-danger");
+        if (statusCell) {
+          row.style.animation = "pulse 2s infinite";
+          hasExpired = true;
+        } else {
+          row.style.animation = "";
+        }
+      });
+      
+      if (!hasExpired) {
+        Swal.fire({
+          icon: 'info',
+          title: 'No hay objetos vencidos',
+          text: 'No se encontraron objetos con estado vencido.',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Función para expandir/colapsar detalles
+    window.toggleDetails = function (button) {
+      const row = button.closest("tr");
+      const detailsRow = row.nextElementSibling;
+      const icon = button.querySelector("i");
+      
+      detailsRow.classList.toggle("active");
+      
+      if (detailsRow.classList.contains("active")) {
+        icon.classList.remove("fa-chevron-down");
+        icon.classList.add("fa-chevron-up");
+      } else {
+        icon.classList.remove("fa-chevron-up");
+        icon.classList.add("fa-chevron-down");
+      }
+    };
+
+    // Función para expandir una imagen en un modal
+    window.expandImage = function (imageUrl) {
+      const modal = document.getElementById("imageModal");
+      const expandedImage = document.getElementById("expandedImage");
+      expandedImage.src = imageUrl;
+      modal.classList.add("active");
+    };
+
+    // Función para cerrar el modal de imágenes
+    window.closeModal = function () {
+      const modal = document.getElementById("imageModal");
+      modal.classList.remove("active");
+    };
+
+    // Función para abrir el modal de entrega
+    window.openDeliveryModal = function (objectId) {
+      selectedObjectId = objectId;
+      const modal = document.getElementById("deliveryModal");
+      modal.classList.add("active");
+      
+      // Limpiar campos del formulario
+      document.getElementById("deliveredTo").value = "";
+      document.getElementById("deliveryComments").value = "";
+    };
+
+    // Función para cerrar el modal de entrega
+    window.closeDeliveryModal = function () {
+      const modal = document.getElementById("deliveryModal");
+      modal.classList.remove("active");
+    };
+
+    // Función para confirmar la entrega
+    window.confirmDelivery = async function () {
+      const deliveredTo = document.getElementById("deliveredTo").value;
+      const deliveryComments = document.getElementById("deliveryComments").value;
+
+      if (!deliveredTo) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'El campo "Entregado a" es obligatorio.',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+        return;
+      }
+
+      try {
+        const now = new Date();
+        const deliveryDate = now.toISOString().split('T')[0];
+        const deliveryTime = now.toTimeString().split(' ')[0];
+        const deliveryDateTime = now.toLocaleString();
+        const userName = await getCurrentUserName();
+
+        // Obtener el objeto antes de actualizarlo
+        const objectDoc = await getDoc(doc(db, "ObjetosRegistrados", selectedObjectId));
+        const objectData = objectDoc.data();
+
+        // Actualizar el documento original como entregado
+        await updateDoc(doc(db, "ObjetosRegistrados", selectedObjectId), {
+          delivered: true,
+          deliveredTo,
+          deliveryComments,
+          deliveryDate,
+          deliveryTime,
+          deliveryDateTime,
+          deliveredBy: userName
+        });
+
+        // Crear una copia en la colección de entregas del mes actual
+        const currentMonthYear = getCurrentMonthYear();
+        const deliveriesCollection = collection(db, `Entregas_${currentMonthYear}`);
+        
+        await addDoc(deliveriesCollection, {
+          ...objectData,
+          delivered: true,
+          deliveredTo,
+          deliveryComments,
+          deliveryDate,
+          deliveryTime,
+          deliveryDateTime,
+          deliveredBy: userName,
+          originalId: selectedObjectId
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Entrega registrada',
+          text: 'El objeto ha sido marcado como entregado y guardado en los registros.',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+
+        closeDeliveryModal();
+      } catch (error) {
+        console.error("Error al entregar el objeto:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un error al registrar la entrega. Por favor, inténtalo de nuevo.',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    };
+
+    // Cerrar modales al hacer clic fuera del contenido
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        closeModal();
+        closeDeliveryModal();
+      }
+    });
+
+    // Cerrar sesión
+    document.querySelector('.nav-link i.fa-sign-out-alt').closest('.nav-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      }).catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+      });
+    });
+  </script>
+</body>
+</html>
