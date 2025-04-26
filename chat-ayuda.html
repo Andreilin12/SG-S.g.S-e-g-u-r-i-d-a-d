@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Erick - Chat IA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #15a086;
+      --secondary-color: #15a086;
+      --accent-color: #3b82f6;
+      --text-color: #fff;
+      --light-text: #f9fafb;
+      --bg-color: #2c3e50;
+      --card-bg: #2c3e50;
+      --border-color: #15a086;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px -1px rgba(21, 160, 134), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      padding: 15px 0;
+      box-shadow: var(--box-shadow);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .logo i {
+      color: var(--accent-color);
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: var(--light-text);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--light-text);
+      color: var(--light-text);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 180px);
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 15px;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: var(--border-radius);
+      position: relative;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      border-bottom-right-radius: 0;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 0;
+    }
+
+    .message-content {
+      word-wrap: break-word;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 15px;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
+
+    .message-input {
+      flex: 1;
+      padding: 12px 15px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      resize: none;
+      font-family: inherit;
+      font-size: 1rem;
+      background-color: var(--card-bg);
+      color: var(--light-text);
+    }
+
+    .message-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .send-btn {
+      margin-left: 10px;
+      padding: 0 20px;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .send-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 5px;
+      padding: 10px 15px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      align-self: flex-start;
+      margin-bottom: 15px;
+      width: fit-content;
+      border: 1px solid var(--border-color);
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--text-color);
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    .admin-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--box-shadow);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .admin-link:hover {
+      transform: translateY(-3px);
+    }
+
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .auth-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .auth-content {
+      background-color: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 400px;
+      box-shadow: var(--box-shadow);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+
+    .auth-modal.active .auth-content {
+      transform: translateY(0);
+    }
+
+    .auth-title {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .auth-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .auth-error {
+      color: var(--danger-color);
+      font-size: 0.9rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    .guide-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .guide-item:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--box-shadow);
+    }
+
+    .guide-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--primary-color);
+    }
+
+    .guide-content {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .guide-item.active .guide-content {
+      display: block;
+    }
+
+    .suggested-questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .question-chip {
+      padding: 8px 12px;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease; 
+    }
+
+    .question-chip:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-container {
+        height: calc(100vh - 150px);
+      }
+      
+      .message {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <i class="fas fa-robot"></i>
+        <span>Soporte Técnico</span>
+      </div>
+      <div class="auth-buttons">
+        <button class="btn btn-outline" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+        <button class="btn btn-primary" id="registerBtn" style="display: none;">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-title">Asistente Virtual de Soporte</div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- Mensajes aparecerán aquí -->
+        <div class="bot-message message">
+          <div class="message-content">
+            ¡Hola! Soy tu asistente virtual de soporte técnico. ¿En qué puedo ayudarte hoy?
+          </div>
+          <div class="message-time">Ahora</div>
+        </div>
+      </div>
+      <div class="input-area">
+        <textarea class="message-input" id="messageInput" placeholder="Escribe tu pregunta aquí..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="suggested-questions" id="suggestedQuestions">
+      <div class="question-chip">¿Cómo restablecer mi PIN?</div>
+      <div class="question-chip">¿Cómo cambiar mi contraseña?</div>
+      <div class="question-chip">¿Dónde encontrar mi historial?</div>
+      <div class="question-chip">¿Cómo contactar con soporte?</div>
+    </div>
+  </main>
+
+  <div class="auth-modal" id="authModal">
+    <div class="auth-content">
+      <h2 class="auth-title" id="authModalTitle">Iniciar Sesión</h2>
+      <form class="auth-form" id="authForm">
+        <div class="form-group">
+          <label for="authEmail" class="form-label">Correo Electrónico</label>
+          <input type="email" id="authEmail" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="authPassword" class="form-label">Contraseña</label>
+          <input type="password" id="authPassword" class="form-input" required>
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <div class="auth-actions">
+          <button type="button" class="btn btn-outline" id="authCancelBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="authSubmitBtn">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <a href="admin.html" class="admin-link" id="adminLink" title="Panel de Administración">
+    <i class="fas fa-cog"></i>
+  </a>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // DOM Elements
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const authModal = document.getElementById('authModal');
+    const authForm = document.getElementById('authForm');
+    const authModalTitle = document.getElementById('authModalTitle');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authError = document.getElementById('authError');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const authCancelBtn = document.getElementById('authCancelBtn');
+    const adminLink = document.getElementById('adminLink');
+    const suggestedQuestions = document.getElementById('suggestedQuestions');
+
+    // State
+    let currentUser = null;
+    let guides = [];
+    let isLoginMode = true;
+
+    // Initialize
+    function init() {
+      setupEventListeners();
+      checkAuthState();
+      loadGuides();
+      
+      // Auto-resize textarea
+      messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+      
+      // Add welcome message if no messages
+      if (chatMessages.children.length === 1) {
+        addMessage({
+          sender: 'bot',
+          content: '¡Hola! Soy tu asistente virtual de soporte técnico. ¿En qué puedo ayudarte hoy?',
+          timestamp: new Date()
+        });
+      }
+    }
+
+    // Event Listeners
+    function setupEventListeners() {
+      // Chat functionality
+      sendBtn.addEventListener('click', sendMessage);
+      messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      
+      // Auth functionality
+      loginBtn.addEventListener('click', () => {
+        isLoginMode = true;
+        authModalTitle.textContent = 'Iniciar Sesión';
+        authSubmitBtn.textContent = 'Entrar';
+        authModal.classList.add('active');
+      });
+      
+      registerBtn.addEventListener('click', () => {
+        isLoginMode = false;
+        authModalTitle.textContent = 'Registrarse';
+        authSubmitBtn.textContent = 'Registrar';
+        authModal.classList.add('active');
+      });
+      
+      authForm.addEventListener('submit', handleAuth);
+      authCancelBtn.addEventListener('click', () => authModal.classList.remove('active'));
+      
+      // Suggested questions
+      suggestedQuestions.addEventListener('click', function(e) {
+        if (e.target.classList.contains('question-chip')) {
+          messageInput.value = e.target.textContent;
+          messageInput.focus();
+        }
+      });
+    }
+
+    // Auth Functions
+    function checkAuthState() {
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user) {
+          // User is signed in
+          loginBtn.style.display = 'none';
+          registerBtn.style.display = 'none';
+          adminLink.style.display = 'flex';
+        } else {
+          // User is signed out
+          loginBtn.style.display = 'flex';
+          registerBtn.style.display = 'none';
+          adminLink.style.display = 'none';
+        }
+      });
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = authEmail.value;
+      const password = authPassword.value;
+      
+      authError.textContent = '';
+      authSubmitBtn.disabled = true;
+      
+      if (isLoginMode) {
+        // Login
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            authModal.classList.remove('active');
+            authForm.reset();
+          })
+          .catch(error => {
+            authError.textContent = getAuthErrorMessage(error);
+          })
+          .finally(() => {
+            authSubmitBtn.disabled = false;
+          });
+      } else {
+        // Register
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            authModal.classList.remove('active');
+            authForm.reset();
+          })
+          .catch(error => {
+            authError.textContent = getAuthErrorMessage(error);
+          })
+          .finally(() => {
+            authSubmitBtn.disabled = false;
+          });
+      }
+    }
+
+    function getAuthErrorMessage(error) {
+      switch (error.code) {
+        case 'auth/invalid-email': return 'Correo electrónico no válido';
+        case 'auth/user-disabled': return 'Cuenta deshabilitada';
+        case 'auth/user-not-found': return 'Usuario no encontrado';
+        case 'auth/wrong-password': return 'Contraseña incorrecta';
+        case 'auth/email-already-in-use': return 'El correo ya está registrado';
+        case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres';
+        default: return error.message;
+      }
+    }
+
+    // Chat Functions
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+      
+      // Add user message to chat
+      addMessage({
+        sender: 'user',
+        content: message,
+        timestamp: new Date()
+      });
+      
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      
+      // Show typing indicator
+      showTypingIndicator();
+      
+      // Simulate bot response after delay
+      setTimeout(() => {
+        hideTypingIndicator();
+        const botResponse = generateResponse(message);
+        addMessage({
+          sender: 'bot',
+          content: botResponse,
+          timestamp: new Date()
+        });
+      }, 1000);
+    }
+
+    function addMessage(message) {
+      const messageElement = document.createElement('div');
+      messageElement.className = `message ${message.sender}-message`;
+      
+      const timeString = formatTime(message.timestamp);
+      
+      messageElement.innerHTML = `
+        <div class="message-content">${message.content}</div>
+        <div class="message-time">${timeString}</div>
+      `;
+      
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function formatTime(date) {
+      if (date.toLocaleTimeString) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      return 'Ahora';
+    }
+
+    function showTypingIndicator() {
+      const typingElement = document.createElement('div');
+      typingElement.className = 'typing-indicator';
+      typingElement.id = 'typingIndicator';
+      typingElement.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      chatMessages.appendChild(typingElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typingIndicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    // Guide Functions
+    function loadGuides() {
+      db.collection('guides').orderBy('title').get()
+        .then(snapshot => {
+          guides = [];
+          snapshot.forEach(doc => {
+            guides.push({
+              id: doc.id,
+              ...doc.data()
+            });
+          });
+        })
+        .catch(error => {
+          console.error('Error loading guides:', error);
+        });
+    }
+
+    function generateResponse(userMessage) {
+      // Convert to lowercase for case-insensitive matching 
+      const lowerMessage = userMessage.toLowerCase();
+      
+      // Find matching guide
+      const matchedGuide = guides.find(guide => {
+        // Check if any keyword matches
+        const keywords = guide.keywords || [];
+        return keywords.some(keyword => lowerMessage.includes(keyword.toLowerCase())) ||
+               lowerMessage.includes(guide.title.toLowerCase());
+      });
+      
+      if (matchedGuide) {
+        return matchedGuide.content;
+      } else {
+        // Default response if no guide matches
+        return `No encontré una guía específica para tu pregunta. Por favor, intenta reformular tu pregunta o contacta a soporte técnico para ayuda más personalizada.`;
+      }
+    }
+
+    // Initialize the app
+    init();
+  </script>
+</body>
+</html>
