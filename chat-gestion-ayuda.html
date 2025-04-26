@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Guías - Soporte Técnico</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #1e40af;
+      --accent-color: #15a086;
+      --text-color: #fff;
+      --light-text: #fff;
+      --bg-color: #2c3e50;
+      --card-bg: #2c3e50;
+      --border-color: #e5e7eb;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      padding: 15px 0;
+      box-shadow: var(--box-shadow);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .logo i {
+      color: var(--accent-color);
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: var(--light-text);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--light-text);
+      color: var(--light-text);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      color: var(--light-text);
+    }
+
+    .btn-success:hover {
+      background-color: #0d9c6e;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: var(--light-text);
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    .admin-container {
+      display: flex;
+      margin-top: 20px;
+      gap: 20px;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 15px;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .menu-item {
+      padding: 10px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item:hover {
+      background-color: var(--bg-color);
+    }
+
+    .menu-item.active {
+      background-color: var(--primary-color);
+      color: var(--light-text);
+    }
+
+    .menu-item i {
+      width: 20px;
+      text-align: center;
+      margin-right: 8px;
+    }
+
+    .content-area {
+      flex: 1;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 20px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .content-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .add-guide-btn {
+      padding: 8px 15px;
+    }
+
+    .guides-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .guide-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      box-shadow: var(--box-shadow);
+    }
+
+    .guide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .guide-title {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .guide-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .edit-btn {
+      background-color: var(--accent-color);
+      color: var(--light-text);
+    }
+
+    .edit-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .delete-btn {
+      background-color: var(--danger-color);
+      color: var(--light-text);
+    }
+
+    .delete-btn:hover {
+      background-color: #dc2626;
+    }
+
+    .guide-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .keyword-tag {
+      padding: 4px 8px;
+      background-color: var(--bg-color);
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .guide-content {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 600px;
+      box-shadow: var(--box-shadow);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .form-textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .keywords-input-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .keywords-input {
+      flex: 1;
+    }
+
+    .add-keyword-btn {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .keywords-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .keyword-item {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-color);
+      border-radius: 20px;
+      padding: 4px 8px 4px 12px;
+      font-size: 0.9rem;
+    }
+
+    .remove-keyword {
+      margin-left: 5px;
+      cursor: pointer;
+      color: var(--danger-color);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .auth-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .auth-content {
+      background-color: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 400px;
+      box-shadow: var(--box-shadow);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+
+    .auth-modal.active .auth-content {
+      transform: translateY(0);
+    }
+
+    .auth-title {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .auth-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .auth-error {
+      color: var(--danger-color);
+      font-size: 0.9rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .admin-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <i class="fas fa-cog"></i>
+        <span>Panel de Administración</span>
+      </div>
+      <div class="auth-buttons">
+        <button class="btn btn-outline" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="admin-container">
+      <div class="sidebar">
+        <h3 class="sidebar-title">Menú</h3>
+        <ul class="sidebar-menu">
+          <li class="menu-item active">
+            <i class="fas fa-book"></i> Guías de Soporte
+          </li>
+          <li class="menu-item">
+            <i class="fas fa-users"></i> Usuarios
+          </li>
+          <li class="menu-item">
+            <i class="fas fa-chart-bar"></i> Estadísticas
+          </li>
+          <li class="menu-item">
+            <i class="fas fa-cog"></i> Configuración
+          </li>
+        </ul>
+      </div>
+
+      <div class="content-area">
+        <div class="content-header">
+          <h2 class="content-title">Guías de Soporte</h2>
+          <button class="btn btn-primary add-guide-btn" id="addGuideBtn">
+            <i class="fas fa-plus"></i> Nueva Guía
+          </button>
+        </div>
+
+        <div class="guides-list" id="guidesList">
+          <!-- Las guías se cargarán aquí dinámicamente -->
+          <div class="guide-card">
+            <div class="guide-header">
+              <h3 class="guide-title">Restablecer PIN de usuario</h3>
+              <div class="guide-actions">
+                <div class="action-btn edit-btn" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </div>
+                <div class="action-btn delete-btn" title="Eliminar">
+                  <i class="fas fa-trash"></i>
+                </div>
+              </div>
+            </div>
+            <div class="guide-keywords">
+              <span class="keyword-tag">PIN</span>
+              <span class="keyword-tag">restablecer</span>
+              <span class="keyword-tag">contraseña</span>
+            </div>
+            <div class="guide-content">
+              <p>Para restablecer tu PIN, sigue estos pasos:</p>
+              <ol>
+                <li>Inicia sesión en tu cuenta</li>
+                <li>Ve a Configuración de Seguridad</li>
+                <li>Selecciona "Restablecer PIN"</li>
+                <li>Sigue las instrucciones para crear un nuevo PIN</li>
+                <li>Confirma los cambios</li>
+              </ol>
+              <p>Si tienes problemas, contacta a soporte técnico.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para agregar/editar guías -->
+  <div class="modal" id="guideModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Nueva Guía</h3>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      <form id="guideForm">
+        <input type="hidden" id="guideId">
+        <div class="form-group">
+          <label for="guideTitle" class="form-label">Título</label>
+          <input type="text" id="guideTitle" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="guideContent" class="form-label">Contenido</label>
+          <textarea id="guideContent" class="form-input form-textarea" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Palabras clave</label>
+          <div class="keywords-input-container">
+            <input type="text" id="keywordInput" class="form-input keywords-input" placeholder="Añadir palabra clave">
+            <button type="button" class="btn btn-primary add-keyword-btn" id="addKeywordBtn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="keywords-list" id="keywordsList">
+            <!-- Las palabras clave se añadirán aquí -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="cancelGuideBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="saveGuideBtn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de autenticación -->
+  <div class="auth-modal" id="authModal">
+    <div class="auth-content">
+      <h2 class="auth-title">Iniciar Sesión</h2>
+      <form class="auth-form" id="authForm">
+        <div class="form-group">
+          <label for="authEmail" class="form-label">Correo Electrónico</label>
+          <input type="email" id="authEmail" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="authPassword" class="form-label">Contraseña</label>
+          <input type="password" id="authPassword" class="form-input" required>
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <div class="auth-actions">
+          <button type="button" class="btn btn-outline" id="authCancelBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="authSubmitBtn">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // DOM Elements
+    const logoutBtn = document.getElementById('logoutBtn');
+    const addGuideBtn = document.getElementById('addGuideBtn');
+    const guidesList = document.getElementById('guidesList');
+    const guideModal = document.getElementById('guideModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const guideForm = document.getElementById('guideForm');
+    const guideIdInput = document.getElementById('guideId');
+    const guideTitleInput = document.getElementById('guideTitle');
+    const guideContentInput = document.getElementById('guideContent');
+    const keywordInput = document.getElementById('keywordInput');
+    const addKeywordBtn = document.getElementById('addKeywordBtn');
+    const keywordsList = document.getElementById('keywordsList');
+    const saveGuideBtn = document.getElementById('saveGuideBtn');
+    const cancelGuideBtn = document.getElementById('cancelGuideBtn');
+    const closeModal = document.getElementById('closeModal');
+    const authModalElement = document.getElementById('authModal');
+    const authFormElement = document.getElementById('authForm');
+    const authEmailInput = document.getElementById('authEmail');
+    const authPasswordInput = document.getElementById('authPassword');
+    const authErrorElement = document.getElementById('authError');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const authCancelBtn = document.getElementById('authCancelBtn');
+
+    // State
+    let currentUser = null;
+    let guides = [];
+    let keywords = [];
+    let isEditing = false;
+    let currentGuideId = null;
+
+    // Initialize
+    function init() {
+      setupEventListeners();
+      checkAuthState();
+    }
+
+    // Event Listeners
+    function setupEventListeners() {
+      // Auth
+      logoutBtn.addEventListener('click', logoutUser);
+      
+      // Guides
+      addGuideBtn.addEventListener('click', openAddGuideModal);
+      closeModal.addEventListener('click', closeGuideModal);
+      cancelGuideBtn.addEventListener('click', closeGuideModal);
+      
+      // Keywords
+      addKeywordBtn.addEventListener('click', addKeyword);
+      keywordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addKeyword();
+        }
+      });
+      
+      // Form submission
+      guideForm.addEventListener('submit', saveGuide);
+      
+      // Auth modal
+      authFormElement.addEventListener('submit', handleAuth);
+      authCancelBtn.addEventListener('click', () => authModalElement.classList.remove('active'));
+    }
+
+    // Auth Functions
+    function checkAuthState() {
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user) {
+          // User is signed in
+          loadGuides();
+        } else {
+          // User is signed out - show auth modal
+          authModalElement.classList.add('active');
+        }
+      });
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = authEmailInput.value;
+      const password = authPasswordInput.value;
+      
+      authErrorElement.textContent = '';
+      authSubmitBtn.disabled = true;
+      
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          authModalElement.classList.remove('active');
+          authFormElement.reset();
+        })
+        .catch(error => {
+          authErrorElement.textContent = getAuthErrorMessage(error);
+        })
+        .finally(() => {
+          authSubmitBtn.disabled = false;
+        });
+    }
+
+    function getAuthErrorMessage(error) {
+      switch (error.code) {
+        case 'auth/invalid-email': return 'Correo electrónico no válido';
+        case 'auth/user-disabled': return 'Cuenta deshabilitada';
+        case 'auth/user-not-found': return 'Usuario no encontrado';
+        case 'auth/wrong-password': return 'Contraseña incorrecta';
+        default: return error.message;
+      }
+    }
+
+    function logoutUser() {
+      auth.signOut()
+        .then(() => {
+          // Reset UI
+          guidesList.innerHTML = '';
+          guides = [];
+          keywords = [];
+        })
+        .catch(error => {
+          console.error('Error al cerrar sesión:', error);
+        });
+    }
+
+    // Guide Functions
+    function loadGuides() {
+      db.collection('guides').orderBy('title').get()
+        .then(snapshot => {
+          guides = [];
+          guidesList.innerHTML = '';
+          
+          snapshot.forEach(doc => {
+            const guide = {
+              id: doc.id,
+              ...doc.data()
+            };
+            guides.push(guide);
+            renderGuide(guide);
+          });
+        })
+        .catch(error => {
+          console.error('Error loading guides:', error);
+        });
+    }
+
+    function renderGuide(guide) {
+      const guideElement = document.createElement('div');
+      guideElement.className = 'guide-card';
+      guideElement.dataset.id = guide.id;
+      
+      const keywordsHtml = guide.keywords ? guide.keywords.map(keyword => 
+        `<span class="keyword-tag">${keyword}</span>`
+      ).join('') : '';
+      
+      guideElement.innerHTML = `
+        <div class="guide-header">
+          <h3 class="guide-title">${guide.title}</h3>
+          <div class="guide-actions">
+            <div class="action-btn edit-btn" title="Editar">
+              <i class="fas fa-edit"></i>
+            </div>
+            <div class="action-btn delete-btn" title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </div>
+          </div>
+        </div>
+        <div class="guide-keywords">
+          ${keywordsHtml}
+        </div>
+        <div class="guide-content">
+          ${guide.content.replace(/\n/g, '<br>')}
+        </div>
+      `;
+      
+      // Add event listeners to action buttons
+      const editBtn = guideElement.querySelector('.edit-btn');
+      const deleteBtn = guideElement.querySelector('.delete-btn');
+      
+      editBtn.addEventListener('click', () => editGuide(guide.id));
+      deleteBtn.addEventListener('click', () => deleteGuide(guide.id));
+      
+      guidesList.appendChild(guideElement);
+    }
+
+    function openAddGuideModal() {
+      isEditing = false;
+      currentGuideId = null;
+      modalTitle.textContent = 'Nueva Guía';
+      guideForm.reset();
+      keywords = [];
+      keywordsList.innerHTML = '';
+      guideModal.classList.add('active');
+    }
+
+    function editGuide(guideId) {
+      const guide = guides.find(g => g.id === guideId);
+      if (!guide) return;
+      
+      isEditing = true;
+      currentGuideId = guideId;
+      modalTitle.textContent = 'Editar Guía';
+      
+      // Fill form with guide data
+      guideIdInput.value = guide.id;
+      guideTitleInput.value = guide.title;
+      guideContentInput.value = guide.content;
+      
+      // Set keywords
+      keywords = guide.keywords || [];
+      renderKeywords();
+      
+      guideModal.classList.add('active');
+    }
+
+    function closeGuideModal() {
+      guideModal.classList.remove('active');
+    }
+
+    function addKeyword() {
+      const keyword = keywordInput.value.trim();
+      if (!keyword || keywords.includes(keyword)) return;
+      
+      keywords.push(keyword);
+      renderKeywords();
+      keywordInput.value = '';
+    }
+
+    function renderKeywords() {
+      keywordsList.innerHTML = keywords.map(keyword => `
+        <div class="keyword-item">
+          ${keyword}
+          <span class="remove-keyword" data-keyword="${keyword}">&times;</span>
+        </div>
+      `).join('');
+      
+      // Add event listeners to remove buttons
+      document.querySelectorAll('.remove-keyword').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const keywordToRemove = this.dataset.keyword;
+          keywords = keywords.filter(k => k !== keywordToRemove);
+          renderKeywords();
+        });
+      });
+    }
+
+    function saveGuide(e) {
+      e.preventDefault();
+      
+      const title = guideTitleInput.value.trim();
+      const content = guideContentInput.value.trim();
+      
+      if (!title || !content) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+      
+      const guideData = {
+        title,
+        content,
+        keywords,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      saveGuideBtn.disabled = true;
+      
+      if (isEditing) {
+        // Update existing guide
+        db.collection('guides').doc(currentGuideId).update(guideData)
+          .then(() => {
+            showSuccess('Guía actualizada correctamente');
+            loadGuides();
+            closeGuideModal();
+          })
+          .catch(error => {
+            console.error('Error updating guide:', error);
+            alert('Error al actualizar la guía');
+          })
+          .finally(() => {
+            saveGuideBtn.disabled = false;
+          });
+      } else {
+        // Add new guide
+        guideData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        
+        db.collection('guides').add(guideData)
+          .then(() => {
+            showSuccess('Guía creada correctamente');
+            loadGuides();
+            closeGuideModal();
+          })
+          .catch(error => {
+            console.error('Error adding guide:', error);
+            alert('Error al crear la guía');
+          })
+          .finally(() => {
+            saveGuideBtn.disabled = false;
+          });
+      }
+    }
+
+    function deleteGuide(guideId) {
+      if (!confirm('¿Estás seguro de que quieres eliminar esta guía?')) return;
+      
+      db.collection('guides').doc(guideId).delete()
+        .then(() => {
+          showSuccess('Guía eliminada correctamente');
+          loadGuides();
+        })
+        .catch(error => {
+          console.error('Error deleting guide:', error);
+          alert('Error al eliminar la guía');
+        });
+    }
+
+    function showSuccess(message) {
+      alert(message); // En una aplicación real, usarías un sistema de notificaciones más elegante
+    }
+
+    // Initialize the app
+    init();
+  </script>
+</body>
+</html>
