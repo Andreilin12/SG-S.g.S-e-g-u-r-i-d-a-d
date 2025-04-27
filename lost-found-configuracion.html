@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración de Vencimientos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #00c6ff;
+      --secondary-color: #0072ff;
+      --dark-bg: #0f172a;
+      --darker-bg: #0a1120;
+      --light-bg: #1e293b;
+      --text-color: #e2e8f0;
+      --text-muted: #94a3b8;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-radius: 8px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --box-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.3);
+      --glass-effect: rgba(16, 24, 39, 0.7);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: 1.8rem;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+    }
+
+    .sidebar {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      border: var(--glass-border);
+      box-shadow: var(--box-shadow);
+      height: fit-content;
+    }
+
+    .sidebar-title {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sidebar-title i {
+      font-size: 1.1rem;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(0, 198, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .main-content {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      border: var(--glass-border);
+      box-shadow: var(--box-shadow);
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .content-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 198, 255, 0.1);
+    }
+
+    .settings-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .settings-card {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      border: var(--glass-border);
+    }
+
+    .settings-card-title {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      font-family: 'Montserrat', sans-serif;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00a8e8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header fade-in">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-cube"></i>
+        </div>
+        <h1 class="logo-text">LOSTECH</h1>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <span id="userName">Usuario</span>
+      </div>
+    </header>
+
+    <div class="dashboard fade-in">
+      <aside class="sidebar">
+        <h2 class="sidebar-title">
+          <i class="fas fa-sliders-h"></i> Panel
+        </h2>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">
+              <i class="fas fa-box-open"></i> Objetos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-clipboard-check"></i> Entregas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="config.html" class="nav-link active">
+              <i class="fas fa-cog"></i> Configuración
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <div class="content-header">
+          <h2 class="content-title">CONFIGURACIÓN DE VENCIMIENTOS</h2>
+        </div>
+
+        <div class="settings-container">
+          <div class="settings-card">
+            <h3 class="settings-card-title">
+              <i class="fas fa-globe"></i> Configuración Global
+            </h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="globalExpiration" class="form-label">Días para vencimiento global</label>
+                <input type="number" id="globalExpiration" class="form-control" min="1" placeholder="90">
+                <small class="form-text">Establece el número de días por defecto para que un objeto se considere vencido</small>
+              </div>
+              <div class="form-group">
+                <label for="warningDays" class="form-label">Días para advertencia</label>
+                <input type="number" id="warningDays" class="form-control" min="1" placeholder="10">
+                <small class="form-text">Número de días antes del vencimiento para mostrar advertencia</small>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="saveGlobalSettings">
+              <i class="fas fa-save"></i> Guardar Configuración Global
+            </button>
+          </div>
+
+          <div class="settings-card">
+            <h3 class="settings-card-title">
+              <i class="fas fa-cog"></i> Configuración por Objeto
+            </h3>
+            <div class="form-group">
+              <label for="objectSearch" class="form-label">Buscar objeto</label>
+              <input type="text" id="objectSearch" class="form-control" placeholder="Nombre del objeto">
+            </div>
+            <div id="objectSearchResults" class="form-group" style="display: none;">
+              <label class="form-label">Resultados</label>
+              <div id="searchResultsList" style="max-height: 200px; overflow-y: auto; background: rgba(15, 23, 42, 0.7); border-radius: var(--border-radius); padding: 0.5rem;"></div>
+            </div>
+            <div id="objectSettingsForm" class="form-group" style="display: none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="selectedObjectName" class="form-label">Objeto seleccionado</label>
+                  <input type="text" id="selectedObjectName" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                  <label for="customExpiration" class="form-label">Días para vencimiento</label>
+                  <input type="number" id="customExpiration" class="form-control" min="1" placeholder="Ingrese días personalizados">
+                  <small class="form-text">Dejar vacío para usar el valor global</small>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="saveObjectSettings">
+                <i class="fas fa-save"></i> Guardar Configuración
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, doc, getDoc, updateDoc, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let selectedObjectId = null;
+
+    // Función para obtener el nombre del usuario desde Firebase
+    async function getCurrentUserName() {
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          return userData.name || currentUser.displayName || "Usuario";
+        }
+      }
+      return "Usuario";
+    }
+
+    // Actualizar la información del usuario en la UI
+    async function updateUserUI() {
+      const userName = await getCurrentUserName();
+      document.getElementById('userName').textContent = userName;
+      document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+    }
+
+    // Cargar configuración global
+    async function loadGlobalSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, "settings", "expiration"));
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          document.getElementById('globalExpiration').value = data.globalExpirationDays || '';
+          document.getElementById('warningDays').value = data.warningDays || '';
+        }
+      } catch (error) {
+        console.error("Error al cargar configuración:", error);
+      }
+    }
+
+    // Guardar configuración global
+    async function saveGlobalSettings() {
+      const globalExpiration = document.getElementById('globalExpiration').value;
+      const warningDays = document.getElementById('warningDays').value;
+
+      if (!globalExpiration || !warningDays) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Todos los campos son obligatorios',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#0072ff'
+        });
+        return;
+      }
+
+      try {
+        await setDoc(doc(db, "settings", "expiration"), {
+          globalExpirationDays: parseInt(globalExpiration),
+          warningDays: parseInt(warningDays),
+          updatedAt: new Date(),
+          updatedBy: await getCurrentUserName()
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Configuración guardada',
+          text: 'La configuración global ha sido actualizada correctamente',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#0072ff'
+        });
+      } catch (error) {
+        console.error("Error al guardar configuración:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema al guardar la configuración',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#0072ff'
+        });
+      }
+    }
+
+    // Buscar objetos
+    async function searchObjects() {
+      const searchTerm = document.getElementById('objectSearch').value.trim();
+      if (searchTerm.length < 3) {
+        document.getElementById('objectSearchResults').style.display = 'none';
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "ObjetosRegistrados"),
+          where("objectName", ">=", searchTerm),
+          where("objectName", "<=", searchTerm + "\uf8ff")
+        );
+
+        const querySnapshot = await getDocs(q);
+        const resultsList = document.getElementById('searchResultsList');
+        resultsList.innerHTML = '';
+
+        if (querySnapshot.empty) {
+          resultsList.innerHTML = '<div style="padding: 0.5rem; color: var(--text-muted);">No se encontraron objetos</div>';
+        } else {
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const item = document.createElement('div');
+            item.style.padding = '0.5rem';
+            item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+            item.style.cursor = 'pointer';
+            item.innerHTML = `
+              <strong>${data.objectName}</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                ${data.meetingDate} - ${data.foundBy}
+              </div>
+            `;
+            item.addEventListener('click', () => selectObject(doc.id, data));
+            resultsList.appendChild(item);
+          });
+        }
+
+        document.getElementById('objectSearchResults').style.display = 'block';
+      } catch (error) {
+        console.error("Error al buscar objetos:", error);
+      }
+    }
+
+    // Seleccionar objeto para configuración
+    function selectObject(objectId, objectData) {
+      selectedObjectId = objectId;
+      document.getElementById('selectedObjectName').value = objectData.objectName;
+      document.getElementById('customExpiration').value = objectData.customExpirationDays || '';
+      document.getElementById('objectSettingsForm').style.display = 'block';
+      document.getElementById('objectSearchResults').style.display = 'none';
+    }
+
+    // Guardar configuración de objeto
+    async function saveObjectSettings() {
+      if (!selectedObjectId) return;
+
+      const customExpiration = document.getElementById('customExpiration').value;
+
+      try {
+        const updateData = {};
+        if (customExpiration) {
+          updateData.customExpirationDays = parseInt(customExpiration);
+        } else {
+          updateData.customExpirationDays = null; // Para usar el valor global
+        }
+
+        await updateDoc(doc(db, "ObjetosRegistrados", selectedObjectId), updateData);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Configuración guardada',
+          text: 'La configuración para este objeto ha sido actualizada',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#0072ff'
+        });
+
+        // Limpiar formulario
+        document.getElementById('objectSearch').value = '';
+        document.getElementById('selectedObjectName').value = '';
+        document.getElementById('customExpiration').value = '';
+        document.getElementById('objectSettingsForm').style.display = 'none';
+        selectedObjectId = null;
+      } catch (error) {
+        console.error("Error al guardar configuración de objeto:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema al guardar la configuración',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#0072ff'
+        });
+      }
+    }
+
+    // Escuchar cambios en el estado de autenticación
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        await updateUserUI();
+        await loadGlobalSettings();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    // Event listeners
+    document.getElementById('saveGlobalSettings').addEventListener('click', saveGlobalSettings);
+    document.getElementById('objectSearch').addEventListener('input', searchObjects);
+    document.getElementById('saveObjectSettings').addEventListener('click', saveObjectSettings);
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      }).catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+      });
+    });
+  </script>
+</body>
+</html>
