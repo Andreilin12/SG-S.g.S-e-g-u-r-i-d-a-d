@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Cerrajería Hotelera</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1abc9c;
+      --primary-dark: #16a085;
+      --secondary-color: #2a2a3f;
+      --background-color: #2c3e50;
+      --text-color: #ffffff;
+      --text-light: #a8a8a8;
+      --border-color: #444;
+      --card-bg: #34495e;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --info-color: #3498db;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--secondary-color);
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-left: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-link i {
+      margin-right: 8px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .main-container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .card {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-warning {
+      background-color: var(--warning-color);
+    }
+
+    .btn-warning:hover {
+      background-color: #d35400;
+    }
+
+    .btn-info {
+      background-color: var(--info-color);
+    }
+
+    .btn-info:hover {
+      background-color: #2980b9;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .add-more-btn {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      transition: background-color 0.3s ease;
+    }
+
+    .add-more-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .data-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .report-card {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .report-card h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .report-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    .report-card .badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .badge-warning {
+      background-color: var(--warning-color);
+    }
+
+    .badge-danger {
+      background-color: var(--danger-color);
+    }
+
+    .badge-info {
+      background-color: var(--info-color);
+    }
+
+    .history-item {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .history-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .history-detail {
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--secondary-color);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Dashboard Styles */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--secondary-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .stat-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+      color: var(--text-light);
+      font-size: 12px;
+    }
+
+    .current-reports {
+      margin-top: 2rem;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .report-item {
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .report-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .report-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .report-item-title {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+
+    .report-item-badge {
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+
+    .report-item-body p {
+      margin-bottom: 0.5rem;
+    }
+
+    .report-item-footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .status-pending {
+      border-left: 4px solid var(--warning-color);
+    }
+
+    .status-resolved {
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .status-critical {
+      border-left: 4px solid var(--danger-color);
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+      }
+      
+      .nav-menu {
+        margin-top: 1rem;
+      }
+      
+      .nav-item {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+      
+      .dashboard-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .report-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">Cerrajería Hotelera</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Panel
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="maintenance">
+            <i class="fas fa-tools"></i> Mantenimiento
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="keys">
+            <i class="fas fa-key"></i> Llaves
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="incidents">
+            <i class="fas fa-exclamation-triangle"></i> Incidentes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-section="inventory">
+            <i class="fas fa-clipboard-list"></i> Inventario
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section active">
+      <h1 class="section-title">Panel Principal</h1>
+      
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <i class="fas fa-tools"></i>
+          <h3 id="totalMaintenance">0</h3>
+          <p>Mantenimientos</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-key"></i>
+          <h3 id="totalKeys">0</h3>
+          <p>Llaves Registradas</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3 id="totalIncidents">0</h3>
+          <p>Incidentes</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-clipboard-check"></i>
+          <h3 id="totalResolved">0</h3>
+          <p>Resueltos</p>
+        </div>
+      </div>
+
+      <div class="current-reports">
+        <h2 class="section-title">Reportes Recientes</h2>
+        
+        <div class="report-grid" id="recentReportsGrid">
+          <!-- Los reportes recientes se cargarán aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Maintenance Section -->
+    <section id="maintenance" class="section">
+      <h1 class="section-title">Reportes de Mantenimiento</h1>
+      
+      <div class="card">
+        <h2>Nuevo Reporte de Mantenimiento</h2>
+        <form id="maintenanceForm">
+          <div class="form-group">
+            <label for="maintenanceLocation">Ubicación</label>
+            <input type="text" id="maintenanceLocation" class="form-control" placeholder="Ej: Habitación 205, Recepción" required>
+          </div>
+          <div class="form-group">
+            <label for="maintenanceType">Tipo de Mantenimiento</label>
+            <select id="maintenanceType" class="form-control" required>
+              <option value="">Seleccione un tipo</option>
+              <option value="preventivo">Preventivo</option>
+              <option value="correctivo">Correctivo</option>
+              <option value="rutinario">Rutinario</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="maintenanceDescription">Descripción del Problema</label>
+            <textarea id="maintenanceDescription" class="form-control" placeholder="Describa el problema encontrado" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="maintenanceActions">Acciones Realizadas</label>
+            <textarea id="maintenanceActions" class="form-control" placeholder="Describa las acciones realizadas" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="maintenanceTechnician">Técnico Responsable</label>
+            <input type="text" id="maintenanceTechnician" class="form-control" placeholder="Nombre del técnico" required>
+          </div>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Guardar Reporte
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Historial de Mantenimientos</h2>
+        <div id="maintenanceHistory">
+          <!-- El historial de mantenimientos se cargará aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Keys Section -->
+    <section id="keys" class="section">
+      <h1 class="section-title">Gestión de Llaves</h1>
+      
+      <div class="card">
+        <h2>Registro de Llaves Perdidas/Extraviadas</h2>
+        <form id="lostKeyForm">
+          <div class="form-group">
+            <label for="lostKeyLocation">Ubicación</label>
+            <input type="text" id="lostKeyLocation" class="form-control" placeholder="Ej: Habitación 305, Almacén principal" required>
+          </div>
+          <div class="form-group">
+            <label for="lostKeyNumber">Número/Código de Llave</label>
+            <input type="text" id="lostKeyNumber" class="form-control" placeholder="Identificación de la llave" required>
+          </div>
+          <div class="form-group">
+            <label for="lostKeyGuest">Huésped Responsable (si aplica)</label>
+            <input type="text" id="lostKeyGuest" class="form-control" placeholder="Nombre del huésped">
+          </div>
+          <div class="form-group">
+            <label for="lostKeyDetails">Detalles del Incidente</label>
+            <textarea id="lostKeyDetails" class="form-control" placeholder="Describa cómo y cuándo se perdió la llave" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="lostKeyActions">Acciones Tomadas</label>
+            <textarea id="lostKeyActions" class="form-control" placeholder="Describa las acciones realizadas (cambio de cerradura, etc.)" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Registrar Incidencia
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Registro de Cambio de Cerraduras/Llaves</h2>
+        <form id="keyChangeForm">
+          <div class="form-group">
+            <label for="keyChangeLocation">Ubicación</label>
+            <input type="text" id="keyChangeLocation" class="form-control" placeholder="Ej: Habitación 402, Puerta principal" required>
+          </div>
+          <div class="form-group">
+            <label for="keyChangeReason">Motivo del Cambio</label>
+            <select id="keyChangeReason" class="form-control" required>
+              <option value="">Seleccione un motivo</option>
+              <option value="perdida">Pérdida de llaves</option>
+              <option value="daño">Daño en la cerradura</option>
+              <option value="seguridad">Refuerzo de seguridad</option>
+              <option value="renovacion">Renovación programada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="keyChangeDetails">Detalles del Cambio</label>
+            <textarea id="keyChangeDetails" class="form-control" placeholder="Describa los detalles del cambio realizado" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="keyChangeTechnician">Técnico Responsable</label>
+            <input type="text" id="keyChangeTechnician" class="form-control" placeholder="Nombre del técnico" required>
+          </div>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Registrar Cambio
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Historial de Llaves</h2>
+        <div id="keysHistory">
+          <!-- El historial de llaves se cargará aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Incidents Section -->
+    <section id="incidents" class="section">
+      <h1 class="section-title">Incidentes de Seguridad</h1>
+      
+      <div class="card">
+        <h2>Nuevo Reporte de Incidente</h2>
+        <form id="incidentForm">
+          <div class="form-group">
+            <label for="incidentLocation">Ubicación</label>
+            <input type="text" id="incidentLocation" class="form-control" placeholder="Ej: Habitación 108, Área de piscina" required>
+          </div>
+          <div class="form-group">
+            <label for="incidentType">Tipo de Incidente</label>
+            <select id="incidentType" class="form-control" required>
+              <option value="">Seleccione un tipo</option>
+              <option value="intruso">Intento de intrusión</option>
+              <option value="forzado">Puerta forzada</option>
+              <option value="acceso">Acceso no autorizado</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="incidentDescription">Descripción del Incidente</label>
+            <textarea id="incidentDescription" class="form-control" placeholder="Describa el incidente en detalle" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="incidentSeverity">Gravedad</label>
+            <select id="incidentSeverity" class="form-control" required>
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="incidentActions">Acciones Tomadas</label>
+            <textarea id="incidentActions" class="form-control" placeholder="Describa las acciones realizadas" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="incidentStatus">Estado</label>
+            <select id="incidentStatus" class="form-control" required>
+              <option value="pendiente">Pendiente</option>
+              <option value="investigacion">En investigación</option>
+              <option value="resuelto">Resuelto</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Guardar Reporte
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Historial de Incidentes</h2>
+        <div id="incidentsHistory">
+          <!-- El historial de incidentes se cargará aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventory Section -->
+    <section id="inventory" class="section">
+      <h1 class="section-title">Inventario de Cerraduras y Llaves</h1>
+      
+      <div class="card">
+        <h2>Nuevo Registro en Inventario</h2>
+        <form id="inventoryForm">
+          <div class="form-group">
+            <label for="inventoryType">Tipo de Elemento</label>
+            <select id="inventoryType" class="form-control" required>
+              <option value="">Seleccione un tipo</option>
+              <option value="cerradura">Cerradura</option>
+              <option value="llave">Llave</option>
+              <option value="sistema">Sistema de seguridad</option>
+              <option value="accesorio">Accesorio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inventoryLocation">Ubicación</label>
+            <input type="text" id="inventoryLocation" class="form-control" placeholder="Ej: Habitación 210, Recepción" required>
+          </div>
+          <div class="form-group">
+            <label for="inventoryCode">Código/Número</label>
+            <input type="text" id="inventoryCode" class="form-control" placeholder="Identificación del elemento" required>
+          </div>
+          <div class="form-group">
+            <label for="inventoryBrand">Marca/Modelo</label>
+            <input type="text" id="inventoryBrand" class="form-control" placeholder="Marca y modelo del elemento">
+          </div>
+          <div class="form-group">
+            <label for="inventoryStatus">Estado</label>
+            <select id="inventoryStatus" class="form-control" required>
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+              <option value="inutilizable">Inutilizable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inventoryNotes">Notas</label>
+            <textarea id="inventoryNotes" class="form-control" placeholder="Observaciones adicionales"></textarea>
+          </div>
+          <button type="submit" class="btn btn-block">
+            <i class="fas fa-save"></i> Guardar Registro
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Inventario Actual</h2>
+        <div class="form-group">
+          <input type="text" id="inventorySearch" class="form-control" placeholder="Buscar por ubicación o código...">
+        </div>
+        <div id="inventoryList">
+          <!-- La lista de inventario se cargará aquí -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal para detalles -->
+  <div class="modal" id="detailsModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="detailsModalTitle"></h3>
+      <div id="detailsModalContent"></div>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para alertas -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      getDocs, 
+      doc, 
+      setDoc, 
+      onSnapshot,
+      deleteDoc,
+      updateDoc,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let maintenanceReports = [];
+    let keyReports = [];
+    let incidents = [];
+    let inventoryItems = [];
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      setupNavigation();
+      loadAllData();
+      setupEventListeners();
+    });
+
+    // Configuración de navegación
+    function setupNavigation() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Remover clase active de todos los links
+          navLinks.forEach(l => l.classList.remove('active'));
+          
+          // Agregar clase active al link clickeado
+          link.classList.add('active');
+          
+          // Ocultar todas las secciones
+          document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          // Mostrar la sección correspondiente
+          const sectionId = link.dataset.section;
+          document.getElementById(sectionId).classList.add('active');
+        });
+      });
+    }
+
+    // Cargar todos los datos iniciales
+    async function loadAllData() {
+      await loadMaintenanceReports();
+      await loadKeyReports();
+      await loadIncidents();
+      await loadInventory();
+      updateDashboardStats();
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Formularios
+      document.getElementById('maintenanceForm').addEventListener('submit', saveMaintenanceReport);
+      document.getElementById('lostKeyForm').addEventListener('submit', saveLostKeyReport);
+      document.getElementById('keyChangeForm').addEventListener('submit', saveKeyChangeReport);
+      document.getElementById('incidentForm').addEventListener('submit', saveIncidentReport);
+      document.getElementById('inventoryForm').addEventListener('submit', saveInventoryItem);
+      
+      // Búsqueda en inventario
+      document.getElementById('inventorySearch').addEventListener('input', searchInventory);
+    }
+
+    // Funciones para manejar reportes de mantenimiento
+    async function loadMaintenanceReports() {
+      const querySnapshot = await getDocs(collection(db, "maintenanceReports"));
+      maintenanceReports = [];
+      querySnapshot.forEach(doc => {
+        maintenanceReports.push({ id: doc.id, ...doc.data() });
+      });
+      updateMaintenanceHistory();
+      updateRecentReports();
+    }
+
+    function updateMaintenanceHistory() {
+      const container = document.getElementById('maintenanceHistory');
+      container.innerHTML = '';
+      
+      if (maintenanceReports.length === 0) {
+        container.innerHTML = '<p>No hay reportes de mantenimiento registrados</p>';
+        return;
+      }
+      
+      // Ordenar por fecha más reciente primero
+      maintenanceReports.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      maintenanceReports.forEach(report => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.innerHTML = `
+          <div class="history-header">
+            <div>
+              <h3>${report.location} - ${formatDate(report.date)}</h3>
+              <small>Tipo: ${capitalizeFirstLetter(report.type)}</small>
+            </div>
+            <button onclick="showReportDetails('maintenance', '${report.id}')" class="btn btn-sm btn-info">
+              <i class="fas fa-eye"></i> Detalles
+            </button>
+          </div>
+          <div class="history-details">
+            <div class="history-detail">
+              <strong>Técnico:</strong> ${report.technician}
+            </div>
+            <div class="history-detail">
+              <strong>Estado:</strong> <span class="badge">Completado</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function saveMaintenanceReport(e) {
+      e.preventDefault();
+      
+      const report = {
+        location: document.getElementById('maintenanceLocation').value,
+        type: document.getElementById('maintenanceType').value,
+        description: document.getElementById('maintenanceDescription').value,
+        actions: document.getElementById('maintenanceActions').value,
+        technician: document.getElementById('maintenanceTechnician').value,
+        date: new Date().toISOString(),
+        status: 'completado'
+      };
+      
+      try {
+        await addDoc(collection(db, "maintenanceReports"), report);
+        showModal('Éxito', 'Reporte de mantenimiento guardado correctamente');
+        document.getElementById('maintenanceForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar el reporte de mantenimiento');
+        console.error("Error guardando reporte de mantenimiento: ", error);
+      }
+    }
+
+    // Funciones para manejar reportes de llaves
+    async function loadKeyReports() {
+      const querySnapshot = await getDocs(collection(db, "keyReports"));
+      keyReports = [];
+      querySnapshot.forEach(doc => {
+        keyReports.push({ id: doc.id, ...doc.data() });
+      });
+      updateKeysHistory();
+      updateRecentReports();
+    }
+
+    function updateKeysHistory() {
+      const container = document.getElementById('keysHistory');
+      container.innerHTML = '';
+      
+      if (keyReports.length === 0) {
+        container.innerHTML = '<p>No hay reportes de llaves registrados</p>';
+        return;
+      }
+      
+      // Ordenar por fecha más reciente primero
+      keyReports.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      keyReports.forEach(report => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        const isLostKey = report.reportType === 'lost';
+        const title = isLostKey ? 
+          `Llave perdida: ${report.keyNumber}` : 
+          `Cambio de cerradura: ${report.location}`;
+        
+        item.innerHTML = `
+          <div class="history-header">
+            <div>
+              <h3>${title}</h3>
+              <small>${formatDate(report.date)}</small>
+            </div>
+            <button onclick="showReportDetails('key', '${report.id}')" class="btn btn-sm btn-info">
+              <i class="fas fa-eye"></i> Detalles
+            </button>
+          </div>
+          <div class="history-details">
+            <div class="history-detail">
+              <strong>Ubicación:</strong> ${report.location}
+            </div>
+            <div class="history-detail">
+              <strong>Tipo:</strong> ${isLostKey ? 'Pérdida' : 'Cambio'}
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function saveLostKeyReport(e) {
+      e.preventDefault();
+      
+      const report = {
+        reportType: 'lost',
+        location: document.getElementById('lostKeyLocation').value,
+        keyNumber: document.getElementById('lostKeyNumber').value,
+        guest: document.getElementById('lostKeyGuest').value || 'N/A',
+        details: document.getElementById('lostKeyDetails').value,
+        actions: document.getElementById('lostKeyActions').value,
+        date: new Date().toISOString()
+      };
+      
+      try {
+        await addDoc(collection(db, "keyReports"), report);
+        showModal('Éxito', 'Reporte de llave perdida guardado correctamente');
+        document.getElementById('lostKeyForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar el reporte de llave perdida');
+        console.error("Error guardando reporte de llave perdida: ", error);
+      }
+    }
+
+    async function saveKeyChangeReport(e) {
+      e.preventDefault();
+      
+      const report = {
+        reportType: 'change',
+        location: document.getElementById('keyChangeLocation').value,
+        reason: document.getElementById('keyChangeReason').value,
+        details: document.getElementById('keyChangeDetails').value,
+        technician: document.getElementById('keyChangeTechnician').value,
+        date: new Date().toISOString()
+      };
+      
+      try {
+        await addDoc(collection(db, "keyReports"), report);
+        showModal('Éxito', 'Reporte de cambio de cerradura guardado correctamente');
+        document.getElementById('keyChangeForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar el reporte de cambio de cerradura');
+        console.error("Error guardando reporte de cambio de cerradura: ", error);
+      }
+    }
+
+    // Funciones para manejar incidentes
+    async function loadIncidents() {
+      const querySnapshot = await getDocs(collection(db, "incidents"));
+      incidents = [];
+      querySnapshot.forEach(doc => {
+        incidents.push({ id: doc.id, ...doc.data() });
+      });
+      updateIncidentsHistory();
+      updateRecentReports();
+    }
+
+    function updateIncidentsHistory() {
+      const container = document.getElementById('incidentsHistory');
+      container.innerHTML = '';
+      
+      if (incidents.length === 0) {
+        container.innerHTML = '<p>No hay incidentes registrados</p>';
+        return;
+      }
+      
+      // Ordenar por fecha más reciente primero
+      incidents.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      incidents.forEach(incident => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        // Determinar clase de estado
+        let statusClass = '';
+        let statusText = '';
+        
+        if (incident.status === 'pendiente') {
+          statusClass = 'badge-warning';
+          statusText = 'Pendiente';
+        } else if (incident.status === 'resuelto') {
+          statusClass = 'badge';
+          statusText = 'Resuelto';
+        } else {
+          statusClass = 'badge-info';
+          statusText = 'En investigación';
+        }
+        
+        item.innerHTML = `
+          <div class="history-header">
+            <div>
+              <h3>${incident.location} - ${formatDate(incident.date)}</h3>
+              <small>Tipo: ${capitalizeFirstLetter(incident.type)}</small>
+            </div>
+            <div>
+              <span class="badge ${getSeverityBadgeClass(incident.severity)}">
+                ${capitalizeFirstLetter(incident.severity)}
+              </span>
+              <button onclick="showReportDetails('incident', '${incident.id}')" class="btn btn-sm btn-info">
+                <i class="fas fa-eye"></i> Detalles
+              </button>
+            </div>
+          </div>
+          <div class="history-details">
+            <div class="history-detail">
+              <strong>Estado:</strong> <span class="${statusClass}">${statusText}</span>
+            </div>
+            <div class="history-detail">
+              <strong>Descripción:</strong> ${truncateText(incident.description, 50)}
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function saveIncidentReport(e) {
+      e.preventDefault();
+      
+      const incident = {
+        location: document.getElementById('incidentLocation').value,
+        type: document.getElementById('incidentType').value,
+        description: document.getElementById('incidentDescription').value,
+        severity: document.getElementById('incidentSeverity').value,
+        actions: document.getElementById('incidentActions').value,
+        status: document.getElementById('incidentStatus').value,
+        date: new Date().toISOString()
+      };
+      
+      try {
+        await addDoc(collection(db, "incidents"), incident);
+        showModal('Éxito', 'Reporte de incidente guardado correctamente');
+        document.getElementById('incidentForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar el reporte de incidente');
+        console.error("Error guardando reporte de incidente: ", error);
+      }
+    }
+
+    // Funciones para manejar inventario
+    async function loadInventory() {
+      const querySnapshot = await getDocs(collection(db, "inventory"));
+      inventoryItems = [];
+      querySnapshot.forEach(doc => {
+        inventoryItems.push({ id: doc.id, ...doc.data() });
+      });
+      updateInventoryList();
+      updateRecentReports();
+    }
+
+    function updateInventoryList(filteredItems = null) {
+      const container = document.getElementById('inventoryList');
+      container.innerHTML = '';
+      
+      const itemsToDisplay = filteredItems || inventoryItems;
+      
+      if (itemsToDisplay.length === 0) {
+        container.innerHTML = '<p>No hay elementos en el inventario</p>';
+        return;
+      }
+      
+      itemsToDisplay.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'report-card';
+        card.innerHTML = `
+          <h3>${item.code} - ${capitalizeFirstLetter(item.type)}</h3>
+          <p><strong>Ubicación:</strong> ${item.location}</p>
+          <p><strong>Estado:</strong> <span class="badge ${getStatusBadgeClass(item.status)}">
+            ${capitalizeFirstLetter(item.status)}
+          </span></p>
+          <button onclick="showReportDetails('inventory', '${item.id}')" class="btn btn-sm btn-info" style="position: absolute; top: 1rem; right: 1rem;">
+            <i class="fas fa-eye"></i> Detalles
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function searchInventory() {
+      const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+      
+      if (!searchTerm) {
+        updateInventoryList();
+        return;
+      }
+      
+      const filteredItems = inventoryItems.filter(item => 
+        item.location.toLowerCase().includes(searchTerm) || 
+        item.code.toLowerCase().includes(searchTerm)
+      );
+      
+      updateInventoryList(filteredItems);
+    }
+
+    async function saveInventoryItem(e) {
+      e.preventDefault();
+      
+      const item = {
+        type: document.getElementById('inventoryType').value,
+        location: document.getElementById('inventoryLocation').value,
+        code: document.getElementById('inventoryCode').value,
+        brand: document.getElementById('inventoryBrand').value || 'N/A',
+        status: document.getElementById('inventoryStatus').value,
+        notes: document.getElementById('inventoryNotes').value || 'N/A',
+        date: new Date().toISOString()
+      };
+      
+      try {
+        await addDoc(collection(db, "inventory"), item);
+        showModal('Éxito', 'Elemento de inventario guardado correctamente');
+        document.getElementById('inventoryForm').reset();
+        await loadAllData();
+      } catch (error) {
+        showModal('Error', 'Error al guardar el elemento de inventario');
+        console.error("Error guardando elemento de inventario: ", error);
+      }
+    }
+
+    // Dashboard
+    function updateDashboardStats() {
+      document.getElementById('totalMaintenance').textContent = maintenanceReports.length;
+      document.getElementById('totalKeys').textContent = 
+        keyReports.filter(r => r.reportType === 'lost').length;
+      
+      document.getElementById('totalIncidents').textContent = incidents.length;
+      document.getElementById('totalResolved').textContent = 
+        incidents.filter(i => i.status === 'resuelto').length;
+    }
+
+    function updateRecentReports() {
+      const container = document.getElementById('recentReportsGrid');
+      container.innerHTML = '';
+      
+      // Combinar todos los reportes y ordenar por fecha
+      const allReports = [
+        ...maintenanceReports.map(r => ({ ...r, type: 'maintenance' })),
+        ...keyReports.map(r => ({ ...r, type: 'key' })),
+        ...incidents.map(r => ({ ...r, type: 'incident' })),
+        ...inventoryItems.filter(i => i.status === 'malo' || i.status === 'inutilizable')
+          .map(i => ({ ...i, type: 'inventory' }))
+      ];
+      
+      allReports.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Mostrar solo los 6 más recientes
+      const recentReports = allReports.slice(0, 6);
+      
+      if (recentReports.length === 0) {
+        container.innerHTML = '<p>No hay reportes recientes</p>';
+        return;
+      }
+      
+      recentReports.forEach(report => {
+        let title, subtitle, icon, badgeClass, badgeText, statusClass = '';
+        
+        if (report.type === 'maintenance') {
+          title = `Mantenimiento: ${report.location}`;
+          subtitle = `Tipo: ${capitalizeFirstLetter(report.type)}`;
+          icon = 'fa-tools';
+          badgeClass = 'badge';
+          badgeText = 'Completado';
+        } 
+        else if (report.type === 'key') {
+          title = report.reportType === 'lost' ? 
+            `Llave perdida: ${report.keyNumber}` : 
+            `Cambio de cerradura: ${report.location}`;
+          subtitle = report.reportType === 'lost' ? 'Pérdida' : 'Cambio';
+          icon = 'fa-key';
+          badgeClass = 'badge-warning';
+          badgeText = 'Reporte';
+        } 
+        else if (report.type === 'incident') {
+          title = `Incidente: ${report.location}`;
+          subtitle = `Tipo: ${capitalizeFirstLetter(report.type)}`;
+          icon = 'fa-exclamation-triangle';
+          badgeClass = getSeverityBadgeClass(report.severity);
+          badgeText = capitalizeFirstLetter(report.severity);
+          
+          // Clase de estado para el borde izquierdo
+          if (report.status === 'pendiente') {
+            statusClass = 'status-pending';
+          } else if (report.status === 'resuelto') {
+            statusClass = 'status-resolved';
+          } else if (report.severity === 'critica') {
+            statusClass = 'status-critical';
+          }
+        } 
+        else { // inventory
+          title = `Inventario: ${report.code}`;
+          subtitle = `Ubicación: ${report.location}`;
+          icon = 'fa-clipboard-list';
+          badgeClass = getStatusBadgeClass(report.status);
+          badgeText = capitalizeFirstLetter(report.status);
+          statusClass = report.status === 'inutilizable' ? 'status-critical' : 
+                       report.status === 'malo' ? 'status-pending' : '';
+        }
+        
+        const item = document.createElement('div');
+        item.className = `report-item ${statusClass}`;
+        item.innerHTML = `
+          <div class="report-item-header">
+            <div>
+              <i class="fas ${icon}"></i>
+              <span class="report-item-title">${truncateText(title, 20)}</span>
+            </div>
+            <span class="report-item-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="report-item-body">
+            <p>${subtitle}</p>
+            <p><small>${formatDate(report.date)}</small></p>
+          </div>
+          <div class="report-item-footer">
+            <button onclick="showReportDetails('${report.type}', '${report.id}')" class="btn btn-sm btn-block">
+              <i class="fas fa-eye"></i> Ver detalles
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Funciones para mostrar detalles
+    window.showReportDetails = async function(reportType, id) {
+      let report, title;
+      
+      if (reportType === 'maintenance') {
+        report = maintenanceReports.find(r => r.id === id);
+        title = 'Detalles de Mantenimiento';
+      } 
+      else if (reportType === 'key') {
+        report = keyReports.find(r => r.id === id);
+        title = report.reportType === 'lost' ? 
+          'Detalles de Llave Perdida' : 'Detalles de Cambio de Cerradura';
+      } 
+      else if (reportType === 'incident') {
+        report = incidents.find(r => r.id === id);
+        title = 'Detalles de Incidente';
+      } 
+      else { // inventory
+        report = inventoryItems.find(r => r.id === id);
+        title = 'Detalles de Inventario';
+      }
+      
+      if (!report) {
+        showModal('Error', 'No se encontraron los detalles del reporte');
+        return;
+      }
+      
+      document.getElementById('detailsModalTitle').textContent = title;
+      const content = document.getElementById('detailsModalContent');
+      content.innerHTML = '';
+      
+      // Crear tabla de detalles
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.borderCollapse = 'collapse';
+      table.style.marginTop = '1rem';
+      
+      // Agregar filas según el tipo de reporte
+      if (reportType === 'maintenance') {
+        addTableRow(table, 'Ubicación', report.location);
+        addTableRow(table, 'Tipo', capitalizeFirstLetter(report.type));
+        addTableRow(table, 'Descripción', report.description);
+        addTableRow(table, 'Acciones', report.actions);
+        addTableRow(table, 'Técnico', report.technician);
+        addTableRow(table, 'Fecha', formatDateTime(report.date));
+        addTableRow(table, 'Estado', 'Completado');
+      } 
+      else if (reportType === 'key') {
+        if (report.reportType === 'lost') {
+          addTableRow(table, 'Tipo', 'Llave perdida/extraviada');
+          addTableRow(table, 'Ubicación', report.location);
+          addTableRow(table, 'Número de llave', report.keyNumber);
+          addTableRow(table, 'Huésped', report.guest || 'N/A');
+          addTableRow(table, 'Detalles', report.details);
+          addTableRow(table, 'Acciones', report.actions);
+          addTableRow(table, 'Fecha', formatDateTime(report.date));
+        } else {
+          addTableRow(table, 'Tipo', 'Cambio de cerradura/llave');
+          addTableRow(table, 'Ubicación', report.location);
+          addTableRow(table, 'Motivo', capitalizeFirstLetter(report.reason));
+          addTableRow(table, 'Detalles', report.details);
+          addTableRow(table, 'Técnico', report.technician);
+          addTableRow(table, 'Fecha', formatDateTime(report.date));
+        }
+      } 
+      else if (reportType === 'incident') {
+        addTableRow(table, 'Ubicación', report.location);
+        addTableRow(table, 'Tipo', capitalizeFirstLetter(report.type));
+        addTableRow(table, 'Gravedad', capitalizeFirstLetter(report.severity));
+        addTableRow(table, 'Descripción', report.description);
+        addTableRow(table, 'Acciones', report.actions);
+        addTableRow(table, 'Estado', capitalizeFirstLetter(report.status));
+        addTableRow(table, 'Fecha', formatDateTime(report.date));
+      } 
+      else { // inventory
+        addTableRow(table, 'Tipo', capitalizeFirstLetter(report.type));
+        addTableRow(table, 'Ubicación', report.location);
+        addTableRow(table, 'Código/Número', report.code);
+        addTableRow(table, 'Marca/Modelo', report.brand || 'N/A');
+        addTableRow(table, 'Estado', capitalizeFirstLetter(report.status));
+        addTableRow(table, 'Notas', report.notes || 'N/A');
+        addTableRow(table, 'Fecha de registro', formatDateTime(report.date));
+      }
+      
+      content.appendChild(table);
+      
+      // Mostrar modal
+      document.getElementById('detailsModal').classList.add('active');
+    };
+
+    function addTableRow(table, label, value) {
+      const row = table.insertRow();
+      const cell1 = row.insertCell(0);
+      const cell2 = row.insertCell(1);
+      
+      cell1.style.padding = '8px';
+      cell1.style.borderBottom = '1px solid var(--border-color)';
+      cell1.style.fontWeight = '500';
+      cell1.style.width = '30%';
+      cell1.textContent = label;
+      
+      cell2.style.padding = '8px';
+      cell2.style.borderBottom = '1px solid var(--border-color)';
+      cell2.textContent = value;
+    }
+
+    // Funciones auxiliares
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    }
+
+    function formatDateTime(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function truncateText(text, maxLength) {
+      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    function getSeverityBadgeClass(severity) {
+      switch(severity) {
+        case 'baja': return 'badge';
+        case 'media': return 'badge-info';
+        case 'alta': return 'badge-warning';
+        case 'critica': return 'badge-danger';
+        default: return 'badge';
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      switch(status) {
+        case 'excelente': return 'badge';
+        case 'bueno': return 'badge';
+        case 'regular': return 'badge-warning';
+        case 'malo': return 'badge-warning';
+        case 'inutilizable': return 'badge-danger';
+        default: return 'badge';
+      }
+    }
+
+    window.closeModal = function() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+      });
+    };
+
+    function showModal(title, message) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      document.getElementById('alertModal').classList.add('active');
+    }
+  </script>
+</body>
+</html>
