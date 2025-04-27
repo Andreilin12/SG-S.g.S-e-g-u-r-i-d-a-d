@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor HTML Avanzado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #15a086;
+            --primary-dark: #15a086;
+            --header-bg: #2c3e50;
+            --panel-header-bg: #2c3e50;
+            --toolbar-bg: #2c3e50;
+            --border-color: #2c3e50;
+            --text-light: #fff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--header-bg);
+            color: var(--text-light);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 200px;
+            background-color: #2c3e50;
+            color: var(--text-light);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 10px;
+            background-color: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .file-explorer {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .file-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-item:hover {
+            background-color: #3e3e42;
+        }
+        
+        .file-item i {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .tab-bar {
+            background-color: #15a086;
+            display: flex;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 8px 15px;
+            background-color: #065c4;
+            color: var(--text-light);
+            cursor: pointer;
+            border-right: 1px solid #1e1e1e;
+            display: flex;
+            align-items: center;
+            min-width: 150px;
+        }
+        
+        .tab.active {
+            background-color: #065c4c;
+            border-top: 2px solid var(--primary-color);
+        }
+        
+        .tab-close {
+            margin-left: 10px;
+            color: #888;
+        }
+        
+        .tab-close:hover {
+            color: var(--text-light);
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background-color: var(--panel-header-bg);
+            color: var(--text-light);
+            padding: 8px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .CodeMirror {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100% !important;
+        }
+        
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid var(--border-color);
+        }
+        
+        .preview-iframe {
+            flex: 1;
+            border: none;
+            background-color: white;
+        }
+        
+        .color-info {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 5px;
+            vertical-align: middle;
+            font-size: 12px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        
+        .color-preview {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+        }
+        
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 8px 10px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        button, .btn {
+            padding: 6px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+        }
+        
+        button:hover, .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: #15a086;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2c3e50;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #15a086;
+        }
+        
+        .preview-position-selector {
+            display: flex;
+            margin-left: auto;
+        }
+        
+        .preview-btn {
+            padding: 5px 10px;
+            background-color: transparent;
+            color: #ff;
+            border: 1px solid #aaa;
+            border-radius: 0;
+        }
+        
+        .preview-btn:first-child {
+            border-radius: 3px 0 0 3px;
+        }
+        
+        .preview-btn:last-child {
+            border-radius: 0 3px 3px 0;
+        }
+        
+        .preview-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 3px;
+        }
+        
+        .dropdown-content a {
+            color: black;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #15a086;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .split-view {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .split-view.vertical {
+            flex-direction: column;
+        }
+        
+        .resize-handle {
+            width: 5px;
+            background-color: #ddd;
+            cursor: col-resize;
+        }
+        
+        .resize-handle.vertical {
+            width: 100%;
+            height: 5px;
+            cursor: row-resize;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #aaa;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 160px;
+            }
+            
+            .tab {
+                min-width: 120px;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <span class="logo">Editor Avanzado</span>
+        </div>
+        <div class="toolbar">
+            <button id="new-file-btn"><i class="fas fa-file"></i> Nuevo</button>
+            <div class="dropdown">
+                <button class="btn"><i class="fas fa-download"></i> Guardar <i class="fas fa-caret-down"></i></button>
+                <div class="dropdown-content">
+                    <a href="#" id="save-html">Guardar como HTML</a>
+                    <a href="#" id="save-js">Guardar como JS</a>
+                    <a href="#" id="save-css">Guardar como CSS</a>
+                    <a href="#" id="save-zip">Guardar proyecto (ZIP)</a>
+                </div>
+            </div>
+            <button id="run-btn"><i class="fas fa-play"></i> Ejecutar</button>
+            <button id="format-btn"><i class="fas fa-indent"></i> Formatear</button>
+            <div class="preview-position-selector">
+                <button class="preview-btn active" data-position="right"><i class="fas fa-columns"></i></button>
+                <button class="preview-btn" data-position="bottom"><i class="fas fa-window-maximize"></i></button>
+                <button class="preview-btn" data-position="none"><i class="fas fa-eye-slash"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span>Explorador</span>
+                <button class="btn btn-secondary" id="new-file-sidebar" title="Nuevo archivo"><i class="fas fa-plus"></i></button>
+            </div>
+            <div class="file-explorer" id="file-explorer">
+                <!-- Los archivos aparecerán aquí -->
+            </div>
+        </div>
+        
+        <div class="editor-area">
+            <div class="tab-bar" id="tab-bar">
+                <!-- Las pestañas aparecerán aquí -->
+            </div>
+            
+            <div class="editor-container" id="editor-container">
+                <div class="split-view" id="split-view">
+                    <div class="editor-wrapper" id="editor-wrapper">
+                        <div class="panel-header">
+                            <span id="current-file-name">Sin título</span>
+                            <span>HTML</span>
+                        </div>
+                        <textarea id="editor"><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Página</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* gris claro */
+            color: #333; /* gris oscuro */
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #FF0000; /* rojo */
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff; /* blanco */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* negro con transparencia */
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* verde */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #45a049; /* verde oscuro */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido a mi página</h1>
+        <p>Este es un ejemplo de página HTML con estilos CSS.</p>
+        <a href="#" class="btn">Botón de ejemplo</a>
+    </div>
+</body>
+</html></textarea>
+                    </div>
+                    
+                    <div class="resize-handle" id="resize-handle"></div>
+                    
+                    <div class="preview-container" id="preview-container">
+                        <div class="panel-header">
+                            <span>Vista Previa</span>
+                            <span>Mobile</span>
+                        </div>
+                        <iframe id="preview" class="preview-iframe"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Base de datos de nombres de colores comunes
+        const colorNames = {
+            '#000000': 'negro', '#FFFFFF': 'blanco', '#FF0000': 'rojo', 
+            '#00FF00': 'verde', '#0000FF': 'azul', '#FFFF00': 'amarillo',
+            '#00FFFF': 'cian', '#FF00FF': 'magenta', '#C0C0C0': 'plata',
+            '#808080': 'gris', '#800000': 'marrón oscuro', '#808000': 'oliva',
+            '#008000': 'verde oscuro', '#800080': 'púrpura', '#008080': 'teal',
+            '#FFA500': 'naranja', '#F0F0F0': 'gris claro', '#333': 'gris oscuro',
+            '#4CAF50': 'verde', '#45a049': 'verde oscuro', '#FF4500': 'naranja rojizo',
+            '#FFD700': 'oro', '#9370DB': 'púrpura medio', '#FF6347': 'tomate',
+            '#7FFFD4': 'aguamarina', '#D2691E': 'chocolate', '#FF7F50': 'coral',
+            '#6495ED': 'azul cielo', '#DC143C': 'carmesí', '#00BFFF': 'azul cielo profundo',
+            '#FF8C00': 'naranja oscuro', '#9932CC': 'orquídea oscura', '#8B0000': 'rojo oscuro'
+        };
+        
+        // Estado de la aplicación
+        const state = {
+            files: [
+                {
+                    id: 'file1',
+                    name: 'index.html',
+                    content: document.getElementById('editor').value,
+                    language: 'htmlmixed',
+                    active: true
+                }
+            ],
+            nextFileId: 2,
+            previewPosition: 'right',
+            colorMarkers: []
+        };
+        
+        // Inicializar el editor principal
+        const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+            mode: 'htmlmixed',
+            theme: 'dracula',
+            lineNumbers: true,
+            autoCloseTags: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+            extraKeys: {
+                'Ctrl-Enter': runCode,
+                'Cmd-Enter': runCode,
+                'Ctrl-Space': 'autocomplete',
+                'Tab': 'emmetExpandAbbreviation'
+            }
+        });
+        
+        // Función para obtener el nombre aproximado de un color
+        function getColorName(hex) {
+            // Si tenemos el nombre exacto en la base de datos
+            if (colorNames[hex.toUpperCase()]) {
+                return colorNames[hex.toUpperCase()];
+            }
+            
+            // Para códigos de 3 caracteres, expandirlos a 6
+            if (hex.length === 4 && hex.startsWith('#')) {
+                hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+            }
+            
+            // Intentar nuevamente con el código expandido
+            if (colorNames[hex.toUpperCase()]) {
+                return colorNames[hex.toUpperCase()];
+            }
+            
+            // Si no está en la base de datos, devolver el código
+            return hex;
+        }
+        
+        // Función para convertir RGB a nombre aproximado
+        function rgbToColorName(rgb) {
+            // Extraer valores RGB
+            const rgbValues = rgb.match(/\d+/g);
+            if (!rgbValues || rgbValues.length < 3) return rgb;
+            
+            const r = parseInt(rgbValues[0]);
+            const g = parseInt(rgbValues[1]);
+            const b = parseInt(rgbValues[2]);
+            
+            // Convertir RGB a HEX para buscar en nuestra base de datos
+            const hex = '#' + 
+                ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            
+            return getColorName(hex) || rgb;
+        }
+        
+        // Función para manejar colores RGBA
+        function rgbaToColorName(rgba) {
+            const rgbaValues = rgba.match(/[\d.]+/g);
+            if (!rgbaValues || rgbaValues.length < 3) return rgba;
+            
+            const r = parseInt(rgbaValues[0]);
+            const g = parseInt(rgbaValues[1]);
+            const b = parseInt(rgbaValues[2]);
+            const a = rgbaValues[3] ? parseFloat(rgbaValues[3]) : 1;
+            
+            const hex = '#' + 
+                ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            
+            const colorName = getColorName(hex) || hex;
+            return a < 1 ? `${colorName} (transparencia ${Math.round(a*100)}%)` : colorName;
+        }
+        
+        // Ejecutar código
+        function runCode() {
+            const activeFile = state.files.find(file => file.active);
+            if (!activeFile) return;
+            
+            const preview = document.getElementById('preview');
+            preview.srcdoc = activeFile.content;
+        }
+        
+        // Formatear código
+        function formatCode() {
+            const totalLines = editor.lineCount();
+            editor.autoFormatRange({line:0, ch:0}, {line:totalLines});
+        }
+        
+        // Actualizar el explorador de archivos
+        function updateFileExplorer() {
+            const fileExplorer = document.getElementById('file-explorer');
+            fileExplorer.innerHTML = '';
+            
+            state.files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = `file-item ${file.active ? 'active' : ''}`;
+                fileItem.innerHTML = `
+                    <i class="fas ${file.name.endsWith('.html') ? 'fa-html5' : file.name.endsWith('.js') ? 'fa-js' : file.name.endsWith('.css') ? 'fa-css3' : 'fa-file-code'}"></i>
+                    ${file.name}
+                `;
+                
+                fileItem.addEventListener('click', () => {
+                    switchToFile(file.id);
+                });
+                
+                fileExplorer.appendChild(fileItem);
+            });
+        }
+        
+        // Actualizar la barra de pestañas
+        function updateTabBar() {
+            const tabBar = document.getElementById('tab-bar');
+            tabBar.innerHTML = '';
+            
+            state.files.forEach(file => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${file.active ? 'active' : ''}`;
+                tab.dataset.fileId = file.id;
+                tab.innerHTML = `
+                    ${file.name}
+                    <span class="tab-close"><i class="fas fa-times"></i></span>
+                `;
+                
+                tab.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('fa-times') || e.target.classList.contains('tab-close')) {
+                        closeFile(file.id);
+                    } else {
+                        switchToFile(file.id);
+                    }
+                });
+                
+                tabBar.appendChild(tab);
+            });
+        }
+        
+        // Cambiar a un archivo específico
+        function switchToFile(fileId) {
+            state.files.forEach(file => {
+                file.active = file.id === fileId;
+            });
+            
+            const activeFile = state.files.find(file => file.active);
+            if (activeFile) {
+                editor.setValue(activeFile.content);
+                editor.setOption('mode', activeFile.language);
+                document.getElementById('current-file-name').textContent = activeFile.name;
+                runCode();
+            }
+            
+            updateFileExplorer();
+            updateTabBar();
+        }
+        
+        // Cerrar un archivo
+        function closeFile(fileId) {
+            if (state.files.length <= 1) return;
+            
+            const fileIndex = state.files.findIndex(file => file.id === fileId);
+            if (fileIndex === -1) return;
+            
+            state.files.splice(fileIndex, 1);
+            
+            // Si cerramos el archivo activo, activamos el primero
+            if (state.files.length > 0 && !state.files.some(file => file.active)) {
+                state.files[0].active = true;
+                switchToFile(state.files[0].id);
+            } else {
+                updateFileExplorer();
+                updateTabBar();
+            }
+        }
+        
+        // Crear un nuevo archivo
+        function createNewFile() {
+            const newFileId = 'file' + state.nextFileId++;
+            const newFileName = `nuevo-${state.nextFileId - 1}.html`;
+            
+            state.files.forEach(file => file.active = false);
+            
+            state.files.push({
+                id: newFileId,
+                name: newFileName,
+                content: '<!DOCTYPE html>\n<html>\n<head>\n\t<title>Nuevo Documento</title>\n</head>\n<body>\n\t\n</body>\n</html>',
+                language: 'htmlmixed',
+                active: true
+            });
+            
+            editor.setValue(state.files[state.files.length - 1].content);
+            editor.setOption('mode', 'htmlmixed');
+            document.getElementById('current-file-name').textContent = newFileName;
+            
+            updateFileExplorer();
+            updateTabBar();
+            runCode();
+        }
+        
+        // Guardar archivo como HTML
+        function saveAsHTML() {
+            const activeFile = state.files.find(file => file.active);
+            if (!activeFile) return;
+            
+            const blob = new Blob([activeFile.content], { type: 'text/html' });
+            saveAs(blob, activeFile.name.endsWith('.html') ? activeFile.name : `${activeFile.name}.html`);
+        }
+        
+        // Guardar archivo como JS
+        function saveAsJS() {
+            const activeFile = state.files.find(file => file.active);
+            if (!activeFile) return;
+            
+            const blob = new Blob([activeFile.content], { type: 'text/javascript' });
+            saveAs(blob, activeFile.name.endsWith('.js') ? activeFile.name : `${activeFile.name}.js`);
+        }
+        
+        // Guardar archivo como CSS
+        function saveAsCSS() {
+            const activeFile = state.files.find(file => file.active);
+            if (!activeFile) return;
+            
+            const blob = new Blob([activeFile.content], { type: 'text/css' });
+            saveAs(blob, activeFile.name.endsWith('.css') ? activeFile.name : `${activeFile.name}.css`);
+        }
+        
+        // Guardar proyecto como ZIP
+        function saveAsZIP() {
+            const zip = new JSZip();
+            
+            state.files.forEach(file => {
+                let extension = '.html';
+                if (file.name.endsWith('.js')) extension = '.js';
+                if (file.name.endsWith('.css')) extension = '.css';
+                
+                zip.file(file.name.endsWith(extension) ? file.name : `${file.name}${extension}`, file.content);
+            });
+            
+            zip.generateAsync({ type: 'blob' }).then(function(content) {
+                saveAs(content, 'proyecto.zip');
+            });
+        }
+        
+        // Cambiar la posición de la vista previa
+        function setPreviewPosition(position) {
+            state.previewPosition = position;
+            const splitView = document.getElementById('split-view');
+            const previewContainer = document.getElementById('preview-container');
+            const resizeHandle = document.getElementById('resize-handle');
+            
+            // Resetear clases
+            splitView.className = 'split-view';
+            resizeHandle.className = 'resize-handle';
+            previewContainer.style.display = 'flex';
+            
+            // Aplicar nueva disposición
+            if (position === 'bottom') {
+                splitView.classList.add('vertical');
+                resizeHandle.classList.add('vertical');
+            } else if (position === 'none') {
+                previewContainer.style.display = 'none';
+            }
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.preview-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.position === position);
+            });
+        }
+        
+        // Manejar el redimensionamiento
+        function setupResizeHandler() {
+            const resizeHandle = document.getElementById('resize-handle');
+            const editorWrapper = document.getElementById('editor-wrapper');
+            const previewContainer = document.getElementById('preview-container');
+            const splitView = document.getElementById('split-view');
+            
+            let isResizing = false;
+            
+            resizeHandle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                document.body.style.cursor = splitView.classList.contains('vertical') ? 'row-resize' : 'col-resize';
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                
+                if (splitView.classList.contains('vertical')) {
+                    // Redimensionamiento vertical
+                    const containerHeight = splitView.offsetHeight;
+                    const newEditorHeight = e.clientY - splitView.getBoundingClientRect().top;
+                    const newPreviewHeight = containerHeight - newEditorHeight - 5;
+                    
+                    if (newEditorHeight > 100 && newPreviewHeight > 100) {
+                        editorWrapper.style.height = `${newEditorHeight}px`;
+                        previewContainer.style.height = `${newPreviewHeight}px`;
+                    }
+                } else {
+                    // Redimensionamiento horizontal
+                    const containerWidth = splitView.offsetWidth;
+                    const newEditorWidth = e.clientX - splitView.getBoundingClientRect().left;
+                    const newPreviewWidth = containerWidth - newEditorWidth - 5;
+                    
+                    if (newEditorWidth > 100 && newPreviewWidth > 100) {
+                        editorWrapper.style.width = `${newEditorWidth}px`;
+                        previewContainer.style.width = `${newPreviewWidth}px`;
+                    }
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isResizing = false;
+                document.body.style.cursor = '';
+            });
+        }
+        
+        // Actualizar el contenido del archivo activo cuando cambia el editor
+        editor.on('change', (cm) => {
+            const activeFile = state.files.find(file => file.active);
+            if (activeFile) {
+                activeFile.content = cm.getValue();
+            }
+        });
+        
+        // Resaltar colores en el editor (versión corregida)
+        editor.on('changes', (cm, changes) => {
+            // Limpiar todos los marcadores de color existentes
+            state.colorMarkers.forEach(marker => marker.clear());
+            state.colorMarkers = [];
+            
+            // Procesar cada cambio
+            changes.forEach(change => {
+                const startLine = Math.max(0, change.from.line - 2);
+                const endLine = Math.min(cm.lastLine(), change.to.line + 2);
+                
+                // Procesar las líneas afectadas por el cambio
+                for (let i = startLine; i <= endLine; i++) {
+                    const line = cm.getLine(i);
+                    const colorRegex = /#([a-f0-9]{3}|[a-f0-9]{6})\b|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)/gi;
+                    let match;
+                    
+                    while ((match = colorRegex.exec(line)) !== null) {
+                        const color = match[0];
+                        const startPos = {line: i, ch: match.index};
+                        const endPos = {line: i, ch: match.index + color.length};
+                        
+                        // Determinar el nombre del color según su formato
+                        let colorName = color;
+                        if (color.startsWith('#')) {
+                            colorName = getColorName(color);
+                        } else if (color.startsWith('rgb(')) {
+                            colorName = rgbToColorName(color);
+                        } else if (color.startsWith('rgba(')) {
+                            colorName = rgbaToColorName(color);
+                        }
+                        
+                        // Crear elemento para mostrar el color y su nombre
+                        const colorElement = document.createElement('span');
+                        colorElement.className = 'color-info';
+                        
+                        const colorPreview = document.createElement('span');
+                        colorPreview.className = 'color-preview';
+                        colorPreview.style.backgroundColor = color;
+                        
+                        const colorNameSpan = document.createElement('span');
+                        colorNameSpan.textContent = colorName;
+                        
+                        colorElement.appendChild(colorPreview);
+                        colorElement.appendChild(colorNameSpan);
+                        
+                        // Agregar marcador al editor
+                        const marker = cm.markText(startPos, endPos, {
+                            className: 'color-marker',
+                            clearOnEnter: true,
+                            replacedWith: colorElement,
+                            colorValue: color,
+                            atomic: true,
+                            selectLeft: false,
+                            selectRight: false
+                        });
+                        
+                        state.colorMarkers.push(marker);
+                    }
+                }
+            });
+        });
+        
+        // Event listeners
+        document.getElementById('new-file-btn').addEventListener('click', createNewFile);
+        document.getElementById('new-file-sidebar').addEventListener('click', createNewFile);
+        document.getElementById('save-html').addEventListener('click', saveAsHTML);
+        document.getElementById('save-js').addEventListener('click', saveAsJS);
+        document.getElementById('save-css').addEventListener('click', saveAsCSS);
+        document.getElementById('save-zip').addEventListener('click', saveAsZIP);
+        document.getElementById('run-btn').addEventListener('click', runCode);
+        document.getElementById('format-btn').addEventListener('click', formatCode);
+        
+        document.querySelectorAll('.preview-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setPreviewPosition(btn.dataset.position);
+            });
+        });
+        
+        // Inicialización
+        window.addEventListener('load', () => {
+            updateFileExplorer();
+            updateTabBar();
+            runCode();
+            setupResizeHandler();
+            
+            // Procesar colores iniciales
+            editor.operation(() => {
+                for (let i = 0; i < editor.lineCount(); i++) {
+                    editor.emit('changes', editor, [{from: {line: i, ch: 0}, to: {line: i, ch: 0}, text: [''], origin: 'setValue'}]);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
