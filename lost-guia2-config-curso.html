@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curso - Sistema de Objetos Extraviados</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #00c6ff;
+      --secondary-color: #0072ff;
+      --dark-bg: #0f172a;
+      --darker-bg: #0a1120;
+      --light-bg: #1e293b;
+      --text-color: #e2e8f0;
+      --text-muted: #94a3b8;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --border-radius: 8px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      --box-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.3);
+      --glass-effect: rgba(16, 24, 39, 0.7);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
+      color: var(--text-color);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .course-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      text-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: 2rem;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      color: var(--primary-color);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .progress-bar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      height: 10px;
+      border-radius: 5px;
+      margin: 2rem 0;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .module {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: var(--glass-border);
+      box-shadow: var(--box-shadow);
+      display: none;
+    }
+
+    .module.active {
+      display: block;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step {
+      margin-bottom: 2rem;
+      padding-left: 2rem;
+      border-left: 3px solid var(--primary-color);
+      position: relative;
+    }
+
+    .step-number {
+      position: absolute;
+      left: -15px;
+      top: -5px;
+      background: var(--primary-color);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 0 0 4px var(--darker-bg);
+    }
+
+    .step-title {
+      font-size: 1.4rem;
+      color: var(--secondary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content {
+      padding: 1rem 0;
+    }
+
+    .screenshot {
+      width: 100%;
+      max-width: 600px;
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 1rem 0;
+      box-shadow: var(--box-shadow);
+    }
+
+    .interactive {
+      background: rgba(0, 198, 255, 0.1);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border: 1px dashed var(--primary-color);
+    }
+
+    .quiz-question {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .quiz-options {
+      margin-left: 1.5rem;
+    }
+
+    .quiz-option {
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+
+    .quiz-option:hover {
+      background: rgba(0, 198, 255, 0.2);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-left: 3px solid var(--success-color);
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-left: 3px solid var(--danger-color);
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      display: none;
+    }
+
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-left: 3px solid var(--success-color);
+      display: block;
+    }
+
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-left: 3px solid var(--danger-color);
+      display: block;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: var(--border-radius);
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 1rem;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 198, 255, 0.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: space-between;
+    }
+
+    .navigation {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .completion-message {
+      text-align: center;
+      padding: 2rem;
+      display: none;
+    }
+
+    .completion-message.active {
+      display: block;
+    }
+
+    .certificate {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      .course-container {
+        padding: 1rem;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .navigation {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="course-container">
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1 class="logo-text">CURSO LOSTECH</h1>
+      </div>
+      <h1>Dominando el Sistema de Objetos Extraviados</h1>
+      <p>Aprende paso a paso a gestionar objetos y configurar vencimientos</p>
+    </header>
+
+    <div class="progress-bar">
+      <div class="progress" id="progressBar"></div>
+    </div>
+
+    <!-- Módulo 1 -->
+    <div class="module active" id="module1">
+      <h2>Módulo 1: Conociendo el Sistema</h2>
+      
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Introducción</div>
+        <div class="step-content">
+          <p>Bienvenido al curso de formación del sistema LOSTECH. Este sistema te permite:</p>
+          <ul>
+            <li>Registrar objetos extraviados</li>
+            <li>Gestionar tiempos de vencimiento</li>
+            <li>Controlar entregas a dueños</li>
+            <li>Generar reportes automáticos</li>
+          </ul>
+          <div class="interactive">
+            <p><strong>¿Sabías que?</strong> El sistema calcula automáticamente las fechas de vencimiento basándose en la configuración que establezcas.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">Estructura Principal</div>
+        <div class="step-content">
+          <p>El sistema consta de dos páginas principales:</p>
+          <ol>
+            <li><strong>Página de Objetos:</strong> Muestra todos los objetos registrados y permite gestionarlos</li>
+            <li><strong>Página de Configuración:</strong> Permite establecer tiempos de vencimiento globales y específicos</li>
+          </ol>
+          <img src="https://via.placeholder.com/600x300/1e293b/94a3b8?text=Páginas+del+Sistema" alt="Páginas del sistema" class="screenshot">
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-title">Tu Primer Quiz</div>
+        <div class="step-content">
+          <div class="interactive">
+            <div class="quiz-question">¿Qué puedes hacer en la página principal de objetos?</div>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkAnswer(this, true)">Ver todos los objetos registrados</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Cambiar la contraseña del sistema</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Configurar el servidor de correo</div>
+              <div class="quiz-option" onclick="checkAnswer(this, true)">Marcar objetos como entregados</div>
+            </div>
+            <div class="feedback correct">
+              ¡Correcto! En la página principal puedes ver y gestionar los objetos.
+            </div>
+            <div class="feedback incorrect">
+              Revisa las opciones. La página principal es para gestionar objetos.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="navigation">
+        <button class="btn" onclick="nextModule()">Siguiente Módulo <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Módulo 2 -->
+    <div class="module" id="module2">
+      <h2>Módulo 2: Página Principal</h2>
+      
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Búsqueda y Filtrado</div>
+        <div class="step-content">
+          <p>Para encontrar objetos rápidamente:</p>
+          <ol>
+            <li>Usa el campo <strong>"Buscar objeto"</strong> para filtrar por nombre</li>
+            <li>Selecciona una fecha en el <strong>selector de fecha</strong> para ver objetos de un día específico</li>
+          </ol>
+          <img src="https://via.placeholder.com/600x100/1e293b/94a3b8?text=Barra+de+búsqueda" alt="Barra de búsqueda" class="screenshot">
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">Interpretar los Estados</div>
+        <div class="step-content">
+          <p>Cada objeto muestra su estado de vencimiento:</p>
+          <ul>
+            <li><span style="color: var(--success-color)">En proceso</span>: Dentro del plazo normal</li>
+            <li><span style="color: var(--warning-color)">Faltan X días</span>: Próximo a vencer (menos de 10 días por defecto)</li>
+            <li><span style="color: var(--danger-color)">Vencido</span>: Pasó la fecha límite</li>
+          </ul>
+          <div class="interactive">
+            <p><strong>Ejercicio:</strong> Si un objeto se registró el 16/04/2025 y hoy es 20/04/2025, ¿qué estado mostrará si el vencimiento es a 10 días?</p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Vencido</div>
+              <div class="quiz-option" onclick="checkAnswer(this, true)">Faltan 6 días</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">En proceso</div>
+            </div>
+            <div class="feedback correct">
+              ¡Exacto! Del 16 al 26 son 10 días. El 20 faltarían 6 días.
+            </div>
+            <div class="feedback incorrect">
+              Calcula: 26/04 (vencimiento) - 20/04 (hoy) = 6 días restantes.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="navigation">
+        <button class="btn btn-outline" onclick="prevModule()"><i class="fas fa-arrow-left"></i> Anterior</button>
+        <button class="btn" onclick="nextModule()">Siguiente Módulo <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Módulo 3 -->
+    <div class="module" id="module3">
+      <h2>Módulo 3: Configuración de Vencimientos</h2>
+      
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Configuración Global</div>
+        <div class="step-content">
+          <p>Para establecer valores por defecto:</p>
+          <ol>
+            <li>Ve a <strong>Configuración</strong> en el menú</li>
+            <li>En "Configuración Global", ingresa:
+              <ul>
+                <li><strong>Días para vencimiento:</strong> Plazo general (ej. 90 días)</li>
+                <li><strong>Días para advertencia:</strong> Cuándo alertar (ej. 10 días antes)</li>
+              </ul>
+            </li>
+            <li>Haz clic en <strong>Guardar</strong></li>
+          </ol>
+          <img src="https://via.placeholder.com/600x200/1e293b/94a3b8?text=Configuración+Global" alt="Configuración Global" class="screenshot">
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">Configuración por Objeto</div>
+        <div class="step-content">
+          <p>Para objetos que necesiten plazos diferentes:</p>
+          <ol>
+            <li>Busca el objeto por nombre</li>
+            <li>Seleccionalo de la lista</li>
+            <li>Ingresa los <strong>días personalizados</strong></li>
+            <li>Guarda los cambios</li>
+          </ol>
+          <div class="interactive">
+            <p><strong>Práctica:</strong> Un objeto valioso debe vencer en 5 días en lugar de los 90 globales. ¿Qué debes hacer?</p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Cambiar la configuración global a 5 días</div>
+              <div class="quiz-option" onclick="checkAnswer(this, true)">Buscar el objeto y asignarle 5 días personalizados</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Crear un nuevo sistema</div>
+            </div>
+            <div class="feedback correct">
+              ¡Correcto! La configuración por objeto prevalece sobre la global.
+            </div>
+            <div class="feedback incorrect">
+              Recuerda que puedes configurar plazos específicos para cada objeto.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="navigation">
+        <button class="btn btn-outline" onclick="prevModule()"><i class="fas fa-arrow-left"></i> Anterior</button>
+        <button class="btn" onclick="nextModule()">Siguiente Módulo <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Módulo 4 -->
+    <div class="module" id="module4">
+      <h2>Módulo 4: Casos Prácticos</h2>
+      
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Caso 1: Objeto Común</div>
+        <div class="step-content">
+          <p><strong>Escenario:</strong> Un paraguas encontrado el 01/05/2025 con configuración global de 30 días.</p>
+          <ul>
+            <li>Fecha de vencimiento: 31/05/2025</li>
+            <li>Advertencia comenzará: 21/05/2025 (10 días antes)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">Caso 2: Objeto Valioso</div>
+        <div class="step-content">
+          <p><strong>Escenario:</strong> Un teléfono encontrado el 01/05/2025 con 5 días personalizados.</p>
+          <ul>
+            <li>Fecha de vencimiento: 06/05/2025</li>
+            <li>Advertencia comenzará: 01/05/2025 (usando los días globales de advertencia)</li>
+          </ul>
+          <div class="interactive">
+            <p><strong>Ejercicio Final:</strong> ¿Qué configuración necesitas para un objeto encontrado hoy que debe vencer exactamente en 15 días?</p>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="checkAnswer(this, true)">Asignar 15 días en su configuración personalizada</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Cambiar la configuración global a 15 días</div>
+              <div class="quiz-option" onclick="checkAnswer(this, false)">Esperar a que el sistema lo marque automáticamente</div>
+            </div>
+            <div class="feedback correct">
+              ¡Perfecto! Has dominado el sistema de vencimientos.
+            </div>
+            <div class="feedback incorrect">
+              Recuerda que la configuración por objeto te da precisión.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="navigation">
+        <button class="btn btn-outline" onclick="prevModule()"><i class="fas fa-arrow-left"></i> Anterior</button>
+        <button class="btn" onclick="completeCourse()">Completar Curso</button>
+      </div>
+    </div>
+
+    <!-- Finalización -->
+    <div class="completion-message" id="completionMessage">
+      <div class="logo-icon">
+        <i class="fas fa-trophy" style="font-size: 4rem;"></i>
+      </div>
+      <h2>¡Curso Completado!</h2>
+      <p>Ahora estás certificado para usar el sistema LOSTECH profesionalmente.</p>
+      <div class="certificate">
+        <i class="fas fa-certificate"></i> Certificado de Finalización
+      </div>
+      <div class="btn-group">
+        <a href="index.html" class="btn">
+          <i class="fas fa-box-open"></i> Ir a Página Principal
+        </a>
+        <a href="config.html" class="btn btn-outline">
+          <i class="fas fa-cog"></i> Ir a Configuración
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentModule = 1;
+    const totalModules = 4;
+    const progressBar = document.getElementById('progressBar');
+    
+    // Actualizar barra de progreso
+    function updateProgress() {
+      const progress = ((currentModule - 1) / totalModules) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+    
+    // Navegación entre módulos
+    function nextModule() {
+      if (currentModule < totalModules) {
+        document.getElementById(`module${currentModule}`).classList.remove('active');
+        currentModule++;
+        document.getElementById(`module${currentModule}`).classList.add('active');
+        updateProgress();
+      }
+    }
+    
+    function prevModule() {
+      if (currentModule > 1) {
+        document.getElementById(`module${currentModule}`).classList.remove('active');
+        currentModule--;
+        document.getElementById(`module${currentModule}`).classList.add('active');
+        updateProgress();
+      }
+    }
+    
+    // Completar curso
+    function completeCourse() {
+      document.getElementById(`module${currentModule}`).classList.remove('active');
+      document.getElementById('completionMessage').classList.add('active');
+      progressBar.style.width = '100%';
+    }
+    
+    // Verificar respuestas del quiz
+    function checkAnswer(element, isCorrect) {
+      // Reset all options
+      const options = element.parentElement.querySelectorAll('.quiz-option');
+      options.forEach(opt => {
+        opt.classList.remove('correct', 'incorrect');
+      });
+      
+      // Hide all feedback
+      const feedbacks = element.parentElement.querySelectorAll('.feedback');
+      feedbacks.forEach(fb => fb.style.display = 'none');
+      
+      // Mark selected option
+      if (isCorrect) {
+        element.classList.add('correct');
+        element.parentElement.querySelector('.feedback.correct').style.display = 'block';
+      } else {
+        element.classList.add('incorrect');
+        element.parentElement.querySelector('.feedback.incorrect').style.display = 'block';
+        
+        // Also show correct answer
+        options.forEach(opt => {
+          if (opt.getAttribute('onclick').includes('true')) {
+            opt.classList.add('correct');
+          }
+        });
+      }
+    }
+    
+    // Inicializar
+    updateProgress();
+  </script>
+</body>
+</html>
