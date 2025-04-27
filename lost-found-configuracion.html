@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configuración de Vencimientos</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary-color: #00c6ff;
-      --secondary-color: #0072ff;
-      --dark-bg: #0f172a;
-      --darker-bg: #0a1120;
+      --primary-color: #15a086;
+      --secondary-color: #15a086;
+      --dark-bg: #2c3e50;
+      --darker-bg: #2c3e50;
       --light-bg: #1e293b;
       --text-color: #e2e8f0;
       --text-muted: #94a3b8;
@@ -325,7 +325,8 @@
         <div class="logo-icon">
           <i class="fas fa-cube"></i>
         </div>
-        <h1 class="logo-text">LOSTECH</h1>
+        <h1 class="logo-text">
+LOST AND FOUND</h1>
       </div>
       <div class="user-info">
         <div class="user-avatar" id="userAvatar">U</div>
@@ -628,7 +629,7 @@
       if (user) {
         currentUser = user;
         await updateUserUI();
-        await loadGlobalSettings();
+        await loadGlobalSettings(); 
       } else {
         window.location.href = "index.html";
       }
