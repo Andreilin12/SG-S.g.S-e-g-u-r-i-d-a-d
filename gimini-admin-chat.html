@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador de Comandos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2C3E50;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #4285f4;
+            text-align: center;
+        }
+        .command-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .command-form input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .command-form button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .command-form button:hover {
+            background-color: #3367d6;
+        }
+        .commands-list {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .command-item:last-child {
+            border-bottom: none;
+        }
+        .command-text {
+            font-weight: bold;
+            color: #4285f4;
+        }
+        .command-actions button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .command-actions button.edit {
+            background-color: #ff9800;
+        }
+        .export-import {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .export-import button, .export-import a {
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+        .export-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+        }
+        .import-btn {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+        }
+        #import-file {
+            display: none;
+        }
+        .preview-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #4285f4;
+            text-decoration: none;
+        }
+        .auth-info {
+            text-align: right;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        #auth-status {
+            font-weight: bold;
+        }
+        #login-btn, #logout-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        #logout-btn {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="auth-info">
+            Estado: <span id="auth-status">No autenticado</span>
+            <button id="login-btn" style="display: none;">Iniciar Sesión</button>
+            <button id="logout-btn" style="display: none;">Cerrar Sesión</button>
+        </div>
+        
+        <h1>Administrador de Comandos</h1>
+        
+        <div class="command-form">
+            <input type="text" id="command-input" placeholder="Comando (ej: saludo)" required>
+            <input type="text" id="response-input" placeholder="Respuesta (ej: ¡Hola! ¿Cómo estás?)" required>
+            <button id="add-command">Agregar</button>
+        </div>
+        
+        <div class="commands-list" id="commands-list">
+            <!-- Comandos se agregarán aquí dinámicamente -->
+        </div>
+        
+        <div class="export-import">
+            <button class="export-btn" id="export-commands">Exportar Comandos</button>
+            <button class="import-btn" id="import-commands">Importar Comandos</button>
+            <input type="file" id="import-file" accept=".json">
+        </div>
+        
+        <a href="chat.html" class="preview-link">Ver Chat Interactivo</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword,
+            signOut,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            doc, 
+            deleteDoc,
+            query,
+            where,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const commandsCollection = collection(db, "commands");
+        
+        // Elementos del DOM
+        const commandInput = document.getElementById('command-input');
+        const responseInput = document.getElementById('response-input');
+        const addButton = document.getElementById('add-command');
+        const commandsList = document.getElementById('commands-list');
+        const exportBtn = document.getElementById('export-commands');
+        const importBtn = document.getElementById('import-commands');
+        const importFile = document.getElementById('import-file');
+        const authStatus = document.getElementById('auth-status');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        // Estado de la aplicación
+        let commands = [];
+        let currentUser = null;
+        
+        // Autenticación
+        loginBtn.addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Error de autenticación:", error);
+                alert("Error al iniciar sesión: " + error.message);
+            }
+        });
+        
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+        
+        // Observador de estado de autenticación
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            
+            if (user) {
+                authStatus.textContent = `Autenticado como ${user.email}`;
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                
+                // Cargar comandos cuando el usuario está autenticado
+                await loadCommands();
+            } else {
+                authStatus.textContent = 'No autenticado';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                
+                commands = [];
+                renderCommands();
+            }
+        });
+        
+        // Cargar comandos desde Firestore
+        async function loadCommands() {
+            if (!currentUser) return;
+            
+            try {
+                const q = query(collection(db, "commands"), where("userId", "==", currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                
+                commands = [];
+                querySnapshot.forEach((doc) => {
+                    commands.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderCommands();
+            } catch (error) {
+                console.error("Error al cargar comandos:", error);
+                alert("Error al cargar comandos: " + error.message);
+            }
+        }
+        
+        // Mostrar comandos existentes
+        function renderCommands() {
+            commandsList.innerHTML = '';
+            
+            if (commands.length === 0) {
+                commandsList.innerHTML = '<div class="command-item" style="justify-content: center; color: #777;">No hay comandos definidos</div>';
+                return;
+            }
+            
+            commands.forEach((cmd, index) => {
+                const commandItem = document.createElement('div');
+                commandItem.className = 'command-item';
+                commandItem.innerHTML = `
+                    <div>
+                        <span class="command-text">${cmd.command}</span> → ${cmd.response}
+                    </div>
+                    <div class="command-actions">
+                        <button class="edit" data-index="${index}">Editar</button>
+                        <button data-index="${index}">Eliminar</button>
+                    </div>
+                `;
+                commandsList.appendChild(commandItem);
+            });
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.command-actions button').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const commandId = commands[index].id;
+                    
+                    if (this.textContent === 'Eliminar') {
+                        try {
+                            await deleteDoc(doc(db, "commands", commandId));
+                            commands.splice(index, 1);
+                            renderCommands();
+                        } catch (error) {
+                            console.error("Error al eliminar comando:", error);
+                            alert("Error al eliminar comando: " + error.message);
+                        }
+                    } else if (this.textContent === 'Editar') {
+                        commandInput.value = commands[index].command;
+                        responseInput.value = commands[index].response;
+                        commands.splice(index, 1);
+                        renderCommands();
+                    }
+                });
+            });
+        }
+        
+        // Agregar nuevo comando
+        addButton.addEventListener('click', async function() {
+            if (!currentUser) {
+                alert("Debes iniciar sesión para agregar comandos");
+                return;
+            }
+            
+            const command = commandInput.value.trim();
+            const response = responseInput.value.trim();
+            
+            if (command && response) {
+                try {
+                    const docRef = await addDoc(collection(db, "commands"), {
+                        command,
+                        response,
+                        userId: currentUser.uid,
+                        createdAt: new Date()
+                    });
+                    
+                    commands.push({
+                        id: docRef.id,
+                        command,
+                        response,
+                        userId: currentUser.uid
+                    });
+                    
+                    renderCommands();
+                    commandInput.value = '';
+                    responseInput.value = '';
+                    commandInput.focus();
+                } catch (error) {
+                    console.error("Error al agregar comando:", error);
+                    alert("Error al agregar comando: " + error.message);
+                }
+            }
+        });
+        
+        // Exportar comandos
+        exportBtn.addEventListener('click', function() {
+            const dataStr = JSON.stringify(commands.map(cmd => ({
+                command: cmd.command,
+                response: cmd.response
+            })), null, 2);
+            
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'comandos-ia.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+        
+        // Importar comandos
+        importBtn.addEventListener('click', function() {
+            if (!currentUser) {
+                alert("Debes iniciar sesión para importar comandos");
+                return;
+            }
+            
+            importFile.click();
+        });
+        
+        importFile.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedCommands = JSON.parse(e.target.result);
+                    if (Array.isArray(importedCommands)) {
+                        let importedCount = 0;
+                        
+                        for (const cmd of importedCommands) {
+                            if (cmd.command && cmd.response) {
+                                await addDoc(collection(db, "commands"), {
+                                    command: cmd.command,
+                                    response: cmd.response,
+                                    userId: currentUser.uid,
+                                    createdAt: new Date()
+                                });
+                                importedCount++;
+                            } 
+                        }
+                        
+                        await loadCommands();
+                        alert(`Se importaron ${importedCount} comandos correctamente.`);
+                    } else {
+                        alert('El archivo no contiene una lista válida de comandos.');
+                    }
+                } catch (error) {
+                    alert('Error al leer el archivo: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
