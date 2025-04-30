@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Reportes - Código Amarillo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #f39c12;
+            --secondary-color: #34495e;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-color);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow: auto;
+        }
+        
+        .container {
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            padding: 25px;
+            width: 90%;
+            max-width: 1200px;
+            text-align: center;
+            overflow: auto;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Alertas mejoradas */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .alert-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+        }
+        
+        /* Reportes */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .report-preview {
+            background-color: var(--dark-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .report-preview:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .report-preview h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        
+        .report-image-container {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 600px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .report-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .report-pain-point {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .report-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin: 0;
+            min-width: 40px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--dark-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #2ecc71;
+        }
+        
+        /* Buscador */
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: 2px solid var(--primary-color);
+            background-color: var(--dark-color);
+            color: white;
+            font-size: 1rem;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 15px center;
+            background-size: 18px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
+        }
+        
+        /* Acordeón */
+        .accordion {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .accordion-item {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            background-color: rgba(243, 156, 18, 0.2);
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-header:hover {
+            background-color: rgba(243, 156, 18, 0.3);
+        }
+        
+        .accordion-content {
+            background-color: rgba(0,0,0,0.1);
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-content-inner {
+            padding: 20px;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-container, .print-container * {
+                visibility: visible;
+            }
+            .print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+                color: black;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+        
+        /* Filtros */
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--light-color);
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .filter-btn {
+            align-self: flex-end;
+            padding: 8px 15px;
+        }
+        
+        /* Sin resultados */
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: var(--light-color);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-alt"></i> Visualización de Reportes - Código Amarillo</h1>
+        
+        <div id="alertError" class="alert alert-error">
+            <span id="alertErrorText"></span>
+            <button class="alert-close">&times;</button>
+        </div>
+        
+        <div class="filters-container">
+            <div class="filter-group">
+                <label for="searchReports">Buscar por nombre</label>
+                <input type="text" id="searchReports" class="search-input" placeholder="Nombre del huésped">
+            </div>
+            
+            <div class="filter-group">
+                <label for="filterDateFrom">Desde</label>
+                <input type="date" id="filterDateFrom">
+            </div>
+            
+            <div class="filter-group">
+                <label for="filterDateTo">Hasta</label>
+                <input type="date" id="filterDateTo">
+            </div>
+            
+            <div class="filter-group">
+                <label for="filterRoom">Habitación</label>
+                <input type="text" id="filterRoom" placeholder="Número de habitación">
+            </div>
+            
+            <button class="btn filter-btn" id="applyFilters">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+            
+            <button class="btn btn-secondary" id="resetFilters">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+        </div>
+        
+        <div class="reports-list" id="reportsList">
+            <!-- Los reportes se cargarán aquí -->
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Contenedor para impresión (oculto) -->
+    <div id="printContainer" class="print-container" style="display: none;"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Variables globales
+        let currentUser = null;
+        let allReports = [];
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            initEvents();
+            checkAuth();
+        });
+
+        // Configurar eventos
+        function initEvents() {
+            // Buscador
+            document.getElementById('searchReports').addEventListener('input', function() {
+                filterReports();
+            });
+            
+            // Filtros
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                loadReports();
+            });
+            
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('searchReports').value = '';
+                document.getElementById('filterDateFrom').value = '';
+                document.getElementById('filterDateTo').value = '';
+                document.getElementById('filterRoom').value = '';
+                loadReports();
+            });
+        }
+
+        // Verificar autenticación
+        function checkAuth() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    loadReports();
+                } else {
+                    showAlert("Debe iniciar sesión para acceder a esta función", "error");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                }
+            });
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = "error") {
+            const alertElement = document.getElementById('alertError');
+            const alertTextElement = document.getElementById('alertErrorText');
+            
+            alertTextElement.textContent = message;
+            alertElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Cargar reportes desde Firebase
+        async function loadReports() {
+            showLoading();
+            
+            try {
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = '<p>Cargando reportes...</p>';
+                
+                // Construir consulta con filtros
+                let q = query(collection(db, "reporteCodigoAmarillo"), orderBy("createdAt", "desc"));
+                
+                const filters = [];
+                
+                // Filtro por nombre
+                const nameFilter = document.getElementById('searchReports').value;
+                if (nameFilter) {
+                    filters.push(where("nombreHuesped", ">=", nameFilter));
+                    filters.push(where("nombreHuesped", "<=", nameFilter + '\uf8ff'));
+                }
+                
+                // Filtro por fecha
+                const dateFrom = document.getElementById('filterDateFrom').value;
+                const dateTo = document.getElementById('filterDateTo').value;
+                
+                if (dateFrom) {
+                    filters.push(where("fechaIncidente", ">=", dateFrom));
+                }
+                
+                if (dateTo) {
+                    filters.push(where("fechaIncidente", "<=", dateTo));
+                }
+                
+                // Filtro por habitación
+                const roomFilter = document.getElementById('filterRoom').value;
+                if (roomFilter) {
+                    filters.push(where("habitacion", "==", roomFilter));
+                }
+                
+                // Aplicar todos los filtros
+                if (filters.length > 0) {
+                    q = query(collection(db, "reporteCodigoAmarillo"), ...filters, orderBy("createdAt", "desc"));
+                }
+                
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    reportsList.innerHTML = '<div class="no-results">No se encontraron reportes con los filtros aplicados</div>';
+                    allReports = [];
+                    hideLoading();
+                    return;
+                }
+                
+                allReports = [];
+                reportsList.innerHTML = '';
+                
+                for (const doc of querySnapshot.docs) {
+                    const report = doc.data();
+                    report.id = doc.id;
+                    allReports.push(report);
+                    await renderReport(report);
+                }
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al cargar reportes:", error);
+                showAlert("Error al cargar los reportes", "error");
+            }
+        }
+        
+        // Filtrar reportes localmente
+        function filterReports() {
+            const searchTerm = document.getElementById('searchReports').value.toLowerCase();
+            const reports = document.querySelectorAll('.report-preview');
+            
+            if (!searchTerm) {
+                reports.forEach(report => report.style.display = 'block');
+                return;
+            }
+            
+            let hasResults = false;
+            
+            reports.forEach(report => {
+                const title = report.querySelector('h3').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    report.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+            
+            if (!hasResults) {
+                document.getElementById('reportsList').innerHTML = '<div class="no-results">No se encontraron reportes con el nombre buscado</div>';
+            }
+        }
+        
+        // Renderizar un reporte en la lista
+        async function renderReport(report) {
+            const reportsList = document.getElementById('reportsList');
+            const reportItem = document.createElement('div');
+            reportItem.className = 'report-preview';
+            
+            // Formatear fecha
+            const fecha = new Date(report.createdAt);
+            const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+            
+            reportItem.innerHTML = `
+                <div class="report-actions no-print">
+                    <button class="btn btn-secondary print-btn" data-id="${report.id}" title="Imprimir reporte">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <button class="btn btn-success details-btn" data-id="${report.id}" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <h3>Reporte de ${report.nombreHuesped} - Hab. ${report.habitacion}</h3>
+                <p><strong>Fecha del incidente:</strong> ${report.fechaIncidente} ${report.horaIncidente}</p>
+                <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                <p><strong>Supervisor:</strong> ${report.supervisor}</p>
+                <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                
+                <div class="report-image-container">
+                    <img src="${report.originalBodyImageUrl}" class="report-image">
+                    ${report.painPoints.map(point => `
+                        <div class="report-pain-point" 
+                             style="left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"
+                             title="${point.level}: ${point.desc}"></div>
+                    `).join('')}
+                </div>
+                
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Ver detalles completos</span>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <p><strong>Descripción:</strong> ${report.descripcionIncidente}</p>
+                                <p><strong>Acciones tomadas:</strong> ${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                                <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                                <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                                ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                                <p><strong>Edad:</strong> ${report.edad}</p>
+                                <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                                
+                                <h4>Puntos marcados:</h4>
+                                <ul>
+                                    ${report.painPoints.map(point => `
+                                        <li style="margin-bottom: 8px;">
+                                            <span style="display: inline-block; width: 15px; height: 15px; border-radius: 50%; background-color: ${point.color}; margin-right: 10px;"></span>
+                                            <strong>${point.level}:</strong> ${point.desc} (${point.x}%, ${point.y}%)
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            reportsList.appendChild(reportItem);
+            
+            // Configurar eventos para los botones
+            const accordionItem = reportItem.querySelector('.accordion-item');
+            const accordionHeader = reportItem.querySelector('.accordion-header');
+            
+            accordionHeader.addEventListener('click', function() {
+                accordionItem.classList.toggle('active');
+            });
+            
+            // Botón de impresión
+            reportItem.querySelector('.print-btn').addEventListener('click', function() {
+                printReport(report);
+            });
+            
+            // Botón de detalles
+            reportItem.querySelector('.details-btn').addEventListener('click', function() {
+                accordionItem.classList.toggle('active');
+            });
+        }
+        
+        // Imprimir un reporte
+        async function printReport(report) {
+            showLoading();
+            
+            try {
+                const reportElement = createPrintElement(report);
+                document.getElementById('printContainer').appendChild(reportElement);
+                
+                // Esperar un momento para que se renderice el contenido
+                setTimeout(() => {
+                    window.print();
+                    document.getElementById('printContainer').innerHTML = '';
+                    hideLoading();
+                }, 500);
+            } catch (error) {
+                hideLoading();
+                console.error("Error al imprimir reporte:", error);
+                showAlert("Error al imprimir el reporte", "error");
+            }
+        }
+        
+        // Crear elemento para impresión
+        function createPrintElement(report) {
+            const printElement = document.createElement('div');
+            printElement.style.padding = '20px';
+            printElement.style.backgroundColor = 'white';
+            printElement.style.color = 'black';
+            printElement.style.maxWidth = '800px';
+            printElement.style.margin = '0 auto';
+            
+            // Formatear fecha
+            const fecha = new Date(report.createdAt);
+            const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+            
+            printElement.innerHTML = `
+                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px; margin-bottom: 30px;">
+                    Reporte Código Amarillo
+                </h2>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                    <div style="flex: 1;">
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
+                            Datos del Huésped
+                        </h3>
+                        <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
+                        <p><strong>Habitación:</strong> ${report.habitacion}</p>
+                        <p><strong>Edad:</strong> ${report.edad}</p>
+                        <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
+                            Detalles del Incidente
+                        </h3>
+                        <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
+                        <p><strong>Hora:</strong> ${report.horaIncidente}</p>
+                        <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                        <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Descripción del Incidente
+                    </h3>
+                    <p style="white-space: pre-wrap;">${report.descripcionIncidente}</p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Acciones Tomadas
+                    </h3>
+                    <p style="white-space: pre-wrap;">${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Áreas afectadas
+                    </h3>
+                    <div style="position: relative; margin: 20px auto; width: 300px; height: 600px; border: 2px solid #f39c12; border-radius: 8px;">
+                        <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain; background-color: white;">
+                        ${report.painPoints.map(point => `
+                            <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; 
+                                 left: ${point.x}%; top: ${point.y}%; background-color: ${point.color}; 
+                                 transform: translate(-50%, -50%); border: 2px solid white;"></div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Puntos marcados
+                    </h3>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        ${report.painPoints.map(point => `
+                            <li style="margin-bottom: 10px; display: flex; align-items: center;">
+                                <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; 
+                                      background-color: ${point.color}; margin-right: 12px; border: 2px solid white;"></span>
+                                <div>
+                                    <strong>${point.level}:</strong> ${point.desc}<br>
+                                    <small>Posición: ${point.x}%, ${point.y}%</small>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Información Adicional
+                    </h3>
+                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                    <div>
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                            Supervisor
+                        </h3>
+                        <p><strong>Nombre:</strong> ${report.supervisor}</p>
+                        <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <p style="font-style: italic; margin-top: 40px;">
+                            Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            return printElement;
+        }
+        
+        // Mostrar loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // Ocultar loading
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
