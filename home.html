@@ -55,7 +55,7 @@
             left: 0;
             width: 100%;
             z-index: 1000;
-            display: none; /* Ocultar por defecto */
+            display: none;
             transition: background-color 0.3s;
         }
 
@@ -73,15 +73,14 @@
             width: 80px;
             background-color: #2c3e50;
             color: white;
-            padding: 20px 10px; /* Despegar del borde */
-            display: flex;
+            padding: 20px 10px;
+            display: none;
             flex-direction: column;
             align-items: center;
             position: fixed;
             height: 100%;
             transition: width 0.3s;
             z-index: 1000;
-            display: none;
         }
 
         .sidebar.expanded {
@@ -105,7 +104,7 @@
             padding: 10px;
             width: 100%;
             transition: background-color 0.3s;
-            position: relative; /* Para posicionar el texto */
+            position: relative;
         }
 
         .sidebar a i {
@@ -113,29 +112,29 @@
         }
 
         .sidebar a span {
-            display: none; /* Ocultar texto por defecto */
+            display: none;
             position: absolute;
-            left: 100%; /* Posición a la derecha del icono */
+            left: 100%;
             margin-left: 10px;
-            white-space: nowrap; /* Evitar saltos de línea */
-            background-color: #1abc9c; /* Fondo del texto */
+            white-space: nowrap;
+            background-color: #1abc9c;
             padding: 5px 10px;
             border-radius: 5px;
-            opacity: 0; /* Inicialmente invisible */
+            opacity: 0;
             transition: opacity 0.3s;
         }
 
         .sidebar.expanded a span {
-            display: inline; /* Mostrar texto cuando el menú está expandido */
-            position: static; /* Posición normal */
-            opacity: 1; /* Visible */
-            background-color: transparent; /* Sin fondo */
+            display: inline;
+            position: static;
+            opacity: 1;
+            background-color: transparent;
             padding: 0;
             margin-left: 0;
         }
 
         .sidebar a:hover span {
-            opacity: 1; /* Mostrar texto al hacer hover */
+            opacity: 1;
         }
 
         .sidebar a:hover {
@@ -152,7 +151,7 @@
             display: flex;
             align-items: center;
             flex-direction: column;
-            margin-bottom: 20px; /* Ajuste para subir un poco */
+            margin-bottom: 20px;
         }
 
         .sidebar .profile a {
@@ -186,7 +185,7 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            margin-top: 60px; /* Ajuste para evitar que quede pegado al header */
+            margin-top: 60px;
         }
 
         .icon-container {
@@ -241,7 +240,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             animation: slideIn 0.5s ease-in-out;
-            display: none; /* Ocultar por defecto */
+            display: none;
         }
 
         .user-greeting p {
@@ -317,6 +316,7 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
 
         .modal-profile-img {
@@ -337,6 +337,7 @@
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
+            padding: 5px;
         }
 
         .user-info-item {
@@ -386,7 +387,7 @@
             }
 
             header {
-                display: none; /* Ocultar header en móvil */
+                display: none;
             }
         }
     </style>
@@ -405,23 +406,15 @@
     <!-- Barra lateral -->
     <div class="sidebar" id="sidebar">
         <button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button>
-        <!-- Logo manual -->
         <img class="logo" id="sidebarLogo" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/RETOM%20COMPLETO%20(2).png?alt=media&token=bcb475a5-edf6-494a-96e5-ca8f0a8ae005" alt="Logo">
 
         <a href="horario-view.html"><i class="fa-solid fa-clock"></i><span>Horarios</span></a>
-
         <a href="form-registro-color.html"><i class="fa-solid fa-kit-medical"></i><span>Reg. de colores</span></a>
-
         <a href="registrar-agente-de-seguridad.html"><i class="fa-solid fa-user-plus"></i><span>Reg. de Colab.</span></a>
-
         <a href="codigo-seguridad-report.html"><i class="fa-solid fa-lock"></i><span>Reg. de Cód. SG</span></a>
-
         <a href="puesto-de-agentes-de-seguridad.html"><i class="fa-solid fa-helmet-safety"></i><span>Áreas de trabajos</span></a>
-        
         <a href="rondas-puesto-de-trabajo.html"><i class="fa-solid fa-mobile-screen-button"></i><span>Pases de Rondas</span></a>
-        
         <a href="chat-retom.html"><i class="fa-solid fa-comment"></i><span>Chat</span></a>
-
         <a href="ajustes.html"><i class="fas fa-cog"></i><span>Ajustes</span></a>
 
         <div class="profile">
@@ -466,7 +459,8 @@
                 </a>
             </div>
             <div class="icon-item">
-                <a href="cctv-home-sesion.html">           <i class="fa-solid fa-video"></i>
+                <a href="cctv-home-sesion.html">
+                    <i class="fa-solid fa-video"></i>
                     <span>CCTV</span>
                 </a>
             </div>
@@ -520,8 +514,8 @@
         <ul>
             <li onclick="refreshPage()"><i class="fas fa-sync-alt"></i> Actualizar página</li>
             <li onclick="showUserInfoModal()"><i class="fas fa-calendar-alt"></i> Fecha de creación</li>
-            <li onclick="goToScanner()"><i class="fas fa-qrcode"></i> Escanear QR</li>
-            <li onclick="goToProfile()"><i class="fas fa-user"></i> Perfil de usuario</li>
+            <li onclick="window.location.href='scaner-qr.html'"><i class="fas fa-qrcode"></i> Escanear QR</li>
+            <li onclick="window.location.href='perfil.html'"><i class="fas fa-user"></i> Perfil de usuario</li>
             <li onclick="toggleFullScreen()"><i class="fas fa-expand"></i> Pantalla completa</li>
             <li class="divider"></li>
             <li onclick="logout()" style="color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</li>
@@ -546,12 +540,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module">
-        // Firebase y otras configuraciones
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
             authDomain: "inventario-35d6b.firebaseapp.com",
@@ -561,9 +555,10 @@
             appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // Variables globales
         let userData = null;
@@ -573,11 +568,11 @@
         const loadingSpinner = document.getElementById('loadingSpinner');
 
         // Cargar perfil
-        async function cargarPerfil() {
-            onAuthStateChanged(auth, async (user) => {
+        function cargarPerfil() {
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const userDoc = await db.collection('users').doc(user.uid).get();
                     userData = userDoc.data();
                     
                     document.getElementById('username').textContent = userData.name || 'Usuario';
@@ -603,28 +598,22 @@
                     // Mostrar saludo y reloj
                     mostrarSaludo(userData.name);
                     actualizarReloj();
-
-                    // Sincronizar estado del contenedor de hora y fecha
-                    sincronizarEstadoContenedor(user.uid);
-
-                    // Sincronizar estado del hover
-                    sincronizarEstadoHover(user.uid);
+                } else {
+                    window.location.href = 'index.html';
                 }
             });
         }
 
         // Expandir/contraer barra lateral
-        const toggleSidebar = document.getElementById('toggleSidebar');
-        const sidebar = document.getElementById('sidebar');
-
-        toggleSidebar.addEventListener('click', () => {
-            sidebar.classList.toggle('expanded');
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('expanded');
         });
 
         // Saludo y reloj
         function mostrarSaludo(nombre) {
             const greetingText = document.getElementById('greetingText');
             greetingText.textContent = `¡Hola, ${nombre}!`;
+            document.getElementById('userGreeting').style.display = 'block';
         }
 
         function actualizarReloj() {
@@ -635,45 +624,12 @@
             }, 1000);
         }
 
-        // Sincronizar estado del contenedor de hora y fecha
-        function sincronizarEstadoContenedor(userId) {
-            const userGreeting = document.getElementById('userGreeting');
-            const userDocRef = doc(db, 'users', userId);
-
-            // Escuchar cambios en tiempo real
-            onSnapshot(userDocRef, (doc) => {
-                const userData = doc.data();
-                if (userData && userData.toggleState !== undefined) {
-                    userGreeting.style.display = userData.toggleState ? 'block' : 'none';
-                }
-            });
-        }
-
-        // Sincronizar estado del hover
-        function sincronizarEstadoHover(userId) {
-            const sidebarLinks = document.querySelectorAll('.sidebar a');
-            const userDocRef = doc(db, 'users', userId);
-
-            // Escuchar cambios en tiempo real
-            onSnapshot(userDocRef, (doc) => {
-                const userData = doc.data();
-                if (userData && userData.hoverState !== undefined) {
-                    sidebarLinks.forEach(link => {
-                        if (!sidebar.classList.contains('expanded')) {
-                            link.querySelector('span').style.display = userData.hoverState ? 'block' : 'none';
-                        }
-                    });
-                }
-            });
-        }
-
         // Menú contextual
         const contextMenu = document.getElementById('contextMenu');
 
         // Mostrar menú contextual al hacer clic derecho
         document.addEventListener('contextmenu', function(e) {
             // Verificar si el clic fue en un área sin iconos
-            const iconContainer = document.querySelector('.icon-container');
             const clickedOnIcon = e.target.closest('.icon-item');
             
             if (!clickedOnIcon && !e.target.closest('.sidebar') && !e.target.closest('header')) {
@@ -681,18 +637,18 @@
                 
                 // Posicionar el menú contextual
                 contextMenu.style.display = 'block';
-                contextMenu.style.left = `${e.pageX}px`;
-                contextMenu.style.top = `${e.pageY}px`;
+                contextMenu.style.left = `${e.clientX}px`;
+                contextMenu.style.top = `${e.clientY}px`;
                 
                 // Asegurarse de que el menú no se salga de la pantalla
                 const menuWidth = contextMenu.offsetWidth;
                 const menuHeight = contextMenu.offsetHeight;
                 
-                if (e.pageX + menuWidth > window.innerWidth) {
+                if (e.clientX + menuWidth > window.innerWidth) {
                     contextMenu.style.left = `${window.innerWidth - menuWidth}px`;
                 }
                 
-                if (e.pageY + menuHeight > window.innerHeight) {
+                if (e.clientY + menuHeight > window.innerHeight) {
                     contextMenu.style.top = `${window.innerHeight - menuHeight}px`;
                 }
             }
@@ -709,21 +665,11 @@
         }
 
         function showUserInfoModal() {
-            const modal = document.getElementById('userInfoModal');
-            modal.style.display = 'flex';
+            document.getElementById('userInfoModal').style.display = 'flex';
         }
 
         function closeModal() {
-            const modal = document.getElementById('userInfoModal');
-            modal.style.display = 'none';
-        }
-
-        function goToScanner() {
-            window.location.href = 'scaner-qr.html';
-        }
-
-        function goToProfile() {
-            window.location.href = 'perfil.html';
+            document.getElementById('userInfoModal').style.display = 'none';
         }
 
         function toggleFullScreen() {
@@ -739,7 +685,7 @@
         }
 
         function logout() {
-            signOut(auth).then(() => {
+            auth.signOut().then(() => {
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert('Error al cerrar sesión: ' + error.message);
@@ -754,101 +700,70 @@
         });
 
         // Cargar perfil al inicio
-        cargarPerfil();
-    </script>
+        document.addEventListener('DOMContentLoaded', cargarPerfil);
 
-    <!-- LOGUIADOS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
-            authDomain: "inventario-35d6b.firebaseapp.com",
-            projectId: "inventario-35d6b",
-            storageBucket: "inventario-35d6b.appspot.com",
-            messagingSenderId: "266100399659",
-            appId: "1:266100399659:web:92358d28cbd803c8a7d46e",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Verifica si el usuario está autenticado
-        onAuthStateChanged(auth, user => {
-            if (!user) {
-                // Si el usuario no está autenticado, redirigir a index.html
-                window.location.href = "index.html";
-            } else {
-                // El usuario está autenticado, puedes mostrar contenido o permitir acceso a la página
-                console.log("Usuario autenticado:", user);
-            }
-        });
-    </script>
-
-    <!-- Accesos Directos -->
-    <script>
+        // Accesos directos
         document.addEventListener('keydown', function(event) {
             // Alt + A: Ir a puesto-de-agentes-de-seguridad.html
             if (event.altKey && event.key === 'a') {
                 event.preventDefault();
-                window.location.href = 'puesto-de-agentes-de-seguridad.html';  // Áreas de trabajos
+                window.location.href = 'puesto-de-agentes-de-seguridad.html';
             }
             
             // Alt + H: Ir a horario-view.html
             if (event.altKey && event.key === 'h') {
                 event.preventDefault();
-                window.location.href = 'horario-view.html';  // Horarios
+                window.location.href = 'horario-view.html';
             }
             
             // Alt + P: Ir a rondas-puesto-de-trabajo.html
             if (event.altKey && event.key === 'p') {
                 event.preventDefault();
-                window.location.href = 'rondas-puesto-de-trabajo.html';  // Pases de Rondas
+                window.location.href = 'rondas-puesto-de-trabajo.html';
             }
             
             // Alt + C: Ir a chat-retom.html
             if (event.altKey && event.key === 'c') {
                 event.preventDefault();
-                window.location.href = 'chat-retom.html';  // Chat
+                window.location.href = 'chat-retom.html';
             }
             
             // Alt + L: Ir a libreta-de-contactos.html
             if (event.altKey && event.key === 'l') {
                 event.preventDefault();
-                window.location.href = 'libreta-de-contactos.html';  // Libreta de Contactos
+                window.location.href = 'libreta-de-contactos.html';
             }
             
             // Alt + R: Ir a reportes.html
             if (event.altKey && event.key === 'r') {
                 event.preventDefault();
-                window.location.href = 'reportes.html';  // Reportes
+                window.location.href = 'reportes.html';
             }
             
             // Alt + F: Ir a lost-and-home-sesion.html
             if (event.altKey && event.key === 'f') {
                 event.preventDefault();
-                window.location.href = 'lost-and-home-sesion.html';  // Lost And Found
+                window.location.href = 'lost-and-home-sesion.html';
             }
             
             // Alt + G: Ir a generar-qr.html
             if (event.altKey && event.key === 'g') {
                 event.preventDefault();
-                window.location.href = 'generar-qr.html';  // Generar QR
+                window.location.href = 'generar-qr.html';
             }
             
             // Alt + S: Ir a scaner-qr.html
             if (event.altKey && event.key === 's') {
                 event.preventDefault();
-                window.location.href = 'scaner-qr.html';  // Scanner QR
+                window.location.href = 'scaner-qr.html';
             }
             
             // Alt + U: Ir a perfil.html
             if (event.altKey && event.key === 'u') {
                 event.preventDefault();
-                window.location.href = 'perfil.html';  // Cuenta
+                window.location.href = 'perfil.html';
             }
         });
     </script>
 </body>
-</html>
+</html> 
