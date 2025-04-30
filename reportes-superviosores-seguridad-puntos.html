@@ -404,153 +404,20 @@
             margin-top: 20px;
         }
         
-        /* Reportes */
-        .reports-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* Secciones del formulario */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
         }
         
-        .report-preview {
-            background-color: var(--dark-color);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            position: relative;
-            transition: all 0.3s ease;
-            border-left: 4px solid var(--primary-color);
+        .form-section.active {
+            display: block;
         }
         
-        .report-preview:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .report-preview h3 {
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-top: 0;
-            font-size: 1.2rem;
-        }
-        
-        .report-image-container {
-            position: relative;
-            margin: 20px auto;
-            width: 300px;
-            height: 600px;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .report-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background-color: white;
-        }
-        
-        .report-pain-point {
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        
-        .report-actions {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .report-actions .btn {
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            margin: 0;
-            min-width: 40px;
-        }
-        
-        /* Buscador */
-        .search-container {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 20px 12px 45px;
-            border-radius: 30px;
-            border: 2px solid var(--primary-color);
-            background-color: var(--dark-color);
-            color: white;
-            font-size: 1rem;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: 15px center;
-            background-size: 18px;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
-        }
-        
-        /* Acordeón */
-        .accordion {
-            margin-top: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .accordion-item {
-            margin-bottom: 10px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .accordion-header {
-            background-color: rgba(243, 156, 18, 0.2);
-            padding: 12px 20px;
-            cursor: pointer;
+        .form-navigation {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .accordion-header:hover {
-            background-color: rgba(243, 156, 18, 0.3);
-        }
-        
-        .accordion-content {
-            background-color: rgba(0,0,0,0.1);
-            padding: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .accordion-content-inner {
-            padding: 20px;
-        }
-        
-        .accordion-item.active .accordion-content {
-            max-height: 1000px;
-        }
-        
-        .accordion-icon {
-            transition: transform 0.3s ease;
-        }
-        
-        .accordion-item.active .accordion-icon {
-            transform: rotate(180deg);
+            margin-top: 30px;
         }
         
         /* Estilos para impresión */
@@ -594,103 +461,167 @@
         </div>
         
         <form id="reportForm">
-            <div class="row">
-                <div class="input-group">
-                    <label for="nombreHuesped">Nombre del Huésped</label>
-                    <input type="text" id="nombreHuesped" required>
-                </div>
-                <div class="input-group">
-                    <label for="habitacion">Número de Habitación</label>
-                    <input type="text" id="habitacion" required>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="input-group">
-                    <label for="edad">Edad</label>
-                    <input type="number" id="edad" min="1" max="120" required>
-                </div>
-                <div class="input-group">
-                    <label for="telefono">Teléfono</label>
-                    <input type="tel" id="telefono">
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="input-group">
-                    <label for="fechaIncidente">Fecha del Incidente</label>
-                    <input type="date" id="fechaIncidente" required>
-                </div>
-                <div class="input-group">
-                    <label for="horaIncidente">Hora del Incidente</label>
-                    <input type="time" id="horaIncidente" required>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <label for="lugarIncidente">Lugar del Incidente</label>
-                <input type="text" id="lugarIncidente" required>
-            </div>
-            
-            <div class="input-group">
-                <label for="testigos">Testigos (nombres y datos de contacto)</label>
-                <textarea id="testigos"></textarea>
-            </div>
-            
-            <div class="input-group">
-                <label>Señalización de áreas afectadas</label>
-                <p>Seleccione un color y haga clic en el cuerpo para marcar las áreas afectadas</p>
-                
-                <div class="color-options">
-                    <div class="color-option selected" style="background-color: #ff0000;" data-color="#ff0000" data-level="Dolor intenso"></div>
-                    <div class="color-option" style="background-color: #ff6600;" data-color="#ff6600" data-level="Dolor moderado"></div>
-                    <div class="color-option" style="background-color: #ffcc00;" data-color="#ffcc00" data-level="Dolor leve"></div>
-                    <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" data-level="Hinchazón"></div>
-                    <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" data-level="Moretón"></div>
+            <!-- Sección 1: Información básica -->
+            <div id="section1" class="form-section active">
+                <div class="row">
+                    <div class="input-group">
+                        <label for="nombreHuesped">Nombre del Huésped</label>
+                        <input type="text" id="nombreHuesped" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="habitacion">Número de Habitación</label>
+                        <input type="text" id="habitacion" required>
+                    </div>
                 </div>
                 
-                <div class="human-body-container" id="humanBodyContainer">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47" 
-                         alt="Cuerpo humano" class="human-body-img" id="humanBodyImg">
+                <div class="row">
+                    <div class="input-group">
+                        <label for="edad">Edad</label>
+                        <input type="number" id="edad" min="1" max="120" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono">
+                    </div>
                 </div>
                 
-                <div class="pain-points-container" id="painPointsContainer">
-                    <h4>Puntos marcados:</h4>
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" disabled>
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn" id="nextToSection2">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             
-            <div class="input-group">
-                <label for="descripcionIncidente">Descripción del Incidente</label>
-                <textarea id="descripcionIncidente" required></textarea>
-            </div>
-            
-            <div class="input-group">
-                <label for="accionesTomadas">Acciones tomadas</label>
-                <textarea id="accionesTomadas"></textarea>
-            </div>
-            
-            <div class="input-group">
-                <label for="supervisor">Nombre del Supervisor de Seguridad</label>
-                <input type="text" id="supervisor" required>
-            </div>
-            
-            <div class="input-group">
-                <label>Declina atención médica</label>
-                <div>
-                    <label><input type="radio" name="declinaAtencion" value="no" checked> No</label>
-                    <label style="margin-left: 15px;"><input type="radio" name="declinaAtencion" value="si"> Sí</label>
+            <!-- Sección 2: Detalles del incidente -->
+            <div id="section2" class="form-section">
+                <div class="row">
+                    <div class="input-group">
+                        <label for="fechaIncidente">Fecha del Incidente</label>
+                        <input type="date" id="fechaIncidente" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="horaIncidente">Hora del Incidente</label>
+                        <input type="time" id="horaIncidente" required>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="decline-section" id="declineSection">
+                
                 <div class="input-group">
-                    <label for="razonDeclinacion">Razón de declinación</label>
-                    <textarea id="razonDeclinacion"></textarea>
+                    <label for="lugarIncidente">Lugar del Incidente</label>
+                    <input type="text" id="lugarIncidente" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="testigos">Testigos (nombres y datos de contacto)</label>
+                    <textarea id="testigos"></textarea>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="backToSection1">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn" id="nextToSection3">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             
-            <button type="submit" class="btn" id="submitReport"><i class="fas fa-save"></i> Guardar Reporte</button>
-            <button type="button" class="btn" id="viewReports"><i class="fas fa-list"></i> Ver Reportes</button>
+            <!-- Sección 3: Áreas afectadas -->
+            <div id="section3" class="form-section">
+                <div class="input-group">
+                    <label>Señalización de áreas afectadas</label>
+                    <p>Seleccione un color y haga clic en el cuerpo para marcar las áreas afectadas</p>
+                    
+                    <div class="color-options">
+                        <div class="color-option selected" style="background-color: #ff0000;" data-color="#ff0000" data-level="Dolor intenso"></div>
+                        <div class="color-option" style="background-color: #ff6600;" data-color="#ff6600" data-level="Dolor moderado"></div>
+                        <div class="color-option" style="background-color: #ffcc00;" data-color="#ffcc00" data-level="Dolor leve"></div>
+                        <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" data-level="Hinchazón"></div>
+                        <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" data-level="Moretón"></div>
+                    </div>
+                    
+                    <div class="human-body-container" id="humanBodyContainer">
+                        <img src="https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47" 
+                             alt="Cuerpo humano" class="human-body-img" id="humanBodyImg">
+                    </div>
+                    
+                    <div class="pain-points-container" id="painPointsContainer">
+                        <h4>Puntos marcados:</h4>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="descripcionIncidente">Descripción del Incidente</label>
+                    <textarea id="descripcionIncidente" required></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="accionesTomadas">Acciones tomadas</label>
+                    <textarea id="accionesTomadas"></textarea>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="backToSection2">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="button" class="btn" id="nextToSection4">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sección 4: Confirmación y envío -->
+            <div id="section4" class="form-section">
+                <div class="input-group">
+                    <label for="supervisor">Nombre del Supervisor de Seguridad</label>
+                    <input type="text" id="supervisor" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Declina atención médica</label>
+                    <div>
+                        <label><input type="radio" name="declinaAtencion" value="no" checked> No</label>
+                        <label style="margin-left: 15px;"><input type="radio" name="declinaAtencion" value="si"> Sí</label>
+                    </div>
+                </div>
+                
+                <div class="decline-section" id="declineSection">
+                    <div class="input-group">
+                        <label for="razonDeclinacion">Razón de declinación</label>
+                        <textarea id="razonDeclinacion"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="backToSection3">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitReport">
+                        <i class="fas fa-check"></i> Confirmar y Enviar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sección 5: Confirmación de éxito -->
+            <div id="section5" class="form-section" style="text-align: center;">
+                <div style="font-size: 5rem; color: var(--success-color); margin-bottom: 20px;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 style="color: var(--success-color);">Reporte Registrado con Éxito</h2>
+                <p>El reporte de código amarillo ha sido registrado correctamente en el sistema.</p>
+                <p>Se ha enviado una notificación al equipo de seguridad.</p>
+                
+                <div style="margin-top: 40px;">
+                    <button type="button" class="btn" id="newReportBtn">
+                        <i class="fas fa-plus"></i> Crear Nuevo Reporte
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="viewReportsBtn">
+                        <i class="fas fa-list"></i> Ver Reportes
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
     
@@ -775,8 +706,112 @@
             initFormEvents();
             initModals();
             initAlerts();
+            initNavigation();
             checkAuth();
         });
+
+        // Configurar navegación entre secciones
+        function initNavigation() {
+            // Botones de siguiente
+            document.getElementById('nextToSection2').addEventListener('click', function() {
+                if (validateSection(1)) {
+                    showSection(2);
+                }
+            });
+            
+            document.getElementById('nextToSection3').addEventListener('click', function() {
+                if (validateSection(2)) {
+                    showSection(3);
+                }
+            });
+            
+            document.getElementById('nextToSection4').addEventListener('click', function() {
+                if (validateSection(3)) {
+                    showSection(4);
+                }
+            });
+            
+            // Botones de anterior
+            document.getElementById('backToSection1').addEventListener('click', function() {
+                showSection(1);
+            });
+            
+            document.getElementById('backToSection2').addEventListener('click', function() {
+                showSection(2);
+            });
+            
+            document.getElementById('backToSection3').addEventListener('click', function() {
+                showSection(3);
+            });
+            
+            // Botones de la sección de éxito
+            document.getElementById('newReportBtn').addEventListener('click', function() {
+                resetForm();
+                showSection(1);
+            });
+            
+            document.getElementById('viewReportsBtn').addEventListener('click', async function() {
+                await loadReports();
+                document.getElementById('reportsModal').style.display = 'flex';
+            });
+        }
+
+        // Mostrar una sección específica
+        function showSection(sectionNumber) {
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`section${sectionNumber}`).classList.add('active');
+            
+            // Scroll al inicio del formulario
+            document.querySelector('.form-container').scrollTo(0, 0);
+        }
+
+        // Validar los campos de una sección
+        function validateSection(sectionNumber) {
+            let isValid = true;
+            
+            if (sectionNumber === 1) {
+                if (!document.getElementById('nombreHuesped').value) {
+                    showAlert("Por favor ingrese el nombre del huésped", "error");
+                    isValid = false;
+                }
+                if (!document.getElementById('habitacion').value) {
+                    showAlert("Por favor ingrese el número de habitación", "error");
+                    isValid = false;
+                }
+                if (!document.getElementById('edad').value) {
+                    showAlert("Por favor ingrese la edad del huésped", "error");
+                    isValid = false;
+                }
+            }
+            else if (sectionNumber === 2) {
+                if (!document.getElementById('fechaIncidente').value) {
+                    showAlert("Por favor ingrese la fecha del incidente", "error");
+                    isValid = false;
+                }
+                if (!document.getElementById('horaIncidente').value) {
+                    showAlert("Por favor ingrese la hora del incidente", "error");
+                    isValid = false;
+                }
+                if (!document.getElementById('lugarIncidente').value) {
+                    showAlert("Por favor ingrese el lugar del incidente", "error");
+                    isValid = false;
+                }
+            }
+            else if (sectionNumber === 3) {
+                if (painPoints.length === 0) {
+                    showAlert("Por favor marque al menos un punto de dolor en el cuerpo", "error");
+                    isValid = false;
+                }
+                if (!document.getElementById('descripcionIncidente').value) {
+                    showAlert("Por favor ingrese una descripción del incidente", "error");
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
 
         // Configurar eventos de los botones de color
         function initColorOptions() {
@@ -833,13 +868,20 @@
             // Envío del formulario
             document.getElementById('reportForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                
+                // Validar sección 4
+                if (!document.getElementById('supervisor').value) {
+                    showAlert("Por favor ingrese el nombre del supervisor", "error");
+                    return;
+                }
+                
+                if (document.querySelector('input[name="declinaAtencion"]:checked').value === 'si' && 
+                    !document.getElementById('razonDeclinacion').value) {
+                    showAlert("Por favor ingrese la razón de declinación", "error");
+                    return;
+                }
+                
                 await saveReport();
-            });
-            
-            // Botón para ver reportes
-            document.getElementById('viewReports').addEventListener('click', async function() {
-                await loadReports();
-                document.getElementById('reportsModal').style.display = 'flex';
             });
             
             // Buscador de reportes
@@ -1032,8 +1074,7 @@
                 });
                 
                 hideLoading();
-                showAlert("Reporte guardado exitosamente");
-                resetForm();
+                showSection(5); // Mostrar sección de éxito
             } catch (error) {
                 hideLoading();
                 console.error("Error al guardar el reporte:", error);
@@ -1114,9 +1155,6 @@
             
             reportItem.innerHTML = `
                 <div class="report-actions no-print">
-                    <button class="btn download-btn" data-id="${reportId}" title="Descargar reporte">
-                        <i class="fas fa-download"></i>
-                    </button>
                     <button class="btn btn-secondary print-btn" data-id="${reportId}" title="Imprimir reporte">
                         <i class="fas fa-print"></i>
                     </button>
@@ -1180,11 +1218,6 @@
                 accordionItem.classList.toggle('active');
             });
             
-            // Botón de descarga
-            reportItem.querySelector('.download-btn').addEventListener('click', function() {
-                downloadReport(report, reportId);
-            });
-            
             // Botón de impresión
             reportItem.querySelector('.print-btn').addEventListener('click', function() {
                 printReport(report);
@@ -1194,30 +1227,6 @@
             reportItem.querySelector('.details-btn').addEventListener('click', function() {
                 accordionItem.classList.toggle('active');
             });
-        }
-        
-        // Descargar un reporte como imagen
-        async function downloadReport(report, reportId) {
-            showLoading();
-            
-            try {
-                const reportElement = createPrintElement(report);
-                document.getElementById('printContainer').appendChild(reportElement);
-                
-                // Convertir a imagen y descargar
-                const canvas = await html2canvas(reportElement);
-                const link = document.createElement('a');
-                link.download = `Reporte_Codigo_Amarillo_${report.nombreHuesped}_${report.fechaIncidente}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                document.getElementById('printContainer').innerHTML = '';
-                hideLoading();
-            } catch (error) {
-                hideLoading();
-                console.error("Error al descargar reporte:", error);
-                showAlert("Error al descargar el reporte", "error");
-            }
         }
         
         // Imprimir un reporte
@@ -1241,7 +1250,7 @@
             }
         }
         
-        // Crear elemento para impresión/descarga
+        // Crear elemento para impresión
         function createPrintElement(report) {
             const printElement = document.createElement('div');
             printElement.style.padding = '20px';
@@ -1255,32 +1264,44 @@
             const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
             
             printElement.innerHTML = `
-                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px; margin-bottom: 30px;">
                     Reporte Código Amarillo
                 </h2>
                 
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Datos del Huésped
-                    </h3>
-                    <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
-                    <p><strong>Habitación:</strong> ${report.habitacion}</p>
-                    <p><strong>Edad:</strong> ${report.edad}</p>
-                    <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                    <div style="flex: 1;">
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
+                            Datos del Huésped
+                        </h3>
+                        <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
+                        <p><strong>Habitación:</strong> ${report.habitacion}</p>
+                        <p><strong>Edad:</strong> ${report.edad}</p>
+                        <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
+                            Detalles del Incidente
+                        </h3>
+                        <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
+                        <p><strong>Hora:</strong> ${report.horaIncidente}</p>
+                        <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                        <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Detalles del Incidente
+                        Descripción del Incidente
                     </h3>
-                    <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
-                    <p><strong>Hora:</strong> ${report.horaIncidente}</p>
-                    <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
-                    <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
-                    <p><strong>Descripción:</strong> ${report.descripcionIncidente}</p>
-                    <p><strong>Acciones tomadas:</strong> ${report.accionesTomadas || 'No se tomaron acciones'}</p>
-                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
-                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                    <p style="white-space: pre-wrap;">${report.descripcionIncidente}</p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Acciones Tomadas
+                    </h3>
+                    <p style="white-space: pre-wrap;">${report.accionesTomadas || 'No se tomaron acciones'}</p>
                 </div>
                 
                 <div style="margin-bottom: 30px;">
@@ -1317,14 +1338,26 @@
                 
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Supervisor
+                        Información Adicional
                     </h3>
-                    <p><strong>Nombre:</strong> ${report.supervisor}</p>
-                    <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
                 </div>
                 
-                <div style="text-align: right; margin-top: 50px; font-style: italic;">
-                    Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                    <div>
+                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                            Supervisor
+                        </h3>
+                        <p><strong>Nombre:</strong> ${report.supervisor}</p>
+                        <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <p style="font-style: italic; margin-top: 40px;">
+                            Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                        </p>
+                    </div>
                 </div>
             `;
             
