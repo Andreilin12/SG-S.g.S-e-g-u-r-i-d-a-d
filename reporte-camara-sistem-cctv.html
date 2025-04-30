@@ -4,186 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Cámaras CCTV</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --light-color: #ecf0f1;
-            --dark-color: #333;
-            --success-color: #2ecc71;
-            --error-color: #e74c3c;
-            --warning-color: #f39c12;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--primary-color);
-            color: var(--light-color);
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 20px;
-            min-height: 100vh;
+            color: #333;
+            background-color: #2c3e50;
         }
         
-        .container {
+        .report-container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(44, 62, 80, 0.8);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #2c3e50;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
         }
         
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--light-color);
-            margin-bottom: 20px;
+        .header {
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
             position: relative;
         }
         
-        h1::after {
-            content: '';
-            display: block;
-            width: 100px;
-            height: 3px;
-            background: var(--accent-color);
-            margin: 10px auto;
-            border-radius: 3px;
+        .header h1 {
+            color: #fff;
+            margin-bottom: 10px;
         }
         
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+        .report-date {
+            color: #7f8c8d;
+            font-size: 0.9em;
         }
         
-        .report-info {
-            text-align: right;
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
+        .print-header {
+            position: absolute;
+            top: 0;
+            right: 0;
         }
         
-        .btn {
-            padding: 10px 20px;
+        .print-button {
+            padding: 8px 15px;
+            background-color: #15a086;
+            color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-size: 1em;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .btn-print {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .btn-print:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn-back {
-            background-color: var(--accent-color);
-            color: white;
-        }
-        
-        .btn-back:hover {
-            background-color: #2980b9;
-        }
-        
-        .action-buttons {
+        .summary-section {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         
-        .report-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
+        .summary-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            width: 22%;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #15a086;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .summary-card .count {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #15a086;
+            margin: 10px 0;
         }
         
         .chart-container {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
+            margin: 30px 0;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
-        .chart-title {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 18px;
-        }
-        
-        .chart-wrapper {
-            height: 190px;
-            position: relative;
-        }
-        
-        .stats-container {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .stats-title {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 18px;
-        }
-        
-        .stat-item {
+        .chart-row {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
         }
         
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-        
-        .stat-label {
-            font-weight: 500;
-            color: var(--light-color);
-            font-size: 14px;
-        }
-        
-        .stat-value {
-            font-weight: 700;
-            color: var(--accent-color);
-            font-size: 14px;
+        .chart-box {
+            width: 48%;
+            min-width: 300px;
+            margin-bottom: 20px;
         }
         
         .cameras-list {
@@ -191,228 +120,185 @@
         }
         
         .cameras-list h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--light-color);
-            margin-bottom: 15px;
-            font-size: 18px;
-            text-align: center;
-        }
-        
-        .table-container {
-            overflow-x: auto;
+            color: #fff;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            overflow: hidden;
+            margin-top: 20px;
+            color: #000;
+            background-color: #fff;
         }
         
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid #ddd;
         }
         
         th {
-            background-color: var(--secondary-color);
-            color: var(--light-color);
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 14px;
-            letter-spacing: 1px;
+            background-color: #15a086;
+            color: white;
+            font-weight: bold;
         }
         
-        tr:hover {
-            background-color: rgba(52, 152, 219, 0.1);
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         
-        .spinner {
-            display: none;
-            width: 40px;
-            height: 40px;
-            margin: 20px auto;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: var(--accent-color);
-            animation: spin 1s ease-in-out infinite;
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .status-online {
+            background-color: #23d160;
         }
         
-        /* Estilos para impresión */
+        .status-offline {
+            background-color: #ff3860;
+        }
+        
+        .status-dirty {
+            background-color: #f39c12;
+        }
+        
+        .status-water {
+            background-color: #3498db;
+        }
+        
         @media print {
             .no-print {
                 display: none !important;
             }
             
-            body, .container {
-                background: white;
-                color: black;
+            body {
+                background-color: white;
                 padding: 0;
-                margin: 0;
             }
             
-            .chart-container, .stats-container {
-                background: white;
+            .report-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .summary-card {
                 box-shadow: none;
                 border: 1px solid #ddd;
+            }
+            
+            .chart-container {
                 page-break-inside: avoid;
             }
             
-            .chart-title, .stats-title {
-                color: black;
-            }
-            
-            .stat-label {
-                color: black;
-            }
-            
-            .stat-value {
-                color: #3498db;
-            }
-            
             table {
-                background: white;
-                color: black;
+                page-break-inside: auto;
             }
             
-            th {
-                background-color: #f2f2f2 !important;
-                color: black !important;
-                -webkit-print-color-adjust: exact;
-            }
-            
-            .container {
-                box-shadow: none;
-                border: none;
-                backdrop-filter: none;
-                border-radius: 0;
-            }
-            
-            h1 {
-                color: black !important;
-            }
-            
-            h1::after {
-                background: black !important;
-            }
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .action-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-            
-            .report-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .report-info {
-                text-align: left;
-                width: 100%;
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="report-header">
-            <h1><i class="fas fa-chart-pie"></i> Reporte de Cámaras CCTV</h1>
-            <div class="report-info">
-                <div>Fecha: <span id="reportDate"></span></div>
-                <div>Total de cámaras: <span id="totalCameras"></span></div>
+    <div class="report-container">
+        <div class="header">
+            <div class="print-header no-print">
+                <button class="print-button" onclick="window.print()">
+                    <i class="fas fa-print"></i> Imprimir Reporte
+                </button>
+            </div>
+            <h1>Reporte de Cámaras CCTV</h1>
+            <div class="report-date" id="reportDate"></div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-card">
+                <h3>Total de Cámaras</h3>
+                <div class="count" id="totalCameras">0</div>
+                <div>Dispositivos registrados</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>En Línea</h3>
+                <div class="count" id="onlineCameras">0</div>
+                <div>Funcionando correctamente</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Fuera de Servicio</h3>
+                <div class="count" id="offlineCameras">0</div>
+                <div>Requieren atención</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Con Problemas</h3>
+                <div class="count" id="problemCameras">0</div>
+                <div>Sucia/Agua dentro</div>
             </div>
         </div>
         
-        <div class="action-buttons no-print">
-            <button id="backBtn" class="btn btn-back">
-                <i class="fas fa-arrow-left"></i> Volver al listado
-            </button>
-            <button id="printBtn" class="btn btn-print">
-                <i class="fas fa-print"></i> Imprimir Reporte
-            </button>
-        </div>
-        
-        <div class="report-grid">
-            <div class="chart-container">
-                <h2 class="chart-title">Distribución por Tipo de Cámara</h2>
-                <div class="chart-wrapper">
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="chart-container">
+                    <h2>Estado de las Cámaras</h2>
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-box">
+                <div class="chart-container">
+                    <h2>Tipos de Cámaras</h2>
                     <canvas id="typeChart"></canvas>
                 </div>
             </div>
-            
-            <div class="chart-container">
-                <h2 class="chart-title">Distribución por Calidad de Video</h2>
-                <div class="chart-wrapper">
-                    <canvas id="qualityChart"></canvas>
+        </div>
+        
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="chart-container">
+                    <h2>Distribución por Ubicación</h2>
+                    <canvas id="locationChart"></canvas>
                 </div>
             </div>
             
-            <div class="stats-container">
-                <h2 class="stats-title">Estadísticas Generales</h2>
-                <div class="stat-item">
-                    <span class="stat-label">Total de cámaras:</span>
-                    <span class="stat-value" id="statTotal"></span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Tipo más común:</span>
-                    <span class="stat-value" id="statCommonType"></span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Calidad más común:</span>
-                    <span class="stat-value" id="statCommonQuality"></span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Última actualización:</span>
-                    <span class="stat-value" id="statLastUpdate"></span>
-                </div>
-            </div>
-            
-            <div class="stats-container">
-                <h2 class="stats-title">Resumen por Tipo</h2>
-                <div id="typeStats">
-                    <!-- Se llenará dinámicamente -->
+            <div class="chart-box">
+                <div class="chart-container">
+                    <h2>Estados por Tipo</h2>
+                    <canvas id="statusByTypeChart"></canvas>
                 </div>
             </div>
         </div>
         
-        <div class="cameras-list no-print">
-            <h2><i class="fas fa-list"></i> Listado Completo de Cámaras</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Ubicación</th>
-                            <th>Tipo</th>
-                            <th>Calidad</th>
-                            <th>IP</th>
-                            <th>MAC</th>
-                        </tr>
-                    </thead>
-                    <tbody id="camerasTableBody">
-                        <!-- Datos se cargarán aquí -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="cameras-list">
+            <h2>Listado Detallado de Cámaras</h2>
+            <table id="camerasTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Ubicación</th>
+                        <th>Dirección IP</th>
+                        <th>Estado</th>
+                        <th>Última Actualización</th>
+                    </tr>
+                </thead>
+                <tbody id="camerasTableBody">
+                    <!-- Datos se llenarán con JavaScript -->
+                </tbody>
+            </table>
         </div>
-        
-        <div id="spinner" class="spinner"></div>
     </div>
-
+    
     <script>
         // Configuración de Firebase
         const firebaseConfig = {
@@ -428,464 +314,260 @@
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        // Referencia a la colección de cámaras
         const camerasRef = db.collection("camCCTV");
-
-        // Variables globales
+        
+        // Variables para almacenar datos
         let camerasData = [];
-        let typeChart, qualityChart;
-
-        // Elementos del DOM
-        const backBtn = document.getElementById('backBtn');
-        const printBtn = document.getElementById('printBtn');
-        const reportDate = document.getElementById('reportDate');
-        const totalCameras = document.getElementById('totalCameras');
-        const statTotal = document.getElementById('statTotal');
-        const statCommonType = document.getElementById('statCommonType');
-        const statCommonQuality = document.getElementById('statCommonQuality');
-        const statLastUpdate = document.getElementById('statLastUpdate');
-        const typeStats = document.getElementById('typeStats');
-        const camerasTableBody = document.getElementById('camerasTableBody');
-        const spinner = document.getElementById('spinner');
-
-        // Mostrar alerta elegante
-        function showAlert(icon, title, text, timer = 3000) {
-            Swal.fire({
-                icon: icon,
-                title: title,
-                text: text,
-                timer: timer,
-                showConfirmButton: false,
-                background: 'var(--primary-color)',
-                color: 'var(--light-color)',
-                backdrop: `
-                    rgba(0,0,0,0.7)
-                    url("https://sweetalert2.github.io/images/nyan-cat.gif")
-                    left top
-                    no-repeat
-                `,
-                customClass: {
-                    popup: 'swal2-futuristic'
-                }
+        let statusCount = { online: 0, offline: 0, dirty: 0, water: 0 };
+        let typeCount = {};
+        let locationCount = {};
+        let statusByType = {};
+        
+        // Fecha del reporte
+        document.getElementById('reportDate').textContent = `Generado el ${new Date().toLocaleDateString('es-ES', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+            hour: '2-digit', minute: '2-digit' 
+        })}`;
+        
+        // Cargar datos de Firebase
+        function loadData() {
+            camerasRef.get().then(querySnapshot => {
+                camerasData = [];
+                statusCount = { online: 0, offline: 0, dirty: 0, water: 0 };
+                typeCount = {};
+                locationCount = {};
+                statusByType = {};
+                
+                querySnapshot.forEach(doc => {
+                    const camera = doc.data();
+                    camera.id = doc.id;
+                    
+                    // Asegurarse de que updatedAt sea un objeto Date
+                    if (camera.updatedAt && typeof camera.updatedAt.toDate === 'function') {
+                        camera.updatedAt = camera.updatedAt.toDate();
+                    }
+                    
+                    camerasData.push(camera);
+                    
+                    // Contar por estado
+                    const status = camera.status || 'online';
+                    statusCount[status] = (statusCount[status] || 0) + 1;
+                    
+                    // Contar por tipo
+                    const type = camera.type || 'Desconocido';
+                    typeCount[type] = (typeCount[type] || 0) + 1;
+                    
+                    // Contar por ubicación
+                    const location = camera.location || 'Sin ubicación';
+                    locationCount[location] = (locationCount[location] || 0) + 1;
+                    
+                    // Contar estado por tipo
+                    if (!statusByType[type]) {
+                        statusByType[type] = { online: 0, offline: 0, dirty: 0, water: 0 };
+                    }
+                    statusByType[type][status] = (statusByType[type][status] || 0) + 1;
+                });
+                
+                updateSummary();
+                renderCharts();
+                renderTable();
+            }).catch(error => {
+                console.error("Error loading cameras: ", error);
+                alert("Error al cargar los datos de las cámaras. Por favor revisa la consola para más detalles.");
             });
         }
-
-        // Formatear fecha
-        function formatDate(date) {
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            return new Date(date).toLocaleDateString('es-ES', options);
+        
+        // Actualizar resumen
+        function updateSummary() {
+            document.getElementById('totalCameras').textContent = camerasData.length;
+            document.getElementById('onlineCameras').textContent = statusCount.online || 0;
+            document.getElementById('offlineCameras').textContent = statusCount.offline || 0;
+            document.getElementById('problemCameras').textContent = (statusCount.dirty || 0) + (statusCount.water || 0);
         }
-
-        // Cargar datos de cámaras
-        async function loadCameras() {
-            try {
-                spinner.style.display = 'block';
-                
-                const snapshot = await camerasRef.orderBy('createdAt', 'desc').get();
-                camerasData = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                // Actualizar información de fecha
-                const now = new Date();
-                reportDate.textContent = formatDate(now);
-                totalCameras.textContent = camerasData.length;
-                
-                // Generar reportes
-                generateTypeReport();
-                generateQualityReport();
-                generateGeneralStats();
-                generateTypeStats();
-                renderCamerasTable();
-            } catch (error) {
-                console.error('Error al cargar cámaras:', error);
-                showAlert('error', 'Error', 'No se pudieron cargar las cámaras');
-            } finally {
-                spinner.style.display = 'none';
-            }
-        }
-
-        // Generar reporte por tipo de cámara (horizontal)
-        function generateTypeReport() {
-            const typeCounts = {
-                dome: 0,
-                bullet: 0,
-                ptz: 0,
-                ip: 0,
-                thermal: 0,
-                other: 0
-            };
-            
-            // Contar todos los tipos de cámaras
-            camerasData.forEach(camera => {
-                const type = camera.type || 'other';
-                typeCounts[type]++;
-            });
-            
-            const typeLabels = {
-                dome: 'Domo',
-                bullet: 'Bullet',
-                ptz: 'PTZ',
-                ip: 'IP',
-                thermal: 'Térmica',
-                other: 'Otro'
-            };
-            
-            const labels = [];
-            const data = [];
-            const backgroundColors = [
-                '#9b59b6', // dome
-                '#3498db', // bullet
-                '#e74c3c', // ptz
-                '#2ecc71', // ip
-                '#f39c12', // thermal
-                '#95a5a6'  // other
-            ];
-            
-            // Preparar datos para el gráfico
-            for (const [type, count] of Object.entries(typeCounts)) {
-                labels.push(typeLabels[type]);
-                data.push(count);
-            }
-            
-            const ctx = document.getElementById('typeChart').getContext('2d');
-            
-            if (typeChart) {
-                typeChart.destroy();
-            }
-            
-            typeChart = new Chart(ctx, {
-                type: 'bar',
+        
+        // Renderizar gráficos
+        function renderCharts() {
+            // Gráfico de estado
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['En Línea', 'Fuera de Servicio', 'Sucia', 'Agua dentro'],
                     datasets: [{
-                        label: 'Cantidad',
-                        data: data,
-                        backgroundColor: backgroundColors,
+                        data: [statusCount.online, statusCount.offline, statusCount.dirty, statusCount.water],
+                        backgroundColor: [
+                            '#23d160',
+                            '#ff3860',
+                            '#f39c12',
+                            '#3498db'
+                        ],
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y', // Hace el gráfico horizontal
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            }
-                        }
-                    },
                     plugins: {
                         legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.dataset.label || '';
-                                    const value = context.raw || 0;
-                                    const total = camerasData.length;
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
+                            position: 'bottom'
                         }
                     }
                 }
             });
-        }
-
-        // Generar reporte por calidad de video (horizontal)
-        function generateQualityReport() {
-            const qualityCounts = {
-                sd: 0,
-                hd: 0,
-                fullhd: 0,
-                '2k': 0,
-                '4k': 0
-            };
             
-            // Contar todas las calidades de video
-            camerasData.forEach(camera => {
-                const quality = camera.quality || 'hd';
-                qualityCounts[quality]++;
-            });
-            
-            const qualityLabels = {
-                sd: 'SD (480p)',
-                hd: 'HD (720p)',
-                fullhd: 'Full HD (1080p)',
-                '2k': '2K',
-                '4k': '4K'
-            };
-            
-            const labels = [];
-            const data = [];
-            const backgroundColors = [
-                '#3498db',
-                '#2ecc71',
-                '#f39c12',
-                '#9b59b6',
-                '#e74c3c'
-            ];
-            
-            // Preparar datos para el gráfico
-            for (const [quality, count] of Object.entries(qualityCounts)) {
-                labels.push(qualityLabels[quality]);
-                data.push(count);
-            }
-            
-            const ctx = document.getElementById('qualityChart').getContext('2d');
-            
-            if (qualityChart) {
-                qualityChart.destroy();
-            }
-            
-            qualityChart = new Chart(ctx, {
+            // Gráfico de tipos
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            new Chart(typeCtx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: Object.keys(typeCount),
                     datasets: [{
                         label: 'Cantidad',
-                        data: data,
-                        backgroundColor: backgroundColors,
+                        data: Object.values(typeCount),
+                        backgroundColor: '#15a086',
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y', // Hace el gráfico horizontal
                     scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            }
-                        },
                         y: {
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255,255,255,0.1)'
-                            }
+                            beginAtZero: true
                         }
                     },
                     plugins: {
                         legend: {
-                            display: false,
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de ubicaciones
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+            new Chart(locationCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(locationCount),
+                    datasets: [{
+                        data: Object.values(locationCount),
+                        backgroundColor: [
+                            '#2c3e50', '#15a086', '#34495e', '#1abc9c', 
+                            '#16a085', '#27ae60', '#3498db', '#2980b9',
+                            '#9b59b6', '#8e44ad', '#f1c40f', '#f39c12',
+                            '#e67e22', '#d35400', '#e74c3c', '#c0392b'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de estado por tipo (stacked bar)
+            const statusByTypeCtx = document.getElementById('statusByTypeChart').getContext('2d');
+            const types = Object.keys(statusByType);
+            
+            new Chart(statusByTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: types,
+                    datasets: [
+                        {
+                            label: 'En Línea',
+                            data: types.map(type => statusByType[type].online || 0),
+                            backgroundColor: '#23d160',
+                            stack: 'Stack 0'
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.dataset.label || '';
-                                    const value = context.raw || 0;
-                                    const total = camerasData.length;
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
+                        {
+                            label: 'Fuera de Servicio',
+                            data: types.map(type => statusByType[type].offline || 0),
+                            backgroundColor: '#ff3860',
+                            stack: 'Stack 0'
+                        },
+                        {
+                            label: 'Sucia',
+                            data: types.map(type => statusByType[type].dirty || 0),
+                            backgroundColor: '#f39c12',
+                            stack: 'Stack 0'
+                        },
+                        {
+                            label: 'Agua dentro',
+                            data: types.map(type => statusByType[type].water || 0),
+                            backgroundColor: '#3498db',
+                            stack: 'Stack 0'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
                         }
                     }
                 }
             });
         }
-
-        // Generar estadísticas generales
-        function generateGeneralStats() {
-            statTotal.textContent = camerasData.length;
-            
-            // Encontrar tipo más común
-            const typeCounts = {};
-            camerasData.forEach(camera => {
-                const type = camera.type || 'other';
-                typeCounts[type] = (typeCounts[type] || 0) + 1;
-            });
-            
-            const mostCommonType = Object.entries(typeCounts).reduce((a, b) => a[1] > b[1] ? a : b, ['', 0]);
-            const typeLabels = {
-                dome: 'Domo',
-                bullet: 'Bullet',
-                ptz: 'PTZ',
-                ip: 'IP',
-                thermal: 'Térmica',
-                other: 'Otro'
-            };
-            statCommonType.textContent = `${typeLabels[mostCommonType[0]]} (${mostCommonType[1]})`;
-            
-            // Encontrar calidad más común
-            const qualityCounts = {};
-            camerasData.forEach(camera => {
-                const quality = camera.quality || 'hd';
-                qualityCounts[quality] = (qualityCounts[quality] || 0) + 1;
-            });
-            
-            const mostCommonQuality = Object.entries(qualityCounts).reduce((a, b) => a[1] > b[1] ? a : b, ['', 0]);
-            const qualityLabels = {
-                sd: 'SD (480p)',
-                hd: 'HD (720p)',
-                fullhd: 'Full HD (1080p)',
-                '2k': '2K',
-                '4k': '4K'
-            };
-            statCommonQuality.textContent = `${qualityLabels[mostCommonQuality[0]]} (${mostCommonQuality[1]})`;
-            
-            // Encontrar última actualización
-            let lastUpdate = null;
-            camerasData.forEach(camera => {
-                if (camera.updatedAt && (!lastUpdate || camera.updatedAt.toDate() > lastUpdate)) {
-                    lastUpdate = camera.updatedAt.toDate();
-                }
-            });
-            
-            statLastUpdate.textContent = lastUpdate ? formatDate(lastUpdate) : 'N/A';
-        }
-
-        // Generar estadísticas por tipo
-        function generateTypeStats() {
-            const typeCounts = {
-                dome: 0,
-                bullet: 0,
-                ptz: 0,
-                ip: 0,
-                thermal: 0,
-                other: 0
-            };
-            
-            // Contar todos los tipos de cámaras
-            camerasData.forEach(camera => {
-                const type = camera.type || 'other';
-                typeCounts[type]++;
-            });
-            
-            const typeLabels = {
-                dome: 'Domo',
-                bullet: 'Bullet',
-                ptz: 'PTZ',
-                ip: 'IP',
-                thermal: 'Térmica',
-                other: 'Otro'
-            };
-            
-            typeStats.innerHTML = '';
-            
-            // Mostrar estadísticas para todos los tipos, incluso si tienen 0
-            for (const [type, count] of Object.entries(typeCounts)) {
-                const percentage = Math.round((count / camerasData.length) * 100);
-                
-                const statItem = document.createElement('div');
-                statItem.className = 'stat-item';
-                
-                const statLabel = document.createElement('span');
-                statLabel.className = 'stat-label';
-                statLabel.textContent = typeLabels[type];
-                
-                const statValue = document.createElement('span');
-                statValue.className = 'stat-value';
-                statValue.textContent = `${count} (${percentage}%)`;
-                
-                statItem.appendChild(statLabel);
-                statItem.appendChild(statValue);
-                typeStats.appendChild(statItem);
-            }
-        }
-
-        // Renderizar tabla de cámaras
-        function renderCamerasTable() {
-            camerasTableBody.innerHTML = '';
+        
+        // Renderizar tabla
+        function renderTable() {
+            const tableBody = document.getElementById('camerasTableBody');
+            tableBody.innerHTML = '';
             
             if (camerasData.length === 0) {
-                camerasTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 30px;">
-                            No se encontraron cámaras registradas
-                        </td>
-                    </tr>
-                `;
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6" style="text-align: center;">No se encontraron cámaras</td>';
+                tableBody.appendChild(row);
                 return;
             }
             
             camerasData.forEach(camera => {
+                const status = camera.status || 'online';
+                const statusText = getStatusText(status);
+                const statusClass = `status-${status}`;
+                
                 const row = document.createElement('tr');
-                
-                // Determinar texto del tipo de cámara
-                let typeText = 'Otro';
-                switch(camera.type) {
-                    case 'dome': typeText = 'Domo'; break;
-                    case 'bullet': typeText = 'Bullet'; break;
-                    case 'ptz': typeText = 'PTZ'; break;
-                    case 'ip': typeText = 'IP'; break;
-                    case 'thermal': typeText = 'Térmica'; break;
-                }
-                
-                // Determinar texto de calidad
-                let qualityText = '';
-                switch(camera.quality) {
-                    case 'sd': qualityText = 'SD (480p)'; break;
-                    case 'hd': qualityText = 'HD (720p)'; break;
-                    case 'fullhd': qualityText = 'Full HD (1080p)'; break;
-                    case '2k': qualityText = '2K'; break;
-                    case '4k': qualityText = '4K'; break;
-                }
-                
                 row.innerHTML = `
-                    <td>${camera.name}</td>
-                    <td>${camera.location || 'N/A'}</td>
-                    <td>${typeText}</td>
-                    <td>${qualityText}</td>
-                    <td>${camera.ip || 'N/A'}</td>
-                    <td>${camera.mac || 'N/A'}</td>
+                    <td>${camera.name || 'Sin nombre'}</td>
+                    <td>${camera.type || 'Desconocido'}</td>
+                    <td>${camera.location || 'Sin ubicación'}</td>
+                    <td>${camera.ip || 'Sin IP'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${camera.updatedAt ? camera.updatedAt.toLocaleString() : 'No registrada'}</td>
                 `;
                 
-                camerasTableBody.appendChild(row);
+                tableBody.appendChild(row);
             });
         }
-
-        // Event Listeners
-        backBtn.addEventListener('click', () => {
-            window.location.href = 'listado-camaras.html';
-        });
         
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
-
-        // Cargar datos al iniciar
-        document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    loadCameras();
-                } else {
-                    window.location.href = 'login.html';
-                }
-            });
-        });
+        // Obtener texto descriptivo del estado
+        function getStatusText(status) {
+            switch(status) {
+                case 'online': return 'En Línea';
+                case 'offline': return 'Fuera de Servicio';
+                case 'dirty': return 'Sucia';
+                case 'water': return 'Agua dentro';
+                default: return 'Desconocido';
+            }
+        }
+        
+        // Iniciar la carga de datos
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
