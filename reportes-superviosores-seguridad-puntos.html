@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Código Amarillo - Seguridad</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #f39c12;
+            --secondary-color: #34495e;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --warning-color: #f1c40f;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-color);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow: auto;
+        }
+        
+        .form-container {
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            padding: 25px;
+            width: 90%;
+            max-width: 1000px;
+            text-align: center;
+            overflow: auto;
+            margin-top: 20px;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            flex: 1;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--light-color);
+        }
+        
+        .input-group input, .input-group select, .input-group textarea {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+        
+        .input-group textarea {
+            height: 100px;
+            resize: vertical;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin: 10px 5px;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--dark-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #2ecc71;
+        }
+        
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Alertas mejoradas */
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .alert-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+        }
+        
+        /* Cuerpo humano y puntos */
+        .human-body-container {
+            position: relative;
+            margin: 25px auto;
+            width: 300px;
+            height: 600px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .human-body-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .pain-point {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: red;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .pain-point:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .pain-point:hover::after {
+            content: attr(data-desc);
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 10;
+            font-size: 0.9rem;
+        }
+        
+        .color-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(255,255,255,0.7);
+        }
+        
+        .pain-points-container {
+            margin-top: 25px;
+            background-color: rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .pain-points-container h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .pain-point-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--dark-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .pain-point-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .pain-point-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid white;
+        }
+        
+        .remove-point {
+            color: var(--error-color);
+            cursor: pointer;
+            margin-left: 15px;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-point:hover {
+            transform: scale(1.2);
+        }
+        
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Sección de declinación */
+        .decline-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(231, 76, 60, 0.2);
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .decline-section.show {
+            display: block;
+        }
+        
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .modal-lg .modal-content {
+            max-width: 800px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--primary-color);
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Reportes */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .report-preview {
+            background-color: var(--dark-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .report-preview:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .report-preview h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        
+        .report-image-container {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 600px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .report-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .report-pain-point {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .report-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .report-actions .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            margin: 0;
+            min-width: 40px;
+        }
+        
+        /* Buscador */
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: 2px solid var(--primary-color);
+            background-color: var(--dark-color);
+            color: white;
+            font-size: 1rem;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 15px center;
+            background-size: 18px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
+        }
+        
+        /* Acordeón */
+        .accordion {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .accordion-item {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            background-color: rgba(243, 156, 18, 0.2);
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-header:hover {
+            background-color: rgba(243, 156, 18, 0.3);
+        }
+        
+        .accordion-content {
+            background-color: rgba(0,0,0,0.1);
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-content-inner {
+            padding: 20px;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-container, .print-container * {
+                visibility: visible;
+            }
+            .print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background-color: white;
+                color: black;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2><i class="fas fa-exclamation-triangle"></i> Reporte Código Amarillo - Seguridad</h2>
+        
+        <div id="alertSuccess" class="alert alert-success">
+            <span id="alertSuccessText"></span>
+            <button class="alert-close">&times;</button>
+        </div>
+        
+        <div id="alertError" class="alert alert-error">
+            <span id="alertErrorText"></span>
+            <button class="alert-close">&times;</button>
+        </div>
+        
+        <form id="reportForm">
+            <div class="row">
+                <div class="input-group">
+                    <label for="nombreHuesped">Nombre del Huésped</label>
+                    <input type="text" id="nombreHuesped" required>
+                </div>
+                <div class="input-group">
+                    <label for="habitacion">Número de Habitación</label>
+                    <input type="text" id="habitacion" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="input-group">
+                    <label for="edad">Edad</label>
+                    <input type="number" id="edad" min="1" max="120" required>
+                </div>
+                <div class="input-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="input-group">
+                    <label for="fechaIncidente">Fecha del Incidente</label>
+                    <input type="date" id="fechaIncidente" required>
+                </div>
+                <div class="input-group">
+                    <label for="horaIncidente">Hora del Incidente</label>
+                    <input type="time" id="horaIncidente" required>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="lugarIncidente">Lugar del Incidente</label>
+                <input type="text" id="lugarIncidente" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="testigos">Testigos (nombres y datos de contacto)</label>
+                <textarea id="testigos"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>Señalización de áreas afectadas</label>
+                <p>Seleccione un color y haga clic en el cuerpo para marcar las áreas afectadas</p>
+                
+                <div class="color-options">
+                    <div class="color-option selected" style="background-color: #ff0000;" data-color="#ff0000" data-level="Dolor intenso"></div>
+                    <div class="color-option" style="background-color: #ff6600;" data-color="#ff6600" data-level="Dolor moderado"></div>
+                    <div class="color-option" style="background-color: #ffcc00;" data-color="#ffcc00" data-level="Dolor leve"></div>
+                    <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" data-level="Hinchazón"></div>
+                    <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" data-level="Moretón"></div>
+                </div>
+                
+                <div class="human-body-container" id="humanBodyContainer">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47" 
+                         alt="Cuerpo humano" class="human-body-img" id="humanBodyImg">
+                </div>
+                
+                <div class="pain-points-container" id="painPointsContainer">
+                    <h4>Puntos marcados:</h4>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="descripcionIncidente">Descripción del Incidente</label>
+                <textarea id="descripcionIncidente" required></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="accionesTomadas">Acciones tomadas</label>
+                <textarea id="accionesTomadas"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="supervisor">Nombre del Supervisor de Seguridad</label>
+                <input type="text" id="supervisor" required>
+            </div>
+            
+            <div class="input-group">
+                <label>Declina atención médica</label>
+                <div>
+                    <label><input type="radio" name="declinaAtencion" value="no" checked> No</label>
+                    <label style="margin-left: 15px;"><input type="radio" name="declinaAtencion" value="si"> Sí</label>
+                </div>
+            </div>
+            
+            <div class="decline-section" id="declineSection">
+                <div class="input-group">
+                    <label for="razonDeclinacion">Razón de declinación</label>
+                    <textarea id="razonDeclinacion"></textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn" id="submitReport"><i class="fas fa-save"></i> Guardar Reporte</button>
+            <button type="button" class="btn" id="viewReports"><i class="fas fa-list"></i> Ver Reportes</button>
+        </form>
+    </div>
+    
+    <!-- Modal para descripción del punto -->
+    <div class="modal" id="pointModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h3 class="modal-title">Descripción del punto</h3>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="pointDescription">Describa el dolor o lesión en esta área:</label>
+                    <textarea id="pointDescription" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPointBtn">Cancelar</button>
+                <button type="button" class="btn btn-success" id="savePointBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para ver reportes -->
+    <div class="modal modal-lg" id="reportsModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2 class="modal-title">Reportes de Código Amarillo</h2>
+            
+            <div class="search-container">
+                <input type="text" id="searchReports" class="search-input" placeholder="Buscar por nombre de huésped...">
+            </div>
+            
+            <div class="reports-list" id="reportsList">
+                <!-- Los reportes se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Contenedor para impresión (oculto) -->
+    <div id="printContainer" class="print-container" style="display: none;"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Variables globales
+        let currentUser = null;
+        let selectedColor = "#ff0000";
+        let painLevel = "Dolor intenso";
+        let painPoints = [];
+        const bodyImageUrl = "https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47";
+        let currentPoint = null;
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            initColorOptions();
+            initHumanBody();
+            initFormEvents();
+            initModals();
+            initAlerts();
+            checkAuth();
+        });
+
+        // Configurar eventos de los botones de color
+        function initColorOptions() {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedColor = this.getAttribute('data-color');
+                    painLevel = this.getAttribute('data-level');
+                });
+            });
+        }
+
+        // Configurar el cuerpo humano para marcar puntos
+        function initHumanBody() {
+            const humanBodyContainer = document.getElementById('humanBodyContainer');
+            humanBodyContainer.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Crear un nuevo punto de dolor
+                currentPoint = {
+                    id: Date.now(),
+                    x: (x / rect.width * 100).toFixed(2),
+                    y: (y / rect.height * 100).toFixed(2),
+                    color: selectedColor,
+                    level: painLevel,
+                    desc: ""
+                };
+                
+                // Mostrar modal para descripción
+                document.getElementById('pointDescription').value = '';
+                document.getElementById('pointModal').style.display = 'flex';
+            });
+        }
+
+        // Configurar eventos del formulario
+        function initFormEvents() {
+            // Radio buttons para declinación
+            document.querySelectorAll('input[name="declinaAtencion"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const declineSection = document.getElementById('declineSection');
+                    if (this.value === 'si') {
+                        declineSection.classList.add('show');
+                        document.getElementById('razonDeclinacion').required = true;
+                    } else {
+                        declineSection.classList.remove('show');
+                        document.getElementById('razonDeclinacion').required = false;
+                    }
+                });
+            });
+            
+            // Envío del formulario
+            document.getElementById('reportForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveReport();
+            });
+            
+            // Botón para ver reportes
+            document.getElementById('viewReports').addEventListener('click', async function() {
+                await loadReports();
+                document.getElementById('reportsModal').style.display = 'flex';
+            });
+            
+            // Buscador de reportes
+            document.getElementById('searchReports').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const reports = document.querySelectorAll('.report-preview');
+                
+                reports.forEach(report => {
+                    const title = report.querySelector('h3').textContent.toLowerCase();
+                    if (title.includes(searchTerm)) {
+                        report.style.display = 'block';
+                    } else {
+                        report.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Configurar modales
+        function initModals() {
+            // Modal de punto
+            document.getElementById('savePointBtn').addEventListener('click', function() {
+                const description = document.getElementById('pointDescription').value.trim();
+                if (description) {
+                    currentPoint.desc = description;
+                    painPoints.push(currentPoint);
+                    renderPainPoints();
+                    updatePainPointsList();
+                    document.getElementById('pointModal').style.display = 'none';
+                } else {
+                    showAlert("Por favor ingrese una descripción", "error");
+                }
+            });
+            
+            document.getElementById('cancelPointBtn').addEventListener('click', function() {
+                document.getElementById('pointModal').style.display = 'none';
+                currentPoint = null;
+            });
+            
+            // Cerrar modales al hacer clic fuera
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Configurar alertas
+        function initAlerts() {
+            document.querySelectorAll('.alert-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none';
+                });
+            });
+        }
+
+        // Verificar autenticación
+        function checkAuth() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                } else {
+                    showAlert("Debe iniciar sesión para acceder a esta función", "error");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                }
+            });
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = "success") {
+            const alertElement = type === "success" 
+                ? document.getElementById('alertSuccess') 
+                : document.getElementById('alertError');
+            
+            const alertTextElement = type === "success" 
+                ? document.getElementById('alertSuccessText') 
+                : document.getElementById('alertErrorText');
+            
+            alertTextElement.textContent = message;
+            alertElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Renderizar puntos de dolor en el cuerpo
+        function renderPainPoints() {
+            // Limpiar puntos existentes
+            document.querySelectorAll('.pain-point').forEach(point => point.remove());
+            
+            const container = document.getElementById('humanBodyContainer');
+            
+            painPoints.forEach(point => {
+                const painPoint = document.createElement('div');
+                painPoint.className = 'pain-point';
+                painPoint.style.left = `${point.x}%`;
+                painPoint.style.top = `${point.y}%`;
+                painPoint.style.backgroundColor = point.color;
+                painPoint.setAttribute('data-desc', `${point.level}: ${point.desc}`);
+                painPoint.setAttribute('data-id', point.id);
+                
+                // Eliminar punto al hacer doble clic
+                painPoint.addEventListener('dblclick', function() {
+                    painPoints = painPoints.filter(p => p.id !== point.id);
+                    renderPainPoints();
+                    updatePainPointsList();
+                });
+                
+                container.appendChild(painPoint);
+            });
+        }
+        
+        // Actualizar la lista de puntos marcados
+        function updatePainPointsList() {
+            const container = document.getElementById('painPointsContainer');
+            const listContainer = document.createElement('div');
+            
+            painPoints.forEach(point => {
+                const item = document.createElement('div');
+                item.className = 'pain-point-item';
+                
+                const color = document.createElement('div');
+                color.className = 'pain-point-color';
+                color.style.backgroundColor = point.color;
+                
+                const desc = document.createElement('span');
+                desc.textContent = `${point.level}: ${point.desc}`;
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-point';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.addEventListener('click', function() {
+                    painPoints = painPoints.filter(p => p.id !== point.id);
+                    renderPainPoints();
+                    updatePainPointsList();
+                });
+                
+                item.appendChild(color);
+                item.appendChild(desc);
+                item.appendChild(removeBtn);
+                listContainer.appendChild(item);
+            });
+            
+            // Reemplazar el contenido existente
+            const existingList = document.querySelector('#painPointsContainer > div');
+            if (existingList) {
+                container.replaceChild(listContainer, existingList);
+            } else {
+                container.appendChild(listContainer);
+            }
+        }
+        
+        // Guardar el reporte en Firebase
+        async function saveReport() {
+            showLoading();
+            
+            try {
+                // Validar que haya al menos un punto marcado
+                if (painPoints.length === 0) {
+                    throw new Error("Debe marcar al menos un punto de dolor en el cuerpo");
+                }
+                
+                // Obtener datos del formulario
+                const reportData = getFormData();
+                
+                // Crear imagen del cuerpo con puntos para guardar
+                const bodyWithPointsUrl = await createBodyWithPointsImage();
+                
+                // Subir la imagen del cuerpo con puntos a Firebase Storage
+                const bodyImageRef = ref(storage, `reportes/${currentUser.uid}/${Date.now()}_cuerpo.png`);
+                await uploadString(bodyImageRef, bodyWithPointsUrl.split(',')[1], 'base64', {
+                    contentType: 'image/png'
+                });
+                const uploadedBodyImageUrl = await getDownloadURL(bodyImageRef);
+                
+                // Guardar el reporte en Firestore
+                await addDoc(collection(db, "reporteCodigoAmarillo"), {
+                    ...reportData,
+                    painPoints,
+                    bodyImageUrl: uploadedBodyImageUrl,
+                    originalBodyImageUrl: bodyImageUrl,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.uid,
+                    status: "active"
+                });
+                
+                hideLoading();
+                showAlert("Reporte guardado exitosamente");
+                resetForm();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al guardar el reporte:", error);
+                showAlert("Error al guardar el reporte: " + error.message, "error");
+            }
+        }
+        
+        // Obtener datos del formulario
+        function getFormData() {
+            return {
+                nombreHuesped: document.getElementById('nombreHuesped').value,
+                habitacion: document.getElementById('habitacion').value,
+                edad: parseInt(document.getElementById('edad').value),
+                telefono: document.getElementById('telefono').value,
+                fechaIncidente: document.getElementById('fechaIncidente').value,
+                horaIncidente: document.getElementById('horaIncidente').value,
+                lugarIncidente: document.getElementById('lugarIncidente').value,
+                testigos: document.getElementById('testigos').value,
+                descripcionIncidente: document.getElementById('descripcionIncidente').value,
+                accionesTomadas: document.getElementById('accionesTomadas').value,
+                supervisor: document.getElementById('supervisor').value,
+                declinaAtencion: document.querySelector('input[name="declinaAtencion"]:checked').value === 'si',
+                razonDeclinacion: document.querySelector('input[name="declinaAtencion"]:checked').value === 'si' 
+                    ? document.getElementById('razonDeclinacion').value 
+                    : ''
+            };
+        }
+        
+        // Crear imagen del cuerpo con puntos
+        async function createBodyWithPointsImage() {
+            const humanBodyContainer = document.getElementById('humanBodyContainer');
+            return await html2canvas(humanBodyContainer).then(canvas => {
+                return canvas.toDataURL('image/png');
+            });
+        }
+        
+        // Cargar reportes desde Firebase
+        async function loadReports() {
+            showLoading();
+            
+            try {
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = '<p>Cargando reportes...</p>';
+                
+                const q = query(collection(db, "reporteCodigoAmarillo"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    reportsList.innerHTML = '<p>No hay reportes registrados</p>';
+                    hideLoading();
+                    return;
+                }
+                
+                reportsList.innerHTML = '';
+                
+                for (const doc of querySnapshot.docs) {
+                    const report = doc.data();
+                    await renderReport(report, doc.id);
+                }
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al cargar reportes:", error);
+                showAlert("Error al cargar los reportes", "error");
+            }
+        }
+        
+        // Renderizar un reporte en la lista
+        async function renderReport(report, reportId) {
+            const reportsList = document.getElementById('reportsList');
+            const reportItem = document.createElement('div');
+            reportItem.className = 'report-preview';
+            
+            // Formatear fecha
+            const fecha = new Date(report.createdAt);
+            const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+            
+            reportItem.innerHTML = `
+                <div class="report-actions no-print">
+                    <button class="btn download-btn" data-id="${reportId}" title="Descargar reporte">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-secondary print-btn" data-id="${reportId}" title="Imprimir reporte">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <button class="btn btn-success details-btn" data-id="${reportId}" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <h3>Reporte de ${report.nombreHuesped} - Hab. ${report.habitacion}</h3>
+                <p><strong>Fecha del incidente:</strong> ${report.fechaIncidente} ${report.horaIncidente}</p>
+                <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                <p><strong>Supervisor:</strong> ${report.supervisor}</p>
+                <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                
+                <div class="report-image-container">
+                    <img src="${report.originalBodyImageUrl}" class="report-image">
+                    ${report.painPoints.map(point => `
+                        <div class="report-pain-point" 
+                             style="left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"
+                             title="${point.level}: ${point.desc}"></div>
+                    `).join('')}
+                </div>
+                
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Ver detalles completos</span>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <p><strong>Descripción:</strong> ${report.descripcionIncidente}</p>
+                                <p><strong>Acciones tomadas:</strong> ${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                                <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                                <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                                ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                                <p><strong>Edad:</strong> ${report.edad}</p>
+                                <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                                
+                                <h4>Puntos marcados:</h4>
+                                <ul>
+                                    ${report.painPoints.map(point => `
+                                        <li style="margin-bottom: 8px;">
+                                            <span style="display: inline-block; width: 15px; height: 15px; border-radius: 50%; background-color: ${point.color}; margin-right: 10px;"></span>
+                                            <strong>${point.level}:</strong> ${point.desc} (${point.x}%, ${point.y}%)
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            reportsList.appendChild(reportItem);
+            
+            // Configurar eventos para los botones
+            const accordionItem = reportItem.querySelector('.accordion-item');
+            const accordionHeader = reportItem.querySelector('.accordion-header');
+            
+            accordionHeader.addEventListener('click', function() {
+                accordionItem.classList.toggle('active');
+            });
+            
+            // Botón de descarga
+            reportItem.querySelector('.download-btn').addEventListener('click', function() {
+                downloadReport(report, reportId);
+            });
+            
+            // Botón de impresión
+            reportItem.querySelector('.print-btn').addEventListener('click', function() {
+                printReport(report);
+            });
+            
+            // Botón de detalles
+            reportItem.querySelector('.details-btn').addEventListener('click', function() {
+                accordionItem.classList.toggle('active');
+            });
+        }
+        
+        // Descargar un reporte como imagen
+        async function downloadReport(report, reportId) {
+            showLoading();
+            
+            try {
+                const reportElement = createPrintElement(report);
+                document.getElementById('printContainer').appendChild(reportElement);
+                
+                // Convertir a imagen y descargar
+                const canvas = await html2canvas(reportElement);
+                const link = document.createElement('a');
+                link.download = `Reporte_Codigo_Amarillo_${report.nombreHuesped}_${report.fechaIncidente}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                document.getElementById('printContainer').innerHTML = '';
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al descargar reporte:", error);
+                showAlert("Error al descargar el reporte", "error");
+            }
+        }
+        
+        // Imprimir un reporte
+        async function printReport(report) {
+            showLoading();
+            
+            try {
+                const reportElement = createPrintElement(report);
+                document.getElementById('printContainer').appendChild(reportElement);
+                
+                // Esperar un momento para que se renderice el contenido
+                setTimeout(() => {
+                    window.print();
+                    document.getElementById('printContainer').innerHTML = '';
+                    hideLoading();
+                }, 500);
+            } catch (error) {
+                hideLoading();
+                console.error("Error al imprimir reporte:", error);
+                showAlert("Error al imprimir el reporte", "error");
+            }
+        }
+        
+        // Crear elemento para impresión/descarga
+        function createPrintElement(report) {
+            const printElement = document.createElement('div');
+            printElement.style.padding = '20px';
+            printElement.style.backgroundColor = 'white';
+            printElement.style.color = 'black';
+            printElement.style.maxWidth = '800px';
+            printElement.style.margin = '0 auto';
+            
+            // Formatear fecha
+            const fecha = new Date(report.createdAt);
+            const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+            
+            printElement.innerHTML = `
+                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                    Reporte Código Amarillo
+                </h2>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Datos del Huésped
+                    </h3>
+                    <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
+                    <p><strong>Habitación:</strong> ${report.habitacion}</p>
+                    <p><strong>Edad:</strong> ${report.edad}</p>
+                    <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Detalles del Incidente
+                    </h3>
+                    <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
+                    <p><strong>Hora:</strong> ${report.horaIncidente}</p>
+                    <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                    <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                    <p><strong>Descripción:</strong> ${report.descripcionIncidente}</p>
+                    <p><strong>Acciones tomadas:</strong> ${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Áreas afectadas
+                    </h3>
+                    <div style="position: relative; margin: 20px auto; width: 300px; height: 600px; border: 2px solid #f39c12; border-radius: 8px;">
+                        <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain; background-color: white;">
+                        ${report.painPoints.map(point => `
+                            <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; 
+                                 left: ${point.x}%; top: ${point.y}%; background-color: ${point.color}; 
+                                 transform: translate(-50%, -50%); border: 2px solid white;"></div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Puntos marcados
+                    </h3>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        ${report.painPoints.map(point => `
+                            <li style="margin-bottom: 10px; display: flex; align-items: center;">
+                                <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; 
+                                      background-color: ${point.color}; margin-right: 12px; border: 2px solid white;"></span>
+                                <div>
+                                    <strong>${point.level}:</strong> ${point.desc}<br>
+                                    <small>Posición: ${point.x}%, ${point.y}%</small>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
+                        Supervisor
+                    </h3>
+                    <p><strong>Nombre:</strong> ${report.supervisor}</p>
+                    <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
+                </div>
+                
+                <div style="text-align: right; margin-top: 50px; font-style: italic;">
+                    Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                </div>
+            `;
+            
+            return printElement;
+        }
+        
+        // Reiniciar el formulario
+        function resetForm() {
+            document.getElementById('reportForm').reset();
+            painPoints = [];
+            renderPainPoints();
+            updatePainPointsList();
+            document.getElementById('declineSection').classList.remove('show');
+        }
+        
+        // Mostrar loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // Ocultar loading
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
