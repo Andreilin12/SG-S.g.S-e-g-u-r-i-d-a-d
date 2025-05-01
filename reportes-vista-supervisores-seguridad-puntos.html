@@ -305,16 +305,119 @@
                 left: 0;
                 top: 0;
                 width: 100%;
-                padding: 20px;
+                height: auto;
+                padding: 0;
+                margin: 0;
                 background-color: white;
                 color: black;
             }
             .no-print {
                 display: none !important;
             }
-            .page-break {
-                page-break-after: always;
+            @page {
+                size: auto;
+                margin: 10mm;
             }
+        }
+        
+        /* Estilo específico para el contenedor de impresión */
+        .print-content {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #333;
+            page-break-inside: avoid;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 15px;
+        }
+        
+        .print-header h1 {
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+        
+        .print-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .print-section h2 {
+            color: #f39c12;
+            border-bottom: 1px solid #f39c12;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .print-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .print-col {
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .print-body-image {
+            width: 300px;
+            height: 600px;
+            margin: 20px auto;
+            border: 2px solid #f39c12;
+            border-radius: 8px;
+            position: relative;
+            background-color: white;
+        }
+        
+        .print-body-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .print-pain-point {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .print-pain-points-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .print-pain-points-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .print-pain-point-color {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid white;
+        }
+        
+        .print-footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-style: italic;
         }
         
         /* Filtros */
@@ -356,6 +459,14 @@
             padding: 30px;
             color: var(--light-color);
             font-style: italic;
+        }
+        
+        /* Canvas para captura */
+        #canvas-container {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
         }
     </style>
 </head>
@@ -410,6 +521,9 @@
     
     <!-- Contenedor para impresión (oculto) -->
     <div id="printContainer" class="print-container" style="display: none;"></div>
+    
+    <!-- Contenedor para canvas (oculto) -->
+    <div id="canvas-container"></div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module">
@@ -680,134 +794,185 @@
             showLoading();
             
             try {
-                const reportElement = createPrintElement(report);
-                document.getElementById('printContainer').appendChild(reportElement);
+                // Crear un contenedor temporal para la imagen
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '-9999px';
+                tempContainer.style.width = '300px';
+                tempContainer.style.height = '600px';
+                tempContainer.style.overflow = 'hidden';
+                tempContainer.style.backgroundColor = 'white';
+                
+                // Crear la imagen y los puntos en el contenedor temporal
+                tempContainer.innerHTML = `
+                    <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain;">
+                    ${report.painPoints.map(point => `
+                        <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; 
+                                     transform: translate(-50%, -50%); border: 2px solid white; 
+                                     box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                                     left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"></div>
+                    `).join('')}
+                `;
+                
+                document.body.appendChild(tempContainer);
+                
+                // Esperar a que la imagen se cargue
+                await new Promise((resolve) => {
+                    const img = tempContainer.querySelector('img');
+                    if (img.complete) {
+                        resolve();
+                    } else {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    }
+                });
+                
+                // Capturar la imagen con html2canvas
+                const canvas = await html2canvas(tempContainer, {
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: 'white'
+                });
+                
+                // Eliminar el contenedor temporal
+                document.body.removeChild(tempContainer);
+                
+                // Obtener la URL de la imagen capturada
+                const capturedImageUrl = canvas.toDataURL('image/png');
+                
+                // Crear el contenido HTML para imprimir
+                const printContent = `
+                    <div class="print-content">
+                        <div class="print-header">
+                            <h1>Reporte Código Amarillo</h1>
+                            <p>Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}</p>
+                        </div>
+                        
+                        <div class="print-row">
+                            <div class="print-col">
+                                <div class="print-section">
+                                    <h2>Datos del Huésped</h2>
+                                    <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
+                                    <p><strong>Habitación:</strong> ${report.habitacion}</p>
+                                    <p><strong>Edad:</strong> ${report.edad}</p>
+                                    <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                                </div>
+                                
+                                <div class="print-section">
+                                    <h2>Detalles del Incidente</h2>
+                                    <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
+                                    <p><strong>Hora:</strong> ${report.horaIncidente}</p>
+                                    <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                                    <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="print-col">
+                                <div class="print-section">
+                                    <h2>Supervisor</h2>
+                                    <p><strong>Nombre:</strong> ${report.supervisor}</p>
+                                    <p><strong>Fecha de registro:</strong> ${new Date(report.createdAt).toLocaleString()}</p>
+                                </div>
+                                
+                                <div class="print-section">
+                                    <h2>Información Adicional</h2>
+                                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="print-section">
+                            <h2>Descripción del Incidente</h2>
+                            <p style="white-space: pre-wrap;">${report.descripcionIncidente}</p>
+                        </div>
+                        
+                        <div class="print-section">
+                            <h2>Acciones Tomadas</h2>
+                            <p style="white-space: pre-wrap;">${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                        </div>
+                        
+                        <div class="print-section">
+                            <h2>Áreas Afectadas</h2>
+                            <div class="print-body-image">
+                                <img src="${capturedImageUrl}" alt="Cuerpo humano con puntos marcados" style="width: 100%; height: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                        
+                        <div class="print-section">
+                            <h2>Puntos Marcados</h2>
+                            <ul class="print-pain-points-list">
+                                ${report.painPoints.map(point => `
+                                    <li>
+                                        <span class="print-pain-point-color" style="background-color: ${point.color};"></span>
+                                        <div>
+                                            <strong>${point.level}:</strong> ${point.desc}<br>
+                                            <small>Posición: ${point.x}%, ${point.y}%</small>
+                                        </div>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="print-footer">
+                            <p>Reporte generado por el sistema de Código Amarillo</p>
+                            <p>Página 1 de 1</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Limpiar el contenedor de impresión
+                const printContainer = document.getElementById('printContainer');
+                printContainer.innerHTML = '';
+                
+                // Agregar el contenido al contenedor de impresión
+                printContainer.innerHTML = printContent;
+                printContainer.style.display = 'block';
+                
+                // Configurar estilos para impresión
+                const printStyle = document.createElement('style');
+                printStyle.innerHTML = `
+                    @page {
+                        size: auto;
+                        margin: 10mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .print-content {
+                        width: 100%;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .print-section {
+                        page-break-inside: avoid;
+                    }
+                `;
+                document.head.appendChild(printStyle);
                 
                 // Esperar un momento para que se renderice el contenido
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Iniciar la impresión
+                window.print();
+                
+                // Limpiar después de imprimir
                 setTimeout(() => {
-                    window.print();
-                    document.getElementById('printContainer').innerHTML = '';
+                    printContainer.style.display = 'none';
+                    document.head.removeChild(printStyle);
                     hideLoading();
                 }, 500);
+                
             } catch (error) {
                 hideLoading();
                 console.error("Error al imprimir reporte:", error);
                 showAlert("Error al imprimir el reporte", "error");
             }
-        }
-        
-        // Crear elemento para impresión
-        function createPrintElement(report) {
-            const printElement = document.createElement('div');
-            printElement.style.padding = '20px';
-            printElement.style.backgroundColor = 'white';
-            printElement.style.color = 'black';
-            printElement.style.maxWidth = '800px';
-            printElement.style.margin = '0 auto';
-            
-            // Formatear fecha
-            const fecha = new Date(report.createdAt);
-            const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
-            
-            printElement.innerHTML = `
-                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px; margin-bottom: 30px;">
-                    Reporte Código Amarillo
-                </h2>
-                
-                <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-                    <div style="flex: 1;">
-                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
-                            Datos del Huésped
-                        </h3>
-                        <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
-                        <p><strong>Habitación:</strong> ${report.habitacion}</p>
-                        <p><strong>Edad:</strong> ${report.edad}</p>
-                        <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
-                    </div>
-                    
-                    <div style="flex: 1;">
-                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px; margin-top: 0;">
-                            Detalles del Incidente
-                        </h3>
-                        <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
-                        <p><strong>Hora:</strong> ${report.horaIncidente}</p>
-                        <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
-                        <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Descripción del Incidente
-                    </h3>
-                    <p style="white-space: pre-wrap;">${report.descripcionIncidente}</p>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Acciones Tomadas
-                    </h3>
-                    <p style="white-space: pre-wrap;">${report.accionesTomadas || 'No se tomaron acciones'}</p>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Áreas afectadas
-                    </h3>
-                    <div style="position: relative; margin: 20px auto; width: 300px; height: 600px; border: 2px solid #f39c12; border-radius: 8px;">
-                        <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain; background-color: white;">
-                        ${report.painPoints.map(point => `
-                            <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; 
-                                 left: ${point.x}%; top: ${point.y}%; background-color: ${point.color}; 
-                                 transform: translate(-50%, -50%); border: 2px solid white;"></div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Puntos marcados
-                    </h3>
-                    <ul style="list-style-type: none; padding-left: 0;">
-                        ${report.painPoints.map(point => `
-                            <li style="margin-bottom: 10px; display: flex; align-items: center;">
-                                <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; 
-                                      background-color: ${point.color}; margin-right: 12px; border: 2px solid white;"></span>
-                                <div>
-                                    <strong>${point.level}:</strong> ${point.desc}<br>
-                                    <small>Posición: ${point.x}%, ${point.y}%</small>
-                                </div>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                        Información Adicional
-                    </h3>
-                    <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
-                    ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; margin-top: 50px;">
-                    <div>
-                        <h3 style="color: #f39c12; border-bottom: 1px solid #f39c12; padding-bottom: 5px;">
-                            Supervisor
-                        </h3>
-                        <p><strong>Nombre:</strong> ${report.supervisor}</p>
-                        <p><strong>Fecha de registro:</strong> ${fechaStr}</p>
-                    </div>
-                    
-                    <div style="text-align: right;">
-                        <p style="font-style: italic; margin-top: 40px;">
-                            Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
-                        </p>
-                    </div>
-                </div>
-            `;
-            
-            return printElement;
         }
         
         // Mostrar loading
