@@ -543,8 +543,7 @@
                     </div>
                     
                     <div class="human-body-container" id="humanBodyContainer">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47" 
-                             alt="Cuerpo humano" class="human-body-img" id="humanBodyImg">
+                        <img src="" alt="Cuerpo humano" class="human-body-img" id="humanBodyImg">
                     </div>
                     
                     <div class="pain-points-container" id="painPointsContainer">
@@ -696,19 +695,44 @@
         let selectedColor = "#ff0000";
         let painLevel = "Dolor intenso";
         let painPoints = [];
-        const bodyImageUrl = "https://firebasestorage.googleapis.com/v0/b/formulario-2-8929a.appspot.com/o/pngwing.com.png?alt=media&token=151e1904-b5e1-449b-9319-a8a53be8de47";
+        let bodyImageUrl = ""; // Esta variable se llenará con la URL de Firebase
         let currentPoint = null;
 
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
             initColorOptions();
-            initHumanBody();
             initFormEvents();
             initModals();
             initAlerts();
             initNavigation();
             checkAuth();
+            loadBodyImage(); // Cargar la imagen del cuerpo desde Firebase
         });
+
+        // Cargar la imagen del cuerpo desde Firebase Storage
+        async function loadBodyImage() {
+            showLoading();
+            try {
+                // Referencia a la imagen en Firebase Storage
+                const imageRef = ref(storage, 'body_images/body.png');
+                
+                // Obtener la URL de descarga
+                const url = await getDownloadURL(imageRef);
+                
+                // Establecer la URL en la imagen
+                document.getElementById('humanBodyImg').src = url;
+                bodyImageUrl = url;
+                
+                // Inicializar el cuerpo humano después de cargar la imagen
+                initHumanBody();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al cargar la imagen del cuerpo:", error);
+                showAlert("Error al cargar la imagen del cuerpo. Por favor recargue la página.", "error");
+            }
+        }
 
         // Configurar navegación entre secciones
         function initNavigation() {
