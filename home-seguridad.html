@@ -192,7 +192,7 @@
       border-radius: 12px;
       padding: 2rem;
       width: 90%;
-      max-width: 800px; /* Más ancho para disposición horizontal */
+      max-width: 800px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
@@ -304,7 +304,7 @@
     /* Icon selector */
     .icon-selector {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, 1fr));
       gap: 0.8rem;
       margin-top: 1rem;
     }
@@ -634,6 +634,10 @@
 
   <!-- Menú contextual -->
   <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="openLinkItem">
+      <i class="fas fa-external-link-alt"></i>
+      <span>Abrir enlace</span>
+    </div>
     <div class="context-menu-item" id="editItem">
       <i class="fas fa-edit"></i>
       <span>Editar</span>
@@ -811,6 +815,7 @@
     const closeModal = document.getElementById('closeModal');
     const cancelEdit = document.getElementById('cancelEdit');
     const saveEdit = document.getElementById('saveEdit');
+    const openLinkItem = document.getElementById('openLinkItem');
     const editItem = document.getElementById('editItem');
     const changeIconItem = document.getElementById('changeIconItem');
     const moveItem = document.getElementById('moveItem');
@@ -898,6 +903,7 @@
     function setupEventListeners() {
       // Menú contextual
       document.addEventListener('contextmenu', handleContextMenu);
+      openLinkItem.addEventListener('click', openSelectedLink);
       editItem.addEventListener('click', openEditModal);
       changeIconItem.addEventListener('click', openChangeIconModal);
       moveItem.addEventListener('click', enableMovingMode);
@@ -938,25 +944,51 @@
       document.addEventListener('touchend', handleTouchEnd);
     }
 
+    // Abrir el enlace del icono seleccionado
+    function openSelectedLink() {
+      if (!selectedIconId) return;
+      
+      const icon = iconsData.find(i => i.id === selectedIconId);
+      if (icon && icon.url) {
+        window.location.href = icon.url;
+      }
+      closeContextMenu();
+    }
+
     // Manejar eventos táctiles
     function handleTouchStart(e) {
-      if (!isMovingItem) return;
-      
-      e.preventDefault();
-      const touch = e.touches[0];
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      
-      if (target && target.closest('.icon-link')) {
-        draggedItem = target.closest('.icon-link');
-        isDragging = true;
+      if (isMovingItem) {
+        // Si estamos en modo mover, manejar el arrastre
+        e.preventDefault();
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
         
-        startX = touch.clientX;
-        startY = touch.clientY;
+        if (target && target.closest('.icon-link')) {
+          draggedItem = target.closest('.icon-link');
+          isDragging = true;
+          
+          startX = touch.clientX;
+          startY = touch.clientY;
+          
+          draggedItem.classList.add('dragging');
+          draggedItem.style.position = 'absolute';
+          draggedItem.style.zIndex = '1000';
+          draggedItem.style.pointerEvents = 'none';
+        }
+      } else {
+        // Si no estamos en modo mover, mostrar menú contextual
+        e.preventDefault();
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
         
-        draggedItem.classList.add('dragging');
-        draggedItem.style.position = 'absolute';
-        draggedItem.style.zIndex = '1000';
-        draggedItem.style.pointerEvents = 'none';
+        if (target && target.closest('.icon-link')) {
+          selectedIconId = target.closest('.icon-link').dataset.id;
+          showContextMenu({
+            pageX: touch.clientX,
+            pageY: touch.clientY,
+            preventDefault: () => {}
+          });
+        }
       }
     }
 
@@ -1006,8 +1038,9 @@
       e.preventDefault();
       
       // Si se hace clic derecho en un icono
-      if (e.target.closest('.icon-link')) {
-        selectedIconId = e.target.closest('.icon-link').dataset.id;
+      const iconElement = e.target.closest('.icon-link');
+      if (iconElement) {
+        selectedIconId = iconElement.dataset.id;
       } else {
         selectedIconId = null;
       }
@@ -1032,10 +1065,12 @@
       contextMenu.classList.add('active');
       
       // Mostrar u ocultar opciones según el contexto
-      editItem.style.display = selectedIconId ? 'flex' : 'none';
-      changeIconItem.style.display = selectedIconId ? 'flex' : 'none';
-      moveItem.style.display = selectedIconId ? 'flex' : 'none';
-      deleteItem.style.display = selectedIconId ? 'flex' : 'none';
+      const hasSelectedIcon = !!selectedIconId;
+      openLinkItem.style.display = hasSelectedIcon ? 'flex' : 'none';
+      editItem.style.display = hasSelectedIcon ? 'flex' : 'none';
+      changeIconItem.style.display = hasSelectedIcon ? 'flex' : 'none';
+      moveItem.style.display = hasSelectedIcon ? 'flex' : 'none';
+      deleteItem.style.display = hasSelectedIcon ? 'flex' : 'none';
       
       // Configurar manejador para cerrar al hacer clic fuera
       if (contextMenuClickOutsideHandler) {
@@ -1044,9 +1079,7 @@
       
       contextMenuClickOutsideHandler = (event) => {
         if (!contextMenu.contains(event.target) && !event.target.closest('.context-menu-item')) {
-          contextMenu.classList.remove('active');
-          document.removeEventListener('click', contextMenuClickOutsideHandler);
-          contextMenuClickOutsideHandler = null;
+          closeContextMenu();
         }
       };
       
@@ -1055,12 +1088,8 @@
       // También cerrar al presionar ESC
       const keyHandler = (ev) => {
         if (ev.key === 'Escape') {
-          contextMenu.classList.remove('active');
+          closeContextMenu();
           document.removeEventListener('keydown', keyHandler);
-          if (contextMenuClickOutsideHandler) {
-            document.removeEventListener('click', contextMenuClickOutsideHandler);
-            contextMenuClickOutsideHandler = null;
-          }
         }
       };
       
@@ -1198,13 +1227,12 @@
           if (confirmed) {
             iconsData = JSON.parse(JSON.stringify(defaultIcons));
             renderIcons();
+            saveToLocalStorage();
             closeContextMenu();
             
-            // Guardar cambios
+            // Si está autenticado, también guardar en Firebase
             if (currentUser) {
               saveToFirebase();
-            } else {
-              saveToLocalStorage();
             }
           }
         });
@@ -1258,9 +1286,10 @@
       iconGrid.innerHTML = '';
       
       iconsData.forEach(icon => {
-        const iconElement = document.createElement('div');
+        const iconElement = document.createElement('a');
         iconElement.className = 'icon-link';
         iconElement.dataset.id = icon.id;
+        iconElement.href = icon.url;
         
         if (icon.iconType === 'font') {
           iconElement.innerHTML = `
@@ -1274,16 +1303,19 @@
           `;
         }
         
-        iconElement.addEventListener('click', (e) => {
-          if (!isEditing && !isMovingItem) {
-            window.location.href = icon.url;
-          }
-        });
-        
+        // Manejar clic derecho para mostrar menú contextual
         iconElement.addEventListener('contextmenu', (e) => {
           e.preventDefault();
           selectedIconId = icon.id;
           showContextMenu(e);
+        });
+        
+        // Permitir que el clic izquierdo funcione normalmente para navegar
+        iconElement.addEventListener('click', (e) => {
+          if (isMovingItem) {
+            e.preventDefault();
+          }
+          // Si no está en modo mover, el enlace funcionará normalmente
         });
         
         iconGrid.appendChild(iconElement);
