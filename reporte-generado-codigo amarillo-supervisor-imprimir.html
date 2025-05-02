@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Código Amarillo - Formulario</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #2c3e50;
+            line-height: 1.4;
+        }
+        
+        .report-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 8px;
+            page-break-after: avoid;
+        }
+        
+        .header h1 {
+            color: #f39c12;
+            margin: 0;
+            font-size: 22px;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            color: #f39c12;
+            border-bottom: 1px solid #f39c12;
+            padding-bottom: 4px;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .column {
+            flex: 1;
+            padding: 0 8px;
+        }
+        
+        .column:first-child {
+            padding-left: 0;
+        }
+        
+        .column:last-child {
+            padding-right: 0;
+        }
+        
+        .data-row {
+            margin-bottom: 6px;
+            display: flex;
+        }
+        
+        .data-label {
+            font-weight: bold;
+            min-width: 110px;
+            font-size: 14px;
+        }
+        
+        .data-value {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .human-body-container {
+            position: relative;
+            margin: 10px auto;
+            width: 260px;
+            height: 520px;
+            border: 2px solid #f39c12;
+            border-radius: 6px;
+        }
+        
+        .human-body-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+            font-size: 11px;
+            color: #666;
+            text-align: right;
+        }
+        
+        .print-btn-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .print-btn {
+            padding: 6px 12px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .report-container {
+                padding: 0;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .print-btn-container {
+                display: none;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0.8cm;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+        }
+        
+        .text-area-lines {
+            border: 1px solid #ddd;
+            padding: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .line {
+            margin: 6px 0;
+            height: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .signature-space {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-btn-container no-print">
+        <button onclick="window.print()" class="print-btn">
+            <i class="fas fa-print"></i> Imprimir
+        </button>
+    </div>
+
+    <div class="report-container">
+        <!-- Primera página -->
+        <div class="header">
+            <h1>REPORTE CÓDIGO AMARILLO</h1>
+            <div class="subtitle">Registro de Incidente de Seguridad</div>
+        </div>
+        
+        <div class="two-columns">
+            <div class="column">
+                <div class="section">
+                    <h3 class="section-title">Datos del Huésped</h3>
+                    <div class="data-row">
+                        <span class="data-label">Nombre:</span>
+                        <span class="data-value">___________________________________</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Habitación:</span>
+                        <span class="data-value">_________</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Edad:</span>
+                        <span class="data-value">_________</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Teléfono:</span>
+                        <span class="data-value">___________________</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="section">
+                    <h3 class="section-title">Detalles del Incidente</h3>
+                    <div class="data-row">
+                        <span class="data-label">Fecha:</span>
+                        <span class="data-value">____/____/______</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Hora:</span>
+                        <span class="data-value">______</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Lugar:</span>
+                        <span class="data-value">___________________________</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Testigos:</span>
+                        <span class="data-value">___________________________</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Descripción del Incidente</h3>
+            <div class="text-area-lines">
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Acciones Tomadas</h3>
+            <div class="text-area-lines">
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+                <div class="line">_______________________________________________________</div>
+            </div>
+        </div>
+        
+        <!-- Fin primera página -->
+        <div class="page-break"></div>
+        
+        <!-- Segunda página -->
+        <div class="section">
+            <h3 class="section-title">Áreas Afectadas</h3>
+            <div class="human-body-container">
+                <img src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/body_images%2Fbody.png?alt=media&token=YOUR_TOKEN_HERE" alt="Cuerpo humano" class="human-body-img">
+            </div>
+            
+            <div style="margin-top: 10px;">
+                <p style="font-size: 14px; margin-bottom: 5px;">Descripción de lesiones/dolores:</p>
+                <div style="border: 1px solid #ddd; min-height: 60px; padding: 6px;">
+                    <p style="margin: 4px 0;">_______________________________________________________</p>
+                    <p style="margin: 4px 0;">_______________________________________________________</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Información Adicional</h3>
+            <div class="data-row">
+                <span class="data-label">Declina atención médica:</span>
+                <span class="data-value">
+                    <span style="margin-right: 12px;">☐ Sí</span>
+                    <span>☐ No</span>
+                </span>
+            </div>
+            <div style="margin-top: 8px;">
+                <p style="font-size: 14px; margin-bottom: 4px;">Razón de declinación (si aplica):</p>
+                <div style="border: 1px solid #ddd; min-height: 40px; padding: 6px;">
+                    <p style="margin: 4px 0;">_______________________________________________________</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="two-columns" style="margin-top: 15px;">
+            <div class="column">
+                <div class="section">
+                    <h3 class="section-title">Supervisor</h3>
+                    <div class="data-row">
+                        <span class="data-label">Nombre:</span>
+                        <span class="data-value">___________________________</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Fecha registro:</span>
+                        <span class="data-value">____/____/______ ______</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="column" style="text-align: right;">
+                <div class="section">
+                    <div class="signature-space">
+                        <div>_________________________</div>
+                        <div style="font-size: 13px;">Firma del Huésped</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Documento generado el ____/____/______ ______ | 
+            Reporte Código Amarillo v1.0
+        </div>
+    </div>
+
+    <!-- Font Awesome para el icono de impresión -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</body>
+</html>
