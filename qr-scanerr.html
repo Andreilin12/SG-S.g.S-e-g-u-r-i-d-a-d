@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escaner QR/Barras Pro</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1"></script>
+  <style>
+    :root {
+      --primary-bg: #2c3e50;
+      --secondary-bg: #34495e;
+      --accent-color: #15a086;
+      --text-color: #ecf0f1;
+      --highlight: rgba(21, 160, 134, 0.3);
+      --card-bg: rgba(44, 62, 80, 0.7);
+      --success: #2ecc71;
+      --info: #3498db;
+      --warning: #f39c12;
+      --error: #e74c3c;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    }
+    
+    body {
+      background-color: var(--primary-bg);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      background-color: var(--secondary-bg);
+      padding: 1.2rem;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(90deg, var(--accent-color), #1abc9c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .camera-link {
+      color: var(--accent-color);
+      font-size: 1.5rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .camera-link:hover {
+      background-color: rgba(21, 160, 134, 0.2);
+      transform: scale(1.1);
+    }
+    
+    .main-container {
+      flex: 1;
+      display: flex;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    
+    .upload-section {
+      flex: 1;
+      max-width: 350px;
+      background-color: var(--secondary-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .file-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .file-option {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background-color: var(--card-bg);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .file-option:hover {
+      background-color: var(--highlight);
+      transform: translateY(-2px);
+    }
+    
+    .file-option i {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+    }
+    
+    .file-option input {
+      display: none;
+    }
+    
+    .preview-container {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    
+    .preview-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 10px;
+      border: 2px solid var(--accent-color);
+      object-fit: cover;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+    
+    .scan-btn {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(21, 160, 134, 0.4);
+      display: none;
+    }
+    
+    .scan-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(21, 160, 134, 0.6);
+    }
+    
+    .scan-btn:active {
+      transform: translateY(0);
+    }
+    
+    .result-section {
+      flex: 2;
+      background-color: var(--secondary-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .result-title {
+      font-size: 1.3rem;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    
+    .result-type {
+      background-color: var(--accent-color);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .result-content {
+      flex: 1;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 1.2rem;
+      border-radius: 10px;
+      word-break: break-all;
+      margin-bottom: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+      max-height: 300px;
+    }
+    
+    .result-preview {
+      width: 100px;
+      height: 100px;
+      margin: 0.5rem auto;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      object-fit: contain;
+      background-color: white;
+      padding: 5px;
+      display: none;
+    }
+    
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    
+    .action-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .action-btn i {
+      font-size: 1rem;
+    }
+    
+    .copy-btn {
+      background-color: var(--success);
+      color: white;
+    }
+    
+    .open-btn {
+      background-color: var(--info);
+      color: white;
+    }
+    
+    .download-btn {
+      background-color: var(--warning);
+      color: white;
+    }
+    
+    .direct-btn {
+      background-color: #9b59b6;
+      color: white;
+    }
+    
+    .status-message {
+      margin-top: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .success {
+      background-color: rgba(46, 204, 113, 0.2);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    
+    .error {
+      background-color: rgba(231, 76, 60, 0.2);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--accent-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .file-icon {
+      font-size: 3rem;
+      color: var(--accent-color);
+      margin: 0.5rem 0;
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      
+      .upload-section {
+        max-width: 100%;
+      }
+      
+      .result-actions {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="scaner-qr.html" class="camera-link" title="Escáner de cámara">
+      <i class="fas fa-camera"></i>
+    </a>
+    <h1><i class="fas fa-qrcode"></i> Escáner QR/Barras Pro</h1>
+    <div style="width: 40px;"></div> <!-- Espacio para alinear el título -->
+  </header>
+  
+  <main class="main-container">
+    <section class="upload-section">
+      <div class="file-options">
+        <div class="file-option" id="gallery-option">
+          <i class="fas fa-images"></i>
+          <span>Desde Galería</span>
+          <input type="file" id="gallery-input" accept="image/*">
+        </div>
+      </div>
+      
+      <div class="preview-container">
+        <img src="" alt="Vista previa" class="preview-image" id="preview-image">
+        <button class="scan-btn" id="scan-btn">
+          <i class="fas fa-search"></i> Escanear
+        </button>
+      </div>
+      
+      <div class="status-message" id="status-message"></div>
+    </section>
+    
+    <section class="result-section" id="result-section">
+      <div class="result-header">
+        <h2 class="result-title"><i class="fas fa-qrcode"></i> Resultado</h2>
+        <span class="result-type" id="code-type">-</span>
+      </div>
+      <div class="result-content" id="result-content">
+        El contenido del código escaneado aparecerá aquí...
+      </div>
+      <i class="fas fa-file file-icon" id="file-icon"></i>
+      <img src="" alt="Vista previa" class="result-preview" id="result-preview">
+      <div class="result-actions">
+        <button class="action-btn copy-btn" id="copy-btn">
+          <i class="fas fa-copy"></i> Copiar
+        </button>
+        <button class="action-btn open-btn" id="open-btn">
+          <i class="fas fa-external-link-alt"></i> Abrir
+        </button>
+        <button class="action-btn direct-btn" id="direct-btn">
+          <i class="fas fa-directions"></i> Dirigir
+        </button>
+        <button class="action-btn download-btn" id="download-btn">
+          <i class="fas fa-download"></i> Descargar
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elementos del DOM
+      const galleryInput = document.getElementById('gallery-input');
+      const galleryOption = document.getElementById('gallery-option');
+      const previewImage = document.getElementById('preview-image');
+      const scanBtn = document.getElementById('scan-btn');
+      const statusMessage = document.getElementById('status-message');
+      const resultContent = document.getElementById('result-content');
+      const codeType = document.getElementById('code-type');
+      const copyBtn = document.getElementById('copy-btn');
+      const openBtn = document.getElementById('open-btn');
+      const directBtn = document.getElementById('direct-btn');
+      const downloadBtn = document.getElementById('download-btn');
+      const resultPreview = document.getElementById('result-preview');
+      const fileIcon = document.getElementById('file-icon');
+      
+      // Variables de estado
+      let currentImage = null;
+      let scanResult = null;
+      let isFile = false;
+      
+      // Event listeners
+      galleryOption.addEventListener('click', () => galleryInput.click());
+      galleryInput.addEventListener('change', handleFileSelect);
+      scanBtn.addEventListener('click', scanImage);
+      copyBtn.addEventListener('click', copyResult);
+      openBtn.addEventListener('click', openResult);
+      directBtn.addEventListener('click', directToResult);
+      downloadBtn.addEventListener('click', downloadResult);
+      
+      // Manejar selección de archivo
+      function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          previewImage.src = event.target.result;
+          previewImage.style.display = 'block';
+          scanBtn.style.display = 'flex';
+          currentImage = event.target.result;
+          showStatus('Imagen cargada', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      // Escanear imagen
+      async function scanImage() {
+        if (!currentImage) {
+          showStatus('Selecciona una imagen primero', 'error');
+          return;
+        }
+        
+        showStatus('Escaneando... <div class="loading"></div>', '');
+        
+        try {
+          // Primero intentar con QR code
+          const qrResult = await scanQRCode(currentImage);
+          
+          if (qrResult) {
+            processResult(qrResult, 'QR');
+            return;
+          }
+          
+          // Si no encuentra QR, intentar con código de barras
+          const barcodeResult = await scanBarcode(currentImage);
+          
+          if (barcodeResult) {
+            processResult(barcodeResult, 'Barras');
+            return;
+          }
+          
+          // Si no encuentra nada
+          showStatus('No se encontraron códigos', 'error');
+        } catch (error) {
+          console.error('Error al escanear:', error);
+          showStatus('Error al escanear', 'error');
+        }
+      }
+      
+      // Escanear código QR (versión mejorada)
+      function scanQRCode(imageData) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = function() {
+            // Crear canvas con diferentes tamaños para mejorar detección
+            const sizes = [img.width, Math.max(img.width, img.height) / 2, Math.max(img.width, img.height) / 4];
+            
+            // Probar diferentes escalas para mejorar la detección
+            for (const size of sizes) {
+              const canvas = document.createElement('canvas');
+              canvas.width = size;
+              canvas.height = size;
+              const ctx = canvas.getContext('2d');
+              
+              // Dibujar imagen escalada
+              ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, size, size);
+              
+              const imageData = ctx.getImageData(0, 0, size, size);
+              const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: 'attemptBoth', // Probar con y sin inversión
+              });
+              
+              if (code) {
+                resolve(code.data);
+                return;
+              }
+            }
+            
+            // Si no se encontró en ninguna escala
+            resolve(null);
+          };
+          
+          img.onerror = function() {
+            resolve(null);
+          };
+          
+          img.src = imageData;
+        });
+      }
+      
+      // Escanear código de barras
+      function scanBarcode(imageData) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = async function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            // Usar ZXing para códigos de barras
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            try {
+              const result = await codeReader.decodeFromImageElement(img);
+              if (result) {
+                resolve(result.text);
+              } else {
+                resolve(null);
+              }
+            } catch (e) {
+              resolve(null);
+            }
+          };
+          img.onerror = function() {
+            resolve(null);
+          };
+          img.src = imageData;
+        });
+      }
+      
+      // Procesar resultado
+      function processResult(content, type) {
+        scanResult = content;
+        resultContent.textContent = content;
+        codeType.textContent = type;
+        
+        // Ocultar elementos de vista previa
+        resultPreview.style.display = 'none';
+        fileIcon.style.display = 'none';
+        
+        // Verificar si es un archivo
+        isFile = checkIfFile(content);
+        
+        // Mostrar vista previa según el tipo de contenido
+        if (isFile) {
+          showFilePreview(content);
+        } else if (/^(https?:\/\/|www\.)/i.test(content)) {
+          showLinkPreview(content);
+        }
+        
+        // Ajustar visibilidad de botones
+        openBtn.style.display = 'flex';
+        directBtn.style.display = /^(https?:\/\/|www\.)/i.test(content) ? 'flex' : 'none';
+        
+        showStatus(`Código ${type} encontrado`, 'success');
+      }
+      
+      // Verificar si es un archivo
+      function checkIfFile(content) {
+        const fileExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt'];
+        return fileExtensions.some(ext => content.toLowerCase().includes(ext));
+      }
+      
+      // Mostrar vista previa de archivo
+      function showFilePreview(fileUrl) {
+        const extension = fileUrl.split('.').pop().toLowerCase();
+        fileIcon.className = 'fas file-icon';
+        
+        switch(extension) {
+          case 'pdf':
+            fileIcon.classList.add('fa-file-pdf');
+            break;
+          case 'doc':
+          case 'docx':
+            fileIcon.classList.add('fa-file-word');
+            break;
+          case 'xls':
+          case 'xlsx':
+            fileIcon.classList.add('fa-file-excel');
+            break;
+          case 'ppt':
+          case 'pptx':
+            fileIcon.classList.add('fa-file-powerpoint');
+            break;
+          case 'txt':
+            fileIcon.classList.add('fa-file-alt');
+            break;
+          default:
+            fileIcon.classList.add('fa-file');
+        }
+        
+        fileIcon.style.display = 'block';
+      }
+      
+      // Mostrar vista previa de enlace
+      function showLinkPreview(url) {
+        // Extraer dominio para mostrar favicon
+        let domain = '';
+        try {
+          domain = new URL(url.startsWith('http') ? url : 'https://' + url).hostname;
+        } catch (e) {
+          domain = url.split('/')[0];
+        }
+        
+        resultPreview.src = 'https://www.google.com/s2/favicons?domain=' + domain;
+        resultPreview.style.display = 'block';
+      }
+      
+      // Copiar resultado
+      function copyResult() {
+        navigator.clipboard.writeText(scanResult)
+          .then(() => {
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            setTimeout(() => {
+              copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Error al copiar:', err);
+            alert('No se pudo copiar al portapapeles');
+          });
+      }
+      
+      // Abrir resultado (si es URL o archivo)
+      function openResult() {
+        if (/^(https?:\/\/|www\.)/i.test(scanResult) || isFile) {
+          let url = scanResult.trim();
+          if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          window.open(url, '_blank');
+        }
+      }
+      
+      // Dirigir a resultado (solo para URLs)
+      function directToResult() {
+        if (/^(https?:\/\/|www\.)/i.test(scanResult)) {
+          let url = scanResult.trim();
+          if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          window.location.href = url;
+        }
+      }
+      
+      // Descargar resultado como archivo de texto
+      function downloadResult() {
+        const blob = new Blob([scanResult], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `codigo-${codeType.textContent.toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      // Mostrar mensaje de estado
+      function showStatus(message, type) {
+        statusMessage.innerHTML = message;
+        statusMessage.className = 'status-message';
+        statusMessage.style.display = 'block';
+        
+        if (type === 'success') {
+          statusMessage.classList.add('success');
+        } else if (type === 'error') {
+          statusMessage.classList.add('error');
+        }
+        
+        if (type) {
+          setTimeout(() => {
+            statusMessage.style.display = 'none';
+          }, 5000);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
