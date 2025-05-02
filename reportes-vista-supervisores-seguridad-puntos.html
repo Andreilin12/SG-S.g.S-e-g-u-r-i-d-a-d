@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Reportes - Código Amarillo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #15A086;
+            --secondary-color: #2c3e50;
+            --dark-color: #34495e;
+            --light-color: #2c3e50;
+            --success-color: #15A086;
+            --error-color: #e74c3c;
+            --warning-color: #15a086;
+            --search-color: #fff;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--secondary-color);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .search-container {
+            background-color: var(--dark-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .search-input {
+            width: 96.5%;
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: solid: #15a086;
+            font-size: 1rem;
+            background-color: var(--light-color);
+            color: var(--search-color);
+        }
+        
+        .reports-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .report-card {
+            background-color: var(--dark-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        
+        .report-title {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .print-btn {
+            color: var(--warning-color);
+        }
+        
+        .view-btn {
+            color: var(--success-color);
+        }
+        
+        .report-body {
+            margin-bottom: 15px;
+        }
+        
+        .report-info {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .report-info strong {
+            color: var(--light-color);
+            color: #fff;
+        }
+        
+        .report-image-container {
+            position: relative;
+            margin: 15px auto;
+            width: 100%;
+            height: 200px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .report-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .report-pain-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .alert-error {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+        }
+        
+        /* Estilos para el modal de detalles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: var(--dark-color);
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--primary-color);
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .modal-body-image {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 600px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+        }
+        
+        .modal-body-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        
+        .modal-pain-point {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .pain-points-list {
+            margin-top: 20px;
+        }
+        
+        .pain-point-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 6px;
+        }
+        
+        .pain-point-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid white;
+        }
+
+        /* Estilo para el botón de impresión en el modal */
+        #printModalBtn {
+            background-color: #15a086;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(21, 160, 135);
+        }
+
+        /* Efecto hover para el botón */
+        #printModalBtn:hover {
+            background-color: #0e6b5a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 62, 80);
+        }
+
+        /* Efecto active (al hacer clic) */
+        #printModalBtn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Estilo para el icono dentro del botón */
+        #printModalBtn i {
+            font-size: 1.1rem;
+        }
+        
+        /* Estilos para impresión - NUEVOS ESTILOS DE IMPRESIÓN */
+        @media print {
+            body * {
+                visibility: hidden;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .print-content, .print-content * {
+                visibility: visible;
+            }
+            
+            .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .report-section-title {
+                color: black !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            
+            .report-value {
+                background: white !important;
+                border-left: 3px solid #15a086 !important;
+            }
+            
+            .image-preview {
+                max-width: 300px;
+                max-height: 300px;
+                border: 1px solid #ddd !important;
+            }
+            
+            /* Asegurar que los puntos mantengan sus colores al imprimir */
+            .pain-point-print {
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                border: 2px solid white !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .pain-point-color-print {
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                margin-right: 12px;
+                border: 2px solid white !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        
+        .print-content {
+            display: none;
+        }
+        
+        /* Estilos para el row en el modal */
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para la información de registro en la tarjeta */
+        .registro-info {
+            font-size: 0.8rem;
+            color: #ccc;
+            margin-top: 10px;
+            border-top: 1px dashed #555;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-alt"></i> Reportes de Código Amarillo</h1>
+        
+        <div id="alertSuccess" class="alert alert-success">
+            <span id="alertSuccessText"></span>
+            <button class="alert-close">&times;</button>
+        </div>
+        
+        <div id="alertError" class="alert alert-error">
+            <span id="alertErrorText"></span>
+            <button class="alert-close">&times;</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar reportes por nombre de huésped, habitación o supervisor...">
+        </div>
+        
+        <div class="reports-list" id="reportsList">
+            <!-- Los reportes se cargarán aquí -->
+        </div>
+    </div>
+    
+    <!-- Modal para detalles del reporte -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2 class="modal-title" id="modalReportTitle"></h2>
+            
+            <div class="modal-body">
+                <div class="row">
+                    <div style="flex: 1;">
+                        <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                            Datos del Huésped
+                        </h3>
+                        <p><strong>Nombre:</strong> <span id="modalNombre"></span></p>
+                        <p><strong>Habitación:</strong> <span id="modalHabitacion"></span></p>
+                        <p><strong>Edad:</strong> <span id="modalEdad"></span></p>
+                        <p><strong>Teléfono:</strong> <span id="modalTelefono"></span></p>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                            Detalles del Incidente
+                        </h3>
+                        <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
+                        <p><strong>Hora:</strong> <span id="modalHora"></span></p>
+                        <p><strong>Lugar:</strong> <span id="modalLugar"></span></p>
+                        <p><strong>Testigos:</strong> <span id="modalTestigos"></span></p>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                        Descripción del Incidente
+                    </h3>
+                    <p style="white-space: pre-wrap;" id="modalDescripcion"></p>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                        Acciones Tomadas
+                    </h3>
+                    <p style="white-space: pre-wrap;" id="modalAcciones"></p>
+                </div>
+                
+                <div class="modal-body-image" id="modalBodyImageContainer">
+                    <img id="modalBodyImage" class="report-image">
+                    <!-- Los puntos de dolor se agregarán aquí dinámicamente -->
+                </div>
+                
+                <div class="pain-points-list">
+                    <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                        Puntos Marcados
+                    </h3>
+                    <div id="modalPainPointsList">
+                        <!-- Los puntos de dolor se listarán aquí -->
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: var(--primary-color); border-bottom: 1px solid var(--primary-color); padding-bottom: 5px;">
+                        Información Adicional
+                    </h3>
+                    <p><strong>Declina atención médica:</strong> <span id="modalDeclina"></span></p>
+                    <p id="modalRazon" style="display: none;"><strong>Razón de declinación:</strong> <span id="modalRazonText"></span></p>
+                    <p><strong>Supervisor:</strong> <span id="modalSupervisor"></span></p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn print-btn no-print" id="printModalBtn">
+                    <i class="fas fa-print"></i> Imprimir Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Contenedor para impresión (oculto) - NUEVO CONTENEDOR PARA IMPRESIÓN -->
+    <div id="printContent" class="print-content" style="display: none;"></div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // Variables globales
+        let currentUser = null;
+        let reports = [];
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            initEvents();
+            checkAuth();
+        });
+
+        // Configurar eventos
+        function initEvents() {
+            // Buscador de reportes
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterReports(this.value.toLowerCase());
+            });
+            
+            // Cerrar modal
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('reportModal').style.display = 'none';
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('reportModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Botón de imprimir en el modal
+            document.getElementById('printModalBtn').addEventListener('click', function() {
+                const currentReportId = this.getAttribute('data-report-id');
+                const report = reports.find(r => r.id === currentReportId);
+                if (report) {
+                    printReport(report);
+                }
+            });
+            
+            // Cerrar alertas
+            document.querySelectorAll('.alert-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none';
+                });
+            });
+        }
+
+        // Verificar autenticación
+        function checkAuth() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    loadReports();
+                } else {
+                    showAlert("Debe iniciar sesión para acceder a esta función", "error");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                }
+            });
+        }
+
+        // Cargar reportes desde Firebase
+        async function loadReports() {
+            showLoading();
+            
+            try {
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = '<p>Cargando reportes...</p>';
+                
+                const querySnapshot = await db.collection("reporteCodigoAmarillo").orderBy("createdAt", "desc").get();
+                
+                if (querySnapshot.empty) {
+                    reportsList.innerHTML = '<p>No hay reportes registrados</p>';
+                    hideLoading();
+                    return;
+                }
+                
+                reports = [];
+                reportsList.innerHTML = '';
+                
+                querySnapshot.forEach(doc => {
+                    const report = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    reports.push(report);
+                    renderReportCard(report);
+                });
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al cargar reportes:", error);
+                showAlert("Error al cargar los reportes", "error");
+            }
+        }
+
+        // Renderizar tarjeta de reporte
+        function renderReportCard(report) {
+            const reportsList = document.getElementById('reportsList');
+            const reportCard = document.createElement('div');
+            reportCard.className = 'report-card';
+            
+            // Formatear fecha
+            const fecha = new Date(report.createdAt);
+            const fechaStr = fecha.toLocaleDateString();
+            const horaStr = fecha.toLocaleTimeString();
+            
+            reportCard.innerHTML = `
+                <div class="report-header">
+                    <h3 class="report-title">${report.nombreHuesped} - Hab. ${report.habitacion}</h3>
+                    <div class="report-actions">
+                        <button class="action-btn print-btn" data-report-id="${report.id}" title="Imprimir reporte">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button class="action-btn view-btn" data-report-id="${report.id}" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="report-body">
+                    <p class="report-info"><strong>Fecha incidente:</strong> ${report.fechaIncidente} ${report.horaIncidente}</p>
+                    <p class="report-info"><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                    <p class="report-info"><strong>Supervisor:</strong> ${report.supervisor}</p>
+                </div>
+                <div class="report-image-container">
+                    <img src="${report.originalBodyImageUrl}" class="report-image">
+                    ${report.painPoints.map(point => `
+                        <div class="report-pain-point" 
+                             style="left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"
+                             title="${point.level}: ${point.desc}"></div>
+                    `).join('')}
+                </div>
+                <div class="registro-info">
+                    <p><strong>Registrado por:</strong> ${report.createdByName || 'Usuario no identificado'} (${report.createdByEmail || 'Sin correo'})</p>
+                    <p><strong>Fecha y hora de registro:</strong> ${fechaStr} ${horaStr}</p>
+                </div>
+            `;
+            
+            reportsList.appendChild(reportCard);
+            
+            // Configurar eventos para los botones
+            reportCard.querySelector('.print-btn').addEventListener('click', function() {
+                printReport(report);
+            });
+            
+            reportCard.querySelector('.view-btn').addEventListener('click', function() {
+                showReportDetails(report);
+            });
+        }
+
+        // Filtrar reportes
+        function filterReports(searchTerm) {
+            const filteredReports = reports.filter(report => {
+                return (
+                    report.nombreHuesped.toLowerCase().includes(searchTerm) ||
+                    report.habitacion.toLowerCase().includes(searchTerm) ||
+                    report.supervisor.toLowerCase().includes(searchTerm) ||
+                    (report.createdByName && report.createdByName.toLowerCase().includes(searchTerm))
+                );
+            });
+            
+            const reportsList = document.getElementById('reportsList');
+            reportsList.innerHTML = '';
+            
+            if (filteredReports.length === 0) {
+                reportsList.innerHTML = '<p>No se encontraron reportes que coincidan con la búsqueda</p>';
+            } else {
+                filteredReports.forEach(report => renderReportCard(report));
+            }
+        }
+
+        // Mostrar detalles del reporte en modal
+        async function showReportDetails(report) {
+            showLoading();
+            
+            try {
+                // Llenar información básica
+                document.getElementById('modalReportTitle').textContent = `Reporte de ${report.nombreHuesped} - Hab. ${report.habitacion}`;
+                document.getElementById('modalNombre').textContent = report.nombreHuesped;
+                document.getElementById('modalHabitacion').textContent = report.habitacion;
+                document.getElementById('modalEdad').textContent = report.edad;
+                document.getElementById('modalTelefono').textContent = report.telefono || 'No proporcionado';
+                document.getElementById('modalFecha').textContent = report.fechaIncidente;
+                document.getElementById('modalHora').textContent = report.horaIncidente;
+                document.getElementById('modalLugar').textContent = report.lugarIncidente;
+                document.getElementById('modalTestigos').textContent = report.testigos || 'No hay testigos';
+                document.getElementById('modalDescripcion').textContent = report.descripcionIncidente;
+                document.getElementById('modalAcciones').textContent = report.accionesTomadas || 'No se tomaron acciones';
+                document.getElementById('modalDeclina').textContent = report.declinaAtencion ? 'Sí' : 'No';
+                document.getElementById('modalSupervisor').textContent = report.supervisor;
+                
+                // Razón de declinación (si aplica)
+                if (report.declinaAtencion && report.razonDeclinacion) {
+                    document.getElementById('modalRazonText').textContent = report.razonDeclinacion;
+                    document.getElementById('modalRazon').style.display = 'block';
+                } else {
+                    document.getElementById('modalRazon').style.display = 'none';
+                }
+                
+                // Configurar imagen del cuerpo con puntos
+                const imageContainer = document.getElementById('modalBodyImageContainer');
+                imageContainer.innerHTML = `<img src="${report.originalBodyImageUrl}" class="report-image" id="modalBodyImage">`;
+                
+                report.painPoints.forEach(point => {
+                    const painPoint = document.createElement('div');
+                    painPoint.className = 'modal-pain-point';
+                    painPoint.style.left = `${point.x}%`;
+                    painPoint.style.top = `${point.y}%`;
+                    painPoint.style.backgroundColor = point.color;
+                    painPoint.setAttribute('title', `${point.level}: ${point.desc}`);
+                    imageContainer.appendChild(painPoint);
+                });
+                
+                // Lista de puntos de dolor
+                const painPointsList = document.getElementById('modalPainPointsList');
+                painPointsList.innerHTML = '';
+                
+                report.painPoints.forEach(point => {
+                    const item = document.createElement('div');
+                    item.className = 'pain-point-item';
+                    
+                    const color = document.createElement('div');
+                    color.className = 'pain-point-color';
+                    color.style.backgroundColor = point.color;
+                    
+                    const desc = document.createElement('div');
+                    desc.innerHTML = `<strong>${point.level}:</strong> ${point.desc}<br>
+                                       <small>Posición: ${point.x}%, ${point.y}%</small>`;
+                    
+                    item.appendChild(color);
+                    item.appendChild(desc);
+                    painPointsList.appendChild(item);
+                });
+                
+                // Configurar botón de imprimir
+                document.getElementById('printModalBtn').setAttribute('data-report-id', report.id);
+                
+                // Mostrar modal
+                document.getElementById('reportModal').style.display = 'flex';
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error("Error al cargar detalles del reporte:", error);
+                showAlert("Error al cargar los detalles del reporte", "error");
+            }
+        }
+
+        // Imprimir reporte - FUNCIÓN DE IMPRESIÓN ACTUALIZADA CON COLORES
+        function printReport(report) {
+            showLoading();
+            
+            try {
+                const printContent = document.getElementById('printContent');
+                printContent.innerHTML = '';
+                
+                // Formatear fecha
+                const fecha = new Date(report.createdAt);
+                const fechaStr = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+                
+                // Crear contenido para imprimir
+                const printElement = document.createElement('div');
+                printElement.className = 'print-content';
+                printElement.style.padding = '20px';
+                printElement.style.backgroundColor = 'white';
+                printElement.style.color = 'black';
+                printElement.style.maxWidth = '800px';
+                printElement.style.margin = '0 auto';
+                
+                printElement.innerHTML = `
+                    <h2 style="color: #15a086; text-align: center; border-bottom: 2px solid #15a086; padding-bottom: 10px; margin-bottom: 30px;">
+                        Reporte Código Amarillo
+                    </h2>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                        <div style="flex: 1;">
+                            <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px; margin-top: 0;">
+                                Datos del Huésped
+                            </h3>
+                            <p><strong>Nombre:</strong> ${report.nombreHuesped}</p>
+                            <p><strong>Habitación:</strong> ${report.habitacion}</p>
+                            <p><strong>Edad:</strong> ${report.edad}</p>
+                            <p><strong>Teléfono:</strong> ${report.telefono || 'No proporcionado'}</p>
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px; margin-top: 0;">
+                                Detalles del Incidente
+                            </h3>
+                            <p><strong>Fecha:</strong> ${report.fechaIncidente}</p>
+                            <p><strong>Hora:</strong> ${report.horaIncidente}</p>
+                            <p><strong>Lugar:</strong> ${report.lugarIncidente}</p>
+                            <p><strong>Testigos:</strong> ${report.testigos || 'No hay testigos'}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                            Descripción del Incidente
+                        </h3>
+                        <p style="white-space: pre-wrap;">${report.descripcionIncidente}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                            Acciones Tomadas
+                        </h3>
+                        <p style="white-space: pre-wrap;">${report.accionesTomadas || 'No se tomaron acciones'}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                            Áreas afectadas
+                        </h3>
+                        <div style="position: relative; margin: 20px auto; width: 300px; height: 600px; border: 2px solid #15a086; border-radius: 8px;">
+                            <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain; background-color: white;">
+                            ${report.painPoints.map(point => `
+                                <div class="pain-point-print" 
+                                     style="left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"></div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                            Puntos marcados
+                        </h3>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            ${report.painPoints.map(point => `
+                                <li style="margin-bottom: 10px; display: flex; align-items: center;">
+                                    <span class="pain-point-color-print" style="background-color: ${point.color};"></span>
+                                    <div>
+                                        <strong>${point.level}:</strong> ${point.desc}<br>
+                                        <small>Posición: ${point.x}%, ${point.y}%</small>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                            Información Adicional
+                        </h3>
+                        <p><strong>Declina atención médica:</strong> ${report.declinaAtencion ? 'Sí' : 'No'}</p>
+                        ${report.declinaAtencion ? `<p><strong>Razón de declinación:</strong> ${report.razonDeclinacion}</p>` : ''}
+                        <p><strong>Supervisor:</strong> ${report.supervisor}</p>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                        <div>
+                            <h3 style="color: #15a086; border-bottom: 1px solid #15a086; padding-bottom: 5px;">
+                                Información del Sistema
+                            </h3>
+                            <p><strong>ID del reporte:</strong> ${report.id}</p>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <p style="font-style: italic; margin-top: 40px;">
+                                Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                printContent.appendChild(printElement);
+                
+                // Esperar a que se cargue la imagen antes de imprimir
+                const img = printElement.querySelector('img');
+                if (img.complete) {
+                    executePrint();
+                } else {
+                    img.onload = executePrint;
+                }
+                
+                function executePrint() {
+                    // Mostrar el contenido de impresión
+                    printContent.style.display = 'block';
+                    
+                    // Clonar el contenido para evitar problemas con la impresión
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Reporte Código Amarillo - ${report.nombreHuesped}</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    padding: 20px;
+                                    color: #333;
+                                }
+                                h2, h3 {
+                                    color: #15a086;
+                                }
+                                h2 {
+                                    text-align: center;
+                                    border-bottom: 2px solid #15a086;
+                                    padding-bottom: 10px;
+                                }
+                                h3 {
+                                    border-bottom: 1px solid #15a086;
+                                    padding-bottom: 5px;
+                                }
+                                .report-section {
+                                    margin-bottom: 20px;
+                                }
+                                img {
+                                    max-width: 100%;
+                                    height: auto;
+                                    border: 1px solid #ddd;
+                                }
+                                @page {
+                                    size: A4;
+                                    margin: 10mm;
+                                }
+                                /* Asegurar que los colores se impriman correctamente */
+                                .pain-point-print {
+                                    position: absolute;
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    transform: translate(-50%, -50%);
+                                    border: 2px solid white !important;
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                                
+                                .pain-point-color-print {
+                                    display: inline-block;
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    margin-right: 12px;
+                                    border: 2px solid white !important;
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${printElement.innerHTML}
+                        </body>
+                        </html>
+                    `);
+                    
+                    printWindow.document.close();
+                    printWindow.focus();
+                    
+                    // Esperar un momento para que se renderice el contenido
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                        printContent.style.display = 'none';
+                        hideLoading();
+                    }, 500);
+                }
+                
+            } catch (error) {
+                hideLoading();
+                console.error("Error al imprimir reporte:", error);
+                showAlert("Error al imprimir el reporte", "error");
+            }
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = "success") {
+            const alertElement = type === "success"  
+                ? document.getElementById('alertSuccess') 
+                : document.getElementById('alertError');
+            
+            const alertTextElement = type === "success" 
+                ? document.getElementById('alertSuccessText') 
+                : document.getElementById('alertErrorText');
+            
+            alertTextElement.textContent = message;
+            alertElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Mostrar loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // Ocultar loading
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
