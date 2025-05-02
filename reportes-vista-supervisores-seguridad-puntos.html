@@ -361,6 +361,31 @@
                 max-height: 300px;
                 border: 1px solid #ddd !important;
             }
+            
+            /* Asegurar que los puntos mantengan sus colores al imprimir */
+            .pain-point-print {
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                border: 2px solid white !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .pain-point-color-print {
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                margin-right: 12px;
+                border: 2px solid white !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
         
         .print-content {
@@ -755,7 +780,7 @@
             }
         }
 
-        // Imprimir reporte - FUNCIÓN DE IMPRESIÓN ACTUALIZADA
+        // Imprimir reporte - FUNCIÓN DE IMPRESIÓN ACTUALIZADA CON COLORES
         function printReport(report) {
             showLoading();
             
@@ -824,9 +849,8 @@
                         <div style="position: relative; margin: 20px auto; width: 300px; height: 600px; border: 2px solid #f39c12; border-radius: 8px;">
                             <img src="${report.originalBodyImageUrl}" style="width: 100%; height: 100%; object-fit: contain; background-color: white;">
                             ${report.painPoints.map(point => `
-                                <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; 
-                                     left: ${point.x}%; top: ${point.y}%; background-color: ${point.color}; 
-                                     transform: translate(-50%, -50%); border: 2px solid white;"></div>
+                                <div class="pain-point-print" 
+                                     style="left: ${point.x}%; top: ${point.y}%; background-color: ${point.color};"></div>
                             `).join('')}
                         </div>
                     </div>
@@ -838,8 +862,7 @@
                         <ul style="list-style-type: none; padding-left: 0;">
                             ${report.painPoints.map(point => `
                                 <li style="margin-bottom: 10px; display: flex; align-items: center;">
-                                    <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; 
-                                          background-color: ${point.color}; margin-right: 12px; border: 2px solid white;"></span>
+                                    <span class="pain-point-color-print" style="background-color: ${point.color};"></span>
                                     <div>
                                         <strong>${point.level}:</strong> ${point.desc}<br>
                                         <small>Posición: ${point.x}%, ${point.y}%</small>
@@ -924,6 +947,30 @@
                                 @page {
                                     size: A4;
                                     margin: 10mm;
+                                }
+                                /* Asegurar que los colores se impriman correctamente */
+                                .pain-point-print {
+                                    position: absolute;
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    transform: translate(-50%, -50%);
+                                    border: 2px solid white !important;
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                                
+                                .pain-point-color-print {
+                                    display: inline-block;
+                                    width: 18px;
+                                    height: 18px;
+                                    border-radius: 50%;
+                                    margin-right: 12px;
+                                    border: 2px solid white !important;
+                                    -webkit-print-color-adjust: exact !important;
+                                    color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
                                 }
                             </style>
                         </head>
