@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú de Seguridad</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #1a252f;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+      color: var(--light-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .security-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .security-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .security-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--secondary-color), var(--light-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .icon-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--light-color);
+      padding: 1.5rem 1rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      backdrop-filter: blur(5px);
+      transition: all var(--transition-speed) ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .icon-link:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-link i {
+      font-size: 2.2rem;
+      margin-bottom: 0.8rem;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .icon-link:hover i {
+      transform: scale(1.1);
+    }
+
+    .icon-link span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Colores para categorías */
+    .monitoring { color: var(--success-color); }
+    .alerts { color: var(--warning-color); }
+    .access { color: var(--secondary-color); }
+    .emergency { color: var(--accent-color); }
+    .personnel { color: #9b59b6; }
+    .reports { color: #1abc9c; }
+    .comms { color: #3498db; }
+    .inventory { color: #f1c40f; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+      }
+      
+      .security-header h1 {
+        font-size: 2rem;
+      }
+      
+      .icon-link {
+        padding: 1.2rem 0.8rem;
+      }
+      
+      .icon-link i {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .security-container {
+        padding: 1.5rem;
+      }
+      
+      .icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
+      
+      .icon-link span {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="security-container">
+    <header class="security-header">
+      <h1>Departamento de Seguridad</h1>
+    </header>
+
+    <div class="icon-grid">
+      <!-- Monitoreo -->
+      <a href="monitoreo.html" class="icon-link">
+        <i class="fas fa-video monitoring"></i>
+        <span>CCTV</span>
+      </a>
+
+      <!-- Alarmas -->
+      <a href="alarmas.html" class="icon-link">
+        <i class="fas fa-bell alerts"></i>
+        <span>Alarmas</span>
+      </a>
+
+      <!-- Accesos -->
+      <a href="accesos.html" class="icon-link">
+        <i class="fas fa-key access"></i>
+        <span>Accesos</span>
+      </a>
+
+      <!-- Emergencias -->
+      <a href="emergencias.html" class="icon-link">
+        <i class="fas fa-exclamation-triangle emergency"></i>
+        <span>Emergencias</span>
+      </a>
+
+      <!-- Personal -->
+      <a href="personal.html" class="icon-link">
+        <i class="fas fa-user-shield personnel"></i>
+        <span>Personal</span>
+      </a>
+
+      <!-- Reportes -->
+      <a href="reportes.html" class="icon-link">
+        <i class="fas fa-clipboard-list reports"></i>
+        <span>Reportes</span>
+      </a>
+
+      <!-- Comunicaciones -->
+      <a href="comunicaciones.html" class="icon-link">
+        <i class="fas fa-broadcast-tower comms"></i>
+        <span>Comunicaciones</span>
+      </a>
+
+      <!-- Inventario -->
+      <a href="inventario.html" class="icon-link">
+        <i class="fas fa-archive inventory"></i>
+        <span>Inventario</span>
+      </a>
+
+      <!-- Incidentes -->
+      <a href="incidentes.html" class="icon-link">
+        <i class="fas fa-file-alt emergency"></i>
+        <span>Incidentes</span>
+      </a>
+
+      <!-- Rondas -->
+      <a href="rondas.html" class="icon-link">
+        <i class="fas fa-walking personnel"></i>
+        <span>Rondas</span>
+      </a>
+
+      <!-- Cámaras Térmicas -->
+      <a href="termicas.html" class="icon-link">
+        <i class="fas fa-temperature-high monitoring"></i>
+        <span>Cámaras Térmicas</span>
+      </a>
+
+      <!-- Control Vehicular -->
+      <a href="vehicular.html" class="icon-link">
+        <i class="fas fa-car-crash access"></i>
+        <span>Control Vehicular</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Efecto de carga progresiva
+    document.addEventListener('DOMContentLoaded', () => {
+      const icons = document.querySelectorAll('.icon-link');
+      icons.forEach((icon, index) => {
+        setTimeout(() => {
+          icon.style.opacity = '1';
+          icon.style.transform = 'translateY(0)';
+        }, index * 50);
+      });
+    });
+  </script>
+</body>
+</html>
