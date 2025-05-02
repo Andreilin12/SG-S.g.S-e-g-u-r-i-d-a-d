@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú de Seguridad Editable</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #1a252f;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+      color: var(--light-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .security-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .security-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .security-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--secondary-color), var(--light-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .security-header p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .icon-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--light-color);
+      padding: 1.5rem 1rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      backdrop-filter: blur(5px);
+      transition: all var(--transition-speed) ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .icon-link.dragging {
+      opacity: 0.7;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-link:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-link i, .icon-link img {
+      font-size: 2.2rem;
+      margin-bottom: 0.8rem;
+      transition: all var(--transition-speed) ease;
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .icon-link:hover i, .icon-link:hover img {
+      transform: scale(1.1);
+    }
+
+    .icon-link span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Colores para categorías */
+    .monitoring { color: var(--success-color); }
+    .alerts { color: var(--warning-color); }
+    .access { color: var(--secondary-color); }
+    .emergency { color: var(--accent-color); }
+    .personnel { color: #9b59b6; }
+    .reports { color: #1abc9c; }
+    .comms { color: #3498db; }
+    .inventory { color: #f1c40f; }
+
+    /* Menú contextual */
+    .context-menu {
+      position: fixed;
+      background: rgba(30, 30, 30, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      padding: 0.5rem 0;
+      min-width: 180px;
+      display: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .context-menu.active {
+      display: block;
+    }
+
+    .context-menu-item {
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .context-menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .context-menu-item i {
+      margin-right: 0.8rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Modal de edición */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(40, 40, 40, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      color: var(--light-color);
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--light-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .close-modal:hover {
+      opacity: 1;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--light-color);
+      opacity: 0.8;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: var(--light-color);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Icon selector */
+    .icon-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .icon-option {
+      padding: 0.8rem;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .icon-option:hover, .icon-option.selected {
+      background: var(--secondary-color);
+    }
+
+    .icon-option i {
+      font-size: 1.5rem;
+    }
+
+    /* Image upload */
+    .image-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .image-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      display: none;
+    }
+
+    .upload-btn {
+      padding: 0.6rem 1.2rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .upload-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Drag and drop area */
+    .drop-area {
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .drop-area.highlight {
+      border-color: var(--secondary-color);
+      background: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+      }
+      
+      .security-header h1 {
+        font-size: 2rem;
+      }
+      
+      .icon-link {
+        padding: 1.2rem 0.8rem;
+      }
+      
+      .icon-link i, .icon-link img {
+        font-size: 1.8rem;
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .security-container {
+        padding: 1.5rem;
+      }
+      
+      .icon-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
+      
+      .icon-link span {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="security-container">
+    <header class="security-header">
+      <h1>Departamento de Seguridad</h1>
+      <p id="edit-notice">Modo edición activado. Los cambios se guardarán automáticamente en este dispositivo.</p>
+    </header>
+
+    <div class="icon-grid" id="iconGrid">
+      <!-- Los iconos se cargarán dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Menú contextual -->
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="editItem">
+      <i class="fas fa-edit"></i>
+      <span>Editar</span>
+    </div>
+    <div class="context-menu-item" id="changeIconItem">
+      <i class="fas fa-icons"></i>
+      <span>Cambiar icono</span>
+    </div>
+    <div class="context-menu-item" id="deleteItem">
+      <i class="fas fa-trash"></i>
+      <span>Eliminar</span>
+    </div>
+    <div class="context-menu-item" id="addNewItem">
+      <i class="fas fa-plus"></i>
+      <span>Agregar nuevo</span>
+    </div>
+    <div class="context-menu-item" id="saveToCloudItem">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <span>Guardar en la nube</span>
+    </div>
+  </div>
+
+  <!-- Modal de edición -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Editar Elemento</h3>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="editName">Nombre</label>
+        <input type="text" id="editName" class="form-control">
+      </div>
+      
+      <div class="form-group">
+        <label for="editUrl">URL de enlace</label>
+        <input type="text" id="editUrl" class="form-control">
+      </div>
+      
+      <div class="form-group">
+        <label>Categoría (color)</label>
+        <select id="editCategory" class="form-control">
+          <option value="monitoring">Monitoreo (Verde)</option>
+          <option value="alerts">Alarmas (Naranja)</option>
+          <option value="access">Accesos (Azul)</option>
+          <option value="emergency">Emergencias (Rojo)</option>
+          <option value="personnel">Personal (Morado)</option>
+          <option value="reports">Reportes (Turquesa)</option>
+          <option value="comms">Comunicaciones (Azul claro)</option>
+          <option value="inventory">Inventario (Amarillo)</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Tipo de icono</label>
+        <div>
+          <input type="radio" id="iconTypeFont" name="iconType" value="font" checked>
+          <label for="iconTypeFont">Icono de fuente</label>
+          <input type="radio" id="iconTypeImage" name="iconType" value="image" style="margin-left: 1rem;">
+          <label for="iconTypeImage">Imagen personalizada</label>
+        </div>
+      </div>
+      
+      <div id="fontIconSection">
+        <div class="form-group">
+          <label>Seleccionar icono</label>
+          <div class="icon-selector">
+            <div class="icon-option" data-icon="fa-video"><i class="fas fa-video"></i></div>
+            <div class="icon-option" data-icon="fa-bell"><i class="fas fa-bell"></i></div>
+            <div class="icon-option" data-icon="fa-key"><i class="fas fa-key"></i></div>
+            <div class="icon-option" data-icon="fa-exclamation-triangle"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="icon-option" data-icon="fa-user-shield"><i class="fas fa-user-shield"></i></div>
+            <div class="icon-option" data-icon="fa-clipboard-list"><i class="fas fa-clipboard-list"></i></div>
+            <div class="icon-option" data-icon="fa-broadcast-tower"><i class="fas fa-broadcast-tower"></i></div>
+            <div class="icon-option" data-icon="fa-archive"><i class="fas fa-archive"></i></div>
+            <div class="icon-option" data-icon="fa-file-alt"><i class="fas fa-file-alt"></i></div>
+            <div class="icon-option" data-icon="fa-walking"><i class="fas fa-walking"></i></div>
+            <div class="icon-option" data-icon="fa-temperature-high"><i class="fas fa-temperature-high"></i></div>
+            <div class="icon-option" data-icon="fa-car-crash"><i class="fas fa-car-crash"></i></div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="imageIconSection" style="display: none;">
+        <div class="form-group">
+          <label>Subir imagen</label>
+          <div class="drop-area" id="dropArea">
+            <p>Arrastra una imagen aquí o haz clic para seleccionar</p>
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            <div class="upload-btn" id="uploadBtn">Seleccionar imagen</div>
+          </div>
+          <img id="imagePreview" class="image-preview" alt="Vista previa de imagen">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelEdit">Cancelar</button>
+        <button class="btn btn-primary" id="saveEdit">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-storage-compat.js"></script>
+
+  <script>
+    // Configuración de Firebase (usa la misma del código anterior)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Variables globales
+    let currentUser = null;
+    let iconsData = [];
+    let selectedIconId = null;
+    let draggedItem = null;
+    let isEditing = false;
+    let selectedImageFile = null;
+
+    // Elementos del DOM
+    const iconGrid = document.getElementById('iconGrid');
+    const contextMenu = document.getElementById('contextMenu');
+    const editModal = document.getElementById('editModal');
+    const editName = document.getElementById('editName');
+    const editUrl = document.getElementById('editUrl');
+    const editCategory = document.getElementById('editCategory');
+    const closeModal = document.getElementById('closeModal');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const saveEdit = document.getElementById('saveEdit');
+    const editItem = document.getElementById('editItem');
+    const changeIconItem = document.getElementById('changeIconItem');
+    const deleteItem = document.getElementById('deleteItem');
+    const addNewItem = document.getElementById('addNewItem');
+    const saveToCloudItem = document.getElementById('saveToCloudItem');
+    const iconTypeFont = document.getElementById('iconTypeFont');
+    const iconTypeImage = document.getElementById('iconTypeImage');
+    const fontIconSection = document.getElementById('fontIconSection');
+    const imageIconSection = document.getElementById('imageIconSection');
+    const dropArea = document.getElementById('dropArea');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const editNotice = document.getElementById('edit-notice');
+
+    // Iconos disponibles
+    const availableIcons = [
+      'fa-video', 'fa-bell', 'fa-key', 'fa-exclamation-triangle',
+      'fa-user-shield', 'fa-clipboard-list', 'fa-broadcast-tower',
+      'fa-archive', 'fa-file-alt', 'fa-walking', 'fa-temperature-high',
+      'fa-car-crash'
+    ];
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      checkAuthState();
+      
+      // Mostrar mensaje sobre configuración local
+      if (!localStorage.getItem('iconsFirstTime')) {
+        alert('Esta configuración se guardará solo en este dispositivo. Si cambias de equipo, la configuración se restablecerá. Puedes guardar en la nube haciendo clic derecho en cualquier área vacía.');
+        localStorage.setItem('iconsFirstTime', 'true');
+      }
+    });
+
+    // Configurar listeners de eventos
+    function setupEventListeners() {
+      // Menú contextual
+      document.addEventListener('contextmenu', handleContextMenu);
+      document.addEventListener('click', closeContextMenu);
+      editItem.addEventListener('click', openEditModal);
+      changeIconItem.addEventListener('click', openChangeIconModal);
+      deleteItem.addEventListener('click', deleteSelectedIcon);
+      addNewItem.addEventListener('click', addNewIcon);
+      saveToCloudItem.addEventListener('click', saveToFirebase);
+      
+      // Modal de edición
+      closeModal.addEventListener('click', closeEditModal);
+      cancelEdit.addEventListener('click', closeEditModal);
+      saveEdit.addEventListener('click', saveIconChanges);
+      
+      // Selector de tipo de icono
+      iconTypeFont.addEventListener('change', toggleIconType);
+      iconTypeImage.addEventListener('change', toggleIconType);
+      
+      // Selector de iconos
+      document.querySelectorAll('.icon-option').forEach(option => {
+        option.addEventListener('click', selectIconOption);
+      });
+      
+      // Subida de imágenes
+      uploadBtn.addEventListener('click', () => imageUpload.click());
+      imageUpload.addEventListener('change', handleImageUpload);
+      dropArea.addEventListener('dragover', handleDragOver);
+      dropArea.addEventListener('dragleave', handleDragLeave);
+      dropArea.addEventListener('drop', handleDrop);
+      
+      // Drag and drop para reordenar
+      iconGrid.addEventListener('dragstart', handleDragStart);
+      iconGrid.addEventListener('dragover', handleDragOverGrid);
+      iconGrid.addEventListener('dragleave', handleDragLeaveGrid);
+      iconGrid.addEventListener('drop', handleDropGrid);
+      iconGrid.addEventListener('dragend', handleDragEnd);
+    }
+
+    // Verificar estado de autenticación
+    function checkAuthState() {
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user) {
+          loadIconsFromFirebase();
+        } else {
+          loadIconsFromLocalStorage();
+        }
+      });
+    }
+
+    // Cargar iconos desde Firebase
+    function loadIconsFromFirebase() {
+      if (!currentUser) return;
+      
+      db.collection('userIcons').doc(currentUser.uid).get()
+        .then(doc => {
+          if (doc.exists) {
+            iconsData = doc.data().icons || [];
+            renderIcons();
+          } else {
+            loadIconsFromLocalStorage();
+          }
+        })
+        .catch(error => {
+          console.error("Error cargando iconos desde Firebase:", error);
+          loadIconsFromLocalStorage();
+        });
+    }
+
+    // Cargar iconos desde localStorage
+    function loadIconsFromLocalStorage() {
+      const savedIcons = localStorage.getItem('securityIcons');
+      if (savedIcons) {
+        iconsData = JSON.parse(savedIcons);
+      } else {
+        // Iconos por defecto
+        iconsData = [
+          { id: '1', name: 'CCTV', url: 'monitoreo.html', category: 'monitoring', iconType: 'font', icon: 'fa-video' },
+          { id: '2', name: 'Alarmas', url: 'alarmas.html', category: 'alerts', iconType: 'font', icon: 'fa-bell' },
+          { id: '3', name: 'Accesos', url: 'accesos.html', category: 'access', iconType: 'font', icon: 'fa-key' },
+          { id: '4', name: 'Emergencias', url: 'emergencias.html', category: 'emergency', iconType: 'font', icon: 'fa-exclamation-triangle' },
+          { id: '5', name: 'Personal', url: 'personal.html', category: 'personnel', iconType: 'font', icon: 'fa-user-shield' },
+          { id: '6', name: 'Reportes', url: 'reportes.html', category: 'reports', iconType: 'font', icon: 'fa-clipboard-list' },
+          { id: '7', name: 'Comunicaciones', url: 'comunicaciones.html', category: 'comms', iconType: 'font', icon: 'fa-broadcast-tower' },
+          { id: '8', name: 'Inventario', url: 'inventario.html', category: 'inventory', iconType: 'font', icon: 'fa-archive' }
+        ];
+      }
+      renderIcons();
+    }
+
+    // Renderizar iconos en la cuadrícula
+    function renderIcons() {
+      iconGrid.innerHTML = '';
+      
+      iconsData.forEach(icon => {
+        const iconElement = document.createElement('div');
+        iconElement.className = 'icon-link';
+        iconElement.draggable = true;
+        iconElement.dataset.id = icon.id;
+        
+        if (icon.iconType === 'font') {
+          iconElement.innerHTML = `
+            <i class="fas ${icon.icon} ${icon.category}"></i>
+            <span>${icon.name}</span>
+          `;
+        } else {
+          iconElement.innerHTML = `
+            <img src="${icon.icon}" alt="${icon.name}" class="${icon.category}">
+            <span>${icon.name}</span>
+          `;
+        }
+        
+        iconElement.addEventListener('click', (e) => {
+          if (!isEditing && !iconElement.classList.contains('dragging')) {
+            window.location.href = icon.url;
+          }
+        });
+        
+        iconElement.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          selectedIconId = icon.id;
+          showContextMenu(e);
+        });
+        
+        iconGrid.appendChild(iconElement);
+      });
+      
+      // Guardar en localStorage
+      saveToLocalStorage();
+    }
+
+    // Manejar menú contextual
+    function handleContextMenu(e) {
+      e.preventDefault();
+      
+      // Si se hace clic derecho en un icono, ya se maneja en el listener del icono
+      if (!e.target.closest('.icon-link')) {
+        selectedIconId = null;
+        showContextMenu(e);
+      }
+    }
+
+    function showContextMenu(e) {
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+      contextMenu.classList.add('active');
+      
+      // Mostrar u ocultar opciones según el contexto
+      editItem.style.display = selectedIconId ? 'flex' : 'none';
+      changeIconItem.style.display = selectedIconId ? 'flex' : 'none';
+      deleteItem.style.display = selectedIconId ? 'flex' : 'none';
+    }
+
+    function closeContextMenu(e) {
+      if (!contextMenu.contains(e.target) && e.target.id !== 'contextMenu') {
+        contextMenu.classList.remove('active');
+      }
+    }
+
+    // Abrir modal de edición
+    function openEditModal() {
+      if (!selectedIconId) return;
+      
+      const icon = iconsData.find(i => i.id === selectedIconId);
+      if (!icon) return;
+      
+      editName.value = icon.name;
+      editUrl.value = icon.url;
+      editCategory.value = icon.category;
+      
+      if (icon.iconType === 'font') {
+        iconTypeFont.checked = true;
+        document.querySelector(`.icon-option[data-icon="${icon.icon}"]`).classList.add('selected');
+        toggleIconType();
+      } else {
+        iconTypeImage.checked = true;
+        imagePreview.src = icon.icon;
+        imagePreview.style.display = 'block';
+        toggleIconType();
+      }
+      
+      editModal.classList.add('active');
+      isEditing = true;
+    }
+
+    // Abrir modal solo para cambiar icono
+    function openChangeIconModal() {
+      if (!selectedIconId) return;
+      openEditModal();
+    }
+
+    // Cerrar modal de edición
+    function closeEditModal() {
+      editModal.classList.remove('active');
+      isEditing = false;
+      selectedImageFile = null;
+      imagePreview.style.display = 'none';
+      document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    }
+
+    // Guardar cambios en el icono
+    function saveIconChanges() {
+      if (!selectedIconId) return;
+      
+      const iconIndex = iconsData.findIndex(i => i.id === selectedIconId);
+      if (iconIndex === -1) return;
+      
+      const iconType = document.querySelector('input[name="iconType"]:checked').value;
+      
+      if (iconType === 'font') {
+        const selectedIcon = document.querySelector('.icon-option.selected');
+        if (!selectedIcon) {
+          alert('Por favor selecciona un icono');
+          return;
+        }
+        
+        iconsData[iconIndex] = {
+          ...iconsData[iconIndex],
+          name: editName.value,
+          url: editUrl.value,
+          category: editCategory.value,
+          iconType: 'font',
+          icon: selectedIcon.dataset.icon
+        };
+      } else {
+        if (!selectedImageFile && !iconsData[iconIndex].icon) {
+          alert('Por favor sube una imagen o selecciona un icono de fuente');
+          return;
+        }
+        
+        if (selectedImageFile) {
+          // Subir imagen a Firebase Storage si el usuario está autenticado
+          if (currentUser) {
+            uploadImageToFirebase(selectedImageFile).then(imageUrl => {
+              iconsData[iconIndex] = {
+                ...iconsData[iconIndex],
+                name: editName.value,
+                url: editUrl.value,
+                category: editCategory.value,
+                iconType: 'image',
+                icon: imageUrl
+              };
+              renderIcons();
+              closeEditModal();
+            });
+            return;
+          } else {
+            // Usar objeto URL local si no está autenticado
+            const imageUrl = URL.createObjectURL(selectedImageFile);
+            iconsData[iconIndex] = {
+              ...iconsData[iconIndex],
+              name: editName.value,
+              url: editUrl.value,
+              category: editCategory.value,
+              iconType: 'image',
+              icon: imageUrl
+            };
+          }
+        } else {
+          // Mantener la imagen existente si no se seleccionó una nueva
+          iconsData[iconIndex] = {
+            ...iconsData[iconIndex],
+            name: editName.value,
+            url: editUrl.value,
+            category: editCategory.value,
+            iconType: 'image'
+          };
+        }
+      }
+      
+      renderIcons();
+      closeEditModal();
+    }
+
+    // Subir imagen a Firebase Storage
+    function uploadImageToFirebase(file) {
+      return new Promise((resolve, reject) => {
+        const storageRef = storage.ref(`userIcons/${currentUser.uid}/${Date.now()}_${file.name}`);
+        const uploadTask = storageRef.put(file);
+        
+        uploadTask.on('state_changed', 
+          null, 
+          (error) => reject(error),
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then(url => {
+              resolve(url);
+            });
+          }
+        );
+      });
+    }
+
+    // Eliminar icono
+    function deleteSelectedIcon() {
+      if (!selectedIconId) return;
+      
+      if (confirm('¿Estás seguro de que quieres eliminar este icono?')) {
+        iconsData = iconsData.filter(i => i.id !== selectedIconId);
+        renderIcons();
+        contextMenu.classList.remove('active');
+      }
+    }
+
+    // Añadir nuevo icono
+    function addNewIcon() {
+      const newId = Date.now().toString();
+      selectedIconId = newId;
+      
+      iconsData.push({
+        id: newId,
+        name: 'Nuevo Icono',
+        url: '#',
+        category: 'monitoring',
+        iconType: 'font',
+        icon: 'fa-plus'
+      });
+      
+      renderIcons();
+      openEditModal();
+    }
+
+    // Guardar en Firebase
+    function saveToFirebase() {
+      if (!currentUser) {
+        alert('Debes iniciar sesión para guardar en la nube');
+        return;
+      }
+      
+      db.collection('userIcons').doc(currentUser.uid).set({
+        icons: iconsData,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        alert('Configuración guardada en la nube correctamente');
+        contextMenu.classList.remove('active');
+      })
+      .catch(error => {
+        console.error("Error guardando en Firebase:", error);
+        alert('Error al guardar en la nube');
+      });
+    }
+
+    // Guardar en localStorage
+    function saveToLocalStorage() {
+      localStorage.setItem('securityIcons', JSON.stringify(iconsData));
+    }
+
+    // Cambiar entre tipo de icono (fuente/imagen)
+    function toggleIconType() {
+      if (iconTypeFont.checked) {
+        fontIconSection.style.display = 'block';
+        imageIconSection.style.display = 'none';
+      } else {
+        fontIconSection.style.display = 'none';
+        imageIconSection.style.display = 'block';
+      }
+    }
+
+    // Seleccionar icono de fuente
+    function selectIconOption(e) {
+      document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+      e.currentTarget.classList.add('selected');
+    }
+
+    // Manejar subida de imagen
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      if (!file.type.match('image.*')) {
+        alert('Por favor selecciona un archivo de imagen');
+        return;
+      }
+      
+      selectedImageFile = file;
+      imagePreview.src = URL.createObjectURL(file);
+      imagePreview.style.display = 'block';
+    }
+
+    // Manejar drag and drop de imágenes
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropArea.classList.add('highlight');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropArea.classList.remove('highlight');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropArea.classList.remove('highlight');
+      
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      
+      if (!file.type.match('image.*')) {
+        alert('Por favor suelta un archivo de imagen');
+        return;
+      }
+      
+      selectedImageFile = file;
+      imagePreview.src = URL.createObjectURL(file);
+      imagePreview.style.display = 'block';
+    }
+
+    // Drag and drop para reordenar iconos
+    function handleDragStart(e) {
+      if (!e.target.classList.contains('icon-link')) return;
+      
+      draggedItem = e.target;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', e.target.innerHTML);
+    }
+
+    function handleDragOverGrid(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      const targetItem = e.target.closest('.icon-link');
+      if (!targetItem || targetItem === draggedItem) return;
+      
+      const bounding = targetItem.getBoundingClientRect();
+      const offset = bounding.y + bounding.height / 2;
+      
+      if (e.clientY < offset) {
+        targetItem.style.borderTop = '2px solid var(--secondary-color)';
+        targetItem.style.borderBottom = 'none';
+      } else {
+        targetItem.style.borderBottom = '2px solid var(--secondary-color)';
+        targetItem.style.borderTop = 'none';
+      }
+    }
+
+    function handleDragLeaveGrid(e) {
+      const targetItem = e.target.closest('.icon-link');
+      if (!targetItem) return;
+      
+      targetItem.style.borderTop = 'none';
+      targetItem.style.borderBottom = 'none';
+    }
+
+    function handleDropGrid(e) {
+      e.preventDefault();
+      
+      const targetItem = e.target.closest('.icon-link');
+      if (!targetItem || targetItem === draggedItem) return;
+      
+      // Obtener índices de los elementos
+      const draggedIndex = Array.from(iconGrid.children).indexOf(draggedItem);
+      const targetIndex = Array.from(iconGrid.children).indexOf(targetItem);
+      
+      // Determinar posición (antes o después)
+      const bounding = targetItem.getBoundingClientRect();
+      const offset = bounding.y + bounding.height / 2;
+      const insertBefore = e.clientY < offset;
+      
+      // Reordenar array de datos
+      const movedItem = iconsData[draggedIndex];
+      iconsData.splice(draggedIndex, 1);
+      
+      if (insertBefore) {
+        iconsData.splice(targetIndex, 0, movedItem);
+      } else {
+        iconsData.splice(targetIndex + 1, 0, movedItem);
+      }
+      
+      // Renderizar de nuevo
+      renderIcons();
+    }
+
+    function handleDragEnd() {
+      document.querySelectorAll('.icon-link').forEach(item => {
+        item.classList.remove('dragging');
+        item.style.borderTop = 'none';
+        item.style.borderBottom = 'none';
+      });
+    }
+  </script>
+</body>
+</html>
