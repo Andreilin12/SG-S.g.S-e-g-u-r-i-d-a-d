@@ -564,6 +564,7 @@
     let selectedPosition = null;
     let positions = [];
     let lastNames = [];
+    let lastPrizes = [];
     let nameChangeSpeed = 50;
 
     // Elementos del DOM
@@ -782,24 +783,16 @@
       startBtn.disabled = true;
       resetBtn.disabled = false;
       
-      // Seleccionar premio aleatorio disponible
-      const availablePrizes = prizes.filter(p => p.remaining > 0);
-      currentPrizeIndex = Math.floor(Math.random() * availablePrizes.length);
-      const prize = availablePrizes[currentPrizeIndex];
-      
-      // Mostrar información del premio
-      winnerPrize.textContent = prize.name;
-      winnerPrize.classList.add('pulse');
-      
       // Iniciar contador
       secondsLeft = 15;
       timer.textContent = `SELECCIONANDO EN: ${secondsLeft}s`;
       timer.style.display = 'block';
       
-      // Iniciar cambios rápidos de nombre
+      // Iniciar cambios rápidos de nombre y premio
       lastNames = [];
-      showRandomName();
-      drawInterval = setInterval(showRandomName, nameChangeSpeed);
+      lastPrizes = [];
+      showRandomNameAndPrize();
+      drawInterval = setInterval(showRandomNameAndPrize, nameChangeSpeed);
       
       // Iniciar temporizador para detener el sorteo
       timerInterval = setInterval(() => {
@@ -812,13 +805,14 @@
       }, 1000);
     }
 
-    // Mostrar nombre aleatorio
-    function showRandomName() {
+    // Mostrar nombre y premio aleatorio
+    function showRandomNameAndPrize() {
       if (availableCollaborators.length === 0) {
         stopDraw();
         return;
       }
       
+      // Seleccionar colaborador aleatorio
       let randomIndex, randomCollaborator;
       let attempts = 0;
       
@@ -839,13 +833,40 @@
         lastNames.shift();
       }
       
+      // Seleccionar premio aleatorio disponible
+      const availablePrizes = prizes.filter(p => p.remaining > 0);
+      let randomPrizeIndex, randomPrize;
+      attempts = 0;
+      
+      // Evitar repetición inmediata de premios
+      do {
+        randomPrizeIndex = Math.floor(Math.random() * availablePrizes.length);
+        randomPrize = availablePrizes[randomPrizeIndex];
+        attempts++;
+      } while (
+        attempts < 10 && 
+        lastPrizes.includes(randomPrize.name) && 
+        availablePrizes.length > 3
+      );
+      
+      // Mantener historial de últimos premios
+      lastPrizes.push(randomPrize.name);
+      if (lastPrizes.length > 3) {
+        lastPrizes.shift();
+      }
+      
       // Mostrar con efecto
       winnerName.textContent = randomCollaborator.name;
       winnerPhoto.src = randomCollaborator.photo;
       winnerPosition.textContent = randomCollaborator.position;
+      winnerPrize.textContent = randomPrize.name;
+      
+      // Guardar índice del premio seleccionado
+      currentPrizeIndex = prizes.findIndex(p => p.name === randomPrize.name);
       
       // Efecto de iluminación
       winnerName.style.textShadow = `0 0 ${Math.random() * 10 + 5}px rgba(0, 247, 255, ${Math.random() * 0.5 + 0.5})`;
+      winnerPrize.style.textShadow = `0 0 ${Math.random() * 10 + 5}px rgba(0, 255, 157, ${Math.random() * 0.5 + 0.5})`;
     }
 
     // Detener sorteo y seleccionar ganador
@@ -853,47 +874,48 @@
       clearInterval(drawInterval);
       clearInterval(timerInterval);
       isDrawing = false;
-      winnerPrize.classList.remove('pulse');
       
-      if (availableCollaborators.length > 0) {
-        // Seleccionar ganador final
-        const winnerIndex = Math.floor(Math.random() * availableCollaborators.length);
-        const winner = availableCollaborators[winnerIndex];
+      if (availableCollaborators.length > 0 && currentPrizeIndex !== -1) {
+        // Seleccionar ganador final (el último mostrado)
+        const winnerNameText = winnerName.textContent;
+        const winner = availableCollaborators.find(c => c.name === winnerNameText);
         const prize = prizes[currentPrizeIndex];
         
-        // Mostrar ganador
-        winnerName.textContent = winner.name;
-        winnerPhoto.src = winner.photo;
-        winnerPosition.textContent = winner.position;
-        winnerPrize.textContent = prize.name;
-        timer.textContent = '¡GANADOR SELECCIONADO!';
-        
-        // Efecto visual
-        winnerName.style.animation = 'none';
-        void winnerName.offsetWidth;
-        winnerName.style.animation = 'fadeIn 0.5s';
-        
-        // Agregar a lista de ganadores
-        winners.push({
-          collaborator: winner,
-          prize: prize.name,
-          date: new Date().toLocaleString()
-        });
-        
-        // Reducir cantidad de premios disponibles
-        prize.remaining--;
-        
-        // Actualizar listas
-        renderPrizeList();
-        renderWinnersList();
-        
-        // Actualizar colaboradores disponibles
-        updateAvailableCollaborators();
-        
-        // Reiniciar después de 3 segundos
-        setTimeout(() => {
-          timer.textContent = '';
-        }, 3000);
+        if (winner && prize) {
+          // Mostrar ganador
+          winnerName.textContent = winner.name;
+          winnerPhoto.src = winner.photo;
+          winnerPosition.textContent = winner.position;
+          winnerPrize.textContent = prize.name;
+          timer.textContent = '¡GANADOR SELECCIONADO!';
+          
+          // Efecto visual
+          winnerName.style.animation = 'none';
+          void winnerName.offsetWidth;
+          winnerName.style.animation = 'fadeIn 0.5s';
+          
+          // Agregar a lista de ganadores
+          winners.push({
+            collaborator: winner,
+            prize: prize.name,
+            date: new Date().toLocaleString()
+          });
+          
+          // Reducir cantidad de premios disponibles
+          prize.remaining--;
+          
+          // Actualizar listas
+          renderPrizeList();
+          renderWinnersList();
+          
+          // Actualizar colaboradores disponibles
+          updateAvailableCollaborators();
+          
+          // Reiniciar después de 3 segundos
+          setTimeout(() => {
+            timer.textContent = '';
+          }, 3000);
+        }
       }
     }
 
