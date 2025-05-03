@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Seguridad</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #1a252f;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+      color: var(--light-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .security-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .security-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .security-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--secondary-color), var(--light-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .security-header p {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .icon-grid-container {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
+      gap: 1.5rem;
+      margin-top: 2rem;
+      justify-content: center;
+      width: auto;
+    }
+
+    .icon-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--light-color);
+      padding: 1.5rem 1rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      backdrop-filter: blur(5px);
+      transition: all var(--transition-speed) ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 120px;
+      height: 120px;
+    }
+
+    .icon-link:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-link i {
+      font-size: 2.2rem;
+      margin-bottom: 0.8rem;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .icon-link:hover i {
+      transform: scale(1.1);
+    }
+
+    .icon-link span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Colores por categoría */
+    .monitoring { color: var(--success-color); }
+    .alerts { color: var(--warning-color); }
+    .access { color: var(--secondary-color); }
+    .emergency { color: var(--accent-color); }
+    .personnel { color: #9b59b6; }
+    .reports { color: #1abc9c; }
+    .comms { color: #3498db; }
+    .inventory { color: #f1c40f; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .icon-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
+        gap: 1rem;
+      }
+      
+      .security-header h1 {
+        font-size: 2rem;
+      }
+      
+      .icon-link {
+        padding: 1.2rem 0.8rem;
+        width: 100px;
+        height: 100px;
+      }
+      
+      .icon-link i {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .security-container {
+        padding: 1.5rem;
+      }
+      
+      .icon-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 80px));
+      }
+      
+      .icon-link {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .icon-link span {
+        font-size: 0.8rem;
+      }
+    }
+</style>
+</head>
+<body>
+  <div class="security-container">
+    <header class="security-header">
+      <h1>Panel de Seguridad</h1>
+      <p>Security system Retom</p>
+    </header>
+
+    <div class="icon-grid">
+      <!-- CCTV -->
+      <a href="reportes-superviosores-seguridad-puntos.html" class="icon-link">
+        <i class="fa-solid fa-plus monitoring"></i>
+        <span>Reportar</span>
+      </a>
+      
+      <!-- Reportes -->
+      <a href="reportes-vista-supervisores-seguridad-puntos.html" class="icon-link">
+        <i class="fas fa-clipboard-list reports"></i>
+        <span>Reportes</span>
+      </a>
+      
+      <!-- Alarmas -->
+      <a href="reporte-generado-codigo amarillo-supervisor-imprimir.html" class="icon-link">
+        <i class="fa-solid fa-print alerts"></i>
+        <span>Imprimir Plantalla</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
