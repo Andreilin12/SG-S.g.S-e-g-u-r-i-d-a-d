@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Seguridad</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<style>
     :root {
       --primary-color: #2c3e50;
       --secondary-color: #3498db;
@@ -57,11 +57,19 @@
       opacity: 0.8;
     }
 
+    .icon-grid-container {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
     .icon-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
       gap: 1.5rem;
       margin-top: 2rem;
+      justify-content: center;
+      width: auto;
     }
 
     .icon-link {
@@ -77,6 +85,8 @@
       backdrop-filter: blur(5px);
       transition: all var(--transition-speed) ease;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 120px;
+      height: 120px;
     }
 
     .icon-link:hover {
@@ -114,7 +124,7 @@
     /* Responsive */
     @media (max-width: 768px) {
       .icon-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
         gap: 1rem;
       }
       
@@ -124,6 +134,8 @@
       
       .icon-link {
         padding: 1.2rem 0.8rem;
+        width: 100px;
+        height: 100px;
       }
       
       .icon-link i {
@@ -137,14 +149,19 @@
       }
       
       .icon-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(80px, 80px));
+      }
+      
+      .icon-link {
+        width: 80px;
+        height: 80px;
       }
       
       .icon-link span {
         font-size: 0.8rem;
       }
     }
-  </style>
+</style>
 </head>
 <body>
   <div class="security-container">
@@ -155,9 +172,9 @@
 
     <div class="icon-grid">
       <!-- CCTV -->
-      <a href="https://www.example.com/cctv" class="icon-link">
-        <i class="fas fa-video monitoring"></i>
-        <span>CCTV</span>
+      <a href="panel-codigos-amarillos.html" class="icon-link">
+        <i class="fa-solid fa-notes-medical monitoring"></i>
+        <span>Códigos Amarillo</span>
       </a>
       
       <!-- Alarmas -->
