@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteo por Posiciones</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #fff;
+      --secondary: #15a086;
+      --accent: #15a086;
+      --dark: #2c3e50;
+      --light: #1a2035;
+      --text: #ffffff;
+      --success: #00ff9d;
+      --danger: #ff3d3d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background-color: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 247, 255, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 228, 0.05) 0%, transparent 20%);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    h1 {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+      letter-spacing: 2px;
+    }
+    
+    h1::after {
+      content: '';
+      display: block;
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      margin: 0.5rem auto 0;
+      border-radius: 2px;
+    }
+    
+    .panel {
+      background: rgba(26, 32, 53, 0.8);
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid rgba(0, 247, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, 
+        transparent 65%, 
+        rgba(0, 247, 255, 0.03) 65%, 
+        rgba(0, 247, 255, 0.03) 70%, 
+        transparent 70%),
+        linear-gradient(-45deg, 
+        transparent 65%, 
+        rgba(0, 247, 255, 0.03) 65%, 
+        rgba(0, 247, 255, 0.03) 70%, 
+        transparent 70%);
+      background-size: 30px 30px;
+      pointer-events: none;
+    }
+    
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-title i {
+      color: var(--accent);
+    }
+    
+    /* Panel de configuración */
+    .config-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .position-selector {
+      margin-bottom: 1.5rem;
+    }
+    
+    .position-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .position-btn {
+      background: rgba(0, 247, 255, 0.1);
+      border: 1px solid rgba(0, 247, 255, 0.3);
+      color: var(--primary);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+    
+    .position-btn:hover {
+      background: rgba(0, 247, 255, 0.2);
+    }
+    
+    .position-btn.active {
+      background: var(--primary);
+      color: var(--dark);
+      font-weight: bold;
+    }
+    
+    .select-all-btn {
+      background: rgba(255, 0, 228, 0.1);
+      border: 1px solid rgba(255, 0, 228, 0.3);
+      color: var(--accent);
+    }
+    
+    .select-all-btn:hover {
+      background: rgba(255, 0, 228, 0.2);
+    }
+    
+    .select-all-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    /* Panel de premios */
+    .prize-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .prize-input {
+      flex: 1;
+      padding: 0.8rem;
+      border: 1px solid rgba(0, 247, 255, 0.3);
+      border-radius: 10px;
+      background: rgba(10, 14, 23, 0.5);
+      color: white;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+    }
+    
+    .prize-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+    }
+    
+    .add-prize-btn {
+      background: var(--primary);
+      color: var(--dark);
+      border: none;
+      border-radius: 10px;
+      padding: 0 1.2rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .prize-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1.5rem;
+    }
+    
+    .prize-item {
+      background: rgba(0, 247, 255, 0.05);
+      border: 1px solid rgba(0, 247, 255, 0.1);
+      border-radius: 8px;
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .prize-item:hover {
+      background: rgba(0, 247, 255, 0.1);
+    }
+    
+    .delete-prize-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+    }
+    
+    /* Panel de sorteo */
+    .draw-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .name-display {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      min-height: 300px;
+    }
+    
+    .winner-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
+      margin-bottom: 1.5rem;
+    }
+    
+    .winner-name {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+      text-align: center;
+      min-height: 2.5rem;
+    }
+    
+    .winner-position {
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    
+    .winner-prize {
+      font-size: 1.3rem;
+      color: var(--success);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .timer {
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .draw-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .draw-btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 160px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .start-btn {
+      background: var(--primary);
+      color: var(--dark);
+    }
+    
+    .start-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+    }
+    
+    .reset-btn {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .reset-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255, 61, 61, 0.3);
+    }
+    
+    .draw-btn:disabled {
+      background: #444;
+      color: #777;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Panel de ganadores */
+    .winners-panel {
+      grid-column: 1 / -1;
+    }
+    
+    .winners-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .winner-card {
+      background: rgba(26, 32, 53, 0.6);
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid rgba(0, 247, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .winner-card-photo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+    }
+    
+    .winner-card-info {
+      flex: 1;
+    }
+    
+    .winner-card-name {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .winner-card-position {
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+    
+    .winner-card-prize {
+      font-size: 0.9rem;
+      color: var(--success);
+      margin-bottom: 0.2rem;
+    }
+    
+    .winner-card-date {
+      font-size: 0.7rem;
+      color: #aaa;
+      font-family: 'Rajdhani', sans-serif;
+    }
+    
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: rgba(0, 247, 255, 0.3);
+    }
+    
+    /* Efectos de animación */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s forwards;
+    }
+    
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 247, 255, 0.05);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .panel {
+        padding: 1.2rem;
+      }
+      
+      .winner-name {
+        font-size: 1.5rem;
+      }
+      
+      .winner-photo {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .draw-controls {
+        flex-direction: column;
+      }
+      
+      .draw-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-users-cog"></i> SORTEO POR POSICIONES</h1>
+    
+    <div class="panel config-panel">
+      <h3 class="section-title"><i class="fas fa-cog"></i> CONFIGURACIÓN</h3>
+      
+      <div class="position-selector">
+        <h4 class="section-title"><i class="fas fa-user-tag"></i> SELECCIONAR POSICIÓN</h4>
+        <div class="position-buttons" id="positionButtons">
+          <!-- Botones de posición se generarán automáticamente -->
+        </div>
+      </div>
+      
+      <div class="prize-management">
+        <h4 class="section-title"><i class="fas fa-gift"></i> PREMIOS</h4>
+        <div class="prize-form">
+          <input type="text" id="prizeInput" class="prize-input" placeholder="Nombre del premio">
+          <button id="addPrizeBtn" class="add-prize-btn">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="prize-list" id="prizeList"></div>
+      </div>
+    </div>
+    
+    <div class="panel draw-panel">
+      <h3 class="section-title"><i class="fas fa-random"></i> SORTEO</h3>
+      
+      <div class="name-display">
+        <img id="winnerPhoto" class="winner-photo" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Foto del ganador">
+        <div id="winnerName" class="winner-name">SELECCIONE POSICIÓN</div>
+        <div id="winnerPosition" class="winner-position"></div>
+        <div id="winnerPrize" class="winner-prize"></div>
+        <div id="timer" class="timer"></div>
+      </div>
+      
+      <div class="draw-controls">
+        <button id="startBtn" class="draw-btn start-btn" disabled>
+          <i class="fas fa-play"></i> INICIAR
+        </button>
+        <button id="resetBtn" class="draw-btn reset-btn" disabled>
+          <i class="fas fa-redo"></i> REINICIAR
+        </button>
+      </div>
+    </div>
+    
+    <div class="panel winners-panel">
+      <h3 class="section-title"><i class="fas fa-trophy"></i> GANADORES</h3>
+      <div class="winners-container" id="winnersContainer">
+        <div class="empty-state">
+          <i class="fas fa-star"></i>
+          <p>No hay ganadores todavía</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let collaborators = [];
+    let availableCollaborators = [];
+    let prizes = [];
+    let winners = [];
+    let isDrawing = false;
+    let drawInterval;
+    let timerInterval;
+    let secondsLeft = 15;
+    let currentPrizeIndex = -1;
+    let selectedPosition = null;
+    let positions = [];
+    let lastNames = [];
+    let nameChangeSpeed = 50;
+
+    // Elementos del DOM
+    const positionButtons = document.getElementById('positionButtons');
+    const prizeInput = document.getElementById('prizeInput');
+    const addPrizeBtn = document.getElementById('addPrizeBtn');
+    const prizeList = document.getElementById('prizeList');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const winnerName = document.getElementById('winnerName');
+    const winnerPhoto = document.getElementById('winnerPhoto');
+    const winnerPosition = document.getElementById('winnerPosition');
+    const winnerPrize = document.getElementById('winnerPrize');
+    const timer = document.getElementById('timer');
+    const winnersContainer = document.getElementById('winnersContainer');
+
+    // Cargar colaboradores desde Firebase
+    async function loadCollaborators() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "FormularioDeSeguridad"));
+        
+        collaborators = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.fullName || 'Nombre no disponible',
+            photo: data.profileImageUrl || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+            position: data.position || 'Posición no disponible',
+            department: data.department || 'Departamento no disponible',
+            workCode: data.workCode || 'Sin código'
+          };
+        });
+        
+        // Extraer posiciones únicas
+        positions = [...new Set(collaborators.map(c => c.position))].filter(p => p);
+        renderPositionButtons();
+        
+        updateAvailableCollaborators();
+        updateStartButton();
+      } catch (error) {
+        console.error("Error al cargar colaboradores:", error);
+        showError("No se pudieron cargar los colaboradores");
+      }
+    }
+
+    // Mostrar error
+    function showError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ERROR',
+        text: message,
+        background: '#0a0e17',
+        color: 'white',
+        confirmButtonColor: '#00f7ff'
+      });
+    }
+
+    // Renderizar botones de posición
+    function renderPositionButtons() {
+      positionButtons.innerHTML = '';
+      
+      // Botón para seleccionar todos
+      const allBtn = document.createElement('button');
+      allBtn.className = 'position-btn select-all-btn';
+      allBtn.textContent = 'TODAS LAS ÁREAS';
+      allBtn.addEventListener('click', () => {
+        selectedPosition = null;
+        updatePositionButtons();
+        updateAvailableCollaborators();
+      });
+      positionButtons.appendChild(allBtn);
+      
+      // Botones para cada posición
+      positions.forEach(position => {
+        const btn = document.createElement('button');
+        btn.className = 'position-btn';
+        btn.textContent = position.toUpperCase();
+        btn.addEventListener('click', () => {
+          selectedPosition = position;
+          updatePositionButtons();
+          updateAvailableCollaborators();
+        });
+        positionButtons.appendChild(btn);
+      });
+      
+      // Seleccionar "Todas las áreas" por defecto
+      selectedPosition = null;
+      updatePositionButtons();
+    }
+
+    // Actualizar estado de los botones de posición
+    function updatePositionButtons() {
+      const buttons = positionButtons.querySelectorAll('.position-btn');
+      buttons.forEach(btn => {
+        if ((!selectedPosition && btn.textContent === 'TODAS LAS ÁREAS') || 
+            (selectedPosition && btn.textContent === selectedPosition.toUpperCase())) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      
+      // Actualizar mensaje en el display
+      if (!selectedPosition) {
+        winnerName.textContent = 'TODAS LAS ÁREAS';
+        winnerPosition.textContent = '';
+      } else {
+        winnerName.textContent = 'SELECCIONADOS:';
+        winnerPosition.textContent = selectedPosition.toUpperCase();
+      }
+    }
+
+    // Actualizar lista de colaboradores disponibles según la posición seleccionada
+    function updateAvailableCollaborators() {
+      if (!selectedPosition) {
+        availableCollaborators = [...collaborators];
+      } else {
+        availableCollaborators = collaborators.filter(c => c.position === selectedPosition);
+      }
+      
+      // Filtrar colaboradores que ya ganaron
+      availableCollaborators = availableCollaborators.filter(c => 
+        !winners.some(w => w.collaborator.id === c.id)
+      );
+      
+      updateStartButton();
+    }
+
+    // Actualizar estado del botón de inicio
+    function updateStartButton() {
+      const hasCollaborators = availableCollaborators.length > 0;
+      const hasPrizes = prizes.length > 0 && prizes.some(p => p.remaining > 0);
+      startBtn.disabled = !hasCollaborators || !hasPrizes;
+    }
+
+    // Agregar premio
+    function addPrize() {
+      const prizeName = prizeInput.value.trim();
+      
+      if (!prizeName) {
+        showError("Por favor ingrese un nombre para el premio");
+        return;
+      }
+      
+      const prize = {
+        name: prizeName,
+        quantity: 1,
+        remaining: 1
+      };
+      
+      prizes.push(prize);
+      prizeInput.value = '';
+      renderPrizeList();
+      updateStartButton();
+      
+      // Mostrar confirmación
+      Swal.fire({
+        title: 'PREMIO AGREGADO',
+        html: `<div style="color: var(--primary);">${prizeName}</div>`,
+        background: '#0a0e17',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+
+    // Renderizar lista de premios
+    function renderPrizeList() {
+      prizeList.innerHTML = '';
+      
+      if (prizes.length === 0) {
+        prizeList.innerHTML = '<div style="color: #666; text-align: center; padding: 1rem;">No hay premios configurados</div>';
+        return;
+      }
+      
+      prizes.forEach((prize, index) => {
+        const prizeItem = document.createElement('div');
+        prizeItem.className = 'prize-item fade-in';
+        prizeItem.innerHTML = `
+          <span>${prize.name} (${prize.remaining}/${prize.quantity})</span>
+          <button class="delete-prize-btn" data-index="${index}">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
+        prizeList.appendChild(prizeItem);
+      });
+      
+      // Agregar event listeners para eliminar premios
+      document.querySelectorAll('.delete-prize-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = parseInt(e.currentTarget.getAttribute('data-index'));
+          deletePrize(index);
+        });
+      });
+    }
+
+    // Eliminar premio
+    function deletePrize(index) {
+      prizes.splice(index, 1);
+      renderPrizeList();
+      updateStartButton();
+    }
+
+    // Iniciar sorteo
+    function startDraw() {
+      if (availableCollaborators.length === 0) {
+        showError("No hay colaboradores disponibles para esta posición");
+        return;
+      }
+      
+      if (prizes.every(p => p.remaining === 0)) {
+        showError("No hay premios disponibles");
+        return;
+      }
+      
+      isDrawing = true;
+      startBtn.disabled = true;
+      resetBtn.disabled = false;
+      
+      // Seleccionar premio aleatorio disponible
+      const availablePrizes = prizes.filter(p => p.remaining > 0);
+      currentPrizeIndex = Math.floor(Math.random() * availablePrizes.length);
+      const prize = availablePrizes[currentPrizeIndex];
+      
+      // Mostrar información del premio
+      winnerPrize.textContent = prize.name;
+      winnerPrize.classList.add('pulse');
+      
+      // Iniciar contador
+      secondsLeft = 15;
+      timer.textContent = `SELECCIONANDO EN: ${secondsLeft}s`;
+      timer.style.display = 'block';
+      
+      // Iniciar cambios rápidos de nombre
+      lastNames = [];
+      showRandomName();
+      drawInterval = setInterval(showRandomName, nameChangeSpeed);
+      
+      // Iniciar temporizador para detener el sorteo
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        timer.textContent = `SELECCIONANDO EN: ${secondsLeft}s`;
+        
+        if (secondsLeft <= 0) {
+          stopDraw();
+        }
+      }, 1000);
+    }
+
+    // Mostrar nombre aleatorio
+    function showRandomName() {
+      if (availableCollaborators.length === 0) {
+        stopDraw();
+        return;
+      }
+      
+      let randomIndex, randomCollaborator;
+      let attempts = 0;
+      
+      // Evitar repetición inmediata de nombres
+      do {
+        randomIndex = Math.floor(Math.random() * availableCollaborators.length);
+        randomCollaborator = availableCollaborators[randomIndex];
+        attempts++;
+      } while (
+        attempts < 10 && 
+        lastNames.includes(randomCollaborator.name) && 
+        availableCollaborators.length > 3
+      );
+      
+      // Mantener historial de últimos nombres
+      lastNames.push(randomCollaborator.name);
+      if (lastNames.length > 3) {
+        lastNames.shift();
+      }
+      
+      // Mostrar con efecto
+      winnerName.textContent = randomCollaborator.name;
+      winnerPhoto.src = randomCollaborator.photo;
+      winnerPosition.textContent = randomCollaborator.position;
+      
+      // Efecto de iluminación
+      winnerName.style.textShadow = `0 0 ${Math.random() * 10 + 5}px rgba(0, 247, 255, ${Math.random() * 0.5 + 0.5})`;
+    }
+
+    // Detener sorteo y seleccionar ganador
+    function stopDraw() {
+      clearInterval(drawInterval);
+      clearInterval(timerInterval);
+      isDrawing = false;
+      winnerPrize.classList.remove('pulse');
+      
+      if (availableCollaborators.length > 0) {
+        // Seleccionar ganador final
+        const winnerIndex = Math.floor(Math.random() * availableCollaborators.length);
+        const winner = availableCollaborators[winnerIndex];
+        const prize = prizes[currentPrizeIndex];
+        
+        // Mostrar ganador
+        winnerName.textContent = winner.name;
+        winnerPhoto.src = winner.photo;
+        winnerPosition.textContent = winner.position;
+        winnerPrize.textContent = prize.name;
+        timer.textContent = '¡GANADOR SELECCIONADO!';
+        
+        // Efecto visual
+        winnerName.style.animation = 'none';
+        void winnerName.offsetWidth;
+        winnerName.style.animation = 'fadeIn 0.5s';
+        
+        // Agregar a lista de ganadores
+        winners.push({
+          collaborator: winner,
+          prize: prize.name,
+          date: new Date().toLocaleString()
+        });
+        
+        // Reducir cantidad de premios disponibles
+        prize.remaining--;
+        
+        // Actualizar listas
+        renderPrizeList();
+        renderWinnersList();
+        
+        // Actualizar colaboradores disponibles
+        updateAvailableCollaborators();
+        
+        // Reiniciar después de 3 segundos
+        setTimeout(() => {
+          timer.textContent = '';
+        }, 3000);
+      }
+    }
+
+    // Renderizar lista de ganadores
+    function renderWinnersList() {
+      winnersContainer.innerHTML = '';
+      
+      if (winners.length === 0) {
+        winnersContainer.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-star"></i>
+            <p>No hay ganadores todavía</p>
+          </div>
+        `;
+        return;
+      }
+      
+      winners.slice().reverse().forEach(winner => {
+        const winnerCard = document.createElement('div');
+        winnerCard.className = 'winner-card fade-in';
+        winnerCard.innerHTML = `
+          <img src="${winner.collaborator.photo}" alt="${winner.collaborator.name}" class="winner-card-photo">
+          <div class="winner-card-info">
+            <div class="winner-card-name">${winner.collaborator.name}</div>
+            <div class="winner-card-position">${winner.collaborator.position}</div>
+            <div class="winner-card-prize">${winner.prize}</div>
+            <div class="winner-card-date">${winner.date}</div>
+          </div>
+        `;
+        winnersContainer.appendChild(winnerCard);
+      });
+    }
+
+    // Reiniciar todo el sistema
+    function resetSystem() {
+      Swal.fire({
+        title: 'REINICIAR SISTEMA',
+        text: '¿Está seguro que desea reiniciar todo? Esto eliminará todos los ganadores.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#00f7ff',
+        cancelButtonColor: '#ff3d3d',
+        confirmButtonText: 'SÍ, REINICIAR',
+        cancelButtonText: 'CANCELAR',
+        background: '#0a0e17',
+        color: 'white'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Detener cualquier sorteo en curso
+          clearInterval(drawInterval);
+          clearInterval(timerInterval);
+          
+          // Reiniciar variables
+          winners = [];
+          isDrawing = false;
+          
+          // Reiniciar premios
+          prizes.forEach(p => p.remaining = p.quantity);
+          
+          // Reiniciar UI
+          winnerName.textContent = selectedPosition ? 'SELECCIONADOS:' : 'TODAS LAS ÁREAS';
+          winnerPosition.textContent = selectedPosition ? selectedPosition.toUpperCase() : '';
+          winnerPrize.textContent = '';
+          timer.textContent = '';
+          winnerPhoto.src = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+          
+          // Actualizar colaboradores disponibles
+          updateAvailableCollaborators();
+          
+          // Actualizar listas
+          renderPrizeList();
+          renderWinnersList();
+          
+          resetBtn.disabled = true;
+        }
+      });
+    }
+
+    // Event listeners
+    addPrizeBtn.addEventListener('click', addPrize);
+    prizeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addPrize();
+    });
+    startBtn.addEventListener('click', startDraw);
+    resetBtn.addEventListener('click', resetSystem);
+
+    // Cargar datos al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCollaborators();
+      renderPrizeList();
+      renderWinnersList();
+    });
+  </script>
+</body>
+</html>
