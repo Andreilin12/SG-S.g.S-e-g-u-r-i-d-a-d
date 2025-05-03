@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sorteo por Posiciones</title>
+  <title>Sorteo</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #fff;
@@ -408,6 +409,41 @@
       color: rgba(0, 247, 255, 0.3);
     }
     
+    /* Botones de exportación */
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+    
+    .export-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .export-image-btn {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .export-print-btn {
+      background: #2196F3;
+      color: white;
+    }
+    
+    .export-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
     /* Efectos de animación */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -472,6 +508,46 @@
       .draw-btn {
         width: 100%;
       }
+      
+      .export-buttons {
+        justify-content: center;
+      }
+    }
+    
+    /* Estilos para impresión */
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      
+      .container {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+      }
+      
+      .panel {
+        background: white;
+        border: 1px solid #ddd;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+      
+      .winner-card {
+        break-inside: avoid;
+      }
+      
+      .draw-controls, .export-buttons, .config-panel {
+        display: none !important;
+      }
+      
+      h1, .section-title {
+        color: black !important;
+      }
+      
+      .winner-card-name, .winner-card-position, .winner-card-prize {
+        color: black !important;
+      }
     }
   </style>
 </head>
@@ -524,6 +600,14 @@
     
     <div class="panel winners-panel">
       <h3 class="section-title"><i class="fas fa-trophy"></i> GANADORES</h3>
+      <div class="export-buttons">
+        <button id="exportImageBtn" class="export-btn export-image-btn">
+          <i class="fas fa-camera"></i> Exportar Imagen
+        </button>
+        <button id="exportPrintBtn" class="export-btn export-print-btn">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+      </div>
       <div class="winners-container" id="winnersContainer">
         <div class="empty-state">
           <i class="fas fa-star"></i>
@@ -536,7 +620,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
@@ -580,6 +664,8 @@
     const winnerPrize = document.getElementById('winnerPrize');
     const timer = document.getElementById('timer');
     const winnersContainer = document.getElementById('winnersContainer');
+    const exportImageBtn = document.getElementById('exportImageBtn');
+    const exportPrintBtn = document.getElementById('exportPrintBtn');
 
     // Cargar colaboradores desde Firebase
     async function loadCollaborators() {
@@ -870,7 +956,7 @@
     }
 
     // Detener sorteo y seleccionar ganador
-    function stopDraw() {
+    async function stopDraw() {
       clearInterval(drawInterval);
       clearInterval(timerInterval);
       isDrawing = false;
@@ -894,12 +980,24 @@
           void winnerName.offsetWidth;
           winnerName.style.animation = 'fadeIn 0.5s';
           
-          // Agregar a lista de ganadores
-          winners.push({
+          // Crear objeto ganador
+          const winnerObj = {
             collaborator: winner,
             prize: prize.name,
-            date: new Date().toLocaleString()
-          });
+            date: new Date().toLocaleString(),
+            position: selectedPosition || 'Todas las áreas'
+          };
+          
+          // Agregar a lista de ganadores
+          winners.push(winnerObj);
+          
+          // Registrar en Firebase
+          try {
+            await addDoc(collection(db, "winners"), winnerObj);
+          } catch (error) {
+            console.error("Error al guardar ganador en Firebase:", error);
+            showError("No se pudo guardar el ganador en la base de datos");
+          }
           
           // Reducir cantidad de premios disponibles
           prize.remaining--;
@@ -947,6 +1045,124 @@
         `;
         winnersContainer.appendChild(winnerCard);
       });
+    }
+
+    // Exportar resultados como imagen
+    function exportAsImage() {
+      const winnersPanel = document.querySelector('.winners-panel');
+      
+      // Mostrar carga
+      Swal.fire({
+        title: 'Generando imagen...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      // Configuración de html2canvas
+      const options = {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#1a2035'
+      };
+      
+      // Crear imagen
+      html2canvas(winnersPanel, options).then(canvas => {
+        // Ocultar carga
+        Swal.close();
+        
+        // Crear enlace de descarga
+        const link = document.createElement('a');
+        link.download = 'ganadores-sorteo-' + new Date().toISOString().slice(0, 10) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error('Error al generar imagen:', err);
+        showError('No se pudo generar la imagen');
+      });
+    }
+
+    // Imprimir resultados
+    function printResults() {
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Resultados del Sorteo</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #2c3e50; text-align: center; }
+            .winner-card { 
+              border: 1px solid #ddd; 
+              border-radius: 8px; 
+              padding: 15px; 
+              margin-bottom: 15px; 
+              display: flex; 
+              align-items: center;
+              break-inside: avoid;
+            }
+            .winner-card-photo { 
+              width: 60px; 
+              height: 60px; 
+              border-radius: 50%; 
+              object-fit: cover; 
+              margin-right: 15px; 
+              border: 2px solid #2c3e50;
+            }
+            .winner-card-name { font-weight: bold; font-size: 18px; }
+            .winner-card-position { color: #15a086; font-size: 14px; }
+            .winner-card-prize { color: #00a651; font-size: 16px; }
+            .winner-card-date { color: #666; font-size: 12px; }
+            .print-header { text-align: center; margin-bottom: 20px; }
+            .print-footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+            @page { size: auto; margin: 10mm; }
+            @media print {
+              .winner-card { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <h1>Resultados del Sorteo</h1>
+            <p>Fecha: ${new Date().toLocaleDateString()}</p>
+            ${selectedPosition ? `<p>Área: ${selectedPosition}</p>` : ''}
+          </div>
+          
+          <div class="winners-list">
+            ${winners.map(winner => `
+              <div class="winner-card">
+                <img src="${winner.collaborator.photo}" class="winner-card-photo">
+                <div>
+                  <div class="winner-card-name">${winner.collaborator.name}</div>
+                  <div class="winner-card-position">${winner.collaborator.position}</div>
+                  <div class="winner-card-prize">Premio: ${winner.prize}</div>
+                  <div class="winner-card-date">${winner.date}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="print-footer">
+            <p>Total de ganadores: ${winners.length}</p>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.open();
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      // Esperar a que cargue el contenido antes de imprimir
+      printWindow.onload = function() {
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 500);
+      };
     }
 
     // Reiniciar todo el sistema
@@ -1001,6 +1217,8 @@
     });
     startBtn.addEventListener('click', startDraw);
     resetBtn.addEventListener('click', resetSystem);
+    exportImageBtn.addEventListener('click', exportAsImage);
+    exportPrintBtn.addEventListener('click', printResults);
 
     // Cargar datos al iniciar
     document.addEventListener('DOMContentLoaded', () => {
