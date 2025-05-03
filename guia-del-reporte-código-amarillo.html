@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía del Reporte Código Amarillo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #15A086;
+            --secondary-color: #2c3e50;
+            --dark-color: #34495e;
+            --light-color: #ecf0f1;
+            --success-color: #15A086;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--secondary-color);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .guide-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .guide-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        .guide-header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .guide-header p {
+            font-size: 1.1rem;
+            color: var(--light-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .guide-section {
+            background-color: var(--dark-color);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .guide-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            flex: 1;
+        }
+        
+        .section-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-content {
+            display: none;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section-content.show {
+            display: block;
+        }
+        
+        .section-header.active .section-icon {
+            transform: rotate(90deg);
+        }
+        
+        .feature-card {
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .feature-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--light-color);
+        }
+        
+        .feature-content p {
+            margin: 0;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .steps-container {
+            counter-reset: step-counter;
+        }
+        
+        .step {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 25px;
+        }
+        
+        .step:before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .step h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--light-color);
+        }
+        
+        .step p {
+            margin: 0;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+            border: 2px dashed rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            object-fit: contain;
+        }
+        
+        .human-body-container {
+            position: relative;
+            margin: 20px auto;
+            width: 300px;
+            height: 600px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .human-body-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .pain-point {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .pain-point:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .pain-point:hover::after {
+            content: attr(data-desc);
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 10;
+            font-size: 0.9rem;
+        }
+        
+        .color-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(255,255,255,0.7);
+        }
+        
+        .pain-points-container {
+            margin-top: 25px;
+            background-color: rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .pain-points-container h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .pain-point-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--dark-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .pain-point-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .pain-point-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid white;
+        }
+        
+        .remove-point {
+            color: var(--error-color);
+            cursor: pointer;
+            margin-left: 15px;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-point:hover {
+            transform: scale(1.2);
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .nav-btn:hover {
+            background-color: #0e6b5a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-btn:hover i {
+            transform: translateX(-3px);
+        }
+        
+        .nav-btn.next:hover i {
+            transform: translateX(3px);
+        }
+        
+        /* Alertas elegantes */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+            border-left: 5px solid #0d8a6d;
+        }
+        
+        .alert-error {
+            background-color: var(--error-color);
+            color: white;
+            border-left: 5px solid #c0392b;
+        }
+        
+        .alert-warning {
+            background-color: var(--warning-color);
+            color: white;
+            border-left: 5px solid #e67e22;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+            transition: transform 0.2s ease;
+        }
+        
+        .alert-close:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Modal para descripción del punto */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: var(--dark-color);
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--primary-color);
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Alertas flotantes -->
+    <div id="alertSuccess" class="alert alert-success">
+        <span id="alertSuccessText"></span>
+        <button class="alert-close">&times;</button>
+    </div>
+    
+    <div id="alertError" class="alert alert-error">
+        <span id="alertErrorText"></span>
+        <button class="alert-close">&times;</button>
+    </div>
+    
+    <div id="alertWarning" class="alert alert-warning">
+        <span id="alertWarningText"></span>
+        <button class="alert-close">&times;</button>
+    </div>
+
+    <div class="guide-container">
+        <div class="guide-header">
+            <h1><i class="fas fa-book-open"></i> Guía del Reporte Código Amarillo</h1>
+            <p>Una guía completa para entender y utilizar el sistema de reportes de código amarillo en el sistema de seguridad</p>
+        </div>
+        
+        <!-- Sección 1: Introducción -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                <h2>Introducción al Reporte Código Amarillo</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="feature-content">
+                        <h3>¿Qué es un Código Amarillo?</h3>
+                        <p>El código amarillo es un sistema de reporte para incidentes que requieren atención médica pero no son de emergencia inmediata. Se utiliza para registrar lesiones menores, malestares o situaciones que podrían requerir evaluación médica profesional.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                    <div class="feature-content">
+                        <h3>Objetivo del Sistema</h3>
+                        <p>Este sistema digital permite documentar de manera precisa y rápida incidentes médicos, facilitando el seguimiento, análisis estadístico y mejora continua de los protocolos de seguridad y atención al huésped.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                    <div class="feature-content">
+                        <h3>Roles Involucrados</h3>
+                        <p>El reporte puede ser iniciado por personal de seguridad, recepción o cualquier empleado que identifique la necesidad. Debe ser completado por el supervisor de seguridad y archivado en el sistema para su revisión por el equipo médico.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 2: Flujo del Reporte -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-icon"><i class="fas fa-project-diagram"></i></div>
+                <h2>Flujo del Reporte</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="steps-container">
+                    <div class="step">
+                        <h3>Acceso al Formulario</h3>
+                        <p>Navegar a Firebase > Reporte de Seguridad > Códigos Amarillos > Crear Reporte. El sistema mostrará el formulario de reporte dividido en 4 secciones lógicas.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3>Sección 1: Información Básica</h3>
+                        <p>Recopila datos del huésped involucrado: nombre completo, número de habitación, edad y teléfono de contacto. Todos los campos excepto teléfono son obligatorios.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3>Sección 2: Detalles del Incidente</h3>
+                        <p>Registra cuándo y dónde ocurrió el incidente, así como información de testigos. Fecha, hora y lugar son campos obligatorios.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3>Sección 3: Áreas Afectadas</h3>
+                        <p>La herramienta más innovadora: un mapa corporal interactivo donde se pueden marcar las áreas afectadas con diferentes colores según la intensidad del dolor o tipo de lesión.</p>
+                        
+                        <div class="human-body-container">
+                            <img src="https://firebasestorage.googleapis.com/v0/b/energycontador-20e7d.appspot.com/o/pngwing.com%20(2).png?alt=media&token=dac813e5-760b-470e-a3bb-c4574d499960" class="human-body-img" id="humanBodyImg">
+                        </div>
+                        
+                        <div class="color-options">
+                            <div class="color-option selected" style="background-color: #ff0000;" data-color="#ff0000" data-level="Dolor intenso"></div>
+                            <div class="color-option" style="background-color: #ff6600;" data-color="#ff6600" data-level="Dolor moderado"></div>
+                            <div class="color-option" style="background-color: #ffcc00;" data-color="#ffcc00" data-level="Dolor leve"></div>
+                            <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00" data-level="Hinchazón"></div>
+                            <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff" data-level="Moretón"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <h3>Sección 4: Confirmación</h3>
+                        <p>Datos del supervisor y opción para registrar si el huésped declina atención médica. En caso afirmativo, se debe especificar la razón.</p>
+                    </div>
+                    
+                    <div class="step">
+                        <h3>Envío y Confirmación</h3>
+                        <p>Al enviar, el sistema guarda el reporte en Firebase y muestra una pantalla de confirmación con opciones para crear nuevo reporte o ver el listado existente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 3: Mapa Corporal Interactivo -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-icon"><i class="fas fa-user-md"></i></div>
+                <h2>Uso del Mapa Corporal</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-palette"></i></div>
+                    <div class="feature-content">
+                        <h3>Selección de Color/Nivel</h3>
+                        <p>El sistema ofrece 5 opciones de color con significados específicos:
+                            <br><span style="color: #ff0000;">• Rojo: Dolor intenso</span>
+                            <br><span style="color: #ff6600;">• Naranja: Dolor moderado</span>
+                            <br><span style="color: #ffcc00;">• Amarillo: Dolor leve</span>
+                            <br><span style="color: #00ff00;">• Verde: Hinchazón</span>
+                            <br><span style="color: #0000ff;">• Azul: Moretón</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mouse-pointer"></i></div>
+                    <div class="feature-content">
+                        <h3>Marcar Áreas Afectadas</h3>
+                        <p>1. Seleccione un color según la intensidad/tipo de lesión
+                        <br>2. Haga clic en la zona del cuerpo correspondiente
+                        <br>3. Complete la descripción del dolor/lesión en el modal que aparece
+                        <br>4. Repita según sea necesario para todas las áreas afectadas</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-trash-alt"></i></div>
+                    <div class="feature-content">
+                        <h3>Gestión de Puntos Marcados</h3>
+                        <p>• Para eliminar un punto: haga doble clic sobre él o use el botón de eliminar en la lista
+                        <br>• Todos los puntos marcados se listan debajo del cuerpo con su descripción
+                        <br>• Es obligatorio marcar al menos un punto para poder avanzar</p>
+                    </div>
+                </div>
+                
+                <div class="image-preview">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/energycontador-20e7d.appspot.com/o/pngwing.com%20(2).png?alt=media&token=dac813e5-760b-470e-a3bb-c4574d499960" alt="Modal de descripción de punto">
+                    <p><small>Modal para describir el dolor/lesión en un área específica</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 4: Funcionalidades Avanzadas -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-icon"><i class="fas fa-cogs"></i></div>
+                <h2>Funcionalidades Avanzadas</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-search"></i></div>
+                    <div class="feature-content">
+                        <h3>Visualización de Reportes</h3>
+                        <p>El sistema permite ver todos los reportes registrados, filtrarlos por nombre de huésped y expandir cada uno para ver detalles completos, incluyendo una representación visual del cuerpo con las áreas afectadas.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-print"></i></div>
+                    <div class="feature-content">
+                        <h3>Impresión de Reportes</h3>
+                        <p>Cada reporte puede ser impreso en un formato optimizado que incluye todos los datos relevantes y una representación estática del cuerpo con las áreas marcadas.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="feature-content">
+                        <h3>Validaciones y Seguridad</h3>
+                        <p>• Autenticación requerida para acceder al sistema
+                        <br>• Validación de campos obligatorios en cada paso
+                        <br>• Confirmación antes de enviar
+                        <br>• Feedback visual con mensajes de error/éxito</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 5: Mejores Prácticas -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-icon"><i class="fas fa-check-circle"></i></div>
+                <h2>Mejores Prácticas</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-comment-alt"></i></div>
+                    <div class="feature-content">
+                        <h3>Descripciones Detalladas</h3>
+                        <p>Sea lo más específico posible al describir:
+                        <br>• Naturaleza exacta del dolor (punzante, constante, etc.)
+                        <br>• Circunstancias del incidente
+                        <br>• Comportamiento del huésped
+                        <br>• Cualquier tratamiento inicial aplicado</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="feature-content">
+                        <h3>Declinación de Atención Médica</h3>
+                        <p>Si el huésped rechaza atención:
+                        <br>• Documente la razón exacta proporcionada
+                        <br>• Asegúrese que comprende las posibles consecuencias
+                        <br>• Consigne si firmó algún documento de declinación</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-camera"></i></div>
+                    <div class="feature-content">
+                        <h3>Uso del Mapa Corporal</h3>
+                        <p>• Marque todas las áreas afectadas, incluso si parecen menores
+                        <br>• Use colores consistentes con la intensidad reportada
+                        <br>• Para lesiones extensas, marque el centro del área
+                        <br>• Combine con fotos reales si es posible (a adjuntar aparte)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 6: Solución de Problemas -->
+        <div class="guide-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="feature-icon"><i class="fas fa-question-circle"></i></div>
+                <h2>Solución de Problemas</h2>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="section-content">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-image"></i></div>
+                    <div class="feature-content">
+                        <h3>Imagen del Cuerpo no Carga</h3>
+                        <p>Si el mapa corporal no aparece:
+                        <br>1. Verifique su conexión a internet
+                        <br>2. Contacte al administrador si persiste el problema</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-save"></i></div>
+                    <div class="feature-content">
+                        <h3>Error al Guardar</h3>
+                        <p>Si el reporte no se guarda:
+                        <br>• Verifique que todos los campos obligatorios estén completos
+                        <br>• Asegúrese de estar autenticado</p>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-print"></i></div>
+                    <div class="feature-content">
+                        <h3>Problemas con la Impresión</h3>
+                        <p>Si el reporte no se imprime correctamente:
+                        <br>• Verifique la configuración de impresión (márgenes, orientación)
+                        <br>• Exporte como PDF primero si necesita compartirlo digitalmente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation-buttons">
+            <a href="#" class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> Anterior</a>
+            <a href="#" class="nav-btn next" id="nextBtn">Siguiente <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+    
+    <!-- Modal para descripción del punto -->
+    <div class="modal" id="pointModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h3 class="modal-title">Descripción del punto</h3>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="pointDescription">Describa el dolor o lesión en esta área:</label>
+                    <textarea id="pointDescription" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPointBtn">Cancelar</button>
+                <button type="button" class="btn btn-success" id="savePointBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Mostrar/ocultar secciones
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            header.classList.toggle('active');
+            content.classList.toggle('show');
+            
+            // Rotar el icono de flecha
+            const arrow = header.querySelector('.fa-chevron-right');
+            if (header.classList.contains('active')) {
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // Mostrar la primera sección al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstSection = document.querySelector('.section-header');
+            toggleSection(firstSection);
+            
+            // Configurar cierre de alertas
+            document.querySelectorAll('.alert-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none';
+                });
+            });
+            
+            // Verificar carga de la imagen del cuerpo
+            const bodyImg = document.getElementById('humanBodyImg');
+            bodyImg.onload = function() {
+                showAlert("La imagen del cuerpo se ha cargado correctamente", "success");
+            };
+            
+            bodyImg.onerror = function() {
+                showAlert("Error al cargar la imagen del cuerpo", "error");
+            };
+            
+            // Configurar eventos para el mapa corporal (simulación)
+            const humanBodyContainer = document.querySelector('.human-body-container');
+            humanBodyContainer.addEventListener('click', function(e) {
+                // Simulación de marcado de puntos
+                showAlert("Para marcar un punto: seleccione un color y haga clic en el área afectada", "warning");
+            });
+            
+            // Configurar selección de colores
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    showAlert(`Color seleccionado: ${this.getAttribute('data-level')}`, "success");
+                });
+            });
+            
+            // Configurar modal de punto (simulación)
+            document.getElementById('cancelPointBtn').addEventListener('click', function() {
+                document.getElementById('pointModal').style.display = 'none';
+            });
+            
+            document.getElementById('savePointBtn').addEventListener('click', function() {
+                const description = document.getElementById('pointDescription').value;
+                if (description.trim()) {
+                    document.getElementById('pointModal').style.display = 'none';
+                    showAlert("Punto guardado correctamente", "success");
+                } else {
+                    showAlert("Por favor ingrese una descripción", "error");
+                }
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('pointModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+        
+        // Navegación entre secciones (simulada)
+        document.getElementById('nextBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            showAlert("¡Has completado la guía! Ahora estás listo para usar el sistema de Reporte Código Amarillo.", "success");
+        });
+        
+        document.getElementById('prevBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            showAlert("Esta es la primera sección de la guía.", "warning");
+        });
+        
+        // Mostrar alerta elegante
+        function showAlert(message, type = "success") {
+            const alertElement = type === "success"  
+                ? document.getElementById('alertSuccess') 
+                : type === "error" 
+                ? document.getElementById('alertError')
+                : document.getElementById('alertWarning');
+            
+            const alertTextElement = type === "success" 
+                ? document.getElementById('alertSuccessText') 
+                : type === "error"
+                ? document.getElementById('alertErrorText')
+                : document.getElementById('alertWarningText');
+            
+            alertTextElement.textContent = message;
+            alertElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
