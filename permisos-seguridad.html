@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Sistema Retom</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-dark: #2c3e50;
+      --primary: #2c3e50;
+      --primary-light: #334155;
+      --accent: #15a086;
+      --accent-dark: #15a086;
+      --text: #fff;
+      --text-light: #15a086;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --neon-shadow: 0 0 10px rgba(0, 216, 255, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: var(--primary);
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: neon-glow 3s linear infinite;
+    }
+
+    @keyframes neon-glow {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(to right, var(--text-light), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--error);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: var(--neon-shadow);
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+      border-left: 4px solid white;
+    }
+
+    .alert.success {
+      background: var(--success);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .user-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .user-card {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), var(--neon-shadow);
+      border-color: var(--accent);
+    }
+
+    .user-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(0, 216, 255, 0.05), transparent);
+      pointer-events: none;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1rem;
+      border: 2px solid var(--accent);
+      box-shadow: var(--neon-shadow);
+    }
+
+    .user-details {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 0.2rem;
+    }
+
+    .user-email {
+      font-size: 0.85rem;
+      color: var(--text);
+      opacity: 0.8;
+    }
+
+    .manage-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .manage-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 216, 255, 0.4);
+    }
+
+    .manage-btn i {
+      margin-right: 8px;
+    }
+
+    /* Modal Estilo Futurista */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--neon-shadow);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: var(--primary);
+      z-index: 1;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      color: var(--text-light);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      padding: 0.5rem;
+    }
+
+    .modal-close:hover {
+      color: var(--accent);
+    }
+
+    .permission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .permission-item {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .permission-item:hover {
+      border-color: var(--accent);
+      box-shadow: var(--neon-shadow);
+    }
+
+    .permission-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .permission-icon {
+      font-size: 1.4rem;
+      margin-right: 1rem;
+      color: var(--accent);
+    }
+
+    .permission-name {
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .permission-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .permission-toggle.remove {
+      background: var(--error);
+    }
+
+    .permission-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 216, 255, 0.4);
+    }
+
+    .permission-toggle.remove:hover {
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .user-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 1.5rem;
+      }
+      
+      .permission-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .user-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .modal-content {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel Seguridad</h1>
+  </header>
+  
+  <main>
+    <div id="alert" class="alert"></div>
+    
+    <h2 style="margin-top: 1rem; font-weight: 300;">Gestión de accesos del sistema</h2>
+    <div class="user-grid" id="userListContainer"></div>
+
+    <!-- Modal para permisos -->
+    <div id="permissionModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modalTitle">Permisos de Usuario</h2>
+          <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div class="permission-grid" id="modalPermissions"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Definición de tipos de permisos
+    const permissionTypes = [
+      { id: "codigos-amarillos", name: "Códigos Amarillos", icon: "fa-notes-medical" },
+      { id: "alarmas", name: "Alarmas", icon: "fa-bell" },
+      { id: "accesos", name: "Accesos", icon: "fa-key" },
+      { id: "emergencias", name: "Emergencias", icon: "fa-exclamation-triangle" },
+      { id: "personal", name: "Personal", icon: "fa-user-shield" },
+      { id: "reportes", name: "Reportes", icon: "fa-clipboard-list" },
+      { id: "comunicaciones", name: "Comunicaciones", icon: "fa-broadcast-tower" },
+      { id: "inventario", name: "Inventario", icon: "fa-archive" },
+      { id: "admin-permisos", name: "Administrar Permisos", icon: "fa-user-lock" }
+    ];
+
+    let currentEditingUserId = null;
+    let currentEditingUserName = null;
+    const permissionModal = document.getElementById("permissionModal");
+    const modalClose = document.getElementById("modalClose");
+
+    // Configurar cierre del modal
+    modalClose.addEventListener('click', closeModal);
+    permissionModal.addEventListener('click', (e) => {
+      if (e.target === permissionModal) {
+        closeModal();
+      }
+    });
+
+    function showAlert(message, isSuccess = false) {
+      const alert = document.getElementById("alert");
+      alert.textContent = message;
+      alert.className = isSuccess ? "alert success show" : "alert show";
+      setTimeout(() => {
+        alert.classList.remove("show");
+      }, 5000);
+    }
+
+    function showModal() {
+      permissionModal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      permissionModal.classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
+
+    // Cargar usuarios en tiempo real
+    function loadUsers() {
+      const userListContainer = document.getElementById("userListContainer");
+
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        userListContainer.innerHTML = "";
+
+        snapshot.forEach((doc) => {
+          const userData = doc.data();
+          const userId = doc.id;
+
+          const userCard = document.createElement('div');
+          userCard.className = 'user-card';
+          userCard.innerHTML = `
+            <div class="user-info">
+              <img src="${userData.photoURL || 'https://i.imgur.com/8Km9tLL.png'}" alt="${userData.name}" class="user-avatar">
+              <div class="user-details">
+                <div class="user-name">${userData.name}</div>
+                <div class="user-email">${userData.email || 'Sin email registrado'}</div>
+              </div>
+            </div>
+            <button class="manage-btn" onclick="openUserPermissions('${userId}', '${userData.name.replace(/'/g, "\\'")}')">
+              <i class="fas fa-user-cog"></i> Gestionar Permisos
+            </button>
+          `;
+
+          userListContainer.appendChild(userCard);
+        });
+      });
+    }
+
+    // Abrir modal de permisos para un usuario
+    window.openUserPermissions = async (userId, userName) => {
+      currentEditingUserId = userId;
+      currentEditingUserName = userName;
+      
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        showAlert("Usuario no encontrado");
+        return;
+      }
+
+      const userData = userSnap.data();
+      const userPermissions = userData.permisos || [];
+
+      const modalPermissions = document.getElementById("modalPermissions");
+      modalPermissions.innerHTML = "";
+      
+      document.getElementById("modalTitle").textContent = `Permisos de ${userName}`;
+
+      permissionTypes.forEach(perm => {
+        const hasPermission = userPermissions.includes(perm.id);
+        
+        const permItem = document.createElement('div');
+        permItem.className = 'permission-item';
+        permItem.innerHTML = `
+          <div class="permission-info">
+            <i class="fas ${perm.icon} permission-icon"></i>
+            <span class="permission-name">${perm.name}</span>
+          </div>
+          <button class="permission-toggle ${hasPermission ? 'remove' : ''}" 
+                  onclick="togglePermission('${perm.id}', ${hasPermission})">
+            ${hasPermission ? 'Quitar' : 'Dar'}
+          </button>
+        `;
+        
+        modalPermissions.appendChild(permItem);
+      });
+
+      showModal();
+    };
+
+    // Cambiar permiso
+    window.togglePermission = async (permissionId, hasPermission) => {
+      if (!currentEditingUserId) return;
+
+      const userRef = doc(db, "users", currentEditingUserId);
+      
+      try {
+        if (hasPermission) {
+          // Quitar permiso
+          await updateDoc(userRef, {
+            permisos: arrayRemove(permissionId)
+          });
+          
+          // Registrar en PermisosAcceso
+          await addDoc(collection(db, "PermisosAcceso"), {
+            userId: currentEditingUserId,
+            permissionId: permissionId,
+            action: 'revoked',
+            adminId: auth.currentUser.uid,
+            timestamp: new Date(),
+            userName: currentEditingUserName,
+            permissionName: permissionTypes.find(p => p.id === permissionId)?.name || permissionId
+          });
+          
+          showAlert(`Permiso "${permissionTypes.find(p => p.id === permissionId)?.name || permissionId}" revocado a ${currentEditingUserName}`, true);
+        } else {
+          // Dar permiso
+          await updateDoc(userRef, {
+            permisos: arrayUnion(permissionId)
+          });
+          
+          // Registrar en PermisosAcceso
+          await addDoc(collection(db, "PermisosAcceso"), {
+            userId: currentEditingUserId,
+            permissionId: permissionId,
+            action: 'granted',
+            adminId: auth.currentUser.uid,
+            timestamp: new Date(),
+            userName: currentEditingUserName,
+            permissionName: permissionTypes.find(p => p.id === permissionId)?.name || permissionId
+          });
+          
+          showAlert(`Permiso "${permissionTypes.find(p => p.id === permissionId)?.name || permissionId}" otorgado a ${currentEditingUserName}`, true);
+        }
+        
+        // Actualizar vista
+        openUserPermissions(currentEditingUserId, currentEditingUserName);
+      } catch (error) {
+        showAlert("Error al actualizar permiso: " + error.message);
+      }
+    };
+
+    // Verificar autenticación
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      
+      // Cargar la interfaz
+      loadUsers();
+    });
+
+    // Bloquear inspección
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.key === "F12" || 
+          (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+          (e.ctrlKey && e.key === 'u') || 
+          (e.ctrlKey && e.shiftKey && e.key === 'J')) {
+        e.preventDefault();
+      }
+      
+      // Esc para cerrar modal
+      if (e.key === "Escape" && permissionModal.classList.contains("active")) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
