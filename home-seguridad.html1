@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú de Seguridad</title>
+  <title>Panel de Seguridad</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<style>
     :root {
       --primary-color: #2c3e50;
       --secondary-color: #3498db;
@@ -52,11 +52,24 @@
       color: transparent;
     }
 
+    .security-header p {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .icon-grid-container {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
     .icon-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
       gap: 1.5rem;
       margin-top: 2rem;
+      justify-content: center;
+      width: auto;
     }
 
     .icon-link {
@@ -72,6 +85,8 @@
       backdrop-filter: blur(5px);
       transition: all var(--transition-speed) ease;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 120px;
+      height: 120px;
     }
 
     .icon-link:hover {
@@ -96,7 +111,7 @@
       text-align: center;
     }
 
-    /* Colores para categorías */
+    /* Colores por categoría */
     .monitoring { color: var(--success-color); }
     .alerts { color: var(--warning-color); }
     .access { color: var(--secondary-color); }
@@ -109,7 +124,7 @@
     /* Responsive */
     @media (max-width: 768px) {
       .icon-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
         gap: 1rem;
       }
       
@@ -119,6 +134,8 @@
       
       .icon-link {
         padding: 1.2rem 0.8rem;
+        width: 100px;
+        height: 100px;
       }
       
       .icon-link i {
@@ -132,107 +149,76 @@
       }
       
       .icon-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(80px, 80px));
+      }
+      
+      .icon-link {
+        width: 80px;
+        height: 80px;
       }
       
       .icon-link span {
         font-size: 0.8rem;
       }
     }
-  </style>
+</style>
 </head>
 <body>
   <div class="security-container">
     <header class="security-header">
-      <h1>Departamento de Seguridad</h1>
+      <h1>Panel de Seguridad</h1>
+      <p>Security System Retom</p>
     </header>
 
     <div class="icon-grid">
-      <!-- Monitoreo -->
-      <a href="monitoreo.html" class="icon-link">
-        <i class="fas fa-video monitoring"></i>
-        <span>CCTV</span>
+      <!-- CCTV -->
+      <a href="panel-codigos-amarillos.html" class="icon-link">
+        <i class="fa-solid fa-notes-medical monitoring"></i>
+        <span>Códigos Amarillo</span>
       </a>
-
+      
       <!-- Alarmas -->
-      <a href="alarmas.html" class="icon-link">
+      <a href="https://www.example.com/alarmas" class="icon-link">
         <i class="fas fa-bell alerts"></i>
         <span>Alarmas</span>
       </a>
-
-      <!-- Accesos -->
-      <a href="accesos.html" class="icon-link">
+       
+      <!-- Control de Accesos -->
+      <a href="https://www.example.com/accesos" class="icon-link">
         <i class="fas fa-key access"></i>
         <span>Accesos</span>
       </a>
-
+      
       <!-- Emergencias -->
-      <a href="emergencias.html" class="icon-link">
+      <a href="https://www.example.com/emergencias" class="icon-link">
         <i class="fas fa-exclamation-triangle emergency"></i>
         <span>Emergencias</span>
       </a>
-
+      
       <!-- Personal -->
-      <a href="personal.html" class="icon-link">
+      <a href="https://www.example.com/personal" class="icon-link">
         <i class="fas fa-user-shield personnel"></i>
         <span>Personal</span>
       </a>
-
+      
       <!-- Reportes -->
-      <a href="reportes.html" class="icon-link">
+      <a href="https://www.example.com/reportes" class="icon-link">
         <i class="fas fa-clipboard-list reports"></i>
         <span>Reportes</span>
       </a>
-
+      
       <!-- Comunicaciones -->
-      <a href="comunicaciones.html" class="icon-link">
+      <a href="https://www.example.com/comunicaciones" class="icon-link">
         <i class="fas fa-broadcast-tower comms"></i>
         <span>Comunicaciones</span>
       </a>
-
+      
       <!-- Inventario -->
-      <a href="inventario.html" class="icon-link">
+      <a href="https://www.example.com/inventario" class="icon-link">
         <i class="fas fa-archive inventory"></i>
         <span>Inventario</span>
       </a>
-
-      <!-- Incidentes -->
-      <a href="incidentes.html" class="icon-link">
-        <i class="fas fa-file-alt emergency"></i>
-        <span>Incidentes</span>
-      </a>
-
-      <!-- Rondas -->
-      <a href="rondas.html" class="icon-link">
-        <i class="fas fa-walking personnel"></i>
-        <span>Rondas</span>
-      </a>
-
-      <!-- Cámaras Térmicas -->
-      <a href="termicas.html" class="icon-link">
-        <i class="fas fa-temperature-high monitoring"></i>
-        <span>Cámaras Térmicas</span>
-      </a>
-
-      <!-- Control Vehicular -->
-      <a href="vehicular.html" class="icon-link">
-        <i class="fas fa-car-crash access"></i>
-        <span>Control Vehicular</span>
-      </a>
     </div>
   </div>
-
-  <script>
-    // Efecto de carga progresiva
-    document.addEventListener('DOMContentLoaded', () => {
-      const icons = document.querySelectorAll('.icon-link');
-      icons.forEach((icon, index) => {
-        setTimeout(() => {
-          icon.style.opacity = '1';
-          icon.style.transform = 'translateY(0)';
-        }, index * 50);
-      });
-    });
-  </script>
 </body>
 </html>
