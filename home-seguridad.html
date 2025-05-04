@@ -3,19 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Seguridad</title>
+  <title>Panel de Seguridad | Sistema Retom</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
+  <style>
     :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #3498db;
-      --accent-color: #e74c3c;
-      --light-color: #ecf0f1;
-      --dark-color: #1a252f;
-      --success-color: #2ecc71;
-      --warning-color: #f39c12;
-      --card-bg: rgba(255, 255, 255, 0.1);
-      --transition-speed: 0.3s;
+      --primary-dark: #2c3e50;
+      --primary: #2c3e50;
+      --primary-light: #334155;
+      --accent: #15a086;
+      --accent-dark: #15a086;
+      --text: #e2e8f0;
+      --text-light: #15a086;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --neon-shadow: 0 0 10px rgba(0, 216, 255, 0.5);
     }
 
     * {
@@ -23,11 +27,20 @@
       padding: 0;
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
     }
 
     body {
-      background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
-      color: var(--light-color);
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -41,35 +54,49 @@
     .security-header {
       text-align: center;
       margin-bottom: 3rem;
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+
+    .security-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: neon-glow 3s linear infinite;
+    }
+
+    @keyframes neon-glow {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
     }
 
     .security-header h1 {
       font-size: 2.5rem;
-      margin-bottom: 1rem;
-      background: linear-gradient(to right, var(--secondary-color), var(--light-color));
+      background: linear-gradient(to right, var(--text-light), var(--accent));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
     }
 
     .security-header p {
       font-size: 1rem;
       opacity: 0.8;
-    }
-
-    .icon-grid-container {
-      display: flex;
-      justify-content: center;
-      width: 100%;
+      letter-spacing: 1px;
     }
 
     .icon-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1.5rem;
       margin-top: 2rem;
-      justify-content: center;
-      width: auto;
     }
 
     .icon-link {
@@ -78,27 +105,39 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      color: var(--light-color);
-      padding: 1.5rem 1rem;
-      border-radius: 10px;
-      background: var(--card-bg);
-      backdrop-filter: blur(5px);
-      transition: all var(--transition-speed) ease;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      width: 120px;
-      height: 120px;
+      color: var(--text);
+      padding: 2rem 1rem;
+      border-radius: 12px;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      border: 1px solid var(--glass-border);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(0, 216, 255, 0.05), transparent);
+      pointer-events: none;
     }
 
     .icon-link:hover {
       transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), var(--neon-shadow);
+      border-color: var(--accent);
     }
 
     .icon-link i {
-      font-size: 2.2rem;
-      margin-bottom: 0.8rem;
-      transition: all var(--transition-speed) ease;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
     }
 
     .icon-link:hover i {
@@ -106,25 +145,103 @@
     }
 
     .icon-link span {
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 500;
       text-align: center;
+      color: var(--text-light);
+    }
+
+    .locked-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: var(--error);
+      font-size: 1.2rem;
+      text-shadow: 0 0 5px rgba(239, 68, 68, 0.7);
+    }
+
+    .permission-denied {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.95);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 90%;
+      z-index: 1000;
+      border: 1px solid var(--error);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    .permission-denied i {
+      font-size: 3rem;
+      color: var(--error);
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    .permission-denied h2 {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .permission-denied p {
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .permission-denied button {
+      background: var(--error);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .permission-denied button:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
     }
 
     /* Colores por categoría */
-    .monitoring { color: var(--success-color); }
-    .alerts { color: var(--warning-color); }
-    .access { color: var(--secondary-color); }
-    .emergency { color: var(--accent-color); }
-    .personnel { color: #9b59b6; }
-    .reports { color: #1abc9c; }
-    .comms { color: #3498db; }
-    .inventory { color: #f1c40f; }
+    .monitoring { color: var(--success); }
+    .alerts { color: var(--warning); }
+    .access { color: var(--accent); }
+    .emergency { color: var(--error); }
+    .personnel { color: #8b5cf6; }
+    .reports { color: #10b981; }
+    .comms { color: #0ea5e9; }
+    .inventory { color: #f59e0b; }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .icon-grid {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .security-container {
+        padding: 1.5rem;
+      }
+      
+      .icon-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 1rem;
       }
       
@@ -133,92 +250,190 @@
       }
       
       .icon-link {
-        padding: 1.2rem 0.8rem;
-        width: 100px;
-        height: 100px;
+        padding: 1.5rem 0.8rem;
       }
       
       .icon-link i {
-        font-size: 1.8rem;
+        font-size: 2rem;
       }
     }
 
     @media (max-width: 480px) {
-      .security-container {
-        padding: 1.5rem;
-      }
-      
       .icon-grid {
-        grid-template-columns: repeat(auto-fit, minmax(80px, 80px));
-      }
-      
-      .icon-link {
-        width: 80px;
-        height: 80px;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       }
       
       .icon-link span {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
       }
     }
-</style>
+  </style>
 </head>
 <body>
   <div class="security-container">
     <header class="security-header">
       <h1>Panel de Seguridad</h1>
-      <p>Security System Retom</p>
+      <p>Security system Retom</p>
     </header>
 
-    <div class="icon-grid">
-      <!-- CCTV -->
-      <a href="panel-codigos-amarillos.html" class="icon-link">
-        <i class="fa-solid fa-notes-medical monitoring"></i>
-        <span>Códigos Amarillo</span>
-      </a>
-      
-      <!-- Alarmas -->
-      <a href="https://www.example.com/alarmas" class="icon-link">
-        <i class="fas fa-bell alerts"></i>
-        <span>Alarmas</span>
-      </a>
-       
-      <!-- Control de Accesos -->
-      <a href="https://www.example.com/accesos" class="icon-link">
-        <i class="fas fa-key access"></i>
-        <span>Accesos</span>
-      </a>
-      
-      <!-- Emergencias -->
-      <a href="https://www.example.com/emergencias" class="icon-link">
-        <i class="fas fa-exclamation-triangle emergency"></i>
-        <span>Emergencias</span>
-      </a>
-      
-      <!-- Personal -->
-      <a href="https://www.example.com/personal" class="icon-link">
-        <i class="fas fa-user-shield personnel"></i>
-        <span>Personal</span>
-      </a>
-      
-      <!-- Reportes -->
-      <a href="https://www.example.com/reportes" class="icon-link">
-        <i class="fas fa-clipboard-list reports"></i>
-        <span>Reportes</span>
-      </a>
-      
-      <!-- Comunicaciones -->
-      <a href="https://www.example.com/comunicaciones" class="icon-link">
-        <i class="fas fa-broadcast-tower comms"></i>
-        <span>Comunicaciones</span>
-      </a>
-      
-      <!-- Inventario -->
-      <a href="https://www.example.com/inventario" class="icon-link">
-        <i class="fas fa-archive inventory"></i>
-        <span>Inventario</span>
-      </a>
+    <div class="icon-grid" id="iconGrid">
+      <!-- Los iconos se cargarán dinámicamente -->
+    </div>
+
+    <div class="permission-denied" id="permissionDenied">
+      <i class="fas fa-lock"></i>
+      <h2>Acceso Restringido</h2>
+      <p>No tienes permiso para acceder a esta función. Por favor, contacta a tu superior.</p>
+      <button onclick="document.getElementById('permissionDenied').style.display = 'none'">Entendido</button>
     </div>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Definición de los iconos del panel
+    const panelIcons = [
+      {
+        id: "codigos-amarillos",
+        name: "Códigos Amarillos",
+        icon: "fa-notes-medical",
+        category: "monitoring",
+        href: "panel-codigos-amarillos.html"
+      },
+      {
+        id: "alarmas",
+        name: "Alarmas",
+        icon: "fa-bell",
+        category: "alerts",
+        href: "#"
+      },
+      {
+        id: "accesos",
+        name: "Accesos",
+        icon: "fa-key",
+        category: "access",
+        href: "#"
+      },
+      {
+        id: "emergencias",
+        name: "Emergencias",
+        icon: "fa-exclamation-triangle",
+        category: "emergency",
+        href: "#"
+      },
+      {
+        id: "personal",
+        name: "Personal",
+        icon: "fa-user-shield",
+        category: "personnel",
+        href: "#"
+      },
+      {
+        id: "reportes",
+        name: "Reportes",
+        icon: "fa-clipboard-list",
+        category: "reports",
+        href: "#"
+      },
+      {
+        id: "comunicaciones",
+        name: "Comunicaciones",
+        icon: "fa-broadcast-tower",
+        category: "comms",
+        href: "#"
+      },
+      {
+        id: "inventario",
+        name: "Inventario",
+        icon: "fa-archive",
+        category: "inventory",
+        href: "#"
+      },
+      {
+        id: "admin-permisos",
+        name: "Administrar Permisos",
+        icon: "fa-user-lock",
+        category: "access",
+        href: "permisos.html"
+      }
+    ]; 
+ 
+    // Verificar autenticación y permisos en tiempo real
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Observar cambios en los permisos del usuario
+      const userRef = doc(db, "users", user.uid);
+      
+      onSnapshot(userRef, (userSnap) => {
+        if (!userSnap.exists()) {
+          console.error("Usuario no encontrado en Firestore");
+          return;
+        }
+
+        const userData = userSnap.data();
+        const permissions = userData.permisos || [];
+
+        // Mostrar iconos según permisos
+        const iconGrid = document.getElementById("iconGrid");
+        const permissionDenied = document.getElementById("permissionDenied");
+
+        iconGrid.innerHTML = "";
+
+        panelIcons.forEach(icon => {
+          const hasPermission = permissions.includes(icon.id);
+          
+          const iconElement = document.createElement("a");
+          iconElement.className = `icon-link ${hasPermission ? '' : 'disabled'}`;
+          iconElement.innerHTML = `
+            <i class="fas ${icon.icon} ${icon.category}"></i>
+            <span>${icon.name}</span>
+            ${!hasPermission ? '<i class="fas fa-lock locked-icon"></i>' : ''}
+          `;
+
+          if (hasPermission) {
+            iconElement.href = icon.href;
+          } else {
+            iconElement.href = "#";
+            iconElement.onclick = (e) => {
+              e.preventDefault();
+              permissionDenied.style.display = "block";
+            };
+          }
+
+          iconGrid.appendChild(iconElement);
+        });
+      });
+    });
+
+    // Bloquear inspección
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.key === "F12" || 
+          (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+          (e.ctrlKey && e.key === 'u') || 
+          (e.ctrlKey && e.shiftKey && e.key === 'J')) {
+        e.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>
