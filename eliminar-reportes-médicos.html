@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Reportes Médicos - Security Retom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(26, 26, 46, 0.8);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            margin-bottom: 2rem;
+            color: #ff6b6b;
+        }
+        
+        .warning {
+            background: rgba(239, 35, 60, 0.2);
+            border-left: 4px solid #ef233c;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            border-radius: 8px;
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #ef233c, #d90429);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 4px 15px rgba(239, 35, 60, 0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 35, 60, 0.4);
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            background: rgba(40, 167, 69, 0.2);
+            border-left: 4px solid #28a745;
+        }
+        
+        .error {
+            background: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid #dc3545;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-exclamation-triangle"></i> Eliminar Reportes Médicos</h1>
+        
+        <div class="warning">
+            <p><strong>ADVERTENCIA:</strong> Esta acción eliminará TODOS los reportes médicos de la base de datos de Firebase. Esta operación es irreversible y debe realizarse solo si es absolutamente necesario.</p>
+            <p>Se recomienda hacer una copia de seguridad antes de proceder.</p>
+        </div>
+        
+        <button class="delete-btn" id="deleteBtn">
+            <i class="fas fa-trash-alt"></i> ELIMINAR TODOS LOS REPORTES
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Eliminando reportes...</p>
+        </div>
+        
+        <div class="status" id="statusSuccess">
+            <p><i class="fas fa-check-circle"></i> <strong>Éxito:</strong> Todos los reportes médicos han sido eliminados correctamente.</p>
+        </div>
+        
+        <div class="status error" id="statusError">
+            <p><i class="fas fa-exclamation-circle"></i> <strong>Error:</strong> <span id="errorMessage"></span></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // Referencia a las colecciones
+        const medicalReportsRef = db.collection("MedicoHuespedes");
+        const activationLogsRef = db.collection("MedicalReportActivationLogs");
+        
+        // Elementos del DOM
+        const deleteBtn = document.getElementById('deleteBtn');
+        const loading = document.getElementById('loading');
+        const statusSuccess = document.getElementById('statusSuccess');
+        const statusError = document.getElementById('statusError');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Función para mostrar estado
+        function showStatus(type, message = '') {
+            statusSuccess.style.display = 'none';
+            statusError.style.display = 'none';
+            
+            if (type === 'success') {
+                statusSuccess.style.display = 'block';
+            } else if (type === 'error') {
+                errorMessage.textContent = message;
+                statusError.style.display = 'block';
+            }
+        }
+        
+        // Función para mostrar alerta de confirmación personalizada
+        async function showDeleteConfirmation() {
+            return Swal.fire({
+                title: '<strong style="color: #d90429">¿ELIMINAR TODOS LOS REPORTES?</strong>',
+                html: `
+                    <div style="text-align: left; color: #333;">
+                        <p style="font-size: 1.1rem; margin-bottom: 1rem;">
+                            <i class="fas fa-exclamation-circle" style="color: #ef233c;"></i> 
+                            <strong>Esta acción es irreversible</strong>
+                        </p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                            <li>Se eliminarán <strong>todos</strong> los reportes médicos</li>
+                            <li>No podrás recuperar esta información</li>
+                            <li>Esta operación afectará a todos los usuarios</li>
+                        </ul>
+                        <p style="font-size: 0.9rem; color: #6c757d;">
+                            <i class="fas fa-shield-alt"></i> Requiere autenticación de administrador
+                        </p>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef233c',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt"></i> CONFIRMAR ELIMINACIÓN',
+                cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+                backdrop: `
+                    rgba(220, 53, 69, 0.4)
+                    url("https://sweetalert2.github.io/images/nyan-cat.gif")
+                    center top
+                    no-repeat
+                `,
+                width: '600px',
+                padding: '2rem',
+                customClass: {
+                    popup: 'animated pulse',
+                    confirmButton: 'btn-confirm',
+                    cancelButton: 'btn-cancel'
+                }
+            });
+        }
+        
+        // Función para mostrar alerta de éxito
+        function showSuccessAlert(count) {
+            Swal.fire({
+                title: '<strong style="color: #28a745">¡ELIMINACIÓN COMPLETADA!</strong>',
+                html: `
+                    <div style="text-align: center; color: #333;">
+                        <i class="fas fa-check-circle" style="font-size: 4rem; color: #28a745; margin: 1rem 0;"></i>
+                        <p style="font-size: 1.2rem;">
+                            Se eliminaron <strong>${count}</strong> reportes médicos correctamente
+                        </p>
+                        <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                            <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">
+                                <i class="fas fa-info-circle"></i> Los cambios pueden tardar unos minutos en reflejarse en todas las vistas
+                            </p>
+                        </div>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: '<i class="fas fa-check"></i> Entendido',
+                width: '600px'
+            });
+        }
+        
+        // Función para mostrar alerta de error
+        function showErrorAlert(message) {
+            Swal.fire({
+                title: '<strong style="color: #dc3545">¡ERROR!</strong>',
+                html: `
+                    <div style="text-align: center; color: #333;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #dc3545; margin: 1rem 0;"></i>
+                        <p style="font-size: 1.1rem;">
+                            ${message}
+                        </p>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: '<i class="fas fa-times"></i> Cerrar',
+                width: '500px'
+            });
+        }
+        
+        // Función para eliminar todos los reportes
+        async function deleteAllMedicalReports() {
+            try {
+                loading.style.display = 'block';
+                deleteBtn.disabled = true;
+                showStatus('none');
+                
+                // Verificar autenticación
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('Debes iniciar sesión para realizar esta acción');
+                }
+                
+                // Obtener todos los documentos
+                const snapshot = await medicalReportsRef.get();
+                
+                if (snapshot.empty) {
+                    loading.style.display = 'none';
+                    showSuccessAlert(0);
+                    return;
+                }
+                
+                // Eliminar en lotes (Firebase limita a 500 operaciones por lote)
+                let batch = db.batch();
+                let batchCount = 0;
+                let deletedCount = 0;
+                
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                    deletedCount++;
+                    batchCount++;
+                    
+                    if (batchCount >= 500) {
+                        batch.commit();
+                        batch = db.batch();
+                        batchCount = 0;
+                    }
+                });
+                
+                // Ejecutar el último lote si queda algo pendiente
+                if (batchCount > 0) {
+                    await batch.commit();
+                }
+                
+                // Opcional: eliminar también los logs de activación
+                try {
+                    const logsSnapshot = await activationLogsRef.get();
+                    if (!logsSnapshot.empty) {
+                        batch = db.batch();
+                        logsSnapshot.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+                    }
+                } catch (logsError) {
+                    console.warn("No se pudieron eliminar los logs de activación:", logsError);
+                }
+                
+                loading.style.display = 'none';
+                showSuccessAlert(deletedCount);
+                console.log(`Se eliminaron ${deletedCount} reportes médicos correctamente.`);
+                
+            } catch (error) {
+                console.error("Error al eliminar reportes:", error);
+                loading.style.display = 'none';
+                showErrorAlert(error.message);
+            } finally {
+                deleteBtn.disabled = false;
+            }
+        }
+        
+        // Evento del botón
+        deleteBtn.addEventListener('click', async () => {
+            const result = await showDeleteConfirmation();
+            
+            if (result.isConfirmed) {
+                // Confirmación adicional para operación crítica
+                Swal.fire({
+                    title: '<strong style="color: #d90429">CONFIRMACIÓN FINAL</strong>',
+                    html: `
+                        <div style="text-align: center; color: #333;">
+                            <p style="font-size: 1.1rem;">
+                                <i class="fas fa-skull-crossbones" style="color: #d90429;"></i>
+                                <strong>¿ÚLTIMA OPORTUNIDAD PARA CANCELAR?</strong>
+                            </p>
+                            <p>Escribe <strong style="color: #ef233c">ELIMINAR</strong> para confirmar</p>
+                            <input type="text" id="confirmInput" class="swal2-input" placeholder="Escribe ELIMINAR aquí">
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef233c',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-check-double"></i> CONFIRMAR DEFINITIVAMENTE',
+                    cancelButtonText: '<i class="fas fa-arrow-left"></i> Volver atrás',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const inputValue = document.getElementById('confirmInput').value;
+                        if (inputValue !== 'ELIMINAR') {
+                            Swal.showValidationMessage('Debes escribir exactamente "ELIMINAR"');
+                        }
+                        return inputValue;
+                    }
+                }).then((finalResult) => {
+                    if (finalResult.isConfirmed && finalResult.value === 'ELIMINAR') {
+                        deleteAllMedicalReports();
+                    }
+                });
+            }
+        });
+        
+        // Verificar autenticación al cargar
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                Swal.fire({
+                    title: 'Acceso no autorizado',
+                    text: 'Debes iniciar sesión como administrador para acceder a esta función',
+                    icon: 'error',
+                    confirmButtonText: 'Ir al login',
+                    willClose: () => {
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
