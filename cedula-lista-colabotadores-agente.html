@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Cédulas Dominicanas</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --cedula-blue: #0054a6;
+      --cedula-red: #d21034;
+      --cedula-gold: #c5a258;
+      --sidebar-bg: #2c3e50;
+      --sidebar-text: #ecf0f1;
+      --sidebar-hover: #34495e;
+      --content-bg: #f5f7fa;
+      --card-bg: #ffffff;
+      --text-dark: #2c3e50;
+      --text-light: #ecf0f1;
+      --border-color: #dfe6e9;
+      --accent-color: #3498db;
+      --success-color: #2ecc71;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      min-height: 100vh;
+      background-color: var(--content-bg);
+      color: var(--text-dark);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      padding: 20px 0;
+      height: 100vh;
+      overflow-y: auto;
+      transition: all 0.3s;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-title i {
+      margin-right: 10px;
+      color: var(--cedula-gold);
+    }
+
+    .search-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      border-radius: 5px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--sidebar-text);
+      font-size: 14px;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .user-list {
+      padding: 10px 0;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .user-item:hover {
+      background-color: var(--sidebar-hover);
+    }
+
+    .user-item.active {
+      background-color: var(--sidebar-hover);
+      border-left: 3px solid var(--cedula-gold);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 12px;
+      border: 2px solid var(--cedula-gold);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+      font-size: 15px;
+    }
+
+    .user-cedula {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .content-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--cedula-blue);
+    }
+
+    /* User Details */
+    .user-details-container {
+      display: none;
+    }
+
+    .user-details-container.active {
+      display: block;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    @media (max-width: 1200px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .details-card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: var(--cedula-blue);
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .card-title i {
+      margin-right: 10px;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info-table tr:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .info-table td {
+      padding: 12px 5px;
+      font-size: 14px;
+    }
+
+    .info-table td:first-child {
+      font-weight: 500;
+      width: 40%;
+      color: var(--cedula-blue);
+    }
+
+    /* Cedula Simulation */
+    .cedula-section {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 25px;
+      margin-top: 25px;
+    }
+
+    .cedula-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 530px;
+      margin: 0 auto;
+    }
+
+    .cedula-card {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 63.2%;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .cedula-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .cedula-front, .cedula-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      background: white;
+    }
+
+    .cedula-front {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cedula-back {
+      background: var(--cedula-bg);
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Frente de la cédula - Estructura exacta */
+    .cedula-header {
+      background: linear-gradient(to right, var(--cedula-blue), var(--cedula-red));
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .cedula-body {
+      display: flex;
+      flex-grow: 1;
+      padding: 15px;
+    }
+
+    .photo-section {
+      width: 35%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      border-right: 1px dashed var(--border-color);
+    }
+
+    .photo-placeholder {
+      width: 120px;
+      height: 150px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cedula-number {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-dark);
+      text-align: center;
+      margin-top: 5px;
+      background: #f8f8f8;
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    .info-section {
+      width: 65%;
+      padding: 0 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-item {
+      margin-bottom: 12px;
+      display: flex;
+      font-size: 13px;
+    }
+
+    .info-label {
+      font-weight: bold;
+      width: 110px;
+      color: var(--text-dark);
+    }
+
+    .info-value {
+      flex-grow: 1;
+      color: var(--text-dark);
+    }
+
+    .cedula-footer {
+      background: linear-gradient(to right, var(--cedula-blue), var(--cedula-red));
+      color: white;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* Reverso de la cédula */
+    .qr-container {
+      width: 180px;
+      height: 180px;
+      margin: 15px 0;
+      background-color: white;
+      padding: 10px;
+      border: 1px solid var(--cedula-blue);
+    }
+
+    .back-title {
+      color: var(--cedula-blue);
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .back-text {
+      color: var(--text-dark);
+      text-align: center;
+      font-size: 12px;
+      margin-bottom: 15px;
+    }
+
+    .download-btn {
+      margin-top: 15px;
+      padding: 10px 25px;
+      background: linear-gradient(to right, var(--cedula-blue), var(--cedula-red));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto 0;
+    }
+
+    .download-btn i {
+      margin-right: 8px;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Elementos de seguridad */
+    .security-strip {
+      height: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        var(--cedula-blue),
+        var(--cedula-blue) 10px,
+        var(--cedula-red) 10px,
+        var(--cedula-red) 20px
+      );
+      margin-bottom: 15px;
+    }
+
+    .hologram {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(45deg, 
+        rgba(0, 84, 166, 0.3), 
+        rgba(210, 16, 52, 0.3),
+        rgba(255, 255, 255, 0.6));
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    /* Futuristic elements */
+    .futuristic-border {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px solid transparent;
+      border-image: linear-gradient(45deg, var(--cedula-blue), var(--cedula-red)) 1;
+      pointer-events: none;
+    }
+
+    .glow-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 84, 166, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 280px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+      }
+      
+      .main-content {
+        height: auto;
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .cedula-body {
+        flex-direction: column;
+      }
+      
+      .photo-section, .info-section {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px dashed var(--border-color);
+      }
+      
+      .photo-placeholder {
+        width: 100px;
+        height: 125px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <i class="fas fa-id-card"></i> Cédulas Dominicanas
+      </div>
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Buscar usuario..." id="searchInput">
+      </div>
+    </div>
+    <div class="user-list" id="userList">
+      <!-- Usuarios se cargarán aquí -->
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="content-header">
+      <div class="content-title">Detalles del Usuario</div>
+    </div>
+
+    <!-- User Details -->
+    <div class="user-details-container" id="userDetails">
+      <div class="details-grid">
+        <!-- Información Personal -->
+        <div class="details-card">
+          <div class="card-title">
+            <i class="fas fa-user"></i> Información Personal
+          </div>
+          <table class="info-table" id="personalInfo">
+            <!-- Datos se llenarán con JavaScript -->
+          </table>
+        </div>
+
+        <!-- Información Laboral -->
+        <div class="details-card">
+          <div class="card-title">
+            <i class="fas fa-briefcase"></i> Información Laboral
+          </div>
+          <table class="info-table" id="workInfo">
+            <!-- Datos se llenarán con JavaScript -->
+          </table>
+        </div>
+
+        <!-- Información de Contacto -->
+        <div class="details-card">
+          <div class="card-title">
+            <i class="fas fa-envelope"></i> Información de Contacto
+          </div>
+          <table class="info-table" id="contactInfo">
+            <!-- Datos se llenarán con JavaScript -->
+          </table>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="details-card">
+          <div class="card-title">
+            <i class="fas fa-info-circle"></i> Información Adicional
+          </div>
+          <table class="info-table" id="additionalInfo">
+            <!-- Datos se llenarán con JavaScript -->
+          </table>
+        </div>
+      </div>
+
+      <!-- Cédula Simulation -->
+      <div class="cedula-section">
+        <div class="card-title">
+          <i class="fas fa-id-card"></i> Cédula de Identidad
+        </div>
+        
+        <div class="cedula-container">
+          <div class="cedula-card" id="cedulaCard">
+            <!-- Frente de la cédula -->
+            <div class="cedula-front">
+              <div class="futuristic-border"></div>
+              <div class="glow-effect"></div>
+              <div class="cedula-header">REPÚBLICA DOMINICANA</div>
+              <div class="security-strip"></div>
+              <div class="cedula-body">
+                <div class="photo-section">
+                  <div class="hologram"></div>
+                  <div class="photo-placeholder" id="photoPlaceholder">
+                    <img id="userPhoto" src="https://via.placeholder.com/120x150" alt="Foto del titular">
+                  </div>
+                  <div class="cedula-number" id="cedulaNumber">000-0000000-0</div>
+                </div>
+                <div class="info-section">
+                  <div class="info-item">
+                    <div class="info-label">NOMBRE:</div>
+                    <div class="info-value" id="userName">---------------------</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">FECHA NACIMIENTO:</div>
+                    <div class="info-value" id="userBirthdate">--/--/----</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">LUGAR NACIMIENTO:</div>
+                    <div class="info-value" id="userLocation">---------------------</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">FECHA EXPIRACIÓN:</div>
+                    <div class="info-value" id="expiryDate">--/--/----</div>
+                  </div>
+                </div>
+              </div>
+              <div class="cedula-footer">JUNTA CENTRAL ELECTORAL</div>
+            </div>
+            
+            <!-- Reverso de la cédula -->
+            <div class="cedula-back">
+              <div class="back-title">REPÚBLICA DOMINICANA</div>
+              <div class="back-text">CÉDULA DE IDENTIDAD Y ELECTORAL</div>
+              <div class="qr-container" id="qrCode"></div>
+              <div class="back-text">Escanee el código QR para verificar la autenticidad</div>
+              <button class="download-btn" id="downloadBtn">
+                <i class="fas fa-download"></i> DESCARGAR CÉDULA
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuración de Firebase (usando los mismos datos del formulario)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Variables globales
+    let allUsers = [];
+    let currentUser = null;
+
+    // Función para formatear fecha
+    function formatDate(dateString) {
+      if (!dateString) return '--/--/----';
+      
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '--/--/----';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}/${month}/${year}`;
+    }
+
+    // Función para cargar todos los usuarios desde FormularioDeSeguridad
+    async function loadAllUsers() {
+      try {
+        const usersSnapshot = await db.collection('FormularioDeSeguridad').get();
+        allUsers = usersSnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          // Mapear campos del formulario a nombres más descriptivos
+          name: doc.data().fullName,
+          cedula: doc.data().idCard,
+          phone: doc.data().phone,
+          address: doc.data().address,
+          department: doc.data().department,
+          workArea: doc.data().workArea,
+          position: doc.data().position,
+          workCode: doc.data().workCode,
+          photoURL: doc.data().profileImageUrl
+        }));
+        
+        renderUserList(allUsers);
+      } catch (error) {
+        console.error('Error cargando usuarios:', error);
+      }
+    }
+
+    // Función para renderizar la lista de usuarios
+    function renderUserList(users) {
+      const userList = document.getElementById('userList');
+      userList.innerHTML = '';
+      
+      if (users.length === 0) {
+        userList.innerHTML = '<div style="padding: 20px; text-align: center; color: rgba(255,255,255,0.7)">No se encontraron usuarios</div>';
+        return;
+      }
+      
+      users.forEach(user => {
+        const userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.dataset.userId = user.id;
+        
+        userItem.innerHTML = `
+          <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="user-avatar" alt="Foto">
+          <div class="user-info">
+            <div class="user-name">${user.name || 'Nombre no disponible'}</div>
+            <div class="user-cedula">${user.cedula || 'Cédula no disponible'}</div>
+          </div>
+        `;
+        
+        userItem.addEventListener('click', () => loadUserData(user.id));
+        userList.appendChild(userItem);
+      });
+    }
+
+    // Función para cargar los datos de un usuario específico
+    async function loadUserData(userId) {
+      try {
+        // Remover selección previa
+        document.querySelectorAll('.user-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        // Marcar como activo
+        document.querySelector(`.user-item[data-user-id="${userId}"]`).classList.add('active');
+        
+        // Obtener datos del usuario
+        const userDoc = await db.collection('FormularioDeSeguridad').doc(userId).get();
+        if (!userDoc.exists) {
+          console.error('No se encontraron datos del usuario');
+          return;
+        }
+
+        const userData = userDoc.data();
+        currentUser = { 
+          id: userDoc.id, 
+          ...userData,
+          // Mapear campos del formulario a nombres más descriptivos
+          name: userData.fullName,
+          cedula: userData.idCard,
+          phone: userData.phone,
+          address: userData.address,
+          department: userData.department,
+          workArea: userData.workArea,
+          position: userData.position,
+          workCode: userData.workCode,
+          photoURL: userData.profileImageUrl
+        };
+        
+        // Mostrar el contenedor de detalles
+        document.getElementById('userDetails').classList.add('active');
+        
+        // Llenar información personal
+        const personalInfo = document.getElementById('personalInfo');
+        personalInfo.innerHTML = `
+          <tr>
+            <td>Nombre Completo</td>
+            <td>${currentUser.fullName || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Cédula</td>
+            <td>${currentUser.idCard || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Teléfono</td>
+            <td>${currentUser.phone || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Dirección</td>
+            <td>${currentUser.address || 'N/A'}</td>
+          </tr>
+        `;
+        
+        // Llenar información laboral
+        const workInfo = document.getElementById('workInfo');
+        workInfo.innerHTML = `
+          <tr>
+            <td>Departamento</td>
+            <td>${currentUser.department || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Área de Trabajo</td>
+            <td>${currentUser.workArea || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Posición</td>
+            <td>${currentUser.position || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Código Laboral</td>
+            <td>${currentUser.workCode || 'N/A'}</td>
+          </tr>
+        `;
+        
+        // Llenar información de contacto
+        const contactInfo = document.getElementById('contactInfo');
+        contactInfo.innerHTML = `
+          <tr>
+            <td>Teléfono Móvil</td>
+            <td>${currentUser.phone || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td>Dirección</td>
+            <td>${currentUser.address || 'N/A'}</td>
+          </tr>
+        `;
+        
+        // Llenar información adicional
+        const additionalInfo = document.getElementById('additionalInfo');
+        additionalInfo.innerHTML = `
+          <tr>
+            <td>Documento Adjunto</td>
+            <td>
+              ${currentUser.idCardImageUrl ? `
+                <a href="${currentUser.idCardImageUrl}" target="_blank">
+                  ${currentUser.idCardImageUrl.endsWith('.pdf') ? 
+                    '<i class="fas fa-file-pdf"></i> Ver PDF' : 
+                    '<i class="fas fa-file-image"></i> Ver Imagen'
+                  }
+                </a>
+              ` : 'N/A'}
+            </td>
+          </tr>
+        `;
+        
+        // Actualizar la cédula
+        updateCedula(currentUser);
+        
+      } catch (error) {
+        console.error('Error cargando datos del usuario:', error);
+      }
+    }
+
+    // Función para actualizar la simulación de la cédula
+    function updateCedula(userData) {
+      document.getElementById('cedulaNumber').textContent = userData.idCard || '000-0000000-0';
+      document.getElementById('userName').textContent = userData.fullName || '---------------------';
+      document.getElementById('userBirthdate').textContent = '--/--/----'; // No hay fecha de nacimiento en el formulario
+      document.getElementById('userLocation').textContent = userData.address || '---------------------';
+      
+      // Calcular fecha de vencimiento (10 años después de hoy)
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 10);
+      document.getElementById('expiryDate').textContent = formatDate(expiryDate.toISOString());
+
+      // Cargar foto de perfil
+      const userPhoto = document.getElementById('userPhoto');
+      if (userData.profileImageUrl) {
+        userPhoto.src = userData.profileImageUrl;
+      } else {
+        userPhoto.src = 'https://via.placeholder.com/120x150';
+      }
+
+      // Generar QR con los datos
+      const qrData = `
+CÉDULA DOMINICANA
+Número: ${userData.idCard || 'N/A'}
+Nombre: ${userData.fullName || 'N/A'}
+Dirección: ${userData.address || 'N/A'}
+Código Laboral: ${userData.workCode || 'N/A'}
+      `;
+      
+      // Limpiar QR previo
+      document.getElementById('qrCode').innerHTML = '';
+      
+      // Generar nuevo QR
+      new QRCode(document.getElementById("qrCode"), {
+        text: qrData,
+        width: 180,
+        height: 180,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // Función para buscar usuarios
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      
+      searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        if (searchTerm === '') {
+          renderUserList(allUsers);
+          return;
+        }
+        
+        const filteredUsers = allUsers.filter(user => {
+          return (
+            (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+            (user.cedula && user.cedula.toLowerCase().includes(searchTerm)) ||
+            (user.workCode && user.workCode.toLowerCase().includes(searchTerm))
+          );
+        });
+        
+        renderUserList(filteredUsers);
+      });
+    }
+
+    // Función para descargar la cédula como imagen
+    function setupDownloadButton() {
+      document.getElementById('downloadBtn').addEventListener('click', function() {
+        downloadCedula();
+      });
+    }
+
+    // Función para descargar ambos lados de la cédula
+    function downloadCedula() {
+      // Cargar html2canvas dinámicamente
+      const script = document.createElement('script');
+      script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+      script.onload = function() {
+        // Primero descargamos el frente
+        setTimeout(() => {
+          document.getElementById('cedulaCard').classList.remove('flipped');
+          setTimeout(() => {
+            html2canvas(document.querySelector('.cedula-front')).then(canvas => {
+              const link = document.createElement('a');
+              link.download = `cedula-${currentUser.idCard || 'user'}-frente.png`;
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+              
+              // Luego descargamos el reverso
+              setTimeout(() => {
+                document.getElementById('cedulaCard').classList.add('flipped');
+                setTimeout(() => {
+                  html2canvas(document.querySelector('.cedula-back')).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `cedula-${currentUser.idCard || 'user'}-reverso.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Volvemos a la vista frontal
+                    setTimeout(() => {
+                      document.getElementById('cedulaCard').classList.remove('flipped');
+                    }, 500);
+                  });
+                }, 500);
+              }, 1000);
+            });
+          }, 500);
+        }, 500);
+      };
+      document.head.appendChild(script);
+    }
+
+    // Animación de giro al hacer clic
+    function setupCedulaFlip() {
+      document.getElementById('cedulaCard').addEventListener('click', function() {
+        this.classList.toggle('flipped');
+      });
+    }
+
+    // Inicializar la aplicación
+    function initApp() {
+      loadAllUsers();
+      setupSearch();
+      setupCedulaFlip();
+      setupDownloadButton();
+    }
+
+    // Iniciar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
