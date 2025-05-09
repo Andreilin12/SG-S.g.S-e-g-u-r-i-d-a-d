@@ -2,145 +2,546 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Perla - Chat IA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <style>
+        :root {
+            --primary-color: #15a086;
+            --secondary-color: #15a086;
+            --light-purple: #15a086;
+            --dark-purple: #15a086;
+            --text-color: #333;
+            --white: #ffffff;
+            --gray: #f5f5f5;
+            --dark-gray: #e0e0e0;
+            --neon-blue: #15a086;
+            --neon-purple: #15a086;
+            --dark-bg: #121212;
+            --dark2-bg: #2c3e50;
+            --card-bg: #16222e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: 'Arial', sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--white);
+            background-color: var(--dark2-bg);
+            padding: 0;
+            margin: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(106, 27, 154, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(156, 39, 176, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 100%;
+            width: 100%;
+            padding: 0;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .chat-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        
+        .auth-info {
+            background-color: var(--card-bg);
+            color: var(--white);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+        }
+        
+        .auth-status-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #auth-status {
+            font-weight: bold;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            color: var(--neon-blue);
         }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        #login-btn, #logout-btn, #new-chat-btn, #history-btn {
+            background-color: var(--card-bg);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 243, 255, 0.3);
+        }
+        
+        #logout-btn {
+            background-color: var(--card-bg);
+            color: #15a086;
+            border-color: #15a086;
+            box-shadow: 0 0 5px rgba(255, 64, 129, 0.3);
+        }
+        
+        #login-btn:hover, #history-btn:hover, #new-chat-btn:hover {
+            background-color: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        
+        #logout-btn:hover {
+            background-color: rgba(255, 64, 129, 0.1);
+            box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-bg);
+            border-radius: 0;
+            overflow: hidden;
+            height: calc(100vh - 50px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
         .chat-header {
-            background-color: #6a1b9a;
-            color: white;
+            background-color: var(--card-bg);
+            color: var(--neon-purple);
             padding: 15px;
             text-align: center;
-            font-size: 1.2em;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+            border-bottom: 1px solid rgba(179, 0, 255, 0.3);
+            text-shadow: 0 0 10px rgba(179, 0, 255, 0.5);
         }
+        
         .chat-messages {
-            height: 400px;
+            flex: 1;
             overflow-y: auto;
             padding: 15px;
-            background-color: #f3e5f5;
+            background-color: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
+        
         .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
+            padding: 12px 16px;
             border-radius: 18px;
-            max-width: 70%;
+            max-width: 85%;
             word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         .user-message {
-            background-color: #e1bee7;
+            background-color: rgba(106, 27, 154, 0.3);
             margin-left: auto;
             border-bottom-right-radius: 5px;
+            align-self: flex-end;
+            border: 1px solid var(--neon-purple);
         }
+        
         .bot-message {
-            background-color: #f3e5f5;
+            background-color: rgba(30, 30, 46, 0.8);
             margin-right: auto;
             border-bottom-left-radius: 5px;
-            border: 1px solid #ce93d8;
+            border: 1px solid var(--neon-blue);
+            align-self: flex-start;
         }
+        
         .command-message {
-            background-color: #d1c4e9;
-            border-left: 3px solid #7e57c2;
+            background-color: rgba(30, 30, 46, 0.8);
+            border-left: 4px solid var(--secondary-color);
             margin-right: auto;
+            border: 1px solid var(--secondary-color);
         }
+        
+        .code-block {
+            background-color: #1e1e1e;
+            color: #f8f8f2;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 8px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #333;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #f8f8f2;
+            font-size: 0.8rem;
+        }
+        
+        .copy-btn {
+            background-color: #333;
+            color: #f8f8f2;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background-color: #444;
+        }
+        
+        .copy-message {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            display: none;
+        }
+        
+        .message-actions {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            display: none;
+            overflow: hidden;
+            border: 1px solid var(--neon-purple);
+        }
+        
+        .message:hover .message-actions {
+            display: flex;
+        }
+        
+        .message-action {
+            padding: 4px 8px;
+            cursor: pointer;
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .message-action:hover {
+            background-color: rgba(0, 243, 255, 0.1);
+            color: var(--white);
+        }
+        
+        .chat-input-container {
+            padding: 12px;
+            border-top: 1px solid rgba(179, 0, 255, 0.3);
+            background-color: var(--card-bg);
+        }
+        
         .chat-input {
             display: flex;
-            padding: 15px;
-            border-top: 1px solid #d1c4e9;
-            background-color: #ede7f6;
+            gap: 10px;
         }
+        
         #user-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #b39ddb;
-            border-radius: 20px;
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--neon-purple);
+            border-radius: 25px;
             outline: none;
-            background-color: white;
+            font-size: 1rem;
+            background-color: rgba(30, 30, 46, 0.8);
+            color: var(--white);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(179, 0, 255, 0.3);
         }
+        
+        #user-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        
         #send-button {
-            background-color: #7e57c2;
-            color: white;
+            background-color: var(--neon-purple);
+            color: var(--white);
             border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            margin-left: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(179, 0, 255, 0.5);
         }
+        
         #send-button:hover {
-            background-color: #5e35b1;
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.7);
         }
+        
         .typing-indicator {
             display: none;
             padding: 10px 15px;
-            color: #5e35b1;
+            color: var(--neon-blue);
             font-style: italic;
+            align-self: flex-start;
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
         }
-        .admin-link {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #7e57c2;
-            text-decoration: none;
-            font-weight: bold;
+        
+        .history-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--card-bg);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            padding: 15px;
+            border-right: 1px solid rgba(179, 0, 255, 0.3);
         }
-        .auth-info {
-            text-align: right;
+        
+        .history-panel.show {
+            transform: translateX(0);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
-            color: #5e35b1;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(179, 0, 255, 0.3);
         }
-        #auth-status {
+        
+        .history-title {
+            font-size: 1.2rem;
+            color: var(--neon-blue);
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
         }
-        #login-btn, #logout-btn {
-            background-color: #7e57c2;
-            color: white;
+        
+        .close-history {
+            background: none;
             border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
+            font-size: 1.2rem;
             cursor: pointer;
-            margin-left: 10px;
+            color: var(--neon-purple);
+            transition: all 0.3s ease;
         }
-        #logout-btn {
-            background-color: #d81b60;
+        
+        .close-history:hover {
+            color: var(--neon-blue);
+        }
+        
+        .history-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background-color: rgba(30, 30, 46, 0.5);
+            color: var(--white);
+            border: 1px solid transparent;
+        }
+        
+        .history-item:hover {
+            background-color: rgba(106, 27, 154, 0.3);
+            border-color: var(--neon-purple);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        
+        .overlay.show {
+            display: block;
+        }
+        
+        /* Efectos futuristas */
+        .glow {
+            text-shadow: 0 0 5px currentColor;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(179, 0, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(179, 0, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(179, 0, 255, 0); }
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                border-radius: 10px;
+                overflow: hidden;
+                min-height: auto;
+                height: 90vh;
+            }
+            
+            .chat-container {
+                border-radius: 10px;
+            }
+            
+            #auth-status {
+                max-width: 300px;
+            }
+            
+            .message {
+                max-width: 70%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-info {
+                padding: 8px 10px;
+            }
+            
+            .auth-buttons {
+                gap: 5px;
+            }
+            
+            #login-btn, #logout-btn, #new-chat-btn, #history-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+            }
+            
+            .chat-header {
+                padding: 12px;
+                font-size: 1.1rem;
+            }
+            
+            .chat-messages {
+                padding: 10px;
+            }
+            
+            .message {
+                padding: 10px 14px;
+                max-width: 90%;
+            }
+            
+            #user-input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            
+            #send-button {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="auth-info">
-        Estado: <span id="auth-status">No autenticado</span>
-        <button id="login-btn" style="display: none;">Iniciar Sesión</button>
-        <button id="logout-btn" style="display: none;">Cerrar Sesión</button>
-    </div>
-    
-    <div class="chat-container">
-        <div class="chat-header">
-            Perla - Asistente Virtual
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="typing-indicator" id="typing-indicator">
-                Perla está escribiendo...
+    <div class="container">
+        <div class="auth-info">
+            <div class="auth-status-container">
+                <span id="auth-status">No autenticado</span>
+            </div>
+            <div class="auth-buttons">
+                <button id="new-chat-btn" style="display: none;">
+                    <i class="fas fa-plus"></i> Nueva
+                </button>
+                <button id="history-btn" style="display: none;">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+                <button id="login-btn" style="display: none;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                <button id="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
             </div>
         </div>
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Escribe tu mensaje..." autocomplete="off">
-            <button id="send-button">Enviar</button>
+        
+        <div class="chat-container">
+            <div class="chat-header glow">
+                <i class="fas fa-robot"></i> Perla - Asistente Virtual
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="typing-indicator" id="typing-indicator">
+                    <i class="fas fa-circle-notch fa-spin"></i> Perla está escribiendo...
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Escribe tu mensaje..." autocomplete="off">
+                    <button id="send-button" class="pulse">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     
-    <a href="admin.html" class="admin-link">Administrar Comandos</a>
+    <!-- Panel de historial -->
+    <div class="history-panel" id="history-panel">
+        <div class="history-header">
+            <div class="history-title">Historial de chats</div>
+            <button class="close-history" id="close-history">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="history-list"></div>
+    </div>
+    <div class="overlay" id="overlay"></div>
 
     <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { 
@@ -156,7 +557,14 @@
             collection, 
             getDocs, 
             query,
-            where
+            where,
+            addDoc,
+            doc,
+            getDoc,
+            setDoc,
+            serverTimestamp,
+            orderBy,
+            limit
         } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Configuración de Firebase
@@ -186,10 +594,19 @@
         const authStatus = document.getElementById('auth-status');
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const historyBtn = document.getElementById('history-btn');
+        const historyPanel = document.getElementById('history-panel');
+        const overlay = document.getElementById('overlay');
+        const closeHistory = document.getElementById('close-history');
+        const historyList = document.getElementById('history-list');
         
         // Estado de la aplicación
         let commands = [];
         let currentUser = null;
+        let currentChatId = null;
+        let isNewChat = true;
+        let conversationContext = [];
         
         // Información sobre Perla (solo para comandos)
         const perlaInfo = {
@@ -207,6 +624,34 @@
             }
         };
         
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event listeners para el panel de historial
+            historyBtn.addEventListener('click', () => {
+                historyPanel.classList.add('show');
+                overlay.classList.add('show');
+            });
+            
+            closeHistory.addEventListener('click', () => {
+                historyPanel.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+            
+            overlay.addEventListener('click', () => {
+                historyPanel.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+            
+            // Nueva conversación
+            newChatBtn.addEventListener('click', startNewChat);
+            
+            // Cargar historial cuando el panel se abre
+            historyBtn.addEventListener('click', loadChatHistory);
+            
+            // Inicializar resaltado de sintaxis
+            hljs.highlightAll();
+        });
+        
         // Autenticación
         loginBtn.addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
@@ -214,15 +659,17 @@
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Error de autenticación:", error);
-                alert("Error al iniciar sesión: " + error.message);
+                addMessage("Error al iniciar sesión: " + error.message, false);
             }
         });
         
         logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
+                startNewChat();
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
+                addMessage("Error al cerrar sesión: " + error.message, false);
             }
         });
         
@@ -234,21 +681,29 @@
                 authStatus.textContent = `Autenticado como ${user.email}`;
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
+                newChatBtn.style.display = 'inline-block';
+                historyBtn.style.display = 'inline-block';
                 
                 // Cargar comandos cuando el usuario está autenticado
                 await loadCommands();
                 
-                // Mensaje inicial genérico
-                addMessage("¡Hola! Soy Perla, tu asistente virtual. ¿En qué puedo ayudarte hoy?", false);
-                if (commands.length > 0) {
-                    addMessage(`Tengo ${commands.length} comandos personalizados para asistirte.`, false);
+                // Iniciar nueva conversación o cargar la última
+                if (isNewChat) {
+                    startNewChat();
+                    addMessage("¡Hola! Soy Perla, tu asistente virtual. ¿En qué puedo ayudarte hoy?", false);
+                    if (commands.length > 0) {
+                        addMessage(`Tengo ${commands.length} comandos personalizados para asistirte.`, false);
+                    }
                 }
             } else {
                 authStatus.textContent = 'No autenticado';
                 loginBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'none';
+                newChatBtn.style.display = 'none';
+                historyBtn.style.display = 'none';
                 
                 commands = [];
+                startNewChat();
                 addMessage("¡Hola! Soy Perla, tu asistente virtual. Inicia sesión para acceder a tus comandos personalizados.", false);
             }
         });
@@ -271,25 +726,342 @@
             }
         }
         
+        // Cargar historial de chats
+        async function loadChatHistory() {
+            if (!currentUser) return;
+            
+            try {
+                const chatsRef = collection(db, "users", currentUser.uid, "chats");
+                const q = query(chatsRef, orderBy("updatedAt", "desc"), limit(20));
+                const querySnapshot = await getDocs(q);
+                
+                historyList.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = '<div style="padding: 10px; color: #2c2c2c;">No hay conversaciones anteriores</div>';
+                    return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                    const chat = doc.data();
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.textContent = chat.firstMessage || 'Nueva conversación';
+                    historyItem.title = chat.firstMessage || 'Nueva conversación';
+                    
+                    historyItem.addEventListener('click', () => {
+                        loadChat(doc.id);
+                        historyPanel.classList.remove('show');
+                        overlay.classList.remove('show');
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            } catch (error) {
+                console.error("Error al cargar historial:", error);
+                historyList.innerHTML = '<div style="padding: 10px; color: #15a086;">Error al cargar el historial</div>';
+            }
+        }
+        
+        // Cargar un chat específico
+        async function loadChat(chatId) {
+            if (!currentUser) return;
+            
+            try {
+                const chatRef = doc(db, "users", currentUser.uid, "chats", chatId);
+                const messagesRef = collection(db, "users", currentUser.uid, "chats", chatId, "messages");
+                
+                const chatSnap = await getDoc(chatRef);
+                const messagesSnap = await getDocs(query(messagesRef, orderBy("timestamp")));
+                
+                if (!chatSnap.exists()) {
+                    addMessage("No se pudo cargar la conversación.", false);
+                    return;
+                }
+                
+                // Limpiar el chat actual
+                clearChat();
+                currentChatId = chatId;
+                isNewChat = false;
+                conversationContext = [];
+                
+                // Cargar mensajes
+                messagesSnap.forEach((doc) => {
+                    const msg = doc.data();
+                    addMessage(msg.text, msg.isUser, msg.isCommand);
+                    // Agregar al contexto de conversación
+                    if (!msg.isCommand) {
+                        conversationContext.push({
+                            role: msg.isUser ? "user" : "model",
+                            parts: [{ text: msg.text }]
+                        });
+                    }
+                });
+                
+                // Desplazar al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+            } catch (error) {
+                console.error("Error al cargar chat:", error);
+                addMessage("Error al cargar la conversación.", false);
+            }
+        }
+        
+        // Guardar mensaje en Firestore
+        async function saveMessage(text, isUser, isCommand = false) {
+            if (!currentUser || !currentChatId) return;
+            
+            try {
+                const messagesRef = collection(db, "users", currentUser.uid, "chats", currentChatId, "messages");
+                
+                await addDoc(messagesRef, {
+                    text: text,
+                    isUser: isUser,
+                    isCommand: isCommand,
+                    timestamp: serverTimestamp()
+                });
+                
+                // Actualizar la última actividad del chat
+                const chatRef = doc(db, "users", currentUser.uid, "chats", currentChatId);
+                await setDoc(chatRef, {
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                
+            } catch (error) {
+                console.error("Error al guardar mensaje:", error);
+            }
+        }
+        
+        // Crear un nuevo chat
+        async function startNewChat() {
+            if (!currentUser) {
+                clearChat();
+                currentChatId = null;
+                isNewChat = true;
+                conversationContext = [];
+                return;
+            }
+            
+            try {
+                const chatsRef = collection(db, "users", currentUser.uid, "chats");
+                const newChatRef = await addDoc(chatsRef, {
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    firstMessage: null
+                });
+                
+                currentChatId = newChatRef.id;
+                isNewChat = true;
+                conversationContext = [];
+                clearChat();
+                
+            } catch (error) {
+                console.error("Error al crear nuevo chat:", error);
+                addMessage("Error al iniciar nueva conversación.", false);
+            }
+        }
+        
+        // Limpiar la interfaz de chat
+        function clearChat() {
+            chatMessages.innerHTML = '';
+            chatMessages.appendChild(typingIndicator);
+            typingIndicator.style.display = 'none';
+        }
+        
+        // Añadir mensaje al chat
         function addMessage(text, isUser, isCommand = false) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             
             if (isCommand) {
                 messageDiv.classList.add('command-message');
-                messageDiv.innerHTML = `<strong>Respuesta directa:</strong><br>${text}`;
+                messageDiv.innerHTML = `<strong>Respuesta directa:</strong><br>${formatText(text)}`;
             } else if (isUser) {
                 messageDiv.classList.add('user-message');
-                messageDiv.textContent = text;
+                messageDiv.innerHTML = formatText(text);
+                
+                // Si es el primer mensaje del usuario en un nuevo chat, guardarlo como primer mensaje
+                if (currentUser && currentChatId && isNewChat) {
+                    const chatRef = doc(db, "users", currentUser.uid, "chats", currentChatId);
+                    setDoc(chatRef, {
+                        firstMessage: text
+                    }, { merge: true });
+                    isNewChat = false;
+                }
             } else {
                 messageDiv.classList.add('bot-message');
-                messageDiv.textContent = text;
+                
+                // Detectar y formatear bloques de código
+                const codeBlocks = extractCodeBlocks(text);
+                let formattedText = text;
+                
+                if (codeBlocks.length > 0) {
+                    codeBlocks.forEach((block, index) => {
+                        const codeDiv = createCodeBlock(block.code, block.language);
+                        block.element = codeDiv;
+                        formattedText = formattedText.replace(block.original, `{{CODE_BLOCK_${index}}`);
+                    });
+                    
+                    // Dividir el texto en partes y reemplazar los marcadores de posición con los bloques de código
+                    const parts = formattedText.split(/(\{\{CODE_BLOCK_\d+\}\})/);
+                    
+                    parts.forEach(part => {
+                        const codeMatch = part.match(/\{\{CODE_BLOCK_(\d+)\}\}/);
+                        if (codeMatch) {
+                            messageDiv.appendChild(codeBlocks[codeMatch[1]].element);
+                        } else if (part.trim() !== '') {
+                            const textPart = document.createElement('div');
+                            textPart.style.marginBottom = '8px';
+                            textPart.innerHTML = formatText(part);
+                            messageDiv.appendChild(textPart);
+                        }
+                    });
+                } else {
+                    messageDiv.innerHTML = formatText(text);
+                }
             }
+            
+            // Añadir acciones al mensaje (copiar)
+            const messageActions = document.createElement('div');
+            messageActions.className = 'message-actions';
+            
+            const copyAction = document.createElement('div');
+            copyAction.className = 'message-action';
+            copyAction.innerHTML = '<i class="fas fa-copy"></i>';
+            copyAction.title = 'Copiar mensaje';
+            copyAction.addEventListener('click', () => {
+                copyToClipboard(text);
+                showCopyNotification(messageDiv);
+            });
+            
+            messageActions.appendChild(copyAction);
+            messageDiv.appendChild(messageActions);
             
             chatMessages.insertBefore(messageDiv, typingIndicator);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Guardar el mensaje en Firestore
+            if (currentUser && currentChatId) {
+                saveMessage(text, isUser, isCommand);
+            }
         }
         
+        // Función para formatear el texto normal
+        function formatText(text) {
+            // Convertir negritas (**texto**) a <strong>
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convertir saltos de línea a <br>
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // Convertir bloques citados (> texto) a <blockquote>
+            formatted = formatted.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>');
+            
+            // Convertir listas (* item) a <ul><li>
+            formatted = formatted.replace(/^\* (.*$)/gm, '<li>$1</li>');
+            formatted = formatted.replace(/(<li>.*<\/li>)+/g, function(match) {
+                return '<ul>' + match + '</ul>';
+            });
+            
+            return formatted;
+        }
+        
+        // Extraer bloques de código del texto
+        function extractCodeBlocks(text) {
+            const codeBlockRegex = /```(\w*)\n([\s\S]*?)\n```/g;
+            const blocks = [];
+            let match;
+            
+            while ((match = codeBlockRegex.exec(text)) !== null) {
+                blocks.push({
+                    original: match[0],
+                    language: match[1] || 'plaintext',
+                    code: match[2]
+                });
+            }
+            
+            return blocks;
+        }
+        
+        // Crear un bloque de código formateado
+        function createCodeBlock(code, language) {
+            const block = {
+                element: document.createElement('div'),
+                code: code,
+                language: language
+            };
+            
+            block.element.className = 'code-block';
+            
+            const codeHeader = document.createElement('div');
+            codeHeader.className = 'code-header';
+            codeHeader.innerHTML = `
+                <span>${language || 'text'}</span>
+                <button class="copy-btn">
+                    <i class="far fa-copy"></i> Copiar
+                </button>
+            `;
+            
+            const codeContent = document.createElement('pre');
+            const codeElement = document.createElement('code');
+            codeElement.className = language ? `language-${language}` : 'language-plaintext';
+            codeElement.textContent = code;
+            
+            codeContent.appendChild(codeElement);
+            hljs.highlightElement(codeElement);
+            
+            const copyNotification = document.createElement('div');
+            copyNotification.className = 'copy-message';
+            copyNotification.textContent = 'Copiado!';
+            
+            block.element.appendChild(codeHeader);
+            block.element.appendChild(codeContent);
+            block.element.appendChild(copyNotification);
+            
+            // Configurar el botón de copiar
+            const copyBtn = block.element.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', () => {
+                copyToClipboard(code);
+                copyNotification.style.display = 'block';
+                setTimeout(() => {
+                    copyNotification.style.display = 'none';
+                }, 2000);
+            });
+            
+            return block;
+        }
+        
+        // Copiar texto al portapapeles
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        
+        // Mostrar notificación de copiado
+        function showCopyNotification(element) {
+            const notification = document.createElement('div');
+            notification.className = 'copy-message';
+            notification.textContent = 'Copiado!';
+            notification.style.position = 'absolute';
+            notification.style.top = '5px';
+            notification.style.right = '5px';
+            
+            element.appendChild(notification);
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+                setTimeout(() => {
+                    element.removeChild(notification);
+                }, 300);
+            }, 2000);
+        }
+        
+        // Verificar si hay un comando que coincida
         function checkForCommand(message) {
             const lowerMessage = message.toLowerCase();
             
@@ -314,6 +1086,23 @@
                 return `Pertenezco a ${perlaInfo.company}, dirigida por ${perlaInfo.director}.`;
             }
             
+            // Comandos numéricos (recordar contexto)
+            if (lowerMessage.includes("siguiente número") || lowerMessage.includes("número siguiente")) {
+                const lastNumber = conversationContext
+                    .filter(msg => msg.role === "user")
+                    .reverse()
+                    .find(msg => msg.parts[0].text.match(/\d+/));
+                
+                if (lastNumber) {
+                    const numberMatch = lastNumber.parts[0].text.match(/\d+/);
+                    if (numberMatch) {
+                        const num = parseInt(numberMatch[0]);
+                        return `El siguiente número después de ${num} es ${num + 1}.`;
+                    }
+                }
+                return "No tengo contexto de un número anterior. Por favor, menciona un número primero.";
+            }
+            
             // Comandos personalizados del usuario
             for (const cmd of commands) {
                 if (lowerMessage.includes(cmd.command.toLowerCase()) || 
@@ -325,6 +1114,7 @@
             return null;
         }
         
+        // Enviar mensaje
         async function sendMessage() {
             const message = userInput.value.trim();
             if (!message) return;
@@ -332,12 +1122,23 @@
             addMessage(message, true);
             userInput.value = '';
             
+            // Agregar al contexto de conversación
+            conversationContext.push({
+                role: "user",
+                parts: [{ text: message }]
+            });
+            
             // Primero verificar si hay un comando que coincida
             const commandResponse = checkForCommand(message);
             
             if (commandResponse) {
                 // Si encontramos un comando, mostrar esa respuesta
                 addMessage(commandResponse, false, true);
+                // Agregar al contexto de conversación
+                conversationContext.push({
+                    role: "model",
+                    parts: [{ text: commandResponse }]
+                });
             } else {
                 // Si no hay comando, usar la API de Gemini
                 typingIndicator.style.display = 'block';
@@ -352,11 +1153,7 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                contents: [{
-                                    parts: [{
-                                        text: `Responde como un asistente virtual llamado Perla. El usuario pregunta: ${message}`
-                                    }]
-                                }]
+                                contents: conversationContext
                             })
                         }
                     );
@@ -368,17 +1165,33 @@
                     if (data.candidates && data.candidates[0].content.parts[0].text) {
                         const botResponse = data.candidates[0].content.parts[0].text;
                         addMessage(botResponse, false);
+                        // Agregar al contexto de conversación
+                        conversationContext.push({
+                            role: "model",
+                            parts: [{ text: botResponse }]
+                        });
                     } else {
-                        addMessage("Lo siento, no pude obtener una respuesta. Intenta de nuevo.", false);
+                        const errorMsg = "Lo siento, no pude obtener una respuesta. Intenta de nuevo.";
+                        addMessage(errorMsg, false);
+                        conversationContext.push({
+                            role: "model",
+                            parts: [{ text: errorMsg }]
+                        });
                     }
                 } catch (error) {
                     typingIndicator.style.display = 'none';
-                    addMessage("Ocurrió un error al conectar con la API: " + error.message, false);
+                    const errorMsg = "Ocurrió un error al conectar con la API: " + error.message;
+                    addMessage(errorMsg, false);
                     console.error("Error:", error);
+                    conversationContext.push({
+                        role: "model",
+                        parts: [{ text: errorMsg }]
+                    });
                 }
             }
         }
 
+        // Event listeners
         sendButton.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
