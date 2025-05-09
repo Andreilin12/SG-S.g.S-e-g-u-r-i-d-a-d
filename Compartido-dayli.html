@@ -1279,7 +1279,7 @@
       URL.revokeObjectURL(url);
     }
 
-    // Function to export current report
+    // Function to export current report with images
     window.exportarReporteActual = function(formato) {
       if (!reporteSeleccionado) {
         mostrarAlerta("Abre un reporte primero para exportarlo", 'error');
@@ -1293,18 +1293,62 @@
         const datosReporte = {
           ...reporte,
           coleccion: "Reportes",
-          // Aseguramos que las imágenes se incluyan correctamente
+          // Aseguramos que siempre tengamos un array de fotos
           fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : []),
-          fotoURL: reporte.fotoURL || null
+          // Mantenemos fotoURL para compatibilidad
+          fotoURL: reporte.fotoURL || (reporte.fotoURLs && reporte.fotoURLs.length > 0 ? reporte.fotoURLs[0] : null),
+          // Incluimos las imágenes como datos binarios codificados en Base64
+          imagenesBase64: []
         };
 
-        // Convertimos a formato RTMDAyLI
-        const rtmdayliData = convertirARtmdayli(datosReporte);
-        const nombreArchivo = `Reporte_${datosReporte.nombreCaso.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
-        
-        // Descargamos el archivo
-        descargarArchivo(rtmdayliData, nombreArchivo, 'application/octet-stream');
-        mostrarAlerta(`Reporte exportado como ${nombreArchivo}`);
+        // Función para convertir una URL de imagen a Base64
+        const convertirImagenABase64 = async (url) => {
+          try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          } catch (error) {
+            console.error("Error al convertir imagen a Base64:", error);
+            return null;
+          }
+        };
+
+        // Convertimos todas las imágenes a Base64
+        const convertirTodasLasImagenes = async () => {
+          const imagenesConvertidas = [];
+          for (const url of datosReporte.fotoURLs) {
+            const base64 = await convertirImagenABase64(url);
+            if (base64) {
+              imagenesConvertidas.push({
+                urlOriginal: url,
+                datosBase64: base64,
+                nombre: url.split('/').pop().split('?')[0]
+              });
+            }
+          }
+          return imagenesConvertidas;
+        };
+
+        // Convertimos y esperamos a que todas las imágenes estén listas
+        convertirTodasLasImagenes().then(imagenesBase64 => {
+          datosReporte.imagenesBase64 = imagenesBase64;
+          
+          // Convertimos a formato RTMDAyLI
+          const rtmdayliData = convertirARtmdayli(datosReporte);
+          const nombreArchivo = `Reporte_${datosReporte.nombreCaso.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
+          
+          // Descargamos el archivo
+          descargarArchivo(rtmdayliData, nombreArchivo, 'application/octet-stream');
+          mostrarAlerta(`Reporte exportado como ${nombreArchivo} con ${imagenesBase64.length} imágenes incluidas`);
+        }).catch(error => {
+          console.error("Error al procesar imágenes:", error);
+          mostrarAlerta("Error al procesar las imágenes del reporte", 'error');
+        });
       } else {
         mostrarAlerta("No se pudo encontrar el reporte seleccionado", 'error');
       }
