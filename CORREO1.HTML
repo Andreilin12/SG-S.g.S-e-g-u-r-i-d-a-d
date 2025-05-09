@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Correo con EmailJS</title>
+  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function() {
+      emailjs.init("32MfEXLHPu9Uj6rMc"); // Tu clave pública
+    })();
+  </script>
+</head>
+<body>
+  <h2>Enviar mensaje a los4elementos27@gmail.com</h2>
+  <form id="contact-form">
+    <label for="from_name">Tu nombre:</label><br>
+    <input type="text" name="from_name" required><br><br>
+
+    <label for="message">Tu mensaje:</label><br>
+    <textarea name="message" rows="5" required></textarea><br><br>
+
+    <!-- Puedes agregar otros campos que coincidan con tu plantilla si es necesario -->
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script type="text/javascript">
+    document.getElementById('contact-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      emailjs.sendForm('service_vwjqy7p', 'template_m0s04cs', this)
+        .then(function() {
+          alert('¡Correo enviado correctamente!');
+        }, function(error) {
+          alert('Error al enviar: ' + JSON.stringify(error));
+        });
+    });
+  </script>
+</body>
+</html>
