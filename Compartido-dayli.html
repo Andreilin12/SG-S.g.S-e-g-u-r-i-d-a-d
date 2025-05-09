@@ -1296,16 +1296,24 @@
       const reporte = allReports.find(r => r.id === reporteSeleccionado);
       
       if (reporte) {
+        // Preparamos los datos del reporte incluyendo las imágenes
         const datosReporte = {
           ...reporte,
-          coleccion: "Reportes"
+          coleccion: "Reportes",
+          // Aseguramos que las imágenes se incluyan correctamente
+          fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : []),
+          fotoURL: reporte.fotoURL || null
         };
-        
+
+        // Convertimos a formato RTMDAyLI
         const rtmdayliData = convertirARtmdayli(datosReporte);
         const nombreArchivo = `Reporte_${datosReporte.nombreCaso.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0,10)}.rtmdayli`;
         
+        // Descargamos el archivo
         descargarArchivo(rtmdayliData, nombreArchivo, 'application/octet-stream');
         mostrarAlerta(`Reporte exportado como ${nombreArchivo}`);
+      } else {
+        mostrarAlerta("No se pudo encontrar el reporte seleccionado", 'error');
       }
       
       cerrarModalExportacion();
@@ -1318,11 +1326,14 @@
         return;
       }
 
+      // Preparamos los datos de todos los reportes incluyendo imágenes
       const paqueteReportes = {
         coleccion: "Reportes",
         reportes: allReports.map(reporte => ({
           id: reporte.id,
-          ...reporte
+          ...reporte,
+          fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : []),
+          fotoURL: reporte.fotoURL || null
         })),
         metadata: {
           totalReportes: allReports.length,
@@ -1355,7 +1366,9 @@
         const reporte = allReports.find(r => r.id === reporteId);
         return {
           id: reporteId,
-          ...reporte
+          ...reporte,
+          fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : []),
+          fotoURL: reporte.fotoURL || null
         };
       });
 
@@ -1384,7 +1397,9 @@
         coleccion: "Reportes",
         reportes: allReports.map(reporte => ({
           id: reporte.id,
-          ...reporte
+          ...reporte,
+          fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : []),
+          fotoURL: reporte.fotoURL || null
         })),
         configuracion: {
           usuario: configuracionUsuario,
@@ -1435,7 +1450,9 @@
           if (reporte.userId === currentUser.uid || (reporte.compartidoCon && reporte.compartidoCon.includes(currentUser.uid))) {
             const reporteData = {
               id: doc.id,
-              ...reporte
+              ...reporte,
+              // Aseguramos que siempre tengamos un array de fotos
+              fotoURLs: reporte.fotoURLs || (reporte.fotoURL ? [reporte.fotoURL] : [])
             };
             allReports.push(reporteData);
 
@@ -2133,6 +2150,5 @@
       document.getElementById('modalReportesRecibidos').style.display = 'none';
     };
   </script>
-
 </body>
 </html>
