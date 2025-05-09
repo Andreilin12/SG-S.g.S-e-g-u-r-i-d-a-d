@@ -1076,8 +1076,7 @@
 
   <!-- Alert Sound -->
   <audio id="alertSound" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/SD_ALERT_32.mp3?alt=media&token=6c8d7b14-ca44-44ad-95de-8e533cd9e948"></audio>
-
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -1117,10 +1116,31 @@
         cargarPreferenciasUsuario();
         iniciarEscuchaEnTiempoReal();
         cargarReportesRecibidos();
+        configurarBuscador();
       } else {
         window.location.href = "login.html";
       }
     });
+
+    // Configurar buscador
+    function configurarBuscador() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const reportItems = document.querySelectorAll('.report-item');
+        
+        reportItems.forEach(item => {
+          const title = item.querySelector('.report-title').textContent.toLowerCase();
+          const date = item.querySelector('.report-date').textContent.toLowerCase();
+          
+          if (title.includes(searchTerm) || date.includes(searchTerm)) {
+            item.style.display = 'flex';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
 
     // Function to load user preferences
     async function cargarPreferenciasUsuario() {
@@ -1268,14 +1288,12 @@
 
     // Function to export current report
     window.exportarReporteActual = function(formato) {
-      const reporteActivo = document.querySelector('.reporte-item-container.active');
-      if (!reporteActivo) {
+      if (!reporteSeleccionado) {
         mostrarAlerta("Abre un reporte primero para exportarlo", 'error');
         return;
       }
 
-      const reporteId = reporteActivo.dataset.id;
-      const reporte = allReports.find(r => r.id === reporteId);
+      const reporte = allReports.find(r => r.id === reporteSeleccionado);
       
       if (reporte) {
         const datosReporte = {
@@ -1323,7 +1341,7 @@
 
     // Function to export current view
     window.exportarVistaActual = function(formato) {
-      const reportesVisibles = Array.from(document.querySelectorAll('.reporte-item-container')).filter(el => {
+      const reportesVisibles = Array.from(document.querySelectorAll('.report-item')).filter(el => {
         return window.getComputedStyle(el).display !== 'none';
       });
       
@@ -1436,6 +1454,7 @@
               });
               listItem.classList.add('active');
               cargarDetallesReporte(reporteData);
+              reporteSeleccionado = doc.id;
               
               if (reporte.compartidoCon && !reporte.leidoPor?.includes(currentUser.uid)) {
                 marcarComoLeido(doc.id, reporte);
@@ -1460,6 +1479,7 @@
           const activeReport = allReports.find(r => r.id === activeItem.dataset.id);
           if (activeReport) {
             cargarDetallesReporte(activeReport);
+            reporteSeleccionado = activeItem.dataset.id;
           }
         }
       });
@@ -2113,5 +2133,6 @@
       document.getElementById('modalReportesRecibidos').style.display = 'none';
     };
   </script>
+
 </body>
 </html>
