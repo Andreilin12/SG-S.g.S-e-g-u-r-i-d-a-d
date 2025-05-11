@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiki Tok - Login y Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #42093e;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background-color: #42093e;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            padding: 40px;
+            width: 350px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .logo {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #ff0000;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: white;
+        }
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .nav-tabs button {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 45%;
+        }
+        .nav-tabs button:hover {
+            background-color: #cc0000;
+        }
+        .nav-tabs .active {
+            background-color: #ff0000;
+        }
+        .form-container {
+            display: none;
+            transition: all 0.3s ease;
+        }
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: white;
+        }
+        .btn {
+            background-color: #ff0000;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #cc0000;
+        }
+        .btn-secondary {
+            background-color: #333;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #444;
+        }
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .profile-pic-container {
+            margin: 15px 0;
+            position: relative;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #333;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: #777;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid #ff0000;
+        }
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-pic-input {
+            display: none;
+        }
+        .age-display {
+            color: #ff0000;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .error-message {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff0000;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+        }
+        .alert-success {
+            background-color: #4CAF50;
+        }
+        .alert-error {
+            background-color: #f44336;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<!-- Alert Messages -->
+<div class="alert alert-success" id="successAlert">
+    <i class="fas fa-check-circle"></i> Registro exitoso!
+</div>
+<div class="alert alert-error" id="errorAlert">
+    <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
+</div>
+
+<div class="login-container">
+    <div class="logo">
+        <i class="fas fa-robot"></i> PERLA
+    </div>
+    
+    <div class="nav-tabs">
+        <button id="loginTab" class="active">Iniciar Sesión</button>
+        <button id="registerTab">Crear Cuenta</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginFormContainer" class="form-container active">
+        <div class="progress-steps">
+            <div id="loginStep1" class="step active">1</div>
+            <div id="loginStep2" class="step">2</div>
+        </div>
+
+        <div id="loginEmailStep" class="form-container active">
+            <form id="emailForm">
+                <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
+                <button type="submit" class="btn">Continuar</button>
+            </form>
+        </div>
+
+        <div id="loginPasswordStep" class="form-container">
+            <form id="loginForm">
+                <div style="text-align: left; margin-bottom: 10px;">
+                    Correo: <span id="displayEmail"></span>
+                </div>
+                <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                <button type="submit" class="btn">Iniciar Sesión</button>
+                <button type="button" id="loginBackButton" class="btn btn-secondary">Volver</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerFormContainer" class="form-container">
+        <form id="registerForm">
+            <div class="profile-pic-container">
+                <label for="profilePicInput" class="profile-pic">
+                    <i class="fas fa-user"></i>
+                    <img id="profilePicPreview" style="display: none;">
+                </label>
+                <input type="file" id="profilePicInput" class="profile-pic-input" accept="image/*">
+                <div class="error-message" id="profilePicError">Por favor selecciona una imagen</div>
+            </div>
+            
+            <input type="text" id="fullName" placeholder="Nombre Completo" required>
+            <input type="email" id="registerEmail" placeholder="Correo Electrónico" required>
+            <input type="password" id="registerPassword" placeholder="Contraseña" minlength="6" required>
+            <input type="password" id="confirmPassword" placeholder="Confirmar Contraseña" required>
+            <div class="error-message" id="passwordError">Las contraseñas no coinciden</div>
+            
+            <input type="tel" id="phone" placeholder="Teléfono" required>
+            
+            <label for="birthDate" style="display: block; text-align: left; margin-top: 10px;">Fecha de Nacimiento</label>
+            <input type="date" id="birthDate" required>
+            <div class="age-display" id="ageDisplay"></div>
+            
+            <select id="gender" required>
+                <option value="" disabled selected>Selecciona tu sexo</option>
+                <option value="male">Masculino</option>
+                <option value="female">Femenino</option>
+                <option value="other">Otro</option>
+            </select>
+            
+            <button type="submit" class="btn" id="registerButton">Registrarse</button>
+            <button type="button" id="registerBackButton" class="btn btn-secondary">Volver a Login</button>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+    // Import the necessary Firebase services
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithEmailAndPassword, 
+        createUserWithEmailAndPassword, 
+        onAuthStateChanged,
+        setPersistence,
+        browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { 
+        getStorage, 
+        ref, 
+        uploadBytes, 
+        getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+    import { 
+        getDatabase, 
+        ref as dbRef, 
+        set 
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+        authDomain: "inventario-35d6b.firebaseapp.com",
+        databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+        projectId: "inventario-35d6b",
+        storageBucket: "inventario-35d6b.appspot.com",
+        messagingSenderId: "266100399659",
+        appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    const database = getDatabase(app);
+
+    // DOM elements
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const registerFormContainer = document.getElementById('registerFormContainer');
+    
+    // Login elements
+    const emailForm = document.getElementById('emailForm');
+    const loginForm = document.getElementById('loginForm');
+    const loginBackButton = document.getElementById('loginBackButton');
+    const displayEmail = document.getElementById('displayEmail');
+    
+    // Register elements
+    const registerForm = document.getElementById('registerForm');
+    const registerBackButton = document.getElementById('registerBackButton');
+    const registerButton = document.getElementById('registerButton');
+    const profilePicInput = document.getElementById('profilePicInput');
+    const profilePicPreview = document.getElementById('profilePicPreview');
+    const profilePicError = document.getElementById('profilePicError');
+    const passwordError = document.getElementById('passwordError');
+    const birthDate = document.getElementById('birthDate');
+    const ageDisplay = document.getElementById('ageDisplay');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    // Loading and alerts
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Variables
+    let profilePicFile = null;
+    let isNewDevice = true;
+
+    // Check if device is recognized (using localStorage)
+    function checkDevice() {
+        const deviceId = localStorage.getItem('deviceId');
+        if (deviceId) {
+            isNewDevice = false;
+            showLoginForm();
+        } else {
+            isNewDevice = true;
+            showRegisterForm();
+        }
+    }
+
+    // Generate a simple device ID
+    function generateDeviceId() {
+        return 'device_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Show loading spinner
+    function showLoading() {
+        loadingOverlay.style.display = 'flex';
+        registerButton.disabled = true;
+    }
+
+    // Hide loading spinner
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+        registerButton.disabled = false;
+    }
+
+    // Show success alert
+    function showSuccessAlert(message) {
+        successAlert.querySelector('span').textContent = message || 'Registro exitoso!';
+        successAlert.style.display = 'block';
+        setTimeout(() => {
+            successAlert.style.display = 'none';
+        }, 3000);
+    }
+
+    // Show error alert
+    function showErrorAlert(message) {
+        errorMessage.textContent = message;
+        errorAlert.style.display = 'block';
+        setTimeout(() => {
+            errorAlert.style.display = 'none';
+        }, 3000);
+    }
+
+    // Switch between login and register forms
+    function showLoginForm() {
+        loginFormContainer.classList.add('active');
+        registerFormContainer.classList.remove('active');
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        resetLoginForm();
+    }
+
+    function showRegisterForm() {
+        loginFormContainer.classList.remove('active');
+        registerFormContainer.classList.add('active');
+        loginTab.classList.remove('active');
+        registerTab.classList.add('active');
+    }
+
+    // Reset login form to initial state
+    function resetLoginForm() {
+        document.getElementById('loginEmailStep').classList.add('active');
+        document.getElementById('loginPasswordStep').classList.remove('active');
+        document.getElementById('loginStep1').classList.add('active');
+        document.getElementById('loginStep1').classList.remove('completed');
+        document.getElementById('loginStep2').classList.remove('active');
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+    }
+
+    // Calculate age from birth date
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+            age--;
+        }
+        
+        return age;
+    }
+
+    // Event Listeners
+    loginTab.addEventListener('click', showLoginForm);
+    registerTab.addEventListener('click', showRegisterForm);
+    registerBackButton.addEventListener('click', showLoginForm);
+
+    // Handle email form submission (login)
+    emailForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showErrorAlert("Por favor ingrese un correo electrónico válido");
+            return;
+        }
+        
+        displayEmail.textContent = email;
+        document.getElementById('loginEmailStep').classList.remove('active');
+        document.getElementById('loginPasswordStep').classList.add('active');
+        document.getElementById('loginStep1').classList.remove('active');
+        document.getElementById('loginStep1').classList.add('completed');
+        document.getElementById('loginStep2').classList.add('active');
+    });
+
+    // Handle back button click (login)
+    loginBackButton.addEventListener('click', () => {
+        document.getElementById('loginPasswordStep').classList.remove('active');
+        document.getElementById('loginEmailStep').classList.add('active');
+        document.getElementById('loginStep2').classList.remove('active');
+        document.getElementById('loginStep1').classList.add('active');
+        document.getElementById('loginStep1').classList.remove('completed');
+    });
+
+    // Handle login form submission
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        showLoading();
+        
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                return signInWithEmailAndPassword(auth, email, password);
+            })
+            .then((userCredential) => {
+                localStorage.setItem('deviceId', generateDeviceId());
+                window.location.href = "giminis-chat.html";
+            })
+            .catch((error) => {
+                hideLoading();
+                console.error(error);
+                showErrorAlert("Error al iniciar sesión: " + error.message);
+            });
+    });
+
+    // Handle profile picture selection
+    profilePicInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.match('image.*')) {
+                profilePicError.textContent = "Por favor selecciona un archivo de imagen válido";
+                profilePicError.style.display = 'block';
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                profilePicError.textContent = "La imagen no debe exceder los 2MB";
+                profilePicError.style.display = 'block';
+                return;
+            }
+            
+            profilePicFile = file;
+            profilePicError.style.display = 'none';
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                profilePicPreview.src = event.target.result;
+                profilePicPreview.style.display = 'block';
+                document.querySelector('.profile-pic i').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Handle birth date change
+    birthDate.addEventListener('change', () => {
+        const age = calculateAge(birthDate.value);
+        ageDisplay.textContent = `Edad: ${age} años`;
+    });
+
+    // Handle password confirmation
+    confirmPassword.addEventListener('input', () => {
+        const password = document.getElementById('registerPassword').value;
+        const confirm = confirmPassword.value;
+        
+        if (password !== confirm && confirm.length > 0) {
+            passwordError.style.display = 'block';
+        } else {
+            passwordError.style.display = 'none';
+        }
+    });
+
+    // Handle register form submission
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Validate form
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+        const confirm = confirmPassword.value;
+        const phone = document.getElementById('phone').value.trim();
+        const birthDateValue = birthDate.value;
+        const gender = document.getElementById('gender').value;
+        
+        if (!profilePicFile) {
+            profilePicError.style.display = 'block';
+            return;
+        }
+        
+        if (password !== confirm) {
+            passwordError.style.display = 'block';
+            return;
+        }
+        
+        if (password.length < 6) {
+            showErrorAlert("La contraseña debe tener al menos 6 caracteres");
+            return;
+        }
+        
+        if (!birthDateValue) {
+            showErrorAlert("Por favor ingresa tu fecha de nacimiento");
+            return;
+        }
+        
+        if (!fullName || !email || !phone || !gender) {
+            showErrorAlert("Por favor completa todos los campos");
+            return;
+        }
+        
+        showLoading();
+        
+        try {
+            // 1. Create user in Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            // 2. Upload profile picture to Firebase Storage
+            const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+            const snapshot = await uploadBytes(storageRef, profilePicFile);
+            const photoURL = await getDownloadURL(snapshot.ref);
+            
+            // 3. Calculate age
+            const age = calculateAge(birthDateValue);
+            
+            // 4. Save user data to Firebase Realtime Database
+            await set(dbRef(database, 'users/' + user.uid), {
+                fullName: fullName,
+                email: email,
+                phone: phone,
+                birthDate: birthDateValue,
+                age: age,
+                gender: gender,
+                photoURL: photoURL,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString()
+            });
+            
+            // 5. Set device as recognized
+            localStorage.setItem('deviceId', generateDeviceId());
+            
+            // 6. Show success message
+            hideLoading();
+            showSuccessAlert("¡Registro exitoso! Redirigiendo...");
+            
+            // 7. Redirect after short delay
+            setTimeout(() => {
+                window.location.href = "giminis-chat.html";
+            }, 2000);
+            
+        } catch (error) {
+            hideLoading();
+            console.error("Error en registro:", error);
+            
+            let errorMsg = "Error al registrar usuario";
+            if (error.code === 'auth/email-already-in-use') {
+                errorMsg = "El correo electrónico ya está en uso";
+            } else if (error.code === 'auth/weak-password') {
+                errorMsg = "La contraseña es demasiado débil";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMsg = "El correo electrónico no es válido";
+            }
+            
+            showErrorAlert(errorMsg);
+        }
+    });
+
+    // Check authentication state
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = "public.html";
+        } else {
+            checkDevice();
+        }
+    });
+
+    // Set max date for birth date (minimum age 13 years)
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setFullYear(today.getFullYear() - 13);
+    birthDate.max = maxDate.toISOString().split('T')[0];
+</script>
+
+</body>
+</html>
