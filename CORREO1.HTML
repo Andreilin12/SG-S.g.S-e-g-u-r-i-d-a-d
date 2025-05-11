@@ -1,40 +1,140 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Enviar Correo con EmailJS</title>
-  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script type="text/javascript">
-    (function() {
-      emailjs.init("32MfEXLHPu9Uj6rMc"); // Tu clave pública
-    })();
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto Futurista</title>
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("32MfEXLHPu9Uj6rMc"); // Tu clave pública
+        })();
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a192f; /* Fondo oscuro y moderno */
+            color: #ccd6f6; /* Texto claro para contraste */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #112240; /* Contenedor más oscuro */
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Sombra sutil */
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h2 {
+            color: #64ffda; /* Color акцентный */
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #a8b2d1;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #233554;
+            border-radius: 5px;
+            background-color: #1e2d4a;
+            color: #ccd6f6;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button[type="submit"] {
+            background-color: #64ffda;
+            color: #0a192f;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #49ccb8;
+        }
+
+        /* Estilos para el mensaje de alerta */
+        .alert {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #baf0c9;
+            color: #2e7d32;
+        }
+
+        .alert-error {
+            background-color: #ffdddd;
+            color: #d32f2f;
+        }
+    </style>
 </head>
 <body>
-  <h2>Enviar mensaje a los4elementos27@gmail.com</h2>
-  <form id="contact-form">
-    <label for="from_name">Tu nombre:</label><br>
-    <input type="text" name="from_name" required><br><br>
+    <div class="container">
+        <h2>Enviar mensaje a <span style="color:#64ffda;">los4elementos27@gmail.com</span></h2>
+        <form id="contact-form">
+            <label for="from_name">Tu nombre:</label><br>
+            <input type="text" name="from_name" required><br><br>
 
-    <label for="message">Tu mensaje:</label><br>
-    <textarea name="message" rows="5" required></textarea><br><br>
+            <label for="message">Tu mensaje:</label><br>
+            <textarea name="message" rows="5" required></textarea><br><br>
 
-    <!-- Puedes agregar otros campos que coincidan con tu plantilla si es necesario -->
+            <button type="submit">Enviar Mensaje</button>
+        </form>
 
-    <button type="submit">Enviar</button>
-  </form>
+        <div id="alert-container"></div>
 
-  <script type="text/javascript">
-    document.getElementById('contact-form').addEventListener('submit', function(event) {
-      event.preventDefault();
+        <script type="text/javascript">
+            document.getElementById('contact-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.innerHTML = ''; // Limpiar mensajes anteriores
 
-      emailjs.sendForm('service_vwjqy7p', 'template_m0s04cs', this)
-        .then(function() {
-          alert('¡Correo enviado correctamente!');
-        }, function(error) {
-          alert('Error al enviar: ' + JSON.stringify(error));
-        });
-    });
-  </script>
+                emailjs.sendForm('service_vwjqy7p', 'template_m0s04cs', this)
+                    .then(function() {
+                        const successAlert = document.createElement('div');
+                        successAlert.classList.add('alert', 'alert-success');
+                        successAlert.textContent = '¡Correo enviado correctamente!';
+                        alertContainer.appendChild(successAlert);
+                        document.getElementById('contact-form').reset(); // Limpiar el formulario
+                    }, function(error) {
+                        const errorAlert = document.createElement('div');
+                        errorAlert.classList.add('alert', 'alert-error');
+                        errorAlert.textContent = 'Error al enviar: ' + JSON.stringify(error);
+                        alertContainer.appendChild(errorAlert);
+                    });
+            });
+        </script>
+    </div>
 </body>
 </html>
