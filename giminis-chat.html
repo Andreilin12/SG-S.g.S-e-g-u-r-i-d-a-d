@@ -689,7 +689,7 @@
                 newChatBtn.style.display = 'inline-block';
                 historyBtn.style.display = 'inline-block';
                 
-                // Cargar comandos cuando el usuario está autenticado
+                // Cargar comandos globales cuando el usuario está autenticado
                 await loadCommands();
                 
                 // Iniciar nueva conversación o cargar la última
@@ -713,12 +713,10 @@
             }
         });
         
-        // Cargar comandos desde Firestore
+        // Cargar comandos globales desde Firestore
         async function loadCommands() {
-            if (!currentUser) return;
-            
             try {
-                const q = query(collection(db, "commands"), where("userId", "==", currentUser.uid));
+                const q = query(collection(db, "global_commands"), orderBy("createdAt", "asc"));
                 const querySnapshot = await getDocs(q);
                 
                 commands = [];
@@ -726,8 +724,8 @@
                     commands.push(doc.data());
                 });
             } catch (error) {
-                console.error("Error al cargar comandos:", error);
-                addMessage("Error al cargar comandos personalizados. Usando solo respuestas generales.", false);
+                console.error("Error al cargar comandos globales:", error);
+                addMessage("Error al cargar comandos globales. Usando solo respuestas generales.", false);
             }
         }
         
@@ -1108,7 +1106,7 @@
                 return "No tengo contexto de un número anterior. Por favor, menciona un número primero.";
             }
             
-            // Comandos personalizados del usuario
+            // Comandos globales del sistema
             for (const cmd of commands) {
                 if (lowerMessage.includes(cmd.command.toLowerCase()) || 
                     lowerMessage === cmd.command.toLowerCase()) {
