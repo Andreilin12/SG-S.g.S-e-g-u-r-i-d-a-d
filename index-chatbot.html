@@ -507,7 +507,17 @@
             .catch((error) => {
                 hideLoading();
                 console.error(error);
-                showErrorAlert("Error al iniciar sesión: " + error.message);
+                
+                let errorMsg = "Error de contraseña";
+                if (error.code === 'auth/invalid-email') {
+                    errorMsg = "Correo electrónico no válido";
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMsg = "Usuario no encontrado";
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = "Demasiados intentos. Intente más tarde";
+                }
+                
+                showErrorAlert(errorMsg);
             });
     });
 
