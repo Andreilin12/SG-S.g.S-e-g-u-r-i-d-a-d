@@ -39,6 +39,7 @@
             background-image: 
                 radial-gradient(circle at 25% 25%, rgba(106, 27, 154, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 75% 75%, rgba(156, 39, 176, 0.1) 0%, transparent 50%);
+            height: 100vh;
         }
         
         .container {
@@ -48,7 +49,7 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
         }
         
         .auth-info {
@@ -121,7 +122,8 @@
             background-color: var(--card-bg);
             border-radius: 0;
             overflow: hidden;
-            height: calc(100vh - 50px);
+            height: 100%;
+            position: relative;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         
@@ -145,6 +147,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            position: relative;
         }
         
         .message {
@@ -270,6 +273,9 @@
             padding: 12px;
             border-top: 1px solid rgba(179, 0, 255, 0.3);
             background-color: var(--card-bg);
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
         }
         
         .chat-input {
@@ -429,7 +435,6 @@
                 margin: 20px auto;
                 border-radius: 10px;
                 overflow: hidden;
-                min-height: auto;
                 height: 90vh;
             }
             
