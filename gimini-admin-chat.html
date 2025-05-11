@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrador de Comandos</title>
+    <title>Administrador de Comandos Globales</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -127,6 +127,12 @@
         #logout-btn {
             background-color: #f44336;
         }
+        .admin-warning {
+            color: #f44336;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +143,8 @@
             <button id="logout-btn" style="display: none;">Cerrar Sesión</button>
         </div>
         
-        <h1>Administrador de Comandos</h1>
+        <h1>Administrador de Comandos Globales</h1>
+        <div class="admin-warning">ADVERTENCIA: Los cambios aquí afectarán a TODOS los usuarios</div>
         
         <div class="command-form">
             <input type="text" id="command-input" placeholder="Comando (ej: saludo)" required>
@@ -177,7 +184,6 @@
             doc, 
             deleteDoc,
             query,
-            where,
             orderBy
         } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -196,7 +202,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const commandsCollection = collection(db, "commands");
+        const commandsCollection = collection(db, "global_commands"); // Cambiado a colección global
         
         // Elementos del DOM
         const commandInput = document.getElementById('command-input');
@@ -242,7 +248,7 @@
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
                 
-                // Cargar comandos cuando el usuario está autenticado
+                // Cargar comandos globales cuando el usuario está autenticado
                 await loadCommands();
             } else {
                 authStatus.textContent = 'No autenticado';
@@ -254,12 +260,10 @@
             }
         });
         
-        // Cargar comandos desde Firestore
+        // Cargar comandos globales desde Firestore
         async function loadCommands() {
-            if (!currentUser) return;
-            
             try {
-                const q = query(collection(db, "commands"), where("userId", "==", currentUser.uid));
+                const q = query(commandsCollection, orderBy("createdAt", "asc"));
                 const querySnapshot = await getDocs(q);
                 
                 commands = [];
@@ -309,7 +313,7 @@
                     
                     if (this.textContent === 'Eliminar') {
                         try {
-                            await deleteDoc(doc(db, "commands", commandId));
+                            await deleteDoc(doc(db, "global_commands", commandId));
                             commands.splice(index, 1);
                             renderCommands();
                         } catch (error) {
@@ -326,7 +330,7 @@
             });
         }
         
-        // Agregar nuevo comando
+        // Agregar nuevo comando global
         addButton.addEventListener('click', async function() {
             if (!currentUser) {
                 alert("Debes iniciar sesión para agregar comandos");
@@ -338,18 +342,16 @@
             
             if (command && response) {
                 try {
-                    const docRef = await addDoc(collection(db, "commands"), {
+                    const docRef = await addDoc(commandsCollection, {
                         command,
                         response,
-                        userId: currentUser.uid,
                         createdAt: new Date()
                     });
                     
                     commands.push({
                         id: docRef.id,
                         command,
-                        response,
-                        userId: currentUser.uid
+                        response
                     });
                     
                     renderCommands();
@@ -372,7 +374,7 @@
             
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
             
-            const exportFileDefaultName = 'comandos-ia.json';
+            const exportFileDefaultName = 'comandos-globales.json';
             
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
@@ -403,10 +405,9 @@
                         
                         for (const cmd of importedCommands) {
                             if (cmd.command && cmd.response) {
-                                await addDoc(collection(db, "commands"), {
+                                await addDoc(commandsCollection, {
                                     command: cmd.command,
                                     response: cmd.response,
-                                    userId: currentUser.uid,
                                     createdAt: new Date()
                                 });
                                 importedCount++;
