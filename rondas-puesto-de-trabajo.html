@@ -9,7 +9,8 @@
   <style>
     :root {
       --primary-color: #1abc9c;
-      --primary-dark: #16a085;
+      --primaryss-color: #fff;
+      --praimary-dark: #16sa085;
       --primarys-dark: #10856f;
       --secondary-color: #2a2a3f;
       --background-color: #2c3e50;
@@ -214,6 +215,7 @@
 
     .add-more-btn:hover {
       background-color: var(--primary-dark);
+
     }
 
     .data-grid {
@@ -704,7 +706,7 @@
     }
 
     .round-option:hover {
-      background-color: var(--primary-dark);
+      background-color: var(--primary-dark); 
     }
 
     .round-option.selected {
@@ -724,7 +726,7 @@
 
     .user-input-wrapper i {
       margin-right: 0.5rem;
-      color: var(--primary-color);
+      color: var(--primaryss-color);
     }
 
     .add-user-btn {
@@ -1467,7 +1469,7 @@
           <i class="fas fa-user"></i>
           <input type="text" class="form-control current-user-name" placeholder="Ingrese nombre de usuario">
           <button class="remove-user-btn add-user-btn">
-            <i class="fas fa-minus"></i>
+            <i class="fa-solid fa-xmark""></i>
           </button>
         `;
         usersContainer.appendChild(wrapper);
@@ -1639,7 +1641,7 @@
           wrapper.innerHTML = `
             <i class="fas fa-user"></i>
             <input type="text" class="form-control current-user-name" value="${user}" placeholder="Ingrese nombre de usuario">
-            ${index > 0 ? '<button class="remove-user-btn add-user-btn"><i class="fas fa-minus"></i></button>' : ''}
+            ${index > 0 ? '<button class="remove-user-btn add-user-btn"><i class="fa-solid fa-xmark""></i></button>' : ''}
           `;
           usersContainer.appendChild(wrapper);
           
