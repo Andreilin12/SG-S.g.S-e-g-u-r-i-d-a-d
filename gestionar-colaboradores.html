@@ -14,15 +14,19 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
-      --cedula-blue: #0054a6;
-      --cedula-red: #d21034;
+      --cedula-blue: #15a086;
+      --cedula-blue1: #fff;
+      --cedula-blue2: #15a086;
+      --cedula-blue3: #15a086;
+      --cedula-red: #15a086;
       --cedula-gold: #c5a258;
       --sidebar-bg: #2c3e50;
       --sidebar-text: #ecf0f1;
       --sidebar-hover: #34495e;
-      --content-bg: #f5f7fa;
-      --card-bg: #ffffff;
-      --text-dark: #2c3e50;
+      --content-bg: #2c3e50;
+      --card-bg: #2c3e50;
+      --card1-bg: #fff;
+      --text-dark: #000;
       --text-light: #ecf0f1;
       --border-color: #dfe6e9;
       --accent-color: #3498db;
@@ -195,7 +199,7 @@
     .content-title {
       font-size: 24px;
       font-weight: 500;
-      color: var(--cedula-blue);
+      color: var(--cedula-blue1);
     }
 
     /* User Details */
@@ -231,7 +235,7 @@
       font-size: 18px;
       font-weight: 500;
       margin-bottom: 15px;
-      color: var(--cedula-blue);
+      color: var(--cedula-blue3);
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
@@ -254,12 +258,13 @@
     .info-table td {
       padding: 12px 5px;
       font-size: 14px;
+      color: white;
     }
 
     .info-table td:first-child {
       font-weight: 500;
       width: 40%;
-      color: var(--cedula-blue);
+      color: var(--cedula-blue3);
     }
 
     .info-table input {
@@ -268,6 +273,8 @@
       border: 1px solid var(--border-color);
       border-radius: 4px;
       font-family: 'Roboto', sans-serif;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
     }
 
     .action-buttons {
@@ -324,6 +331,7 @@
       margin-top: 25px;
     }
 
+
     .cedula-container {
       perspective: 1000px;
       width: 100%;
@@ -339,6 +347,9 @@
       transform-style: preserve-3d;
       transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
       cursor: pointer;
+      background-color: var(--card1-bg);
+      border-radius: 8px;
+
     }
 
     .cedula-card.flipped {
@@ -462,8 +473,8 @@
 
     /* Reverso de la cédula */
     .qr-container {
-      width: 180px;
-      height: 180px;
+      width: 120px;
+      height: 120px;
       margin: 15px 0;
       background-color: white;
       padding: 10px;
@@ -471,7 +482,7 @@
     }
 
     .back-title {
-      color: var(--cedula-blue);
+      color: var(--cedula-blue3);
       font-size: 18px;
       font-weight: bold;
       margin-bottom: 10px;
@@ -488,7 +499,7 @@
     .download-btn {
       margin-top: 15px;
       padding: 10px 25px;
-      background: linear-gradient(to right, var(--cedula-blue), var(--cedula-red));
+      background: linear-gradient(to right, var(--cedula-blue2), var(--cedula-red));
       color: white;
       border: none;
       border-radius: 5px;
@@ -786,9 +797,9 @@
           <i class="fas fa-user-plus"></i> Reingresar Colaborador
         </button>
       </div>
-
+      <br>
       <!-- Cédula Simulation -->
-      <div class="cedula-section">
+      <div class="cedula-section1">
         <div class="card-title">
           <i class="fas fa-id-card"></i> Cédula de Identidad
         </div>
