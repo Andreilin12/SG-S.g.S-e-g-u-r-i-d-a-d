@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerca de | Security System Retom</title>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #172a45;
+            --accent: #64ffda;
+            --text: #ccd6f6;
+            --text-secondary: #8892b0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--secondary);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--accent);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--accent), #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h1, h2, h3 {
+            color: var(--accent);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -10px;
+            left: 0;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            border-left: 3px solid var(--accent);
+            padding-left: 15px;
+        }
+        
+        p, li {
+            color: var(--text-secondary);
+        }
+        
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            padding: 60px 0;
+            border-radius: 10px;
+            margin: 40px 0;
+            text-align: center;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+        
+        .feature {
+            background-color: var(--secondary);
+            padding: 30px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            border-top: 3px solid var(--accent);
+        }
+        
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .team {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+        
+        .team-member {
+            text-align: center;
+        }
+        
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .highlight-box {
+            background-color: var(--secondary);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        footer {
+            background-color: var(--secondary);
+            padding: 30px 0;
+            margin-top: 50px;
+            text-align: center;
+            border-top: 1px solid rgba(100, 255, 218, 0.2);
+        }
+        
+        .contact-info {
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .features, .team {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-text">Security System Retom</div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1>Acerca de Security System Retom</h1>
+        
+        <div class="hero">
+            <h2>Soluciones Integrales para la Gestión de Seguridad</h2>
+            <p>Desarrollado por Retom Digital Company para profesionalizar y optimizar los procesos de reportes y gestión en departamentos de seguridad</p>
+        </div>
+        
+        <h2>Nuestra Misión</h2>
+        <p>Security System Retom nace con el objetivo de transformar la gestión de seguridad en empresas, hoteles, resorts y organizaciones, proporcionando una plataforma centralizada para:</p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Reportes Estandarizados</h3>
+                <p>Unificar los procesos de reporte de incidentes (Lost and Found, CCTV, Agentes de Seguridad, Cerrajería, Guarda Vida) en una sola plataforma digital.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <h3>Análisis de Datos</h3>
+                <p>Proporcionar insights valiosos mediante análisis de patrones de incidentes y generación de reportes automatizados.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Respuesta Rápida</h3>
+                <p>Reducir tiempos de respuesta mediante notificaciones en tiempo real y flujos de trabajo optimizados.</p>
+            </div>
+        </div>
+        
+        <h2>Características Principales</h2>
+        <ul>
+            <li>Gestión centralizada de todos los reportes de seguridad</li>
+            <li>Interfaz intuitiva y adaptable a diferentes dispositivos</li>
+            <li>Almacenamiento seguro y encriptado de datos personales</li>
+            <li>Control de acceso con roles y permisos configurables</li>
+            <li>Integración con sistemas CCTV y otros dispositivos de seguridad</li>
+            <li>Módulos especializados para diferentes áreas (hotelería, resorts, empresas)</li>
+            <li>Exportación de reportes en múltiples formatos</li>
+        </ul>
+        
+        <div class="highlight-box">
+            <h3>Seguridad y Privacidad</h3>
+            <p>Security System Retom implementa los más altos estándares de seguridad para proteger los datos de nuestros clientes. <strong>Retom Digital Company no se hace responsable</strong> por accesos no autorizados resultantes del compartir voluntariamente credenciales de acceso (usuario y contraseña) por parte de los usuarios.</p>
+            <p>Consulte nuestras <a href="privacy.html">Política de Privacidad</a> y <a href="security.html">Política de Seguridad</a> para más información.</p>
+        </div>
+        
+        <h2>Nuestro Equipo</h2>
+        <p>Detrás de Security System Retom hay un equipo multidisciplinario de expertos en seguridad, desarrollo de software y experiencia de usuario:</p>
+        
+        <div class="team">
+            <div class="team-member">
+                <img src="ceo.html" alt="CEO">
+                <h3>Nombre CEO</h3>
+                <p>Fundador & CEO</p>
+                <p>Experto en seguridad con 15+ años en el sector</p>
+            </div>
+            
+            <div class="team-member">
+                <img src="cto.html0" alt="CTO">
+                <h3>Nombre CTO</h3>
+                <p>Director de Tecnología</p>
+                <p>Especialista en sistemas seguros y arquitectura de software</p>
+            </div>
+            
+            <div class="team-member">
+                <img src="cso.html" alt="CSO">
+                <h3>Nombre CSO</h3>
+                <p>Jefe de Seguridad</p>
+                <p>Experto en protección de datos y compliance</p>
+            </div>
+        </div>
+        
+        <h2>Contacto</h2>
+        <p>Para más información sobre Security System Retom, contáctenos:</p>
+        <p>Email: <a href="mailto:infor@retomrt.com">infor@retomrt.com</a></p>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Retom Digital Company. Todos los derechos reservados.</p>
+            <div class="contact-info">
+                <p>Security System Retom - Soluciones integrales de seguridad</p>
+                <p><a href="mailto:infor@retomrt.com">infor@retomrt.com</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
