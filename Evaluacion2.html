@@ -141,6 +141,7 @@
         .status-pending { color: #f59e0b; }
         .status-approved { color: #10b981; }
         .status-failed { color: #ef4444; }
+        .status-reserved { color: #f59e0b; }
         .form-container {
             max-width: 800px;
             margin: 0 auto;
@@ -316,6 +317,73 @@
             background: #ef4444 !important;
             border-radius: 8px !important;
         }
+        .hidden {
+            display: none;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .final-evaluation-result {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #eaf2f8;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .final-evaluation-result h3 {
+            color: #2c3e50;
+            border-bottom: none;
+            margin-top: 0;
+            text-align: center;
+        }
+        .final-evaluation-result p {
+            margin: 10px 0;
+        }
+        #final-result-text {
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.3em;
+            margin-top: 15px;
+        }
+        .signature-fields {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-field {
+            flex-basis: 48%;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            text-align: center;
+        }
+        .date-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #eaf2f8;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: #333;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .button-group button {
+            margin: 0 10px;
+        }
+        .evaluate-btn {
+            background-color: #e67e22 !important;
+        }
+        .evaluate-btn:hover {
+            background-color: #d35400 !important;
+        }
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -345,10 +413,10 @@
         <div class="sidebar">
             <h2><i class="fas fa-shield-alt"></i> Evaluaciones</h2>
             <ul>
-                <li><a href="#dashboard" onclick="showSection('dashboard')"><i class="fas fa-tachometer-alt"></i> Panel</a></li>
-                <li><a href="#collaborators" onclick="showSection('collaborators')"><i class="fas fa-users"></i> Colaboradores</a></li>
-                <li><a href="#evaluation" onclick="showSection('evaluation')"><i class="fas fa-clipboard-check"></i> Evaluación</a></li>
-                <li><a href="#add-collaborator" onclick="showSection('add-collaborator')"><i class="fas fa-user-plus"></i> Agregar Colaborador</a></li>
+                <li><a href="#" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Panel</a></li>
+                <li><a href="#" data-section="collaborators"><i class="fas fa-users"></i> Colaboradores</a></li>
+                <li><a href="#" data-section="evaluation"><i class="fas fa-clipboard-check"></i> Evaluación</a></li>
+                <li><a href="#" data-section="add-collaborator"><i class="fas fa-user-plus"></i> Agregar Colaborador</a></li>
             </ul>
         </div>
 
@@ -446,7 +514,10 @@
                             <p><strong>Resultado Final:</strong> <span id="final-result-text"></span></p>
                             <p><strong>Comentarios Consolidados:</strong> <span id="final-additional-comments"></span></p>
                             <p><strong>Días Evaluados:</strong> <span id="days-evaluated-count-final"></span> de <span id="total-expected-days-final">90</span></p>
-                            <button id="downloadPDF" class="button"><i class="fas fa-file-pdf"></i> Descargar Informe PDF</button>
+                            <div class="button-group">
+                                <button id="downloadPDF" class="button"><i class="fas fa-file-pdf"></i> Descargar Informe PDF</button>
+                                <button id="triggerFinalEvaluation" class="button evaluate-btn">Finalizar Evaluación</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -462,8 +533,36 @@
                             <input type="text" id="nombre" required>
                         </div>
                         <div class="input-group">
+                            <label for="cedula"><i class="fas fa-id-card"></i> Cédula</label>
+                            <input type="text" id="cedula" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="fecha-nacimiento"><i class="fas fa-birthday-cake"></i> Fecha de Nacimiento</label>
+                            <input type="date" id="fecha-nacimiento" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="nacionalidad"><i class="fas fa-globe"></i> Nacionalidad</label>
+                            <input type="text" id="nacionalidad" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="sexo"><i class="fas fa-venus-mars"></i> Sexo</label>
+                            <select id="sexo" required>
+                                <option value="">Seleccione</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="codigo-laboral"><i class="fas fa-barcode"></i> Código Laboral</label>
+                            <input type="text" id="codigo-laboral" required>
+                        </div>
+                        <div class="input-group">
                             <label for="fecha-ingreso"><i class="fas fa-calendar-alt"></i> Fecha de Ingreso</label>
                             <input type="date" id="fecha-ingreso" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="fecha-evaluacion"><i class="fas fa-calendar-check"></i> Fecha de Evaluación (90 días después)</label>
+                            <input type="date" id="fecha-evaluacion" readonly>
                         </div>
                         <div class="input-group">
                             <label for="empresa"><i class="fas fa-building"></i> Empresa</label>
@@ -490,14 +589,12 @@
                             <input type="text" id="jefe-cargo" required>
                         </div>
                         <div class="input-group">
-                            <label for="cedula"><i class="fas fa-id-card"></i> Cédula</label>
-                            <input type="text" id="cedula" required>
-                        </div>
-                        <div class="input-group">
                             <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
                             <input type="tel" id="telefono" required>
                         </div>
-                        <button type="submit" class="button"><i class="fas fa-save"></i> Agregar Colaborador</button>
+                        <div class="button-group">
+                            <button type="submit" class="button"><i class="fas fa-save"></i> Agregar Colaborador</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -507,7 +604,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
@@ -589,188 +686,49 @@
         const totalExpectedDays = document.getElementById('total-expected-days');
         const progressBarFill = document.getElementById('progress-bar-fill');
         const addCollaboratorForm = document.getElementById('addCollaboratorForm');
+        const fechaIngresoInput = document.getElementById('fecha-ingreso');
+        const fechaEvaluacionInput = document.getElementById('fecha-evaluacion');
+        const triggerFinalEvaluationBtn = document.getElementById('triggerFinalEvaluation');
 
-        // Funciones de Firebase
-        async function loadCollaborators() {
-            showLoading();
-            const querySnapshot = await getDocs(collection(db, "Colaboradores"));
-            colaboradorNombreSelect.innerHTML = '<option value="">Seleccione un colaborador</option>';
-            collaboratorList.innerHTML = '';
-            let pending = 0, approved = 0, failed = 0;
-
-            for (const docSnap of querySnapshot.docs) {
-                const data = docSnap.data();
-                const collaboratorKey = docSnap.id;
-                const evalDoc = await getDoc(doc(db, "EvaluacionTresMeses", collaboratorKey));
-                let status = 'Pendiente';
-                let statusClass = 'status-pending';
-
-                if (evalDoc.exists()) {
-                    const evalData = evalDoc.data();
-                    const daysEvaluated = await calculateDaysEvaluated(collaboratorKey, evalData.posicion, evalData.evaluationType, evalData.fechaInicioPrueba);
-                    const maxDays = evalData.evaluationType === 'daily' ? 90 : 1;
-                    if (daysEvaluated >= (evalData.evaluationType === 'daily' ? 0.85 * maxDays : 1)) {
-                        const { averageOverallScore, criticalLowScoreCount } = await calculateEvaluationMetrics(collaboratorKey, evalData.posicion, evalData.evaluationType, evalData.fechaInicioPrueba);
-                        const maxCriticalFailures = evalData.evaluationType === 'daily' ? Math.ceil(maxDays * 0.05) : 0;
-                        if (criticalLowScoreCount > maxCriticalFailures) {
-                            status = 'No Aprobado';
-                            statusClass = 'status-failed';
-                            failed++;
-                        } else if (averageOverallScore >= 3.5) {
-                            status = 'Aprobado';
-                            statusClass = 'status-approved';
-                            approved++;
-                        } else if (averageOverallScore >= 2.8) {
-                            status = 'Aprobado con Reservas';
-                            statusClass = 'status-reserved';
-                            approved++;
-                        } else {
-                            status = 'No Aprobado';
-                            statusClass = 'status-failed';
-                            failed++;
-                        }
-                    } else {
-                        pending++;
-                    }
-                } else {
-                    pending++;
-                }
-
-                // Actualizar lista de colaboradores
-                const option = document.createElement('option');
-                option.value = collaboratorKey;
-                option.textContent = collaboratorKey;
-                colaboradorNombreSelect.appendChild(option);
-
-                const card = document.createElement('div');
-                card.classList.add('collaborator-card');
-                card.innerHTML = `
-                    <h3>${collaboratorKey}</h3>
-                    <p><strong>Posición:</strong> ${data.posicion}</p>
-                    <p><strong>Estado:</strong> <span class="${statusClass}">${status}</span></p>
-                    <p><strong>Jefe a Cargo:</strong> ${data.jefeCargo}</p>
-                `;
-                card.onclick = () => selectCollaborator(collaboratorKey);
-                collaboratorList.appendChild(card);
-            }
-
-            pendingCount.textContent = pending;
-            approvedCount.textContent = approved;
-            failedCount.textContent = failed;
-            hideLoading();
-        }
-
-        async function addCollaborator(event) {
-            event.preventDefault();
-            const nombre = document.getElementById('nombre').value.trim();
-            const fechaIngreso = document.getElementById('fecha-ingreso').value;
-            const empresa = document.getElementById('empresa').value.trim();
-            const posicion = document.getElementById('posicion').value;
-            const departamento = document.getElementById('departamento').value.trim();
-            const areaTrabajo = document.getElementById('area-trabajo').value.trim();
-            const jefeCargo = document.getElementById('jefe-cargo').value.trim();
-            const cedula = document.getElementById('cedula').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-
-            if (!nombre || !fechaIngreso || !empresa || !posicion || !departamento || !areaTrabajo || !jefeCargo || !cedula || !telefono) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Error',
-                    text: 'Por favor, completa todos los campos.',
-                });
-                return;
-            }
-
-            showLoading();
-            try {
-                await setDoc(doc(db, "Colaboradores", nombre), {
-                    fechaIngreso,
-                    empresa,
-                    posicion,
-                    departamento,
-                    areaTrabajo,
-                    jefeCargo,
-                    cedula,
-                    telefono,
-                    createdAt: new Date().toISOString()
-                });
-                addCollaboratorForm.reset();
-                await loadCollaborators();
-                showSection('collaborators');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: `Colaborador ${nombre} agregado correctamente.`,
-                });
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo agregar el colaborador: ' + error.message,
-                });
-            }
-            hideLoading();
-        }
-
-        async function selectCollaborator(collaboratorKey) {
-            selectedCollaborator = collaboratorKey;
-            colaboradorNombreSelect.value = collaboratorKey;
-            await loadCollaboratorData();
-            showSection('evaluation');
-        }
-
-        async function loadCollaboratorData() {
-            if (!selectedCollaborator) return;
-            showLoading();
-            const docRef = doc(db, "EvaluacionTresMeses", selectedCollaborator);
-            const docSnap = await getDoc(docRef);
-            collaboratorData = docSnap.exists() ? docSnap.data() : {};
-            evaluationTypeSelect.value = collaboratorData.evaluationType || '';
-            updateProgress();
-            loadDailyForm();
-            hideLoading();
-        }
-
-        async function saveCollaboratorMetadata() {
-            if (!selectedCollaborator) return;
-            showLoading();
-            try {
-                await setDoc(doc(db, "EvaluacionTresMeses", selectedCollaborator), {
-                    posicion: (await getDoc(doc(db, "Colaboradores", selectedCollaborator))).data().posicion,
-                    evaluationType: evaluationTypeSelect.value,
-                    fechaInicioPrueba: (await getDoc(doc(db, "Colaboradores", selectedCollaborator))).data().fechaIngreso,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo guardar la información: ' + error.message,
-                });
-            }
-            hideLoading();
-        }
-
-        // Funciones Auxiliares
-        function showLoading() {
-            loading.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loading.style.display = 'none';
-        }
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+        // Función para mostrar secciones (global)
+        window.showSection = function(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
             document.getElementById(sectionId).classList.add('active');
+            
+            // Cargar datos específicos según la sección
             if (sectionId === 'evaluation') {
                 loadDailyForm();
                 updateProgress();
             } else if (sectionId === 'collaborators') {
                 loadCollaborators();
             }
+        };
+
+        // Configurar navegación del sidebar
+        function setupSidebarNavigation() {
+            const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('data-section');
+                    showSection(sectionId);
+                });
+            });
         }
 
+        // Mostrar loading
+        function showLoading() {
+            loading.style.display = 'flex';
+        }
+
+        // Ocultar loading
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // Formatear fecha para mostrar
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -778,11 +736,13 @@
             return `${year}-${month}-${day}`;
         }
 
+        // Parsear fecha desde string
         function parseDate(dateString) {
             const [year, month, day] = dateString.split('-').map(Number);
             return new Date(year, month - 1, day);
         }
 
+        // Actualizar visualización de fecha
         function updateDateDisplay() {
             currentDateDisplay.textContent = formatDate(currentDate);
             const today = new Date();
@@ -791,10 +751,12 @@
             nextDayBtn.classList.toggle('hidden', !isDaily || currentDate >= today);
         }
 
+        // Renderizar pregunta actual
         function renderQuestion(index) {
             dynamicQuestionsContainer.innerHTML = '';
             const selectedPuesto = collaboratorData?.posicion || '';
             currentQuestions = questions[selectedPuesto] || [];
+            
             if (!currentQuestions.length) {
                 dynamicQuestionsContainer.innerHTML = '<p>Por favor, selecciona un colaborador con una posición válida.</p>';
                 return;
@@ -830,19 +792,23 @@
             loadDailyEvaluation();
         }
 
+        // Cargar evaluación diaria desde Firebase
         async function loadDailyEvaluation() {
             if (!selectedCollaborator) return;
             const todayKey = formatDate(currentDate);
             showLoading();
             const docRef = doc(db, "EvaluacionTresMeses", selectedCollaborator, "dailyEvaluations", todayKey);
             const docSnap = await getDoc(docRef);
+            
             if (docSnap.exists() && docSnap.data().puesto === collaboratorData.posicion) {
                 const evaluationForToday = docSnap.data();
                 const q = currentQuestions[currentQuestionIndex];
                 const score = evaluationForToday[q.id];
+                
                 if (score) {
                     document.querySelector(`input[name="${q.id}"][value="${score}"]`).checked = true;
                 }
+                
                 const comments = evaluationForToday[`${q.id}-comments`];
                 if (comments) {
                     document.querySelector(`textarea[name="${q.id}-comments"]`).value = comments;
@@ -853,12 +819,14 @@
             hideLoading();
         }
 
+        // Cargar formulario diario
         function loadDailyForm() {
             currentQuestionIndex = 0;
             renderQuestion(currentQuestionIndex);
             updateDateDisplay();
         }
 
+        // Guardar evaluación diaria en Firebase
         async function saveDailyEvaluation() {
             if (!selectedCollaborator) {
                 Swal.fire({
@@ -870,7 +838,11 @@
             }
 
             const todayKey = formatDate(currentDate);
-            const dailyData = { puesto: collaboratorData.posicion, createdAt: new Date().toISOString() };
+            const dailyData = { 
+                puesto: collaboratorData.posicion, 
+                evaluador: currentUser.email,
+                createdAt: new Date().toISOString() 
+            };
             let allAnswered = true;
 
             const formData = new FormData(dailyEvaluationForm);
@@ -896,17 +868,25 @@
             showLoading();
             try {
                 await setDoc(doc(db, "EvaluacionTresMeses", selectedCollaborator, "dailyEvaluations", todayKey), dailyData);
+                
                 Swal.fire({
                     icon: 'success',
-                    title: 'Guardado',
-                    text: `Evaluación para el día ${todayKey} guardada.`,
+                    title: '¡Evaluación guardada!',
+                    text: `La evaluación para el día ${todayKey} se ha guardado correctamente.`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#1f2937',
+                    color: '#e0e7ff'
                 });
+                
                 updateProgress();
+                
                 if (evaluationTypeSelect.value === 'daily') {
                     nextDayBtn.classList.remove('hidden');
                 } else {
                     calculateFinalEvaluation();
                 }
+                
                 hideLoading();
                 return true;
             } catch (error) {
@@ -920,13 +900,14 @@
             }
         }
 
+        // Actualizar barra de progreso
         async function updateProgress() {
-            if (!selectedCollaborator || !collaboratorData.fechaInicioPrueba) return;
+            if (!selectedCollaborator || !collaboratorData.fechaIngreso) return;
             showLoading();
-            const startDate = parseDate(collaboratorData.fechaInicioPrueba);
+            const startDate = parseDate(collaboratorData.fechaIngreso);
             const evaluationType = evaluationTypeSelect.value;
             const MAX_DAYS = evaluationType === 'daily' ? 90 : 1;
-            let daysWithEvaluations = await calculateDaysEvaluated(selectedCollaborator, collaboratorData.posicion, evaluationType, collaboratorData.fechaInicioPrueba);
+            let daysWithEvaluations = await calculateDaysEvaluated(selectedCollaborator, collaboratorData.posicion, evaluationType, collaboratorData.fechaIngreso);
 
             daysEvaluatedCount.textContent = daysWithEvaluations;
             totalExpectedDays.textContent = MAX_DAYS;
@@ -934,8 +915,9 @@
             hideLoading();
         }
 
+        // Calcular días evaluados
         async function calculateDaysEvaluated(collaboratorKey, posicion, evaluationType, fechaInicioPrueba) {
-            const startDate = parseDate(fechaInicioPrueba);
+            const startDate = parseDate(fechaIngresoPrueba);
             const MAX_DAYS = evaluationType === 'daily' ? 90 : 1;
             let daysWithEvaluations = 0;
             const allPossibleEvaluationDates = [];
@@ -964,8 +946,9 @@
             return daysWithEvaluations;
         }
 
+        // Calcular métricas de evaluación
         async function calculateEvaluationMetrics(collaboratorKey, posicion, evaluationType, fechaInicioPrueba) {
-            const startDate = parseDate(fechaInicioPrueba);
+            const startDate = parseDate(fechaIngresoPrueba);
             const MAX_DAYS = evaluationType === 'daily' ? 90 : 1;
             let totalScoreSum = 0;
             let criticalLowScoreCount = 0;
@@ -1023,6 +1006,7 @@
             return { averageOverallScore, criticalLowScoreCount, daysWithEvaluations, consolidatedComments };
         }
 
+        // Calcular evaluación final
         async function calculateFinalEvaluation() {
             if (!selectedCollaborator) {
                 Swal.fire({
@@ -1034,7 +1018,7 @@
             }
 
             showLoading();
-            const { averageOverallScore, criticalLowScoreCount, daysWithEvaluations, consolidatedComments } = await calculateEvaluationMetrics(selectedCollaborator, collaboratorData.posicion, collaboratorData.evaluationType, collaboratorData.fechaInicioPrueba);
+            const { averageOverallScore, criticalLowScoreCount, daysWithEvaluations, consolidatedComments } = await calculateEvaluationMetrics(selectedCollaborator, collaboratorData.posicion, collaboratorData.evaluationType, collaboratorData.fechaIngreso);
             const MAX_DAYS = collaboratorData.evaluationType === 'daily' ? 90 : 1;
             let finalResultText = "";
             let finalAdditionalComments = "";
@@ -1077,6 +1061,7 @@
             hideLoading();
         }
 
+        // Generar PDF con los resultados
         function generatePDF() {
             const doc = new jsPDF();
             doc.setFont('helvetica', 'normal');
@@ -1085,7 +1070,7 @@
             doc.setFontSize(12);
             doc.text(`Colaborador: ${selectedCollaborator}`, 20, 40);
             doc.text(`Puesto: ${collaboratorData.posicion}`, 20, 50);
-            doc.text(`Fecha de Inicio: ${collaboratorData.fechaInicioPrueba}`, 20, 60);
+            doc.text(`Fecha de Inicio: ${collaboratorData.fechaIngreso}`, 20, 60);
             doc.text(`Tipo de Evaluación: ${evaluationTypeSelect.value === 'daily' ? 'Diaria (90 días)' : 'Única (1 día)'}`, 20, 70);
             doc.text(`Promedio General: ${document.getElementById('final-average-score').textContent}`, 20, 80);
             doc.text(`Resultado Final: ${document.getElementById('final-result-text').textContent}`, 20, 90);
@@ -1100,6 +1085,7 @@
             doc.save(`Evaluacion_${selectedCollaborator.replace(/\s/g, '_')}.pdf`);
         }
 
+        // Actualizar navegación entre pasos
         function updateStepNavigation() {
             const steps = document.querySelectorAll('.step');
             steps.forEach((step, index) => {
@@ -1111,111 +1097,397 @@
             nextStepBtn.style.display = currentStep === 3 && finalEvaluationResultDiv.classList.contains('hidden') ? 'none' : 'inline-block';
         }
 
-        // Event Listeners
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                await loadCollaborators();
-            } else {
-                deniedModal.style.display = 'flex';
+        // Cargar colaboradores desde Firebase
+        async function loadCollaborators() {
+            showLoading();
+            const querySnapshot = await getDocs(collection(db, "Colaboradores"));
+            colaboradorNombreSelect.innerHTML = '<option value="">Seleccione un colaborador</option>';
+            collaboratorList.innerHTML = '';
+            let pending = 0, approved = 0, failed = 0;
+
+            for (const docSnap of querySnapshot.docs) {
+                const data = docSnap.data();
+                const collaboratorKey = docSnap.id;
+                const evalDoc = await getDoc(doc(db, "EvaluacionTresMeses", collaboratorKey));
+                let status = 'Pendiente';
+                let statusClass = 'status-pending';
+
+                if (evalDoc.exists()) {
+                    const evalData = evalDoc.data();
+                    const daysEvaluated = await calculateDaysEvaluated(collaboratorKey, evalData.posicion, evalData.evaluationType, evalData.fechaInicioPrueba);
+                    const maxDays = evalData.evaluationType === 'daily' ? 90 : 1;
+                    
+                    // Verificar si ya pasaron los 90 días sin evaluación
+                    const fechaIngreso = new Date(evalData.fechaInicioPrueba);
+                    const fechaEvaluacion = new Date(fechaIngreso);
+                    fechaEvaluacion.setDate(fechaIngreso.getDate() + 90);
+                    const hoy = new Date();
+                    
+                    if (hoy > fechaEvaluacion && daysEvaluated === 0) {
+                        status = 'No Evaluado (90 días)';
+                        statusClass = 'status-failed';
+                        failed++;
+                    } else if (daysEvaluated >= (evalData.evaluationType === 'daily' ? 0.85 * maxDays : 1)) {
+                        const { averageOverallScore, criticalLowScoreCount } = await calculateEvaluationMetrics(collaboratorKey, evalData.posicion, evalData.evaluationType, evalData.fechaInicioPrueba);
+                        const maxCriticalFailures = evalData.evaluationType === 'daily' ? Math.ceil(maxDays * 0.05) : 0;
+                        
+                        if (criticalLowScoreCount > maxCriticalFailures) {
+                            status = 'No Aprobado';
+                            statusClass = 'status-failed';
+                            failed++;
+                        } else if (averageOverallScore >= 3.5) {
+                            status = 'Aprobado';
+                            statusClass = 'status-approved';
+                            approved++;
+                        } else if (averageOverallScore >= 2.8) {
+                            status = 'Aprobado con Reservas';
+                            statusClass = 'status-reserved';
+                            approved++;
+                        } else {
+                            status = 'No Aprobado';
+                            statusClass = 'status-failed';
+                            failed++;
+                        }
+                    } else {
+                        pending++;
+                    }
+                } else {
+                    // Verificar si ya pasaron los 90 días sin evaluación
+                    const fechaIngreso = new Date(data.fechaIngreso);
+                    const fechaEvaluacion = new Date(fechaIngreso);
+                    fechaEvaluacion.setDate(fechaIngreso.getDate() + 90);
+                    const hoy = new Date();
+                    
+                    if (hoy > fechaEvaluacion) {
+                        status = 'No Evaluado (90 días)';
+                        statusClass = 'status-failed';
+                        failed++;
+                    } else {
+                        pending++;
+                    }
+                }
+
+                // Actualizar lista de colaboradores
+                const option = document.createElement('option');
+                option.value = collaboratorKey;
+                option.textContent = collaboratorKey;
+                colaboradorNombreSelect.appendChild(option);
+
+                const card = document.createElement('div');
+                card.classList.add('collaborator-card');
+                card.innerHTML = `
+                    <h3>${collaboratorKey}</h3>
+                    <p><strong>Posición:</strong> ${data.posicion}</p>
+                    <p><strong>Estado:</strong> <span class="${statusClass}">${status}</span></p>
+                    <p><strong>Jefe a Cargo:</strong> ${data.jefeCargo}</p>
+                    <p><strong>Fecha Ingreso:</strong> ${new Date(data.fechaIngreso).toLocaleDateString()}</p>
+                    ${status === 'Pendiente' ? 
+                        `<button class="button" style="margin-top: 10px; width: 100%;" onclick="event.stopPropagation(); selectCollaborator('${collaboratorKey}')">
+                            <i class="fas fa-clipboard-check"></i> Evaluar
+                        </button>` : ''}
+                `;
+                card.onclick = () => selectCollaborator(collaboratorKey);
+                collaboratorList.appendChild(card);
             }
-        });
 
-        prevDayBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() - 1);
-            currentQuestionIndex = 0;
-            updateDateDisplay();
-            loadDailyForm();
-        });
+            pendingCount.textContent = pending;
+            approvedCount.textContent = approved;
+            failedCount.textContent = failed;
+            hideLoading();
+        }
 
-        nextDayBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() + 1);
-            currentQuestionIndex = 0;
-            updateDateDisplay();
-            loadDailyForm();
-        });
+        // Seleccionar colaborador
+        window.selectCollaborator = async function(collaboratorKey) {
+            selectedCollaborator = collaboratorKey;
+            colaboradorNombreSelect.value = collaboratorKey;
+            await loadCollaboratorData();
+            showSection('evaluation');
+        };
 
-        prevQuestionBtn.addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                renderQuestion(currentQuestionIndex);
+        // Cargar datos del colaborador
+        async function loadCollaboratorData() {
+            if (!selectedCollaborator) return;
+            showLoading();
+            
+            // Obtener datos del colaborador
+            const colaboradorDoc = await getDoc(doc(db, "Colaboradores", selectedCollaborator));
+            if (!colaboradorDoc.exists()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se encontró el colaborador seleccionado.',
+                });
+                hideLoading();
+                return;
             }
-        });
+            
+            // Obtener datos de evaluación si existen
+            const evalDoc = await getDoc(doc(db, "EvaluacionTresMeses", selectedCollaborator));
+            collaboratorData = {
+                ...colaboradorDoc.data(),
+                ...(evalDoc.exists() ? evalDoc.data() : {})
+            };
+            
+            // Actualizar UI
+            evaluationTypeSelect.value = collaboratorData.evaluationType || '';
+            updateProgress();
+            loadDailyForm();
+            hideLoading();
+        }
 
-        nextQuestionBtn.addEventListener('click', () => {
-            const selectedOption = document.querySelector(`input[name="${currentQuestions[currentQuestionIndex].id}"]:checked`);
-            if (!selectedOption) {
+        // Guardar metadatos del colaborador
+        async function saveCollaboratorMetadata() {
+            if (!selectedCollaborator) return;
+            showLoading();
+            try {
+                await setDoc(doc(db, "EvaluacionTresMeses", selectedCollaborator), {
+                    posicion: collaboratorData.posicion,
+                    evaluationType: evaluationTypeSelect.value,
+                    fechaInicioPrueba: collaboratorData.fechaIngreso,
+                    evaluador: currentUser.email,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo guardar la información: ' + error.message,
+                });
+            }
+            hideLoading();
+        }
+
+        // Agregar nuevo colaborador
+        window.addCollaborator = async function(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('nombre').value.trim();
+            const cedula = document.getElementById('cedula').value.trim();
+            const fechaNacimiento = document.getElementById('fecha-nacimiento').value;
+            const nacionalidad = document.getElementById('nacionalidad').value.trim();
+            const sexo = document.getElementById('sexo').value;
+            const codigoLaboral = document.getElementById('codigo-laboral').value.trim();
+            const fechaIngreso = document.getElementById('fecha-ingreso').value;
+            const empresa = document.getElementById('empresa').value.trim();
+            const posicion = document.getElementById('posicion').value;
+            const departamento = document.getElementById('departamento').value.trim();
+            const areaTrabajo = document.getElementById('area-trabajo').value.trim();
+            const jefeCargo = document.getElementById('jefe-cargo').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+
+            if (!nombre || !cedula || !fechaNacimiento || !nacionalidad || !sexo || !codigoLaboral || 
+                !fechaIngreso || !empresa || !posicion || !departamento || !areaTrabajo || !jefeCargo || !telefono) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Error',
-                    text: 'Por favor, selecciona una calificación.',
+                    text: 'Por favor, completa todos los campos.',
                 });
                 return;
             }
-            if (currentQuestionIndex < currentQuestions.length - 1) {
-                currentQuestionIndex++;
-                renderQuestion(currentQuestionIndex);
-            } else {
-                saveEvaluationBtn.click();
+
+            showLoading();
+            try {
+                // Calcular fecha de evaluación (90 días después)
+                const fechaIngresoDate = new Date(fechaIngreso);
+                const fechaEvaluacionDate = new Date(fechaIngresoDate);
+                fechaEvaluacionDate.setDate(fechaIngresoDate.getDate() + 90);
+                
+                // Guardar en Firestore
+                await setDoc(doc(db, "Colaboradores", nombre), {
+                    cedula,
+                    fechaNacimiento,
+                    nacionalidad,
+                    sexo,
+                    codigoLaboral,
+                    fechaIngreso,
+                    fechaEvaluacion: fechaEvaluacionDate.toISOString().split('T')[0],
+                    empresa,
+                    posicion,
+                    departamento,
+                    areaTrabajo,
+                    jefeCargo,
+                    telefono,
+                    createdAt: new Date().toISOString()
+                });
+                
+                addCollaboratorForm.reset();
+                await loadCollaborators();
+                showSection('collaborators');
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Colaborador agregado!',
+                    text: `El colaborador ${nombre} se ha registrado correctamente.`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#1f2937',
+                    color: '#e0e7ff'
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo agregar el colaborador: ' + error.message,
+                });
             }
-        });
+            hideLoading();
+        };
 
-        colaboradorNombreSelect.addEventListener('change', async () => {
-            selectedCollaborator = colaboradorNombreSelect.value;
-            await loadCollaboratorData();
-        });
-
-        evaluationTypeSelect.addEventListener('change', () => {
-            updateProgress();
-            updateDateDisplay();
-            saveCollaboratorMetadata();
-        });
-
-        dailyEvaluationForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            if (await saveDailyEvaluation()) {
-                currentQuestionIndex = 0;
-                loadDailyForm();
+        // Finalizar evaluación
+        window.finalizeEvaluation = async function() {
+            showLoading();
+            try {
+                await updateDoc(doc(db, "EvaluacionTresMeses", selectedCollaborator), {
+                    resultadoFinal: document.getElementById('final-result-text').textContent,
+                    promedioFinal: document.getElementById('final-average-score').textContent,
+                    fechaFinalizacion: new Date().toISOString(),
+                    status: document.getElementById('final-result-text').textContent.includes("Califica") ? "Aprobado" : "No Aprobado"
+                });
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Evaluación finalizada!',
+                    text: 'La evaluación se ha registrado correctamente en el sistema.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#1f2937',
+                    color: '#e0e7ff'
+                });
+                
+                showSection('collaborators');
+                await loadCollaborators();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo guardar el resultado final: ' + error.message,
+                });
             }
-        });
+            hideLoading();
+        };
 
-        prevStepBtn.addEventListener('click', () => {
-            if (currentStep > 1) {
-                currentStep--;
-                updateStepNavigation();
-                if (currentStep === 2) {
-                    loadDailyForm();
-                    updateProgress();
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSidebarNavigation();
+            showSection('dashboard');
+            
+            // Configurar evento para calcular fecha de evaluación
+            fechaIngresoInput.addEventListener('change', function() {
+                if (fechaIngresoInput.value) {
+                    const fechaIngreso = new Date(fechaIngresoInput.value);
+                    const fechaEvaluacion = new Date(fechaIngreso);
+                    fechaEvaluacion.setDate(fechaIngreso.getDate() + 90);
+                    fechaEvaluacionInput.value = fechaEvaluacion.toISOString().split('T')[0];
                 }
-            }
-        });
+            });
 
-        nextStepBtn.addEventListener('click', async () => {
-            if (currentStep === 1) {
-                if (!colaboradorNombreSelect.value || !evaluationTypeSelect.value) {
+            // Event listeners
+            prevDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() - 1);
+                currentQuestionIndex = 0;
+                updateDateDisplay();
+                loadDailyForm();
+            });
+
+            nextDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() + 1);
+                currentQuestionIndex = 0;
+                updateDateDisplay();
+                loadDailyForm();
+            });
+
+            prevQuestionBtn.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestion(currentQuestionIndex);
+                }
+            });
+
+            nextQuestionBtn.addEventListener('click', () => {
+                const selectedOption = document.querySelector(`input[name="${currentQuestions[currentQuestionIndex].id}"]:checked`);
+                if (!selectedOption) {
                     Swal.fire({
                         icon: 'warning',
                         title: 'Error',
-                        text: 'Por favor, selecciona un colaborador y tipo de evaluación.',
+                        text: 'Por favor, selecciona una calificación.',
                     });
                     return;
                 }
-                await saveCollaboratorMetadata();
-                currentStep = 2;
-                updateStepNavigation();
-                loadDailyForm();
+                if (currentQuestionIndex < currentQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    renderQuestion(currentQuestionIndex);
+                } else {
+                    saveEvaluationBtn.click();
+                }
+            });
+
+            colaboradorNombreSelect.addEventListener('change', async () => {
+                selectedCollaborator = colaboradorNombreSelect.value;
+                await loadCollaboratorData();
+            });
+
+            evaluationTypeSelect.addEventListener('change', () => {
                 updateProgress();
-            } else if (currentStep === 2) {
-                calculateFinalEvaluation();
-            }
+                updateDateDisplay();
+                saveCollaboratorMetadata();
+            });
+
+            dailyEvaluationForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (await saveDailyEvaluation()) {
+                    currentQuestionIndex = 0;
+                    loadDailyForm();
+                }
+            });
+
+            prevStepBtn.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStepNavigation();
+                    if (currentStep === 2) {
+                        loadDailyForm();
+                        updateProgress();
+                    }
+                }
+            });
+
+            nextStepBtn.addEventListener('click', async () => {
+                if (currentStep === 1) {
+                    if (!colaboradorNombreSelect.value || !evaluationTypeSelect.value) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Error',
+                            text: 'Por favor, selecciona un colaborador y tipo de evaluación.',
+                        });
+                        return;
+                    } 
+                    await saveCollaboratorMetadata();
+                    currentStep = 2;
+                    updateStepNavigation();
+                    loadDailyForm();
+                    updateProgress();
+                } else if (currentStep === 2) {
+                    calculateFinalEvaluation();
+                } else if (currentStep === 3) {
+                    finalizeEvaluation();
+                }
+            });
+
+            downloadPDFBtn.addEventListener('click', generatePDF);
+
+            triggerFinalEvaluationBtn.addEventListener('click', finalizeEvaluation);
+
+            addCollaboratorForm.addEventListener('submit', addCollaborator);
+
+            // Verificar autenticación
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadCollaborators();
+                } else {
+                    deniedModal.style.display = 'flex';
+                }
+            });
         });
-
-        downloadPDFBtn.addEventListener('click', generatePDF);
-
-        addCollaboratorForm.addEventListener('submit', addCollaborator);
-
-        // Inicialización
-        showSection('dashboard');
     </script>
 </body>
 </html>
