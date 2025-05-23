@@ -1207,7 +1207,7 @@
                     currentEvaluationData = { ...docSnap.data() };
                     
                     // Verificar si la evaluación ya está finalizada
-                    if (docSnap.data().status === 'Finalizada' || docSnap.data().status === 'Aprobado' || docSnap.data().status === 'No Aprobado' || docSnap.data().status === 'Aprobado con Reservas') {
+                    if (docSnap.data().status === 'Finalizada' || docSnap.data().status === 'Aprobado' || docSnap.data().status === 'No Aprobado' || docSnap.data().status === 'Aprobado con Mejoras Obligatorias') {
                         // Ocultar navegación entre pasos
                         stepNavigation.classList.add('hidden');
                         
@@ -1519,7 +1519,7 @@
                     } else if (data.status === 'No Aprobado') {
                         failed++;
                         scoreData.push(parseFloat(data.promedioFinal || 0));
-                    } else if (data.status === 'Aprobado con Reservas') {
+                    } else if (data.status === 'Aprobado con Mejoras Obligatorias') {
                         reserved++;
                         scoreData.push(parseFloat(data.promedioFinal || 0));
                     }
@@ -1766,7 +1766,7 @@
                             statusClass = 'status-approved';
                             approved++;
                         } else if (averageScore >= 2.8) {
-                            status = 'Aprobado con Reservas';
+                            status = 'Aprobado con Mejoras Obligatorias';
                             statusClass = 'status-reserved';
                             reserved++;
                         } else {
@@ -1938,7 +1938,7 @@
                             statusClass = 'status-approved';
                             approved++;
                         } else if (averageScore >= 2.8) {
-                            status = 'Aprobado con Reservas';
+                            status = 'Aprobado con Mejoras Obligatorias';
                             statusClass = 'status-reserved';
                             reserved++;
                         } else {
@@ -2154,7 +2154,7 @@
             try {
                 const resultText = document.getElementById('final-result-text').textContent;
                 const status = resultText.includes("No Califica") ? "No Aprobado" : 
-                             resultText.includes("Reservas") ? "Aprobado con Reservas" : "Aprobado";
+                             resultText.includes("Reservas") ? "Aprobado con Mejoras Obligatorias" : "Aprobado";
                 
                 await updateDoc(doc(db, "Evaluaciones", selectedCollaborator), {
                     resultadoFinal: resultText,
