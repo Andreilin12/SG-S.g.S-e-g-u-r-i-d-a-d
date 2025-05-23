@@ -202,7 +202,7 @@
         }
         .collaborator-card p {
             font-size: 0.9em;
-            color: #e0e7ff;
+            color: #fff;
             margin: 5px 0;
         }
         .status-pending { color: #f59e0b; }
@@ -246,7 +246,7 @@
         }
         .button {
             background: linear-gradient(135deg, #15a086 0%, #15a086 100%);
-            color: #e0e7ff;
+            color: #fff;
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
@@ -456,7 +456,7 @@
             color: #e0e7ff !important;
         }
         .swal2-confirm {
-            background: linear-gradient(135deg, #4f46e5 0%, #15a086 100%) !important;
+            background: linear-gradient(135deg, #15a086 0%, #15a086 100%) !important;
             border-radius: 8px !important;
             border: none !important;
         }
@@ -1315,8 +1315,8 @@
                     text: 'La evaluación se ha guardado correctamente.',
                     showConfirmButton: false,
                     timer: 2000,
-                    background: '#1f2937',
-                    color: '#e0e7ff'
+                    background: '#15a086',
+                    color: '#fff'
                 });
                 
                 calculateFinalEvaluation();
@@ -2001,8 +2001,8 @@
                     <p><strong>Estado:</strong> <span class="${collaborator.statusClass}">${collaborator.status}</span></p>
                 `,
                 confirmButtonText: 'Cerrar',
-                background: '#1f2937',
-                color: '#e0e7ff'
+                background: '#15a086',
+                color: '#fff'
             });
         };
 
@@ -2133,8 +2133,8 @@
                     text: `El colaborador ${nombre} se ha registrado correctamente.`,
                     showConfirmButton: false,
                     timer: 2000,
-                    background: '#1f2937',
-                    color: '#e0e7ff'
+                    background: '#15a086',
+                    color: '#fff'
                 });
             } catch (error) {
                 console.error("Error al agregar colaborador:", error);
@@ -2169,8 +2169,8 @@
                     text: 'La evaluación se ha registrado correctamente en el sistema.',
                     showConfirmButton: false,
                     timer: 2000,
-                    background: '#1f2937',
-                    color: '#e0e7ff'
+                    background: '#15a086',
+                    color: '#fff'
                 });
                 
                 showSection('collaborators');
