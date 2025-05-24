@@ -2,412 +2,705 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario de Evaluación de Desempeño</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Desempeño - Formulario Manual</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background: #ffffff;
-            color: #000000;
-            font-size: 12pt;
-            line-height: 1.5;
+            font-family: Arial, sans-serif;
         }
-        .page {
-            width: 21cm;
-            min-height: 29.7cm;
-            padding: 2cm;
+        body {
+            background: #2c3e50;
+            color: #000;
+            line-height: 1.5;
+            font-size: 12pt;
+        }
+        .page-container {
+            width: 210mm;
+            min-height: 297mm;
             margin: 0 auto;
-            background: #ffffff;
+            padding: 15mm;
+            background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         .header {
             text-align: center;
-            background: linear-gradient(135deg, #4f46e5, #00d4ff);
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
         }
         .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24pt;
-            margin: 0;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-        }
-        .menu {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .menu button {
-            background: linear-gradient(135deg, #4f46e5, #00d4ff);
-            border: none;
-            padding: 10px 20px;
-            color: #ffffff;
-            font-size: 12pt;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .menu button:hover {
-            background: linear-gradient(135deg, #00d4ff, #4f46e5);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
-        }
-        .menu button.active {
-            background: linear-gradient(135deg, #d35400, #e67e22);
-        }
-        .section {
-            display: none;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: rgba(245, 245, 245, 0.9);
-        }
-        .section.active {
-            display: block;
-        }
-        .section h2 {
-            color: #4f46e5;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18pt;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        .input-group label {
-            display: block;
-            font-weight: bold;
-            color: #4f46e5;
+            font-size: 20pt;
             margin-bottom: 5px;
+            color: #0066cc;
         }
-        .input-group input,
-        .input-group textarea {
+        .header p {
+            font-size: 12pt;
+            color: #333;
+        }
+        .form-section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        .form-section h2 {
+            font-size: 14pt;
+            color: #15a086;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 45%;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
             width: 100%;
             padding: 8px;
-            border: 1px solid #00d4ff;
-            border-radius: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 12pt;
         }
-        .rating {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 10px 0;
+        .question {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 3px solid #0066cc;
+            page-break-inside: avoid;
         }
-        .rating label {
-            padding: 8px 15px;
-            border: 1px solid #00d4ff;
-            border-radius: 5px;
-            text-align: center;
-            flex: 1;
-            min-width: 100px;
-            cursor: pointer;
+        .question.critical {
+            border-left-color: #cc0000;
+            background: #fff5f5;
         }
-        .rating input[type="checkbox"] {
-            margin-right: 5px;
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
         }
-        .comments textarea {
-            min-height: 80px;
-            resize: vertical;
+        .critical-tag {
+            display: inline-block;
+            background: #15a086;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10pt;
+            margin-left: 10px;
         }
-        .signature-fields {
+        .rating-scale {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            margin: 10px 0;
+            flex-wrap: wrap;
         }
-        .signature-field {
-            flex-basis: 45%;
-            border-top: 1px solid #4f46e5;
+        .rating-option {
             text-align: center;
-            padding-top: 10px;
+            flex: 1;
+            min-width: 60px;
+            margin: 3px;
         }
-        .signature-field p {
-            font-weight: bold;
-            color: #4f46e5;
+        .rating-option label {
+            display: block;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: default;
         }
-        .footer {
+        .comments-box {
+            margin-top: 10px;
+        }
+        .comments-box textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+        .signature-box {
+            flex: 1;
+            min-width: 40%;
+            margin: 10px;
             text-align: center;
-            font-size: 10pt;
-            color: #666;
-            margin-top: 20px;
         }
-        @page {
-            size: A4;
-            margin: 2cm;
+        .signature-line {
+            height: 1px;
+            background: #333;
+            margin: 40px 0 10px;
+            position: relative;
+        }
+        .signature-line:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #333;
+        }
+        .print-controls {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        .print-btn {
+            padding: 8px 20px;
+            background: #15a086;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12pt;
+            margin: 0 10px;
+        }
+        .print-btn:hover {
+            background: #2c3e50;
         }
         @media print {
-            body {
-                margin: 0;
-            }
-            .page {
-                box-shadow: none;
-                margin: 0;
-            }
-            .menu {
+            .print-controls {
                 display: none;
             }
-            .section {
-                border: none;
+            .page-container {
+                box-shadow: none;
+                padding: 15mm;
+                width: auto;
+                height: auto;
+            }
+            body {
                 background: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="header">
-            <h1>Evaluación de Desempeño - Seguridad y CCTV</h1>
+    <div class="page-container">
+        <div class="print-controls no-print">
+            <button class="print-btn" onclick="window.print()">
+                Imprimir Formulario
+            </button>
+            <button class="print-btn" onclick="setAgentForm()">
+                Formulario Agente
+            </button>
+            <button class="print-btn" onclick="setOperatorForm()">
+                Formulario Operador
+            </button>
         </div>
 
-        <div class="menu">
-            <button id="btn-agent" class="active" onclick="switchForm('agent')">Formulario Agente de Seguridad</button>
-            <button id="btn-operator" onclick="switchForm('operator')">Formulario Operador de CCTV</button>
+        <div class="header">
+            <h1>EVALUACIÓN DE DESEMPEÑO</h1>
+            <p>Personal de Seguridad y Vigilancia</p>
         </div>
 
         <!-- Formulario para Agente de Seguridad -->
-        <div class="section active" id="agent-form">
-            <h2>Evaluación de Desempeño - Agente de Seguridad</h2>
-            <div class="input-group">
-                <label>Nombre del Colaborador:</label>
-                <input type="text" placeholder="Ingrese nombre completo">
-            </div>
-            <div class="input-group">
-                <label>Código Laboral:</label>
-                <input type="text" placeholder="Ingrese código laboral">
-            </div>
-            <div class="input-group">
-                <label>Fecha de Ingreso:</label>
-                <input type="date">
-            </div>
-            <div class="input-group">
-                <label>Fecha de Evaluación:</label>
-                <input type="date" value="2025-05-23">
-            </div>
-            <div class="input-group">
-                <label>Evaluador:</label>
-                <input type="text" placeholder="Nombre del evaluador">
-            </div>
-
-            <h3 style="color: #4f46e5; margin: 20px 0 10px;">Criterios de Evaluación</h3>
-            <p style="font-size: 10pt; color: #666; margin-bottom: 15px;">
-                Escala: 1 - Necesita Mejorar | 2 - Regular | 3 - Bueno | 4 - Muy Bueno | 5 - Excelente
-            </p>
-            <div class="input-group">
-                <label>1. Cumplimiento de rondas de seguridad y patrullaje <span style="color: #ef4444;">(Crítico)</span></label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q1-agent" value="1"> 1</label>
-                    <label><input type="checkbox" name="q1-agent" value="2"> 2</label>
-                    <label><input type="checkbox" name="q1-agent" value="3"> 3</label>
-                    <label><input type="checkbox" name="q1-agent" value="4"> 4</label>
-                    <label><input type="checkbox" name="q1-agent" value="5"> 5</label>
+        <div id="agent-form">
+            <div class="form-section">
+                <h2>1. INFORMACIÓN DEL COLABORADOR</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Laboral:</label>
+                        <input type="text">
+                    </div>
                 </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Posición:</label>
+                        <input type="text" value="Agente de Seguridad" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Evaluación:</label>
+                        <input type="date">
+                    </div>
                 </div>
-            </div>
-            <div class="input-group">
-                <label>2. Habilidad para detectar y reportar situaciones sospechosas <span style="color: #ef4444;">(Crítico)</span></label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q2-agent" value="1"> 1</label>
-                    <label><input type="checkbox" name="q2-agent" value="2"> 2</label>
-                    <label><input type="checkbox" name="q2-agent" value="3"> 3</label>
-                    <label><input type="checkbox" name="q2-agent" value="4"> 4</label>
-                    <label><input type="checkbox" name="q2-agent" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>3. Adherencia a protocolos de control de acceso</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q3-agent" value="1"> 1</label>
-                    <label><input type="checkbox" name="q3-agent" value="2"> 2</label>
-                    <label><input type="checkbox" name="q3-agent" value="3"> 3</label>
-                    <label><input type="checkbox" name="q3-agent" value="4"> 4</label>
-                    <label><input type="checkbox" name="q3-agent" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
-                </div>
-            </div>
-            <!-- Más criterios según el código original... -->
-            <h3 style="color: #4f46e5; margin: 20px 0 10px;">Evaluación Psicológica</h3>
-            <div class="input-group">
-                <label>1. ¿Cómo maneja el estrés en situaciones de alta presión, como un incidente de seguridad?</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="psy1-agent" value="1"> 1</label>
-                    <label><input type="checkbox" name="psy1-agent" value="2"> 2</label>
-                    <label><input type="checkbox" name="psy1-agent" value="3"> 3</label>
-                    <label><input type="checkbox" name="psy1-agent" value="4"> 4</label>
-                    <label><input type="checkbox" name="psy1-agent" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Observaciones"></textarea>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>2. ¿Demuestra empatía y profesionalismo al interactuar con visitantes o personal?</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="psy2-agent" value="1"> 1</label>
-                    <label><input type="checkbox" name="psy2-agent" value="2"> 2</label>
-                    <label><input type="checkbox" name="psy2-agent" value="3"> 3</label>
-                    <label><input type="checkbox" name="psy2-agent" value="4"> 4</label>
-                    <label><input type="checkbox" name="psy2-agent" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Observaciones"></textarea>
+                <div class="form-group">
+                    <label>Supervisor a Cargo:</label>
+                    <input type="text">
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Comentarios Generales:</label>
-                <textarea placeholder="Escribe comentarios generales sobre el desempeño"></textarea>
+            <div class="form-section">
+                <h2>2. EVALUACIÓN TÉCNICA</h2>
+                <p>Califique cada aspecto según la siguiente escala: 1 (Deficiente) - 5 (Excelente)</p>
+                
+                <div class="question critical">
+                    <div class="question-text">
+                        1. Cumplimiento de protocolos de seguridad en situaciones críticas
+                        <span class="critical-tag">CRÍTICO</span>
+                    </div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">2. Habilidad para detectar y reportar situaciones sospechosas</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">3. Comunicación efectiva con compañeros y supervisores</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question critical">
+                    <div class="question-text">
+                        4. Capacidad de reacción ante emergencias
+                        <span class="critical-tag">CRÍTICO</span>
+                    </div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
             </div>
 
-            <div class="signature-fields">
-                <div class="signature-field">
-                    <p>Firma del Evaluador</p>
-                    <div style="height: 50px;"></div>
+            <div class="form-section">
+                <h2>3. EVALUACIÓN PSICOLÓGICA</h2>
+                
+                <div class="question">
+                    <div class="question-text">1. Manejo de situaciones de alto estrés o presión</div>
+                    <div class="comments-box">
+                        <textarea></textarea>
+                    </div>
                 </div>
-                <div class="signature-field">
-                    <p>Firma del Colaborador</p>
-                    <div style="height: 50px;"></div>
+
+                <div class="question">
+                    <div class="question-text">2. Capacidad para mantener la calma en situaciones conflictivas</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Ejemplos observados:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">3. Equilibrio emocional en interacción con el público</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Ejemplos observados:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>4. COMENTARIOS FINALES</h2>
+                <div class="form-group">
+                    <label>Observaciones generales del evaluador:</label>
+                    <textarea style="min-height: 80px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Áreas de mejora identificadas:</label>
+                    <textarea style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>5. FIRMAS</h2>
+                <div class="signature-area">
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Firma del Evaluador</p>
+                        <p>Nombre: ___________________________________</p>
+                        <p>Fecha: ___/___/_______</p>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Firma del Colaborador</p>
+                        <p>Nombre: ___________________________________</p>
+                        <p>Fecha: ___/___/_______</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Formulario para Operador de CCTV -->
-        <div class="section" id="operator-form">
-            <h2>Evaluación de Desempeño - Operador de CCTV</h2>
-            <div class="input-group">
-                <label>Nombre del Colaborador:</label>
-                <input type="text" placeholder="Ingrese nombre completo">
-            </div>
-            <div class="input-group">
-                <label>Código Laboral:</label>
-                <input type="text" placeholder="Ingrese código laboral">
-            </div>
-            <div class="input-group">
-                <label>Fecha de Ingreso:</label>
-                <input type="date">
-            </div>
-            <div class="input-group">
-                <label>Fecha de Evaluación:</label>
-                <input type="date" value="2025-05-23">
-            </div>
-            <div class="input-group">
-                <label>Evaluador:</label>
-                <input type="text" placeholder="Nombre del evaluador">
-            </div>
-
-            <h3 style="color: #4f46e5; margin: 20px 0 10px;">Criterios de Evaluación</h3>
-            <p style="font-size: 10pt; color: #666; margin-bottom: 15px;">
-                Escala: 1 - Necesita Mejorar | 2 - Regular | 3 - Bueno | 4 - Muy Bueno | 5 - Excelente
-            </p>
-            <div class="input-group">
-                <label>1. Eficacia en el monitoreo activo de cámaras <span style="color: #ef4444;">(Crítico)</span></label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q1-operator" value="1"> 1</label>
-                    <label><input type="checkbox" name="q1-operator" value="2"> 2</label>
-                    <label><input type="checkbox" name="q1-operator" value="3"> 3</label>
-                    <label><input type="checkbox" name="q1-operator" value="4"> 4</label>
-                    <label><input type="checkbox" name="q1-operator" value="5"> 5</label>
+        <!-- Formulario para Operador de CCTV (oculto inicialmente) -->
+        <div id="operator-form" style="display: none;">
+            <div class="form-section">
+                <h2>1. INFORMACIÓN DEL COLABORADOR</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Laboral:</label>
+                        <input type="text">
+                    </div>
                 </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Posición:</label>
+                        <input type="text" value="Operador de CCTV" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Evaluación:</label>
+                        <input type="date">
+                    </div>
                 </div>
-            </div>
-            <div class="input-group">
-                <label>2. Rapidez en identificar y reportar eventos inusuales <span style="color: #ef4444;">(Crítico)</span></label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q2-operator" value="1"> 1</label>
-                    <label><input type="checkbox" name="q2-operator" value="2"> 2</label>
-                    <label><input type="checkbox" name="q2-operator" value="3"> 3</label>
-                    <label><input type="checkbox" name="q2-operator" value="4"> 4</label>
-                    <label><input type="checkbox" name="q2-operator" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>3. Habilidad para operar software de CCTV</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="q3-operator" value="1"> 1</label>
-                    <label><input type="checkbox" name="q3-operator" value="2"> 2</label>
-                    <label><input type="checkbox" name="q3-operator" value="3"> 3</label>
-                    <label><input type="checkbox" name="q3-operator" value="4"> 4</label>
-                    <label><input type="checkbox" name="q3-operator" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Comentarios específicos"></textarea>
-                </div>
-            </div>
-            <!-- Más criterios según el código original... -->
-            <h3 style="color: #4f46e5; margin: 20px 0 10px;">Evaluación Psicológica</h3>
-            <div class="input-group">
-                <label>1. ¿Cómo mantiene la concentración durante turnos prolongados?</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="psy1-operator" value="1"> 1</label>
-                    <label><input type="checkbox" name="psy1-operator" value="2"> 2</label>
-                    <label><input type="checkbox" name="psy1-operator" value="3"> 3</label>
-                    <label><input type="checkbox" name="psy1-operator" value="4"> 4</label>
-                    <label><input type="checkbox" name="psy1-operator" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Observaciones"></textarea>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>2. ¿Demuestra capacidad para trabajar bajo presión al reportar incidentes críticos?</label>
-                <div class="rating">
-                    <label><input type="checkbox" name="psy2-operator" value="1"> 1</label>
-                    <label><input type="checkbox" name="psy2-operator" value="2"> 2</label>
-                    <label><input type="checkbox" name="psy2-operator" value="3"> 3</label>
-                    <label><input type="checkbox" name="psy2-operator" value="4"> 4</label>
-                    <label><input type="checkbox" name="psy2-operator" value="5"> 5</label>
-                </div>
-                <div class="comments">
-                    <textarea placeholder="Observaciones"></textarea>
+                <div class="form-group">
+                    <label>Supervisor a Cargo:</label>
+                    <input type="text">
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Comentarios Generales:</label>
-                <textarea placeholder="Escribe comentarios generales sobre el desempeño"></textarea>
+            <div class="form-section">
+                <h2>2. EVALUACIÓN TÉCNICA</h2>
+                <p>Califique cada aspecto según la siguiente escala: 1 (Deficiente) - 5 (Excelente)</p>
+                
+                <div class="question critical">
+                    <div class="question-text">
+                        1. Detección y reporte oportuno de incidentes en las cámaras
+                        <span class="critical-tag">CRÍTICO</span>
+                    </div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">2. Manejo del software y equipos de monitoreo</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question critical">
+                    <div class="question-text">
+                        3. Capacidad de atención sostenida durante turnos prolongados
+                        <span class="critical-tag">CRÍTICO</span>
+                    </div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">4. Coordinación con el personal de seguridad en campo</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Comentarios:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
             </div>
 
-            <div class="signature-fields">
-                <div class="signature-field">
-                    <p>Firma del Evaluador</p>
-                    <div style="height: 50px;"></div>
+            <div class="form-section">
+                <h2>3. EVALUACIÓN PSICOLÓGICA</h2>
+                
+                <div class="question">
+                    <div class="question-text">1. Manejo de la monotonía y estrés visual durante turnos prolongados</div>
+                    <div class="comments-box">
+                        <textarea></textarea>
+                    </div>
                 </div>
-                <div class="signature-field">
-                    <p>Firma del Colaborador</p>
-                    <div style="height: 50px;"></div>
+
+                <div class="question">
+                    <div class="question-text">2. Capacidad para mantener la concentración</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Ejemplos observados:</label>
+                        <textarea></textarea>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <div class="question-text">3. Reacción ante situaciones de emergencia visualizadas</div>
+                    <div class="rating-scale">
+                        <div class="rating-option">
+                            <label>1</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>2</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>3</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>4</label>
+                        </div>
+                        <div class="rating-option">
+                            <label>5</label>
+                        </div>
+                    </div>
+                    <div class="comments-box">
+                        <label>Ejemplos observados:</label>
+                        <textarea></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="footer">
-            Sistema de Evaluación de Desempeño - Seguridad y CCTV | Generado el 23/05/2025
+            <div class="form-section">
+                <h2>4. COMENTARIOS FINALES</h2>
+                <div class="form-group">
+                    <label>Observaciones generales del evaluador:</label>
+                    <textarea style="min-height: 80px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Áreas de mejora identificadas:</label>
+                    <textarea style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>5. FIRMAS</h2>
+                <div class="signature-area">
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Firma del Evaluador</p>
+                        <p>Nombre: ___________________________________</p>
+                        <p>Fecha: ___/___/_______</p>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Firma del Colaborador</p>
+                        <p>Nombre: ___________________________________</p>
+                        <p>Fecha: ___/___/_______</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        function switchForm(formType) {
-            document.getElementById('agent-form').classList.toggle('active', formType === 'agent');
-            document.getElementById('operator-form').classList.toggle('active', formType === 'operator');
-            document.getElementById('btn-agent').classList.toggle('active', formType === 'agent');
-            document.getElementById('btn-operator').classList.toggle('active', formType === 'operator');
+        // Función para establecer el formulario de Agente
+        function setAgentForm() {
+            document.getElementById('agent-form').style.display = 'block';
+            document.getElementById('operator-form').style.display = 'none';
         }
+
+        // Función para establecer el formulario de Operador
+        function setOperatorForm() {
+            document.getElementById('agent-form').style.display = 'none';
+            document.getElementById('operator-form').style.display = 'block';
+        }
+
+        // Auto-rellenar la fecha actual al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.value = today;
+            });
+        });
     </script>
 </body>
 </html>
