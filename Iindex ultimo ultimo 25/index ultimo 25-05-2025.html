@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>142.173.5.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #2c3e50;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Indicador de carga */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+        }
+
+        .loading-spinner i {
+            font-size: 3rem;
+            color: #1abc9c;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        header {
+            background-color: #2c3e50;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            display: none; /* Ocultar por defecto */
+            transition: background-color 0.3s;
+        }
+
+        header:hover {
+            background-color: #16a085;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* Barra lateral */
+        .sidebar {
+            width: 80px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 10px; /* Despegar del borde */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            height: 100%;
+            transition: width 0.3s;
+            z-index: 1000;
+            display: none;
+        }
+
+        .sidebar.expanded {
+            width: 200px;
+        }
+
+        .sidebar .toggle-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+            position: relative; /* Para posicionar el texto */
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .sidebar a span {
+            display: none; /* Ocultar texto por defecto */
+            position: absolute;
+            left: 100%; /* Posición a la derecha del icono */
+            margin-left: 10px;
+            white-space: nowrap; /* Evitar saltos de línea */
+            background-color: #1abc9c; /* Fondo del texto */
+            padding: 5px 10px;
+            border-radius: 5px;
+            opacity: 0; /* Inicialmente invisible */
+            transition: opacity 0.3s;
+        }
+
+        .sidebar.expanded a span {
+            display: inline; /* Mostrar texto cuando el menú está expandido */
+            position: static; /* Posición normal */
+            opacity: 1; /* Visible */
+            background-color: transparent; /* Sin fondo */
+            padding: 0;
+            margin-left: 0;
+        }
+
+        .sidebar a:hover span {
+            opacity: 1; /* Mostrar texto al hacer hover */
+        }
+
+        .sidebar a:hover {
+            background-color: #1abc9c;
+        }
+
+        .sidebar img.logo {
+            width: 50px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar .profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-bottom: 20px; /* Ajuste para subir un poco */
+        }
+
+        .sidebar .profile a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .profile img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar .profile span {
+            display: none;
+        }
+
+        .sidebar.expanded .profile span {
+            display: block;
+        }
+
+        /* Contenido principal */
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 80px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 60px; /* Ajuste para evitar que quede pegado al header */
+        }
+
+        .icon-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: calc(25% - 20px);
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .icon-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-item a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .icon-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .icon-item span {
+            font-size: 1rem;
+        }
+
+        /* Estilo para iconos bloqueados */
+        .icon-item.locked {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .icon-item.locked::after {
+            content: "\f023";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #e74c3c;
+            z-index: 1;
+        }
+
+        /* Saludo y reloj */
+        .user-greeting {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1abc9c;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease-in-out;
+            display: none; /* Ocultar por defecto */
+        }
+
+        .user-greeting p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Menú contextual */
+        .context-menu {
+            position: fixed;
+            background-color: #2c3e50;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: none;
+            min-width: 200px;
+        }
+
+        .context-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .context-menu li {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .context-menu li:hover {
+            background-color: #1abc9c;
+        }
+
+        .context-menu li i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .context-menu li.divider {
+            padding: 0;
+            height: 1px;
+            background-color: #34495e;
+            margin: 5px 0;
+            cursor: default;
+        }
+
+        /* Modal de información de usuario */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 3px solid #1abc9c;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .user-info-item {
+            margin: 10px 0;
+            padding: 8px;
+            background-color: #34495e;
+            border-radius: 5px;
+        }
+
+        .user-info-label {
+            font-weight: bold;
+            color: #1abc9c;
+            margin-right: 5px;
+        }
+
+        /* Alertas */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 216, 255, 0.5);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid white;
+        }
+
+        .alert.success {
+            background: #10b981;
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 10px;
+                position: sticky;
+                top: 0;
+            }
+
+            .sidebar.expanded {
+                width: 100%;
+            }
+
+            .sidebar .toggle-sidebar {
+                display: none;
+            }
+
+            .sidebar a span {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+                margin-top: 80px;
+            }
+
+            .icon-item {
+                width: calc(50% - 20px);
+            }
+
+            header {
+                display: none; /* Ocultar header en móvil */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Indicador de carga -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <i class="fas fa-spinner"></i>
+    </div>
+
+    <!-- Header -->
+    <header id="header">
+        <h1>SECURITY RETOM</h1>
+    </header>
+
+    <!-- Barra lateral -->
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button>
+        <!-- Logo manual -->
+        <img class="logo" id="sidebarLogo" src="https://firebasestorage.googleapis.com/v0/b/inventario-35d6b.appspot.com/o/RETOM%20COMPLETO%20(2).png?alt=media&token=bcb475a5-edf6-494a-96e5-ca8f0a8ae005" alt="Logo">
+
+        <a href="horario-view.html" class="sidebar-link" data-permission="gestionar-horario"><i class="fa-solid fa-clock"></i><span>Horarios</span></a>
+
+        <a href="form-registro-color.html" class="sidebar-link" data-permission="colores-public"><i class="fa-solid fa-palette"></i><span>Reg. de colores</span></a>
+
+        <a href="registrar-agente-de-seguridad.html" class="sidebar-link" data-permission="registrar-colaboradores"><i class="fa-solid fa-user-plus"></i><span>Reg. de Colab.</span></a>
+
+        <a href="codigo-seguridad-report.html" class="sidebar-link" data-permission="code-seguridad"><i class="fa-solid fa-lock"></i><span>Reg. de Cód. SG</span></a>
+
+        <a href="puesto-de-agentes-de-seguridad.html" class="sidebar-link" data-permission="administrativo"><i class="fa-solid fa-helmet-safety"></i><span>Áreas de trabajos</span></a>
+        
+        <a href="rondas-puesto-de-trabajo.html" class="sidebar-link" data-permission="administrativo"><i class="fa-solid fa-mobile-screen-button"></i><span>Pases de Rondas</span></a>
+        
+        <a href="chat-retom.html" class="sidebar-link" data-permission="administrativo"><i class="fa-solid fa-comment"></i><span>Chat</span></a>
+
+        <a href="ajustes.html" class="sidebar-link" data-permission="administrativo"><i class="fas fa-cog"></i><span>Ajustes</span></a>
+
+        <div class="profile">
+            <a href="perfil.html">
+                <img id="profileImage" src="https://via.placeholder.com/40" alt="Perfil">
+                <span id="username">Nombre de Usuario</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content" id="content">
+        <div class="icon-container">
+            <div class="icon-item" data-permission="code-seguridad">
+                <a href="codigo-colores.html">
+                    <i class="fa-solid fa-shield"></i>
+                    <span>Códigos SG</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="contactospublic">
+                <a href="libreta-de-contactos.html">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Libreta de Contactos</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="colaboradores">
+                <a href="gestionar-colaboradores.html">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Gestionar Colab.</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="administrativo">
+                <a href="evaluacion-Tres-Meses.html">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Evaluación de Desempeño</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="extraviados">
+                <a href="lost-and-home-sesion.html">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>Lost And Found</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="camaras">
+                <a href="cctv-home-sesion.html">           
+                    <i class="fa-solid fa-video"></i>
+                    <span>CCTV</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="reporte">
+                <a href="reportes.html">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>Reportes</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="turno-public">
+                <a href="verificacion-qr.html">
+                    <i class="fa-solid fa-calendar"></i>
+                    <span>Turnos compartidos</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="alojamiento">
+                <a href="alojamientos-habitaciones.html">
+                    <i class="fas fa-door-open"></i>
+                    <span>Alojamientos</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="acceso">
+                <a href="registros-de-acceso.html">
+                    <i class="fa-solid fa-vault"></i>
+                    <span>Registros de Acceso</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="medicos-1">
+                <a href="reportes-medicos.html">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    <span>Reportes Médicos</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="cerrajeria">
+                <a href="cerrajería.html">
+                    <i class="fa fa-unlock"></i>
+                    <span>Servicios de Cerrajería</span>
+                </a>
+            </div>
+            <div class="icon-item" data-permission="administrativo">
+                <a href="home-seguridad.html">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Reporte de Seguridad</span>
+                </a>
+            </div> 
+            <div class="icon-item" data-permission="sorteo">
+                <a href="sorteo.html">
+                    <i class="fas fa-gift"></i>
+                    <span>Sorteo</span>
+                </a>
+            </div>       
+           <div class="icon-item" data-permission="gestionar-horario">
+                <a href="#">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Tiempo Laboral</span>
+                </a>
+            </div>       
+            <div class="icon-item" data-permission="administrativo">
+                <a href="giminis-chat.html">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Perla</span>
+                </a>
+            </div>         
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div id="alert" class="alert"></div>
+
+    <!-- Saludo y reloj -->
+    <div class="user-greeting" id="userGreeting">
+        <p id="greetingText"></p>
+        <p id="clock"></p>
+    </div>
+
+    <!-- Menú contextual -->
+    <div class="context-menu" id="contextMenu">
+        <ul>
+            <li id="refreshOption"><i class="fas fa-sync-alt"></i> Actualizar página</li>
+            <li id="userInfoOption"><i class="fas fa-calendar-alt"></i> Fecha de creación</li>
+            <li id="scanQRoption"><i class="fas fa-qrcode"></i> Escanear QR</li>
+            <li id="profileOption"><i class="fas fa-user"></i> Perfil de usuario</li>
+            <li id="fullscreenOption"><i class="fas fa-expand"></i> Pantalla completa</li>
+            <li class="divider"></li>
+            <li id="logoutOption" style="color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</li>
+        </ul>
+    </div>
+
+    <!-- Modal de información de usuario -->
+    <div class="modal" id="userInfoModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+            <img id="modalProfileImage" class="modal-profile-img" src="" alt="Foto de perfil">
+            <h3 id="modalUserName">Nombre de Usuario</h3>
+            <div class="user-info-item">
+                <span class="user-info-label">Correo:</span>
+                <span id="modalUserEmail">usuario@ejemplo.com</span>
+            </div>
+            <div class="user-info-item">
+                <span class="user-info-label">Cuenta creada:</span>
+                <span id="modalCreationDate">01/01/2023</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        // Firebase y otras configuraciones
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+            authDomain: "inventario-35d6b.firebaseapp.com",
+            projectId: "inventario-35d6b",
+            storageBucket: "inventario-35d6b.appspot.com",
+            messagingSenderId: "266100399659",
+            appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Definición de tipos de permisos
+        const permissionTypes = [
+            // Libreta de Contactos 
+            { id: "contactos", name: "Agregar Contactos", icon: "fa-solid fa-plus" },
+            { id: "contactospublic", name: "Contactos", icon: "fa-solid fa-address-book" },
+
+            // Gestionar Colab.
+            { id: "colaboradores", name: "Gestionar Colaboradores", icon: "fa-solid fa-users" },
+            { id: "registrar-colaboradores", name: "Registro de Colaboradores", icon: "fa-solid fa-user-plus" },
+
+            // Time Keeper
+            { id: "timekeeper", name: "Time Keeper", icon: "fa-solid fa-timeline" },
+
+            // Lost And Found
+            { id: "registros-objetos", name: "Found Registro de Objetos", icon: "fas fa-box-open" },
+            { id: "extraviados", name: "Found Objetos Extraviados", icon: "fas fa-suitcase-rolling" },
+            { id: "entregados", name: "Found Objetos Entregados", icon: "fas fa-truck" },
+            { id: "configurar-found", name: "Found Configuración", icon: "fa-solid fa-toolbox" },
+
+            // CCTV
+            { id: "reporte", name: "Reportes", icon: "fas fa-file" },
+            { id: "camaras", name: "Cámaras", icon: "fas fa-video" },
+            { id: "bitacora-cctv", name: "Bitácora Médica", icon: "fa-solid fa-file-medical" },
+            { id: "rtmdayli", name: "Importa RTMdayli", icon: "fas fa-file-import" },
+
+            // Reportes
+            { id: "cctv-estadistica", name: "Estadística CCTV", icon: "fas fa-video" },
+            { id: "found-estadistica", name: "Estadística Lost And Found", icon: "fas fa-video" },
+
+            // Turnos compartidos
+            { id: "turno-public", name: "Turnos compartidos", icon: "fa-solid fa-calendar" },
+
+            // Alojamientos
+            { id: "alojamiento", name: "Alojamiento", icon: "fas fa-door-open" },
+
+            // Registros de Acceso
+            { id: "acceso", name: "Registros de Acceso", icon: "fa-solid fa-vault" },
+
+            // Reportes Médicos
+            { id: "medicos-1", name: "Reportes Médicos", icon: "fa-solid fa-notes-medical" },
+
+            // Servicios de Cerrajería
+            { id: "cerrajeria", name: "Servicios de Cerrajería", icon: "fa fa-unlock" },
+
+            // Reporte de Seguridad
+            { id: "codigos-amarillos", name: "Códigos Amarillos", icon: "fa-notes-medical" },
+            { id: "guardavida", name: "GuardaVidas", icon: "fa-solid fa-water-ladder" },
+            { id: "administrativo", name: "Administrativo", icon: "fa-solid fa-shield" },
+
+            // Sorteo
+            { id: "sorteo", name: "sorteo", icon: "fas fa-gift" },
+
+            // FORMULARIO
+            // Registro de colores de emergencias
+            { id: "colores-public", name: "Registro de colores de emergencias", icon: "fa-solid fa-palette" },
+
+            // Rotación de puesto de Seguridad
+            { id: "gestionar-horario", name: "Gestionar Horarios Laboral", icon: "fa-solid fa-clock" },
+
+            // Crear Nuevas Cuentas 
+            { id: "crear-cuenta", name: "Crear Nuevas Cuentas", icon: "fa-solid fa-right-to-bracket" },
+
+            // Registrar Datos de la Empresa
+            { id: "regitrar-empresa", name: "Registrar Datos de la Empresa", icon: "fa-solid fa-chalkboard-user" },
+
+            // Registro de Códigos Seguridad
+            { id: "code-seguridad", name: "Registro de Códigos Seguridad", icon: "fa-solid fa-lock" }
+        ];
+
+        // Variables globales
+        let userData = null;
+        let currentUser = null;
+        let userPermissions = [];
+
+        // Mostrar indicador de carga
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Mostrar alerta
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById("alert");
+            alert.textContent = message;
+            alert.className = isSuccess ? "alert success show" : "alert show";
+            setTimeout(() => {
+                alert.classList.remove("show");
+            }, 5000);
+        }
+
+        // Cargar perfil
+        async function cargarPerfil() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    userData = userDoc.data();
+                    
+                    // Obtener permisos del usuario
+                    userPermissions = userData.permisos || [];
+                    
+                    // Actualizar UI con permisos
+                    actualizarPermisosUI();
+
+                    document.getElementById('username').textContent = userData.name || 'Usuario';
+                    document.getElementById('profileImage').src = userData.photoURL || 'https://via.placeholder.com/40';
+
+                    // Actualizar también la imagen del modal
+                    document.getElementById('modalProfileImage').src = userData.photoURL || 'https://via.placeholder.com/100';
+                    document.getElementById('modalUserName').textContent = userData.name || 'Usuario';
+                    document.getElementById('modalUserEmail').textContent = user.email || 'No disponible';
+                    
+                    // Formatear fecha de creación
+                    const creationDate = new Date(user.metadata.creationTime);
+                    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    document.getElementById('modalCreationDate').textContent = creationDate.toLocaleDateString('es-ES', options);
+
+                    document.getElementById('sidebar').style.display = 'flex';
+                    document.getElementById('content').style.display = 'flex';
+                    document.getElementById('header').style.display = 'block';
+
+                    // Ocultar indicador de carga
+                    loadingSpinner.style.display = 'none';
+
+                    // Mostrar saludo y reloj
+                    mostrarSaludo(userData.name);
+                    actualizarReloj();
+
+                    // Sincronizar estado del contenedor de hora y fecha
+                    sincronizarEstadoContenedor(user.uid);
+
+                    // Sincronizar estado del hover
+                    sincronizarEstadoHover(user.uid);
+                }
+            });
+        }
+
+        // Función para actualizar la UI según los permisos
+        function actualizarPermisosUI() {
+            // Iconos del sidebar
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => {
+                const permissionId = link.getAttribute('data-permission');
+                if (!userPermissions.includes(permissionId)) {
+                    link.classList.add('locked');
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        showAlert(`No tienes permiso para acceder a esta función.`, false);
+                    };
+                }
+            });
+
+            // Iconos del contenido principal
+            const iconItems = document.querySelectorAll('.icon-item');
+            iconItems.forEach(item => {
+                const permissionId = item.getAttribute('data-permission');
+                if (!userPermissions.includes(permissionId)) {
+                    item.classList.add('locked');
+                    const link = item.querySelector('a');
+                    if (link) {
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            showAlert(`No tienes permiso para acceder a esta función.`, false);
+                        };
+                    }
+                }
+            });
+        }
+
+        // Expandir/contraer barra lateral
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('expanded');
+        });
+
+        // Saludo y reloj
+        function mostrarSaludo(nombre) {
+            const greetingText = document.getElementById('greetingText');
+            greetingText.textContent = `¡Hola, ${nombre}!`;
+        }
+
+        function actualizarReloj() {
+            const clock = document.getElementById('clock');
+            setInterval(() => {
+                const now = new Date();
+                clock.textContent = now.toLocaleString();
+            }, 1000);
+        }
+
+        // Sincronizar estado del contenedor de hora y fecha
+        function sincronizarEstadoContenedor(userId) {
+            const userGreeting = document.getElementById('userGreeting');
+            const userDocRef = doc(db, 'users', userId);
+
+            // Escuchar cambios en tiempo real
+            onSnapshot(userDocRef, (doc) => {
+                const userData = doc.data();
+                if (userData && userData.toggleState !== undefined) {
+                    userGreeting.style.display = userData.toggleState ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Sincronizar estado del hover
+        function sincronizarEstadoHover(userId) {
+            const sidebarLinks = document.querySelectorAll('.sidebar a');
+            const userDocRef = doc(db, 'users', userId);
+
+            // Escuchar cambios en tiempo real
+            onSnapshot(userDocRef, (doc) => {
+                const userData = doc.data();
+                if (userData && userData.hoverState !== undefined) {
+                    sidebarLinks.forEach(link => {
+                        if (!sidebar.classList.contains('expanded')) {
+                            link.querySelector('span').style.display = userData.hoverState ? 'block' : 'none';
+                        }
+                    });
+                }
+            });
+        }
+
+        // Menú contextual
+        const contextMenu = document.getElementById('contextMenu');
+
+        // Mostrar menú contextual al hacer clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            // Verificar si el clic fue en un área sin iconos
+            const clickedOnIcon = e.target.closest('.icon-item');
+            
+            if (!clickedOnIcon && !e.target.closest('.sidebar') && !e.target.closest('header')) {
+                e.preventDefault();
+                
+                // Posicionar el menú contextual
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${e.pageX}px`;
+                contextMenu.style.top = `${e.pageY}px`;
+                
+                // Asegurarse de que el menú no se salga de la pantalla
+                const menuWidth = contextMenu.offsetWidth;
+                const menuHeight = contextMenu.offsetHeight;
+                
+                if (e.pageX + menuWidth > window.innerWidth) {
+                    contextMenu.style.left = `${window.innerWidth - menuWidth}px`;
+                }
+                
+                if (e.pageY + menuHeight > window.innerHeight) {
+                    contextMenu.style.top = `${window.innerHeight - menuHeight}px`;
+                }
+            }
+        });
+
+        // Ocultar menú contextual al hacer clic en cualquier parte
+        document.addEventListener('click', function(e) {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.style.display = 'none';
+            }
+        });
+
+        // Funciones del menú contextual
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        function showUserInfoModal() {
+            const modal = document.getElementById('userInfoModal');
+            modal.style.display = 'flex';
+            contextMenu.style.display = 'none';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('userInfoModal');
+            modal.style.display = 'none';
+        }
+
+        function goToScanner() {
+            window.location.href = 'qr-scanerr.html';
+        }
+
+        function goToProfile() {
+            window.location.href = 'perfil.html';
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    showAlert(`Error al intentar pantalla completa: ${err.message}`, false);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+            contextMenu.style.display = 'none';
+        }
+
+        function logout() {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                showAlert('Error al cerrar sesión: ' + error.message, false);
+            });
+        }
+
+        // Asignar eventos a las opciones del menú contextual
+        document.getElementById('refreshOption').addEventListener('click', refreshPage);
+        document.getElementById('userInfoOption').addEventListener('click', showUserInfoModal);
+        document.getElementById('scanQRoption').addEventListener('click', goToScanner);
+        document.getElementById('profileOption').addEventListener('click', goToProfile);
+        document.getElementById('fullscreenOption').addEventListener('click', toggleFullScreen);
+        document.getElementById('logoutOption').addEventListener('click', logout);
+        document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('userInfoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Cargar perfil al inicio
+        cargarPerfil();
+
+        // Bloquear inspección
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === "F12" || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+                (e.ctrlKey && e.key === 'u') || 
+                (e.ctrlKey && e.shiftKey && e.key === 'J')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <!-- Accesos Directos -->
+    <script>
+        document.addEventListener('keydown', function(event) {
+            // Alt + A: Ir a puesto-de-agentes-de-seguridad.html
+            if (event.altKey && event.key === 'a') {
+                event.preventDefault();
+                window.location.href = 'puesto-de-agentes-de-seguridad.html';  // Áreas de trabajos
+            }
+            
+            // Alt + H: Ir a horario-view.html
+            if (event.altKey && event.key === 'h') {
+                event.preventDefault();
+                window.location.href = 'horario-view.html';  // Horarios
+            }
+            
+            // Alt + P: Ir a rondas-puesto-de-trabajo.html
+            if (event.altKey && event.key === 'p') {
+                event.preventDefault();
+                window.location.href = 'rondas-puesto-de-trabajo.html';  // Pases de Rondas
+            }
+            
+            // Alt + C: Ir a chat-retom.html
+            if (event.altKey && event.key === 'c') {
+                event.preventDefault();
+                window.location.href = 'chat-retom.html';  // Chat
+            }
+            
+            // Alt + L: Ir a libreta-de-contactos.html
+            if (event.altKey && event.key === 'l') {
+                event.preventDefault();
+                window.location.href = 'libreta-de-contactos.html';  // Libreta de Contactos
+            }
+            
+            // Alt + R: Ir a reportes.html
+            if (event.altKey && event.key === 'r') {
+                event.preventDefault();
+                window.location.href = 'reportes.html';  // Reportes
+            }
+            
+            // Alt + F: Ir a lost-and-home-sesion.html
+            if (event.altKey && event.key === 'f') {
+                event.preventDefault();
+                window.location.href = 'lost-and-home-sesion.html';  // Lost And Found
+            }
+            
+            // Alt + G: Ir a generar-qr.html
+            if (event.altKey && event.key === 'g') {
+                event.preventDefault();
+                window.location.href = 'generar-qr.html';  // Generar QR
+            }
+            
+            // Alt + S: Ir a scaner-qr.html
+            if (event.altKey && event.key === 's') {
+                event.preventDefault();
+                window.location.href = 'scaner-qr.html';  // Scanner QR
+            }
+            
+            // Alt + U: Ir a perfil.html
+            if (event.altKey && event.key === 'u') {
+                event.preventDefault();
+                window.location.href = 'perfil.html';  // Cuenta
+            }
+        });
+    </script>
+</body>
+</html>
