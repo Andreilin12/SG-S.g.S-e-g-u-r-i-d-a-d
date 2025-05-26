@@ -1054,25 +1054,18 @@
         emptyState.style.display = 'none';
         pdfViewerContent.style.display = 'block';
         const loadingDiv = showLoading(pdfViewer, 'Cargando documento');
-        
-        // Usar un proxy CORS para evitar problemas de acceso
-        const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-        const proxiedUrl = corsProxy + url;
 
-        // Verificar accesibilidad del URL
-        const response = await fetch(proxiedUrl, { 
-          method: 'HEAD',
-          headers: {
-            'Origin': window.location.origin
-          }
-        });
+        // Convertir la URL de Firebase Storage a un ArrayBuffer para PDF.js
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`No se pudo acceder al PDF: Estado ${response.status}`);
         }
 
-        // Cargar el documento PDF usando el proxy
+        const arrayBuffer = await response.arrayBuffer();
+
+        // Cargar el documento PDF usando PDF.js
         const loadingTask = pdfjsLib.getDocument({
-          url: proxiedUrl,
+          data: arrayBuffer,
           cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
           cMapPacked: true,
           disableAutoFetch: false,
