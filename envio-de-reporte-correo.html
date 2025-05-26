@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizar Reportes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0a192f;
+      color: #ccd6f6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background-color: #112240;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #64ffda;
+    }
+    .buscadores {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .buscadores input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #2b2b2b;
+      background-color: #0a192f;
+      color: #ccd6f6;
+    }
+    .buscadores input::placeholder {
+      color: #aaa;
+    }
+    .acordeon {
+      margin-bottom: 10px;
+    }
+    .acordeon-titulo {
+      background-color: #15a086;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .acordeon-titulo:hover {
+      background-color: #12816d;
+    }
+    .acordeon-contenido {
+      background-color: #0a192f;
+      padding: 10px;
+      border-radius: 0 0 5px 5px;
+      border-bottom: 1px solid #2b2b2b;
+      display: none;
+    }
+    .acordeon-contenido.activo {
+      display: block;
+    }
+    .acordeon-titulo i {
+      transition: transform 0.3s;
+      font-size: 24px;
+    }
+    .acordeon-titulo.activo i {
+      transform: rotate(180deg);
+    }
+    .reporte-item {
+      margin-bottom: 10px;
+    }
+    .reporte-item label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #64ffda;
+    }
+    .reporte-item p {
+      margin: 0;
+      color: #ccd6f6;
+    }
+    .reporte-imagen {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .btn-accion {
+      background-color: #64ffda;
+      color: #0a192f;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .btn-accion:hover {
+      background-color: #49ccb8;
+    }
+    .boton-eliminar {
+      background-color: #64ffda;
+      color: #0a192f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .boton-eliminar:hover {
+      background-color: #ff5e57;
+      transform: scale(1.05);
+    }
+    .boton-eliminar:active {
+      transform: scale(0.95);
+    }
+    .boton-compartir {
+      background-color: #64ffda;
+      color: #0a192f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+      margin-left: 10px;
+    }
+    .boton-compartir:hover {
+      background-color: #49ccb8;
+      transform: scale(1.05);
+    }
+    .boton-compartir:active {
+      transform: scale(0.95);
+    }
+    .boton-vista-previa {
+      background-color: #64ffda;
+      color: #0a192f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+      margin-left: 10px;
+    }
+    .boton-vista-previa:hover {
+      background-color: #49ccb8;
+      transform: scale(1.05);
+    }
+    .boton-vista-previa:active {
+      transform: scale(0.95);
+    }
+    .boton-guardar-pdf {
+      background-color: #64ffda;
+      color: #0a192f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.3s;
+      margin-left: 10px;
+    }
+    .boton-guardar-pdf:hover {
+      background-color: #49ccb8;
+      transform: scale(1.05);
+    }
+    .boton-guardar-pdf:active {
+      transform: scale(0.95);
+    }
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .confirm-modal.active {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+    .confirm-content {
+      background-color: #112240;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      transform: scale(0.7);
+      transition: transform 0.3s ease;
+    }
+    .confirm-modal.active .confirm-content {
+      transform: scale(1);
+    }
+    .confirm-content button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .confirm-content button.confirm {
+      background-color: #64ffda;
+      color: #0a192f;
+    }
+    .confirm-content button.cancel {
+      background-color: #ff5e57;
+      color: #0a192f;
+    }
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .pdf-modal.active {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+    .pdf-content {
+      background-color: #112240;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 80%;
+      max-width: 800px;
+      transform: scale(0.7);
+      transition: transform 0.3s ease;
+    }
+    .pdf-modal.active .pdf-content {
+      transform: scale(1);
+    }
+    .pdf-content iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 5px;
+    }
+    .pdf-content button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      background-color: #ff5e57;
+      color: #0a192f;
+    }
+    .alerta {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      top: 20%;
+      transform: translateX(-50%);
+      color: #ccd6f6;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-size: 18px;
+      text-align: center;
+      transition: opacity 0.5s;
+      opacity: 0;
+    }
+    .alerta.mostrar {
+      display: block;
+      opacity: 1;
+    }
+    .alerta.success {
+      background-color: #64ffda;
+      color: #0a192f;
+    }
+    .alerta.error {
+      background-color: #ff5e57;
+      color: #0a192f;
+    }
+    .imagen-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .imagen-modal-contenido {
+      max-width: 90%;
+      max-height: 90%;
+    }
+    .imagen-modal-contenido img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 5px;
+    }
+    .cerrar-imagen {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .acordeon-contenido.activo, .acordeon-contenido.activo * {
+        visibility: visible;
+      }
+      .acordeon-contenido.activo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: white;
+        color: #000;
+        padding: 20px;
+      }
+      .reporte-imagen {
+        max-width: 50% !important;
+      }
+      .btn-accion {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reportes Registrados</h1>
+    <div class="buscadores">
+      <input type="text" id="buscadorNombre" placeholder="Buscar por nombre del caso">
+    </div>
+    <div id="acordeonContainer"></div>
+  </div>
+
+  <div id="alerta" class="alerta"></div>
+
+  <div id="modal" class="confirm-modal">
+    <div class="confirm-content">
+      <div class="modal-header">
+        <span id="modal-title">Confirmación</span>
+      </div>
+      <div class="modal-body">
+        <p id="modal-message">¿Estás seguro de que quieres eliminar este reporte?</p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-button" class="confirm">Sí</button>
+        <button class="cancel" onclick="cerrarModal()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdfModal" class="pdf-modal">
+    <div class="pdf-content">
+      <iframe id="pdfViewer"></iframe>
+      <button onclick="cerrarPdfModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <div id="imagenModal" class="imagen-modal">
+    <span class="cerrar-imagen" onclick="cerrarImagenModal()">&times;</span>
+    <div class="imagen-modal-contenido">
+      <img id="imagenAmpliada" src="" alt="Imagen ampliada">
+    </div>
+  </div>
+
+  <!-- Formulario oculto para compatibilidad con EmailJS -->
+  <form id="email-form" style="display: none;">
+    <input type="text" name="from_name" id="from_name">
+    <input type="text" name="to_email" id="to_email">
+    <textarea name="message" id="message"></textarea>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
+    const { jsPDF } = window.jspdf;
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLi-egzQlgbKW8XV_qIhU6313Gd8gocCg",
+      authDomain: "inventario-35d6b.firebaseapp.com",
+      databaseURL: "https://inventario-35d6b-default-rtdb.firebaseio.com",
+      projectId: "inventario-35d6b",
+      storageBucket: "inventario-35d6b.appspot.com",
+      messagingSenderId: "266100399659",
+      appId: "1:266100399659:web:92358d28cbd803c8a7d46e"
+    };
+
+    let app, db, auth, storage;
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      storage = getStorage(app);
+      emailjs.init("32MfEXLHPu9Uj6rMc"); // Initialize EmailJS
+    } catch (error) {
+      console.error("Error initializing Firebase or EmailJS:", error);
+    }
+
+    let currentUser = null;
+    let idReporteEliminar = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        cargarReportes();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function formatearFecha(fecha) {
+      const fechaObj = new Date(fecha);
+      const dia = String(fechaObj.getDate()).padStart(2, '0');
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+      const año = fechaObj.getFullYear();
+      const horas = String(fechaObj.getHours()).padStart(2, '0');
+      const minutos = String(fechaObj.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+    }
+
+    async function cargarReportes() {
+      try {
+        const reportesRef = collection(db, "Reportes");
+        const reportesSnapshot = await getDocs(reportesRef);
+        const acordeonContainer = document.getElementById('acordeonContainer');
+        acordeonContainer.innerHTML = "";
+
+        reportesSnapshot.forEach((doc) => {
+          const reporte = doc.data();
+          const id = doc.id;
+          if (reporte.userId === currentUser.uid) {
+            const acordeon = document.createElement('div');
+            acordeon.classList.add('acordeon');
+
+            const titulo = document.createElement('div');
+            titulo.classList.add('acordeon-titulo');
+            titulo.innerHTML = `
+              <span><i class="fas fa-file-alt"></i> ${reporte.nombreCaso} - ${reporte.tipoCaso}</span>
+              <i class="fas fa-chevron-down"></i>
+            `;
+
+            const contenido = document.createElement('div');
+            contenido.classList.add('acordeon-contenido');
+            contenido.innerHTML = `
+              <div class="reporte-item">
+                <label>Fecha y Hora del Incidente:</label>
+                <p>${formatearFecha(reporte.fechaHoraIncidente)}</p>
+              </div>
+              <div class="reporte-item">
+                <label>Reportado Por:</label>
+                <p>${reporte.reportadoPor}</p>
+              </div>
+              <div class="reporte-item">
+                <label>Fecha del Reporte:</label>
+                <p>${formatearFecha(reporte.fechaReporte)}</p>
+              </div>
+              <div class="reporte-item">
+                <label>Hora del Reporte:</label>
+                <p>${reporte.horaReporte}</p>
+              </div>
+              <div class="reporte-item">
+                <label>Descripción:</label>
+                <p>${reporte.descripcion}</p>
+              </div>
+              ${reporte.fotoURL ? `<div class="reporte-item">
+                <label>Foto:</label>
+                <img src="${reporte.fotoURL}" alt="Foto del reporte" class="reporte-imagen" onclick="mostrarImagenAmpliada('${reporte.fotoURL}')">
+              </div>` : ''}
+              ${reporte.pdfURL ? `<div class="reporte-item">
+                <label>PDF:</label>
+                <a href="${reporte.pdfURL}" target="_blank">Ver PDF</a>
+              </div>` : ''}
+              <button class="boton-eliminar" onclick="prepararEliminacion('${id}')">Eliminar Reporte</button>
+              <button class="boton-vista-previa" onclick="vistaPreviaPDF('${id}')">Vista Previa PDF</button>
+              <button class="boton-guardar-pdf" onclick="guardarPDF('${id}')">Guardar PDF en Firebase</button>
+              ${reporte.pdfURL ? `<button class="boton-compartir" onclick="compartirReporte('${id}')">Compartir Reporte</button>` : ''}
+              <button class="btn-accion" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Reporte</button>
+            `;
+
+            titulo.addEventListener('click', () => {
+              titulo.classList.toggle('activo');
+              contenido.classList.toggle('activo');
+            });
+
+            acordeon.appendChild(titulo);
+            acordeon.appendChild(contenido);
+            acordeonContainer.appendChild(acordeon);
+          }
+        });
+
+        document.getElementById('buscadorNombre').addEventListener('input', filtrarPorNombre);
+      } catch (error) {
+        console.error("Error al cargar reportes:", error);
+        mostrarAlerta("Error al cargar los reportes", "error");
+      }
+    }
+
+    function filtrarPorNombre() {
+      const texto = this.value.toLowerCase();
+      const acordeones = document.querySelectorAll('.acordeon');
+      acordeones.forEach(acordeon => {
+        const nombre = acordeon.querySelector('.acordeon-titulo span').textContent.toLowerCase();
+        acordeon.style.display = nombre.includes(texto) ? 'block' : 'none';
+      });
+    }
+
+    window.mostrarImagenAmpliada = function(urlImagen) {
+      const imagenModal = document.getElementById('imagenModal');
+      const imagenAmpliada = document.getElementById('imagenAmpliada');
+      imagenAmpliada.src = urlImagen;
+      imagenModal.style.display = 'flex';
+    }
+
+    window.cerrarImagenModal = function() {
+      document.getElementById('imagenModal').style.display = 'none';
+    }
+
+    window.prepararEliminacion = function(id) {
+      idReporteEliminar = id;
+      document.querySelector('.confirm-modal').classList.add('active');
+    }
+
+    window.cerrarModal = function() {
+      document.querySelector('.confirm-modal').classList.remove('active');
+    }
+
+    window.cerrarPdfModal = function() {
+      document.querySelector('.pdf-modal').classList.remove('active');
+      const pdfViewer = document.getElementById('pdfViewer');
+      pdfViewer.src = ''; // Clear the iframe
+    }
+
+    function mostrarAlerta(mensaje, tipo) {
+      const alerta = document.getElementById('alerta');
+      alerta.textContent = mensaje;
+      alerta.className = `alerta mostrar ${tipo}`;
+      setTimeout(() => {
+        alerta.classList.remove('mostrar');
+      }, 3000);
+    }
+
+    document.getElementById('confirm-button').onclick = async function() {
+      if (idReporteEliminar) {
+        try {
+          await deleteDoc(doc(db, "Reportes", idReporteEliminar));
+          mostrarAlerta("Reporte eliminado con éxito", "success");
+        } catch (error) {
+          console.error("Error al eliminar reporte:", error);
+          mostrarAlerta("Error al eliminar el reporte: " + error.message, "error");
+        }
+        cargarReportes();
+        cerrarModal();
+      }
+    }
+
+    async function generateReportePDF(reporte) {
+      const doc = new jsPDF();
+      let y = 10;
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text(`Reporte: ${reporte.nombreCaso} - ${reporte.tipoCaso}`, 10, y);
+      y += 10;
+
+      // Add report details
+      doc.setFontSize(12);
+      doc.text(`Fecha y Hora del Incidente: ${formatearFecha(reporte.fechaHoraIncidente)}`, 10, y);
+      y += 10;
+      doc.text(`Reportado Por: ${reporte.reportadoPor}`, 10, y);
+      y += 10;
+      doc.text(`Fecha del Reporte: ${formatearFecha(reporte.fechaReporte)}`, 10, y);
+      y += 10;
+      doc.text(`Hora del Reporte: ${reporte.horaReporte}`, 10, y);
+      y += 10;
+
+      // Add description with text wrapping
+      doc.text("Descripción:", 10, y);
+      y += 6;
+      const descripcion = doc.splitTextToSize(reporte.descripcion, 180);
+      doc.text(descripcion, 10, y);
+      y += descripcion.length * 7;
+
+      // Add image if available
+      if (reporte.fotoURL) {
+        try {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          const imgPromise = new Promise((resolve, reject) => {
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("Error al cargar la imagen"));
+            img.src = reporte.fotoURL;
+          });
+          await imgPromise;
+          if (y + 50 > 280) {
+            doc.addPage();
+            y = 10;
+          }
+          doc.addImage(img, 'JPEG', 10, y, 50, 50);
+          y += 60;
+        } catch (error) {
+          console.error("Error al cargar la imagen para el PDF:", error);
+          doc.text("No se pudo incluir la imagen en el PDF", 10, y);
+          y += 10;
+        }
+      }
+
+      // Generate Blob
+      const pdfBlob = doc.output('blob');
+      return pdfBlob;
+    }
+
+    window.vistaPreviaPDF = async function(id) {
+      try {
+        const reporteDoc = await getDoc(doc(db, "Reportes", id));
+        if (!reporteDoc.exists()) {
+          mostrarAlerta("Reporte no encontrado", "error");
+          return;
+        }
+        const reporte = reporteDoc.data();
+
+        const pdfBlob = await generateReportePDF(reporte);
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        const pdfViewer = document.getElementById('pdfViewer');
+        pdfViewer.src = pdfUrl;
+        document.querySelector('.pdf-modal').classList.add('active');
+
+        // Clean up Blob URL when modal is closed
+        document.querySelector('.pdf-modal').addEventListener('click', () => {
+          URL.revokeObjectURL(pdfUrl);
+        }, { once: true });
+      } catch (error) {
+        console.error("Error al generar vista previa del PDF:", error);
+        mostrarAlerta("Error al generar la vista previa del PDF: " + error.message, "error");
+      }
+    }
+
+    window.guardarPDF = async function(id) {
+      try {
+        const reporteDoc = await getDoc(doc(db, "Reportes", id));
+        if (!reporteDoc.exists()) {
+          mostrarAlerta("Reporte no encontrado", "error");
+          return;
+        }
+        const reporte = reporteDoc.data();
+
+        const pdfBlob = await generateReportePDF(reporte);
+        const storageRef = ref(storage, `reportes/${id}/reporte.pdf`);
+        await uploadBytes(storageRef, pdfBlob);
+        const pdfUrl = await getDownloadURL(storageRef);
+
+        await updateDoc(doc(db, "Reportes", id), {
+          pdfURL: pdfUrl
+        });
+
+        mostrarAlerta("PDF guardado en Firebase con éxito", "success");
+        cargarReportes();
+      } catch (error) {
+        console.error("Error al guardar el PDF en Firebase:", error);
+        mostrarAlerta("Error al guardar el PDF en Firebase: " + error.message, "error");
+      }
+    }
+
+    async function sendReporteEmail(reporte, email, pdfUrl) {
+      try {
+        const emailParams = {
+          from_name: "Sistema de Reportes Retom",
+          to_email: email,
+          message: `
+⚠️ Reporte: ${reporte.nombreCaso} - ${reporte.tipoCaso}
+Fecha y Hora del Incidente: ${formatearFecha(reporte.fechaHoraIncidente)}
+Reportado Por: ${reporte.reportadoPor}
+Fecha del Reporte: ${formatearFecha(reporte.fechaReporte)}
+Hora del Reporte: ${reporte.horaReporte}
+Descripción: ${reporte.descripcion}
+Enlace al PDF del reporte: ${pdfUrl}
+${reporte.fotoURL ? `Foto adjunta: ${reporte.fotoURL}` : ''}`
+        };
+
+        // Set values in the hidden form for EmailJS
+        document.getElementById('from_name').value = emailParams.from_name;
+        document.getElementById('to_email').value = emailParams.to_email;
+        document.getElementById('message').value = emailParams.message;
+
+        await emailjs.sendForm('service_vwjqy7p', 'template_m0s04cs', '#email-form');
+        console.log(`Correo enviado para el reporte "${reporte.nombreCaso}" a ${email}`);
+        return true;
+      } catch (error) {
+        console.error("Error al enviar el correo:", error);
+        return false;
+      }
+    }
+
+    window.compartirReporte = async function(id) {
+      try {
+        const reporteDoc = await getDoc(doc(db, "Reportes", id));
+        if (!reporteDoc.exists()) {
+          mostrarAlerta("Reporte no encontrado", "error");
+          return;
+        }
+        const reporte = reporteDoc.data();
+
+        if (!reporte.pdfURL) {
+          mostrarAlerta("No hay PDF guardado para este reporte", "error");
+          return;
+        }
+
+        const correosRef = collection(db, "Correos");
+        const correosSnapshot = await getDocs(correosRef);
+        const correos = [];
+        correosSnapshot.forEach((doc) => {
+          if (doc.data().userId === currentUser.uid) {
+            correos.push(doc.data().email);
+          }
+        });
+
+        if (correos.length === 0) {
+          mostrarAlerta("No hay correos registrados para enviar el reporte", "error");
+          return;
+        }
+
+        let success = true;
+        for (const email of correos) {
+          const result = await sendReporteEmail(reporte, email, reporte.pdfURL);
+          if (!result) success = false;
+        }
+
+        if (success) {
+          mostrarAlerta("Reporte compartido con éxito", "success");
+        } else {
+          mostrarAlerta("Error al compartir el reporte con algunos correos", "error");
+        }
+      } catch (error) {
+        console.error("Error al compartir el reporte:", error);
+        mostrarAlerta("Error al compartir el reporte: " + error.message, "error");
+      }
+    }
+
+    onSnapshot(collection(db, "Reportes"), () => {
+      cargarReportes();
+    });
+  </script>
+</body>
+</html>
