@@ -754,8 +754,8 @@
   <!-- SweetAlert2 for elegant alerts -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script type="module">
-    // Configuración de PDF.js
+<script type="module">
+    // Configuración de PDF.js (se mantiene para posibles usos alternativos)
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -782,11 +782,8 @@
 
     // Global Variables
     let currentUser = null;
-    let pdfDocs = {};
-    let currentPdf = null;
-    let currentPage = 1;
-    let pdfScale = 1.0;
-    const SCALE_INCREMENT = 0.25;
+    let currentPdfUrl = null;
+    let currentPdfTitle = null;
     let selectedReportId = null;
     let selectedReportUrl = null;
 
@@ -851,7 +848,6 @@
 
     // Configurar menú contextual
     function configurarContextMenu() {
-      // Mostrar menú contextual al hacer clic derecho
       document.addEventListener('contextmenu', (e) => {
         const reportItem = e.target.closest('.report-item');
         if (reportItem) {
@@ -860,12 +856,10 @@
         }
       });
 
-      // Ocultar menú contextual al hacer clic en cualquier parte
       document.addEventListener('click', () => {
         contextMenu.style.display = 'none';
       });
 
-      // Configurar acciones del menú contextual
       downloadContextBtn.addEventListener('click', () => {
         if (selectedReportUrl) {
           downloadPdf(selectedReportUrl, selectedReportId);
@@ -959,7 +953,6 @@
       
       document.body.appendChild(alert);
       
-      // Reproducir sonido de alerta
       if (alertSound) {
         alertSound.currentTime = 0;
         alertSound.play().catch(e => console.log("No se pudo reproducir el sonido:", e));
@@ -1013,16 +1006,13 @@
               </button>
             `;
             
-            // Evento para mostrar el menú contextual al hacer clic en el botón de opciones
             const optionsBtn = listItem.querySelector('.more-options-btn');
             optionsBtn.addEventListener('click', (e) => {
               e.stopPropagation();
               showContextMenu(e, listItem);
             });
             
-            // Evento para cargar el PDF al hacer clic en el elemento
             listItem.addEventListener('click', (e) => {
-              // Evitar que se active si se hizo clic en el botón de opciones
               if (e.target.closest('.more-options-btn')) return;
               
               document.querySelectorAll('.report-item').forEach(item => {
@@ -1047,105 +1037,64 @@
       });
     }
 
-    // Cargar y mostrar PDF
+    // Cargar y mostrar PDF usando Google Docs Viewer como alternativa
     async function cargarPdf(url, title) {
       try {
-        // Mostrar estado de carga
         emptyState.style.display = 'none';
         pdfViewerContent.style.display = 'block';
         const loadingDiv = showLoading(pdfViewer, 'Cargando documento');
-
-        // Convertir la URL de Firebase Storage a un ArrayBuffer para PDF.js
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`No se pudo acceder al PDF: Estado ${response.status}`);
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-
-        // Cargar el documento PDF usando PDF.js
-        const loadingTask = pdfjsLib.getDocument({
-          data: arrayBuffer,
-          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
-          cMapPacked: true,
-          disableAutoFetch: false,
-          disableStream: false
-        });
         
-        const pdf = await loadingTask.promise;
+        // Usar Google Docs Viewer como visualizador alternativo
+        const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
         
-        // Guardar referencia al PDF
-        currentPdf = pdf;
-        currentPage = 1;
-        pdfScale = 1.0;
+        pdfViewer.innerHTML = `
+          <iframe src="${viewerUrl}" 
+                  style="width: 100%; height: 100%; border: none;" 
+                  frameborder="0"></iframe>
+        `;
+        
         pdfTitle.textContent = title;
+        currentPdfUrl = url;
+        currentPdfTitle = title;
         
-        // Mostrar la primera página
-        await renderPage(currentPage);
-        
-        // Actualizar controles de página
-        updatePageControls();
+        // Ocultar controles de página ya que no son aplicables
+        document.querySelector('.pdf-viewer-toolbar').style.display = 'none';
         
       } catch (error) {
         console.error("Error al cargar PDF:", error);
-        pdfViewer.innerHTML = `<p style="text-align: center; padding: 20px; color: var(--danger-color);">Error al cargar el PDF: ${error.message}</p>`;
-        mostrarAlerta(`Error al cargar el PDF: ${error.message}`, 'error');
+        
+        // Si falla Google Docs Viewer, intentar con Microsoft Office Viewer
+        const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        
+        pdfViewer.innerHTML = `
+          <div style="text-align: center; padding: 20px;">
+            <p style="color: var(--danger-color);">Error al cargar el visualizador principal</p>
+            <p>Intentando con visualizador alternativo...</p>
+            <iframe src="${officeViewerUrl}" 
+                    style="width: 100%; height: 500px; border: none;" 
+                    frameborder="0"></iframe>
+            <div style="margin-top: 20px;">
+              <button class="pdf-viewer-btn" onclick="window.open('${url}', '_blank')">
+                <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+              </button>
+              <button class="pdf-viewer-btn" onclick="downloadPdf('${url}', '${title.replace(/'/g, "\\'")}')" style="margin-left: 10px;">
+                <i class="fas fa-download"></i> Descargar PDF
+              </button>
+            </div>
+          </div>
+        `;
+        
+        mostrarAlerta(`Se está usando un visualizador alternativo para el PDF`, 'info');
       } finally {
         hideLoading(document.querySelector('.loading-container'));
       }
     }
 
-    // Renderizar página del PDF
-    async function renderPage(pageNum) {
-      if (!currentPdf) return;
-      
-      try {
-        const page = await currentPdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: pdfScale });
-        
-        // Preparar canvas
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        
-        // Ajustar tamaño del canvas al contenedor
-        canvas.style.maxWidth = '100%';
-        canvas.style.height = 'auto';
-        
-        // Limpiar visor y añadir canvas
-        pdfViewer.innerHTML = '';
-        pdfViewer.appendChild(canvas);
-        
-        // Renderizar página
-        await page.render({
-          canvasContext: context,
-          viewport: viewport
-        }).promise;
-        
-      } catch (error) {
-        console.error("Error al renderizar página:", error);
-        pdfViewer.innerHTML = `<p style="text-align: center; padding: 20px; color: var(--danger-color);">Error al renderizar la página: ${error.message}</p>`;
-      }
-    }
-
-    // Actualizar controles de página
-    function updatePageControls() {
-      if (!currentPdf) return;
-      
-      pageInfo.textContent = `Página ${currentPage} de ${currentPdf.numPages}`;
-      
-      // Habilitar/deshabilitar botones de navegación
-      prevPageBtn.disabled = currentPage <= 1;
-      nextPageBtn.disabled = currentPage >= currentPdf.numPages;
-    }
-
     // Descargar PDF
     function downloadPdf(url, title = 'reporte') {
-      // Crear enlace de descarga
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${title}.pdf`;
+      a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1180,7 +1129,6 @@
           
           mostrarAlerta("Reporte renombrado exitosamente");
           
-          // Actualizar el título si este PDF está siendo mostrado
           const activeItem = document.querySelector('.report-item.active');
           if (activeItem && activeItem.dataset.id === reportId) {
             pdfTitle.textContent = newTitle;
@@ -1207,7 +1155,6 @@
         });
         
         if (result.isConfirmed) {
-          // Mostrar loading mientras se elimina
           const loading = Swal.fire({
             title: 'Eliminando...',
             allowOutsideClick: false,
@@ -1216,10 +1163,8 @@
             }
           });
           
-          // Eliminar de Firestore
           await deleteDoc(doc(db, "SubirPDreporte", reportId));
           
-          // Eliminar de Storage
           const fileRef = ref(storage, reportUrl);
           try {
             await deleteObject(fileRef);
@@ -1231,7 +1176,6 @@
           
           mostrarAlerta("Reporte eliminado exitosamente");
           
-          // Si el PDF eliminado es el que se está mostrando, limpiar el visor
           const activeItem = document.querySelector('.report-item.active');
           if (activeItem && activeItem.dataset.id === reportId) {
             emptyState.style.display = 'flex';
@@ -1244,43 +1188,26 @@
       }
     }
 
-    // Eventos de los controles del PDF
+    // Event listeners para controles (se mantienen aunque algunos no sean funcionales con el nuevo visualizador)
     zoomInBtn.addEventListener('click', () => {
-      pdfScale += SCALE_INCREMENT;
-      renderPage(currentPage);
+      mostrarAlerta("La función de zoom no está disponible en este visualizador", 'info');
     });
 
     zoomOutBtn.addEventListener('click', () => {
-      if (pdfScale > SCALE_INCREMENT) {
-        pdfScale -= SCALE_INCREMENT;
-        renderPage(currentPage);
-      }
+      mostrarAlerta("La función de zoom no está disponible en este visualizador", 'info');
     });
 
     prevPageBtn.addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderPage(currentPage);
-        updatePageControls();
-      }
+      mostrarAlerta("La navegación por páginas no está disponible en este visualizador", 'info');
     });
 
     nextPageBtn.addEventListener('click', () => {
-      if (currentPdf && currentPage < currentPdf.numPages) {
-        currentPage++;
-        renderPage(currentPage);
-        updatePageControls();
-      }
+      mostrarAlerta("La navegación por páginas no está disponible en este visualizador", 'info');
     });
 
     downloadPdfBtn.addEventListener('click', () => {
-      if (!currentPdf) return;
-      
-      const activeItem = document.querySelector('.report-item.active');
-      if (activeItem) {
-        const pdfUrl = activeItem.dataset.url;
-        const pdfTitle = activeItem.dataset.title || 'reporte';
-        downloadPdf(pdfUrl, pdfTitle);
+      if (currentPdfUrl) {
+        downloadPdf(currentPdfUrl, currentPdfTitle);
       }
     });
 
@@ -1296,7 +1223,6 @@
         return;
       }
       
-      // Mostrar confirmación elegante para cambiar el nombre
       const { value: newTitle, isConfirmed } = await Swal.fire({
         title: '¿Desea cambiar el nombre del PDF?',
         input: 'text',
@@ -1315,7 +1241,6 @@
       const finalTitle = isConfirmed ? newTitle : title;
       
       try {
-        // Mostrar loading mientras se sube
         const loading = Swal.fire({
           title: 'Subiendo archivo...',
           allowOutsideClick: false,
@@ -1324,12 +1249,10 @@
           }
         });
         
-        // Subir archivo a Firebase Storage
         const storageRef = ref(storage, `pdf-reports/${currentUser.uid}/${Date.now()}_${file.name}`);
         const uploadTask = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(uploadTask.ref);
         
-        // Guardar metadatos en Firestore
         const reportRef = doc(collection(db, "SubirPDreporte"));
         await setDoc(reportRef, {
           id: reportRef.id,
@@ -1343,7 +1266,6 @@
         
         await loading.close();
         
-        // Mostrar éxito y limpiar formulario
         mostrarAlerta("Reporte PDF subido exitosamente");
         cerrarModal();
         
