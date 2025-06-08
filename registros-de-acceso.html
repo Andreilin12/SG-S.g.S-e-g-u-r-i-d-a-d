@@ -187,6 +187,17 @@
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
         }
 
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d11a6f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(247, 37, 133, 0.3);
+        }
+
         .btn-icon {
             padding: 0.75rem;
             border-radius: 50%;
@@ -308,9 +319,15 @@
         .pagination {
             display: flex;
             justify-content: center;
+            align-items: center;
             padding: 1.5rem;
             gap: 0.5rem;
             border-top: 1px solid var(--card-border);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .page-btn {
@@ -335,6 +352,8 @@
         .page-btn.active {
             background-color: var(--primary);
             color: white;
+            font-weight: 600;
+            box-shadow: 0 0 0 2px rgba(21, 160, 134, 0.5);
         }
 
         .page-btn.disabled {
@@ -375,6 +394,67 @@
             font-size: 1rem;
         }
 
+        /* Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--darker);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+        }
+
+        .modal-message {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
         /* Responsive Adjustments */
         @media (max-width: 1024px) {
             .logs-header, .log-item {
@@ -409,6 +489,18 @@
             .search-box, .date-filter {
                 width: 100%;
             }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-actions .btn {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -424,6 +516,16 @@
 
             .date-filter input {
                 max-width: 100%;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
 
@@ -453,6 +555,9 @@
             <div class="header-actions">
                 <button id="refreshBtn" class="btn btn-primary btn-icon" title="Actualizar">
                     <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="clearAllBtn" class="btn btn-danger" title="Vaciar todos los registros">
+                    <i class="fas fa-trash-alt"></i> Vaciar Todo
                 </button>
             </div>
         </header>
@@ -487,7 +592,31 @@
             </div>
             
             <div class="pagination" id="pagination">
-                <!-- Pagination will be inserted here by JavaScript -->
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Pagination buttons will be inserted here by JavaScript -->
+                </div>
+                <div id="pageInfo" style="margin-left: 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                    Página 1 de 1
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                <h3 class="modal-title">¿Estás seguro?</h3>
+                <p class="modal-message">Esta acción eliminará permanentemente todos los registros de acceso. ¿Deseas continuar?</p>
+            </div>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Eliminar Todo
+                </button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
             </div>
         </div>
     </div>
@@ -499,6 +628,8 @@
             collection, 
             query, 
             getDocs,
+            deleteDoc,
+            doc,
             orderBy,
             startAfter,
             limit,
@@ -523,17 +654,23 @@
 
         // DOM Elements
         const logsList = document.getElementById('logsList');
-        const pagination = document.getElementById('pagination');
+        const paginationControls = document.getElementById('paginationControls');
+        const pageInfo = document.getElementById('pageInfo');
         const refreshBtn = document.getElementById('refreshBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
         const nameSearch = document.getElementById('nameSearch');
         const dateFilter = document.getElementById('dateFilter');
         const clearDateFilter = document.getElementById('clearDateFilter');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
         // Global Variables
         let lastVisible = null;
         let currentPage = 1;
         const logsPerPage = 15;
         let totalLogs = 0;
+        let totalPages = 1;
         let searchTerm = '';
         let selectedDate = '';
         let lastDoc = null;
@@ -545,6 +682,7 @@
             
             // Set up event listeners
             refreshBtn.addEventListener('click', refreshData);
+            clearAllBtn.addEventListener('click', showConfirmationModal);
 
             // Name search input event with debounce
             let searchTimeout;
@@ -568,7 +706,51 @@
                 selectedDate = '';
                 refreshData();
             });
+
+            // Confirmation modal buttons
+            confirmDeleteBtn.addEventListener('click', deleteAllLogs);
+            cancelDeleteBtn.addEventListener('click', hideConfirmationModal);
         });
+
+        // Show confirmation modal
+        function showConfirmationModal() {
+            confirmationModal.classList.add('active');
+        }
+
+        // Hide confirmation modal
+        function hideConfirmationModal() {
+            confirmationModal.classList.remove('active');
+        }
+
+        // Delete all logs from Firestore
+        async function deleteAllLogs() {
+            try {
+                hideConfirmationModal();
+                
+                // Show loading state
+                logsList.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+                
+                // Get all documents from the collection
+                const querySnapshot = await getDocs(collection(db, "accessLogs"));
+                
+                // Delete each document
+                const deletePromises = [];
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(deleteDoc(doc.ref));
+                });
+                
+                await Promise.all(deletePromises);
+                
+                // Refresh the data
+                refreshData();
+                
+                // Show success message
+                showAlert('success', 'Éxito', 'Todos los registros han sido eliminados correctamente.');
+            } catch (error) {
+                console.error("Error deleting logs:", error);
+                showErrorState("Error al eliminar los registros. Por favor, intente nuevamente.");
+            }
+        }
 
         // Refresh data with current filters
         function refreshData() {
@@ -592,23 +774,14 @@
                     limit(logsPerPage)
                 );
 
-                // Apply search filter if exists
-                if (searchTerm) {
-                    // Firestore doesn't support native case-insensitive search or OR queries
-                    // We'll need to filter client-side after fetching
-                    // For better performance, consider adding a search field in lowercase
-                    q = query(
-                        collection(db, "accessLogs"),
-                        orderBy("accessTime", "desc"),
-                        limit(100) // Limit for client-side filtering
-                    );
-                }
-
                 // Apply date filter if exists
                 if (selectedDate) {
                     const date = new Date(selectedDate);
-                    const startDate = new Date(date.setHours(0, 0, 0, 0));
-                    const endDate = new Date(date.setHours(23, 59, 59, 999));
+                    const startDate = new Date(date);
+                    startDate.setHours(0, 0, 0, 0);
+                    
+                    const endDate = new Date(date);
+                    endDate.setHours(23, 59, 59, 999);
                     
                     q = query(
                         collection(db, "accessLogs"),
@@ -622,10 +795,30 @@
                 // For pagination beyond first page
                 if (currentPage > 1 && paginationDocs[currentPage - 2]) {
                     q = query(
-                        q,
+                        collection(db, "accessLogs"),
+                        orderBy("accessTime", "desc"),
                         startAfter(paginationDocs[currentPage - 2]),
                         limit(logsPerPage)
                     );
+                    
+                    // Reapply date filter if exists for paginated queries
+                    if (selectedDate) {
+                        const date = new Date(selectedDate);
+                        const startDate = new Date(date);
+                        startDate.setHours(0, 0, 0, 0);
+                        
+                        const endDate = new Date(date);
+                        endDate.setHours(23, 59, 59, 999);
+                        
+                        q = query(
+                            collection(db, "accessLogs"),
+                            where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                            where("accessTime", "<=", Timestamp.fromDate(endDate)),
+                            orderBy("accessTime", "desc"),
+                            startAfter(paginationDocs[currentPage - 2]),
+                            limit(logsPerPage)
+                        );
+                    }
                 }
 
                 // Execute the query
@@ -640,7 +833,9 @@
                 // Get filtered logs
                 let filteredLogs = [];
                 querySnapshot.forEach((doc) => {
-                    filteredLogs.push(doc.data());
+                    const logData = doc.data();
+                    logData.id = doc.id; // Store document ID for reference
+                    filteredLogs.push(logData);
                 });
 
                 // Apply client-side search filter if needed
@@ -650,10 +845,6 @@
                         const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
                         return usernameMatch || emailMatch;
                     });
-                    
-                    // Apply pagination to client-side filtered results
-                    const startIndex = (currentPage - 1) * logsPerPage;
-                    filteredLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
                 }
 
                 // Get total count (only on first page or when filters change)
@@ -662,8 +853,12 @@
                     
                     if (selectedDate) {
                         const date = new Date(selectedDate);
-                        const startDate = new Date(date.setHours(0, 0, 0, 0));
-                        const endDate = new Date(date.setHours(23, 59, 59, 999));
+                        const startDate = new Date(date);
+                        startDate.setHours(0, 0, 0, 0);
+                        
+                        const endDate = new Date(date);
+                        endDate.setHours(23, 59, 59, 999);
+                        
                         countQuery = query(
                             collection(db, "accessLogs"),
                             where("accessTime", ">=", Timestamp.fromDate(startDate)),
@@ -676,8 +871,23 @@
                     
                     // If we're doing client-side search, adjust total count
                     if (searchTerm) {
+                        const allLogs = [];
+                        countSnapshot.forEach(doc => {
+                            allLogs.push(doc.data());
+                        });
+                        
+                        filteredLogs = allLogs.filter(log => {
+                            const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
+                            const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
+                            return usernameMatch || emailMatch;
+                        });
+                        
                         totalLogs = filteredLogs.length;
+                        filteredLogs = filteredLogs.slice(0, logsPerPage);
                     }
+
+                    // Calculate total pages
+                    totalPages = Math.ceil(totalLogs / logsPerPage);
                 }
                 
                 // Display the logs
@@ -688,7 +898,8 @@
                 }
                 
                 // Update pagination controls
-                updatePagination(currentPage);
+                updatePagination();
+                updatePageInfo();
                 
             } catch (error) {
                 console.error("Error loading logs:", error);
@@ -761,11 +972,9 @@
         }
 
         // Update pagination controls
-        function updatePagination(currentPage) {
-            const totalPages = Math.ceil(totalLogs / logsPerPage);
-            
+        function updatePagination() {
             if (totalPages <= 1) {
-                pagination.innerHTML = '';
+                paginationControls.innerHTML = '';
                 return;
             }
             
@@ -840,7 +1049,7 @@
                 html += `<button class="page-btn disabled"><i class="fas fa-chevron-right"></i></button>`;
             }
             
-            pagination.innerHTML = html;
+            paginationControls.innerHTML = html;
             
             // Add event listeners to pagination buttons
             document.querySelectorAll('.page-btn:not(.disabled)').forEach(btn => {
@@ -854,6 +1063,11 @@
             });
         }
 
+        // Update page information text
+        function updatePageInfo() {
+            pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+        }
+
         // Show empty state message
         function showEmptyState(message) {
             logsList.innerHTML = `
@@ -864,7 +1078,8 @@
                     <p class="empty-text">${message}</p>
                 </div>
             `;
-            pagination.innerHTML = '';
+            paginationControls.innerHTML = '';
+            pageInfo.textContent = '';
         }
 
         // Show error state message
@@ -877,7 +1092,33 @@
                     <p class="empty-text">${message}</p>
                 </div>
             `;
-            pagination.innerHTML = '';
+            paginationControls.innerHTML = '';
+            pageInfo.textContent = '';
+        }
+
+        // Show alert message
+        function showAlert(type, title, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${title}</div>
+                    <div class="alert-message">${message}</div>
+                </div>
+                <button class="alert-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Remove automatically after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
         }
 
         // Get initials from username or email
