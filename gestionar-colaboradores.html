@@ -664,6 +664,7 @@
       text-decoration: none;
       transition: all 0.3s;
       border: 1px solid var(--border-color);
+      cursor: pointer;
     }
 
     .document-link:hover {
@@ -674,6 +675,90 @@
 
     .document-link i {
       font-size: 16px;
+    }
+
+    /* Modal para documentos */
+    .document-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .document-modal-content {
+      background-color: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .document-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background-color: var(--cedula-blue);
+      color: white;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    .document-modal-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .document-modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .document-modal-body {
+      padding: 20px;
+    }
+
+    .document-image {
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .document-pdf-container {
+      width: 100%;
+      height: 70vh;
+      border: none;
+    }
+
+    .document-download-btn {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 25px;
+      background: linear-gradient(to right, var(--cedula-blue2), var(--cedula-red));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .document-download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     /* Responsive */
@@ -945,6 +1030,19 @@
     </div>
   </div>
 
+  <!-- Modal para documentos -->
+  <div class="document-modal" id="documentModal">
+    <div class="document-modal-content">
+      <div class="document-modal-header">
+        <div class="document-modal-title">Documento Adjunto</div>
+        <button class="document-modal-close" id="documentModalClose">&times;</button>
+      </div>
+      <div class="document-modal-body" id="documentModalBody">
+        <!-- Contenido del documento se cargará aquí -->
+      </div>
+    </div>
+  </div>
+
   <script>
     // Configuración de Firebase
     const firebaseConfig = {
@@ -1079,7 +1177,6 @@
         const userDoc = await db.collection('FormularioDeSeguridad').doc(userId).get();
         if (!userDoc.exists) {
           console.error('No se encontraron datos del usuario');
-          showError('No se encontraron datos del usuario');
           return;
         }
 
@@ -1182,7 +1279,7 @@
             <td>Documento Adjunto</td>
             <td>
               ${currentUser.idCardImageUrl ? `
-                <a href="${currentUser.idCardImageUrl}" target="_blank" class="document-link">
+                <a href="#" class="document-link" data-url="${currentUser.idCardImageUrl}">
                   ${currentUser.idCardImageUrl.endsWith('.pdf') ? 
                     '<i class="fas fa-file-pdf"></i> Ver PDF' : 
                     '<i class="fas fa-file-image"></i> Ver Imagen'
@@ -1202,6 +1299,9 @@
         // Configurar listeners para campos editables
         setupEditableFields();
         
+        // Configurar listener para documentos adjuntos
+        setupDocumentLinks();
+        
         // Actualizar la cédula
         updateCedula(currentUser);
         
@@ -1213,7 +1313,6 @@
         
       } catch (error) {
         console.error('Error cargando datos del usuario:', error);
-        showError('No se pudieron cargar los datos del usuario');
       }
     }
 
@@ -1228,6 +1327,60 @@
           const value = e.target.value;
           editedFields[field] = value;
         });
+      });
+    }
+
+    // Configurar listeners para documentos adjuntos
+    function setupDocumentLinks() {
+      const documentLinks = document.querySelectorAll('.document-link');
+      documentLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('data-url');
+          showDocumentModal(url);
+        });
+      });
+    }
+
+    // Mostrar modal con documento adjunto
+    function showDocumentModal(url) {
+      const modal = document.getElementById('documentModal');
+      const modalBody = document.getElementById('documentModalBody');
+      
+      // Limpiar contenido previo
+      modalBody.innerHTML = '';
+      
+      if (url.endsWith('.pdf')) {
+        // Mostrar PDF
+        modalBody.innerHTML = `
+          <iframe src="${url}" class="document-pdf-container"></iframe>
+          <a href="${url}" class="document-download-btn" download>
+            <i class="fas fa-download"></i> Descargar PDF
+          </a>
+        `;
+      } else {
+        // Mostrar imagen
+        modalBody.innerHTML = `
+          <img src="${url}" class="document-image" alt="Documento adjunto">
+          <a href="${url}" class="document-download-btn" download>
+            <i class="fas fa-download"></i> Descargar Imagen
+          </a>
+        `;
+      }
+      
+      // Mostrar modal
+      modal.style.display = 'flex';
+      
+      // Configurar botón de cerrar
+      document.getElementById('documentModalClose').addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+      
+      // Cerrar modal al hacer clic fuera del contenido
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
       });
     }
 
@@ -1251,29 +1404,31 @@
         userPhoto.src = 'https://via.placeholder.com/120x150';
       }
 
-      // Generar QR con los datos
-      const qrData = `
-CÉDULA DOMINICANA
-Número: ${userData.idCard || 'N/A'}
-Nombre: ${userData.fullName || 'N/A'}
-Dirección: ${userData.address || 'N/A'}
-Código Laboral: ${userData.workCode || 'N/A'}
-Estado: ${userData.status === 'active' ? 'ACTIVO' : 'CANCELADO'}
-${userData.status !== 'active' ? `Motivo: ${userData.cancellationReason || 'No especificado'}` : ''}
-      `;
+      // Generar QR con los datos usando API gratuita
+      const qrData = JSON.stringify({
+        nombre: userData.fullName || 'N/A',
+        cedula: userData.idCard || 'N/A',
+        codigo: userData.workCode || 'N/A',
+        departamento: userData.department || 'N/A',
+        posicion: userData.position || 'N/A',
+        estado: userData.status === 'active' ? 'ACTIVO' : 'CANCELADO',
+        motivo: userData.status !== 'active' ? (userData.cancellationReason || 'No especificado') : 'N/A'
+      });
       
       // Limpiar QR previo
       document.getElementById('qrCode').innerHTML = '';
       
-      // Generar nuevo QR
-      new QRCode(document.getElementById("qrCode"), {
-        text: qrData,
-        width: 180,
-        height: 180,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
+      // Generar nuevo QR con API gratuita
+      const qrSize = 180;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(qrData)}`;
+      
+      const qrImg = document.createElement('img');
+      qrImg.src = qrUrl;
+      qrImg.alt = "Código QR de identificación";
+      qrImg.style.width = '100%';
+      qrImg.style.height = '100%';
+      
+      document.getElementById('qrCode').appendChild(qrImg);
     }
 
     // Función para buscar usuarios
