@@ -455,6 +455,94 @@
             gap: 1rem;
         }
 
+        /* Floating Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background-color: var(--darker);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1100;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            max-width: 400px;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert.show {
+            transform: translateX(0);
+        }
+
+        .alert-success {
+            border-left-color: var(--success);
+        }
+
+        .alert-error {
+            border-left-color: var(--danger);
+        }
+
+        .alert-warning {
+            border-left-color: var(--warning);
+        }
+
+        .alert-info {
+            border-left-color: var(--info);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .alert-success .alert-icon {
+            color: var(--success);
+        }
+
+        .alert-error .alert-icon {
+            color: var(--danger);
+        }
+
+        .alert-warning .alert-icon {
+            color: var(--warning);
+        }
+
+        .alert-info .alert-icon {
+            color: var(--info);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+
+        .alert-close:hover {
+            color: white;
+        }
+
         /* Responsive Adjustments */
         @media (max-width: 1024px) {
             .logs-header, .log-item {
@@ -500,6 +588,11 @@
 
             .modal-actions .btn {
                 width: 100%;
+            }
+
+            .alert {
+                max-width: 90%;
+                right: 5%;
             }
         }
 
@@ -634,7 +727,8 @@
             startAfter,
             limit,
             where,
-            Timestamp
+            Timestamp,
+            onSnapshot // Importamos onSnapshot para el tiempo real
         } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Firebase Configuration
@@ -675,10 +769,11 @@
         let selectedDate = '';
         let lastDoc = null;
         let paginationDocs = [];
+        let unsubscribe = null; // Para la función de tiempo real
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            loadLogs();
+            setupRealTimeListener();
             
             // Set up event listeners
             refreshBtn.addEventListener('click', refreshData);
@@ -712,6 +807,166 @@
             cancelDeleteBtn.addEventListener('click', hideConfirmationModal);
         });
 
+        // Configurar el listener en tiempo real
+        function setupRealTimeListener() {
+            // Si ya hay un listener, lo desconectamos
+            if (unsubscribe) {
+                unsubscribe();
+            }
+            
+            // Mostrar estado de carga
+            logsList.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+            
+            // Construir la consulta base
+            let q = query(
+                collection(db, "accessLogs"),
+                orderBy("accessTime", "desc"),
+                limit(logsPerPage)
+            );
+
+            // Aplicar filtro de fecha si existe
+            if (selectedDate) {
+                const date = new Date(selectedDate);
+                const startDate = new Date(date);
+                startDate.setHours(0, 0, 0, 0);
+                
+                const endDate = new Date(date);
+                endDate.setHours(23, 59, 59, 999);
+                
+                q = query(
+                    collection(db, "accessLogs"),
+                    where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                    where("accessTime", "<=", Timestamp.fromDate(endDate)),
+                    orderBy("accessTime", "desc"),
+                    limit(logsPerPage)
+                );
+            }
+
+            // Para paginación más allá de la primera página
+            if (currentPage > 1 && paginationDocs[currentPage - 2]) {
+                q = query(
+                    collection(db, "accessLogs"),
+                    orderBy("accessTime", "desc"),
+                    startAfter(paginationDocs[currentPage - 2]),
+                    limit(logsPerPage)
+                );
+                
+                // Reaplicar filtro de fecha si existe para consultas paginadas
+                if (selectedDate) {
+                    const date = new Date(selectedDate);
+                    const startDate = new Date(date);
+                    startDate.setHours(0, 0, 0, 0);
+                    
+                    const endDate = new Date(date);
+                    endDate.setHours(23, 59, 59, 999);
+                    
+                    q = query(
+                        collection(db, "accessLogs"),
+                        where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                        where("accessTime", "<=", Timestamp.fromDate(endDate)),
+                        orderBy("accessTime", "desc"),
+                        startAfter(paginationDocs[currentPage - 2]),
+                        limit(logsPerPage)
+                    );
+                }
+            }
+
+            // Configurar el listener en tiempo real
+            unsubscribe = onSnapshot(q, (querySnapshot) => {
+                // Almacenar el último documento para paginación
+                if (!querySnapshot.empty) {
+                    lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+                    paginationDocs[currentPage - 1] = lastDoc;
+                }
+
+                // Obtener registros filtrados
+                let filteredLogs = [];
+                querySnapshot.forEach((doc) => {
+                    const logData = doc.data();
+                    logData.id = doc.id; // Almacenar ID del documento para referencia
+                    filteredLogs.push(logData);
+                });
+
+                // Aplicar filtro de búsqueda en el cliente si es necesario
+                if (searchTerm) {
+                    filteredLogs = filteredLogs.filter(log => {
+                        const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
+                        const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
+                        return usernameMatch || emailMatch;
+                    });
+                }
+
+                // Obtener conteo total (solo en primera página o cuando cambian los filtros)
+                if (currentPage === 1) {
+                    let countQuery = collection(db, "accessLogs");
+                    
+                    if (selectedDate) {
+                        const date = new Date(selectedDate);
+                        const startDate = new Date(date);
+                        startDate.setHours(0, 0, 0, 0);
+                        
+                        const endDate = new Date(date);
+                        endDate.setHours(23, 59, 59, 999);
+                        
+                        countQuery = query(
+                            collection(db, "accessLogs"),
+                            where("accessTime", ">=", Timestamp.fromDate(startDate)),
+                            where("accessTime", "<=", Timestamp.fromDate(endDate))
+                        );
+                    }
+                    
+                    getDocs(countQuery).then((countSnapshot) => {
+                        totalLogs = countSnapshot.size;
+                        
+                        // Si estamos haciendo búsqueda en el cliente, ajustar el conteo total
+                        if (searchTerm) {
+                            const allLogs = [];
+                            countSnapshot.forEach(doc => {
+                                allLogs.push(doc.data());
+                            });
+                            
+                            filteredLogs = allLogs.filter(log => {
+                                const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
+                                const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
+                                return usernameMatch || emailMatch;
+                            });
+                            
+                            totalLogs = filteredLogs.length;
+                            filteredLogs = filteredLogs.slice(0, logsPerPage);
+                        }
+
+                        // Calcular total de páginas
+                        totalPages = Math.ceil(totalLogs / logsPerPage);
+                        
+                        // Mostrar los registros
+                        if (filteredLogs.length > 0) {
+                            displayLogs(filteredLogs);
+                        } else {
+                            showEmptyState("No se encontraron registros que coincidan con los filtros.");
+                        }
+                        
+                        // Actualizar controles de paginación
+                        updatePagination();
+                        updatePageInfo();
+                    });
+                } else {
+                    // Mostrar los registros
+                    if (filteredLogs.length > 0) {
+                        displayLogs(filteredLogs);
+                    } else {
+                        showEmptyState("No se encontraron registros que coincidan con los filtros.");
+                    }
+                    
+                    // Actualizar controles de paginación
+                    updatePagination();
+                    updatePageInfo();
+                }
+            }, (error) => {
+                console.error("Error en tiempo real:", error);
+                showErrorState("Error al cargar los registros. Por favor, intente nuevamente.");
+            });
+        }
+
         // Show confirmation modal
         function showConfirmationModal() {
             confirmationModal.classList.add('active');
@@ -741,9 +996,6 @@
                 
                 await Promise.all(deletePromises);
                 
-                // Refresh the data
-                refreshData();
-                
                 // Show success message
                 showAlert('success', 'Éxito', 'Todos los registros han sido eliminados correctamente.');
             } catch (error) {
@@ -758,153 +1010,7 @@
             lastVisible = null;
             lastDoc = null;
             paginationDocs = [];
-            loadLogs();
-        }
-
-        // Main function to load logs from Firestore
-        async function loadLogs() {
-            try {
-                // Show loading state
-                logsList.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
-                
-                // Build the base query
-                let q = query(
-                    collection(db, "accessLogs"),
-                    orderBy("accessTime", "desc"),
-                    limit(logsPerPage)
-                );
-
-                // Apply date filter if exists
-                if (selectedDate) {
-                    const date = new Date(selectedDate);
-                    const startDate = new Date(date);
-                    startDate.setHours(0, 0, 0, 0);
-                    
-                    const endDate = new Date(date);
-                    endDate.setHours(23, 59, 59, 999);
-                    
-                    q = query(
-                        collection(db, "accessLogs"),
-                        where("accessTime", ">=", Timestamp.fromDate(startDate)),
-                        where("accessTime", "<=", Timestamp.fromDate(endDate)),
-                        orderBy("accessTime", "desc"),
-                        limit(logsPerPage)
-                    );
-                }
-
-                // For pagination beyond first page
-                if (currentPage > 1 && paginationDocs[currentPage - 2]) {
-                    q = query(
-                        collection(db, "accessLogs"),
-                        orderBy("accessTime", "desc"),
-                        startAfter(paginationDocs[currentPage - 2]),
-                        limit(logsPerPage)
-                    );
-                    
-                    // Reapply date filter if exists for paginated queries
-                    if (selectedDate) {
-                        const date = new Date(selectedDate);
-                        const startDate = new Date(date);
-                        startDate.setHours(0, 0, 0, 0);
-                        
-                        const endDate = new Date(date);
-                        endDate.setHours(23, 59, 59, 999);
-                        
-                        q = query(
-                            collection(db, "accessLogs"),
-                            where("accessTime", ">=", Timestamp.fromDate(startDate)),
-                            where("accessTime", "<=", Timestamp.fromDate(endDate)),
-                            orderBy("accessTime", "desc"),
-                            startAfter(paginationDocs[currentPage - 2]),
-                            limit(logsPerPage)
-                        );
-                    }
-                }
-
-                // Execute the query
-                const querySnapshot = await getDocs(q);
-                
-                // Store the last document for pagination
-                if (!querySnapshot.empty) {
-                    lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-                    paginationDocs[currentPage - 1] = lastDoc;
-                }
-
-                // Get filtered logs
-                let filteredLogs = [];
-                querySnapshot.forEach((doc) => {
-                    const logData = doc.data();
-                    logData.id = doc.id; // Store document ID for reference
-                    filteredLogs.push(logData);
-                });
-
-                // Apply client-side search filter if needed
-                if (searchTerm) {
-                    filteredLogs = filteredLogs.filter(log => {
-                        const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
-                        const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
-                        return usernameMatch || emailMatch;
-                    });
-                }
-
-                // Get total count (only on first page or when filters change)
-                if (currentPage === 1) {
-                    let countQuery = collection(db, "accessLogs");
-                    
-                    if (selectedDate) {
-                        const date = new Date(selectedDate);
-                        const startDate = new Date(date);
-                        startDate.setHours(0, 0, 0, 0);
-                        
-                        const endDate = new Date(date);
-                        endDate.setHours(23, 59, 59, 999);
-                        
-                        countQuery = query(
-                            collection(db, "accessLogs"),
-                            where("accessTime", ">=", Timestamp.fromDate(startDate)),
-                            where("accessTime", "<=", Timestamp.fromDate(endDate))
-                        );
-                    }
-                    
-                    const countSnapshot = await getDocs(countQuery);
-                    totalLogs = countSnapshot.size;
-                    
-                    // If we're doing client-side search, adjust total count
-                    if (searchTerm) {
-                        const allLogs = [];
-                        countSnapshot.forEach(doc => {
-                            allLogs.push(doc.data());
-                        });
-                        
-                        filteredLogs = allLogs.filter(log => {
-                            const usernameMatch = log.username?.toLowerCase().includes(searchTerm) || false;
-                            const emailMatch = log.email?.toLowerCase().includes(searchTerm) || false;
-                            return usernameMatch || emailMatch;
-                        });
-                        
-                        totalLogs = filteredLogs.length;
-                        filteredLogs = filteredLogs.slice(0, logsPerPage);
-                    }
-
-                    // Calculate total pages
-                    totalPages = Math.ceil(totalLogs / logsPerPage);
-                }
-                
-                // Display the logs
-                if (filteredLogs.length > 0) {
-                    displayLogs(filteredLogs);
-                } else {
-                    showEmptyState("No se encontraron registros que coincidan con los filtros.");
-                }
-                
-                // Update pagination controls
-                updatePagination();
-                updatePageInfo();
-                
-            } catch (error) {
-                console.error("Error loading logs:", error);
-                showErrorState("Error al cargar los registros. Por favor, intente nuevamente.");
-            }
+            setupRealTimeListener();
         }
 
         // Display logs in the UI
@@ -1057,7 +1163,7 @@
                     const page = parseInt(btn.dataset.page);
                     if (page !== currentPage) {
                         currentPage = page;
-                        loadLogs();
+                        setupRealTimeListener();
                     }
                 });
             });
@@ -1096,24 +1202,38 @@
             pageInfo.textContent = '';
         }
 
-        // Show alert message
+        // Show floating alert message
         function showAlert(type, title, message) {
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.innerHTML = `
                 <div class="alert-icon">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                     type === 'error' ? 'fa-exclamation-circle' : 
+                                     type === 'warning' ? 'fa-exclamation-triangle' : 
+                                     'fa-info-circle'}"></i>
                 </div>
                 <div class="alert-content">
                     <div class="alert-title">${title}</div>
                     <div class="alert-message">${message}</div>
                 </div>
-                <button class="alert-close" onclick="this.parentElement.remove()">
+                <button class="alert-close">
                     <i class="fas fa-times"></i>
                 </button>
             `;
             
             document.body.appendChild(alert);
+            
+            // Trigger the show animation
+            setTimeout(() => {
+                alert.classList.add('show');
+            }, 10);
+            
+            // Add close button event
+            const closeBtn = alert.querySelector('.alert-close');
+            closeBtn.addEventListener('click', () => {
+                alert.remove();
+            });
             
             // Remove automatically after 5 seconds
             setTimeout(() => {
