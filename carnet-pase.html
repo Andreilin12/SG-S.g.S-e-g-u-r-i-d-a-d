@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Carnet PVC</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #2c3e50, #2c3e50);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+            max-width: 1200px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: block;
+            color: #e0e0e0;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #ffffff;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        input[type="color"] {
+            padding: 2px;
+            height: 40px;
+        }
+
+        input:hover, button:hover {
+            background: #15a086;
+            color: #fff;
+            cursor: pointer;
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: #15a086;
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap; /* Permite que los carnets pasen a la siguiente fila */
+            gap: 20px; /* Espacio entre carnets */
+            padding: 10px;
+            width: 100%;
+            justify-content: flex-start; /* Alinea los carnets al inicio */
+            overflow-x: auto; /* Desplazamiento horizontal si la ventana es estrecha */
+            box-sizing: border-box;
+        }
+
+        .id-card {
+            /* Dimensions for screen display (vertical orientation) */
+            width: 54mm; /* Standard PVC card height */
+            height: 85.6mm; /* Standard PVC card width */
+            background: linear-gradient(135deg, #D3D3D3, #A9A9A9); /* Fondo gris profesional */
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column; /* Ensure content flows vertically */
+            align-items: center;
+            padding: 10px; /* Reduced padding for vertical layout */
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            -webkit-print-color-adjust: exact; /* Forzar fondo en impresión */
+            print-color-adjust: exact;
+            box-sizing: border-box; /* Include padding in dimensions */
+        }
+
+        .id-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(0, 212, 255, 0.2), transparent);
+            z-index: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .id-card-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .id-card .card-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 5px; /* Space between top section and policy */
+        }
+
+        .id-card img {
+            width: 60px; /* Adjusted size for the logo */
+            height: auto;
+            margin-bottom: 5px; /* Space between logo and number */
+        }
+
+        .id-card .number {
+            font-size: 80px; /* Adjusted font size for vertical card */
+            font-weight: bold;
+            margin: 5px 0; /* Adjusted margin to place it below the logo */
+            color: #15a086;
+        }
+
+        .id-card h3 {
+            font-size: 16px; /* Adjusted font size */
+            margin: 3px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .id-card p {
+            font-size: 12px; /* Adjusted font size */
+            margin: 3px 0;
+            color: #203a43;
+        }
+
+        .id-card .policy {
+            font-size: 7px; /* Adjusted font size */
+            line-height: 1.1;
+            color: #555;
+            padding: 0 5px; /* Adjusted padding */
+            text-align: justify;
+            max-width: 100%; /* Take full available width */
+            margin-top: auto; /* Push to the bottom */
+        }
+
+        .print-all-btn {
+            width: 300px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background: none;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                display: block;
+            }
+            .form-container, .print-all-btn {
+                display: none;
+            }
+            .id-card {
+                /* Exact PVC card dimensions for printing (vertical) */
+                width: 54mm;
+                height: 85.6mm;
+                margin: 5mm; /* Add some margin around each card for cutting */
+                box-shadow: none;
+                page-break-inside: avoid; /* Prevent card from breaking across pages */
+                page-break-after: auto; /* Allow page breaks after each card */
+                background: linear-gradient(135deg, #D3D3D3, #A9A9A9); /* Fondo gris en impresión */
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                box-sizing: border-box; /* Crucial for exact dimensions */
+                display: block; /* Ensure block display for printing */
+            }
+            .id-card::before {
+                background: radial-gradient(circle at top right, rgba(0, 212, 255, 0.2), transparent);
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .cards-container {
+                display: block; /* Use block display to stack cards vertically */
+                width: auto;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Generar Carnet</h1>
+            <form id="idForm">
+                <label for="type">Tipo de Carnet:</label>
+                <input type="text" id="type" name="type" placeholder="Ej: Visitante, Proveedor" required>
+                <label for="color">Color del Tipo (opcional):</label>
+                <input type="color" id="color" name="color" value="#ff00ff">
+                <button type="button" onclick="generateID()">Generar Carnet</button>
+            </form>
+            <button class="print-all-btn" onclick="printAll()">Imprimir Todos los Carnets</button>
+        </div>
+
+        <div class="cards-container" id="cardsContainer">
+        </div>
+    </div>
+
+    <script>
+        // Lista extensa de colores predefinidos para variedad
+        const predefinedColors = [
+            '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
+            '#FFA500', '#800080', '#008000', '#FFC0CB', '#A52A2A', '#FFD700',
+            '#4B0082', '#00FF7F', '#FF4500', '#1E90FF', '#ADFF2F', '#FF69B4',
+            '#20B2AA', '#9932CC', '#32CD32', '#FF6347', '#4682B4', '#DAA520',
+            '#DC143C', '#7FFF00', '#4169E1', '#FFFFE0', '#C71585', '#00CED1',
+            '#FF8C00', '#6A5ACD', '#228B22', '#F08080', '#8B008B', '#B8860B',
+            '#00FA9A', '#FF7F50', '#87CEEB', '#98FB98', '#DB7093', '#40E0D0',
+            '#800000', '#9ACD32', '#483D8B', '#F0E68C', '#9932CC', '#00B7EB'
+        ];
+
+        // Objeto para rastrear el último número y color usado por tipo
+        const lastNumbers = {};
+        const typeColors = {};
+        const usedColors = new Set();
+
+        // Generar un color único automáticamente
+        function getUniqueColor() {
+            let availableColors = predefinedColors.filter(color => !usedColors.has(color));
+            if (availableColors.length === 0) {
+                usedColors.clear();
+                availableColors = predefinedColors;
+            }
+            const color = availableColors[Math.floor(Math.random() * availableColors.length)];
+            usedColors.add(color);
+            return color;
+        }
+
+        function generateID() {
+            const type = document.getElementById('type').value.trim();
+            const customColor = document.getElementById('color').value;
+
+            if (!type) {
+                alert('Por favor, ingrese un tipo de carnet.');
+                return;
+            }
+
+            // Asignar número automáticamente
+            if (!lastNumbers[type]) {
+                lastNumbers[type] = 0;
+            }
+            if (lastNumbers[type] >= 2000) {
+                alert(`Se ha alcanzado el límite de 2000 carnets para el tipo ${type}.`);
+                return;
+            }
+            const number = ++lastNumbers[type];
+
+            // Asignar color: personalizado si se seleccionó, o único predefinido
+            if (!typeColors[type]) {
+                typeColors[type] = customColor !== '#16e086' ? customColor : getUniqueColor();
+            }
+
+            const cardsContainer = document.getElementById('cardsContainer');
+            const cardId = `card-${type}-${number}`;
+            const card = document.createElement('div');
+            card.className = 'id-card';
+            card.id = cardId;
+            card.innerHTML = `
+                <div class="id-card-content">
+                    <div class="card-top">
+                        <img src="https://andreilin12.github.io/SG-S.g.S-e-g-u-r-i-d-a-d/logo-retom.ico" alt="Logo de la empresa" onerror="this.src='https://via.placeholder.com/60x60?text=LOGO';">
+                        <div class="number">${number}</div>
+                    </div>
+                    <div>
+                        <h3 style="color: ${typeColors[type]}">${type}</h3>
+                        <p>Carnet para Acceso</p>
+                        <p>ID: #0001</p>
+                    </div>
+                    <p class="policy">Política: El carnet es obligatorio para el acceso. En caso de pérdida o daño, el titular deberá reportarlo y abonar DOP$200 para la reposición. Cuide su carnet.</p>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+        }
+
+        function printAll() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
