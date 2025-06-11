@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     :root {
       --cedula-blue: #15a086;
@@ -331,7 +332,6 @@
       margin-top: 25px;
     }
 
-
     .cedula-container {
       perspective: 1000px;
       width: 100%;
@@ -349,7 +349,6 @@
       cursor: pointer;
       background-color: var(--card1-bg);
       border-radius: 8px;
-
     }
 
     .cedula-card.flipped {
@@ -496,7 +495,7 @@
       margin-bottom: 15px;
     }
 
-    .download-btn {
+    .print-btn {
       margin-top: 15px;
       padding: 10px 25px;
       background: linear-gradient(to right, var(--cedula-blue2), var(--cedula-red));
@@ -513,11 +512,11 @@
       margin: 20px auto 0;
     }
 
-    .download-btn i {
+    .print-btn i {
       margin-right: 8px;
     }
 
-    .download-btn:hover {
+    .print-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
@@ -761,6 +760,134 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
+    /* Modal para reemplazar imagen */
+    .replace-image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .replace-image-modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .replace-image-modal-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: var(--cedula-blue);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .replace-image-options {
+      margin-bottom: 20px;
+    }
+
+    .replace-image-input {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .replace-image-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .replace-image-modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Galería de imágenes */
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .gallery-item {
+      position: relative;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      overflow: hidden;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .gallery-item .file-icon {
+      font-size: 40px;
+      color: var(--cedula-blue);
+    }
+
+    .gallery-item .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: var(--cancel-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .gallery-item:hover .remove-btn {
+      opacity: 1;
+    }
+
+    .add-image-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 5px;
+      color: var(--cedula-blue);
+      cursor: pointer;
+      border: 2px dashed var(--cedula-blue);
+      background-color: transparent;
+    }
+
+    .add-image-btn i {
+      font-size: 24px;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
       .sidebar {
@@ -799,6 +926,10 @@
       .photo-placeholder {
         width: 100px;
         height: 125px;
+      }
+
+      .image-gallery {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -884,7 +1015,7 @@
       </div>
       <br>
       <!-- Cédula Simulation -->
-      <div class="cedula-section1">
+      <div class="cedula-section">
         <div class="card-title">
           <i class="fas fa-id-card"></i> Cédula de Identidad
         </div>
@@ -933,10 +1064,24 @@
               <div class="back-text">CÉDULA DE IDENTIDAD Y ELECTORAL</div>
               <div class="qr-container" id="qrCode"></div>
               <div class="back-text">Escanee el código QR para verificar la autenticidad</div>
-              <button class="download-btn" id="downloadBtn">
-                <i class="fas fa-download"></i> DESCARGAR CÉDULA
+              <button class="print-btn" id="printBtn">
+                <i class="fas fa-print"></i> IMPRIMIR CÉDULA
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Galería de imágenes -->
+      <div class="details-card" style="margin-top: 25px;">
+        <div class="card-title">
+          <i class="fas fa-images"></i> Documentos Adjuntos
+        </div>
+        <div class="image-gallery" id="imageGallery">
+          <!-- Las imágenes se agregarán aquí dinámicamente -->
+          <div class="gallery-item add-image-btn" id="addImageBtn">
+            <i class="fas fa-plus-circle"></i>
+            <span>Agregar</span>
           </div>
         </div>
       </div>
@@ -1043,6 +1188,30 @@
     </div>
   </div>
 
+  <!-- Modal para agregar imágenes -->
+  <div class="replace-image-modal" id="addImageModal">
+    <div class="replace-image-modal-content">
+      <div class="replace-image-modal-title">
+        <i class="fas fa-image"></i> Agregar Documento
+      </div>
+      <div class="replace-image-options">
+        <input type="file" id="fileUpload" accept="image/*,.pdf" class="replace-image-input" multiple>
+        <div id="filePreviewContainer" style="display: none;">
+          <p>Archivos seleccionados:</p>
+          <ul id="filePreviewList"></ul>
+        </div>
+      </div>
+      <div class="replace-image-modal-buttons">
+        <button class="cancel-cancel-btn" id="addImageCancelBtn">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="cancel-confirm-btn" id="addImageConfirmBtn">
+          <i class="fas fa-check"></i> Agregar Documentos
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Configuración de Firebase
     const firebaseConfig = {
@@ -1064,6 +1233,8 @@
     let allUsers = [];
     let currentUser = null;
     let editedFields = {};
+    let selectedFiles = [];
+    let userDocuments = [];
 
     // Función para formatear fecha
     function formatDate(dateString) {
@@ -1096,10 +1267,13 @@
           position: doc.data().position,
           workCode: doc.data().workCode,
           photoURL: doc.data().profileImageUrl,
+          birthdate: doc.data().birthdate || '',
           status: doc.data().status || 'active',
           cancellationReason: doc.data().cancellationReason || '',
           cancellationDescription: doc.data().cancellationDescription || '',
-          cancellationDate: doc.data().cancellationDate || null
+          cancellationDate: doc.data().cancellationDate || null,
+          documents: doc.data().documents || [],
+          idCardImageUrl: doc.data().idCardImageUrl || ''
         }));
         
         renderUserList(allUsers);
@@ -1194,11 +1368,16 @@
           position: userData.position,
           workCode: userData.workCode,
           photoURL: userData.profileImageUrl,
+          birthdate: userData.birthdate || '',
           status: userData.status || 'active',
           cancellationReason: userData.cancellationReason || '',
           cancellationDescription: userData.cancellationDescription || '',
-          cancellationDate: userData.cancellationDate || null
+          cancellationDate: userData.cancellationDate || null,
+          documents: userData.documents || [],
+          idCardImageUrl: userData.idCardImageUrl || ''
         };
+
+        userDocuments = currentUser.documents || [];
         
         // Mostrar el contenedor de detalles
         document.getElementById('userDetails').classList.add('active');
@@ -1213,6 +1392,10 @@
           <tr>
             <td>Cédula</td>
             <td><input type="text" value="${currentUser.idCard || ''}" data-field="idCard"></td>
+          </tr>
+          <tr>
+            <td>Fecha Nacimiento</td>
+            <td><input type="date" value="${currentUser.birthdate || ''}" data-field="birthdate"></td>
           </tr>
           <tr>
             <td>Teléfono</td>
@@ -1276,16 +1459,31 @@
         const additionalInfo = document.getElementById('additionalInfo');
         additionalInfo.innerHTML = `
           <tr>
-            <td>Documento Adjunto</td>
+            <td>Documento de Cédula</td>
             <td>
               ${currentUser.idCardImageUrl ? `
-                <a href="#" class="document-link" data-url="${currentUser.idCardImageUrl}">
+                <a href="#" class="document-link" data-url="${currentUser.idCardImageUrl}" data-type="${currentUser.idCardImageUrl.endsWith('.pdf') ? 'pdf' : 'image'}">
                   ${currentUser.idCardImageUrl.endsWith('.pdf') ? 
                     '<i class="fas fa-file-pdf"></i> Ver PDF' : 
                     '<i class="fas fa-file-image"></i> Ver Imagen'
                   }
                 </a>
-              ` : 'N/A'}
+                <button class="document-link" style="margin-left: 10px;" onclick="openReplaceImageModal('${currentUser.id}')">
+                  <i class="fas fa-exchange-alt"></i> Reemplazar
+                </button>
+              ` : `
+                <button class="document-link" onclick="openReplaceImageModal('${currentUser.id}')">
+                  <i class="fas fa-plus"></i> Agregar Imagen
+                </button>
+              `}
+            </td>
+          </tr>
+          <tr>
+            <td>Documentos Adjuntos</td>
+            <td>
+              ${currentUser.documents && currentUser.documents.length > 0 ? 
+                `${currentUser.documents.length} documento(s) adjunto(s)` : 
+                'No hay documentos adjuntos'}
             </td>
           </tr>
           ${currentUser.status === 'canceled' ? `
@@ -1311,9 +1509,79 @@
         document.getElementById('cancelUserBtn').style.display = currentUser.status === 'active' ? 'flex' : 'none';
         document.getElementById('reinstateUserBtn').style.display = currentUser.status === 'canceled' ? 'flex' : 'none';
         
+        // Renderizar galería de documentos
+        renderDocumentGallery();
+        
       } catch (error) {
         console.error('Error cargando datos del usuario:', error);
       }
+    }
+
+    // Configurar listeners para documentos adjuntos
+    function setupDocumentLinks() {
+      const documentLinks = document.querySelectorAll('.document-link');
+      documentLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('data-url');
+          const type = this.getAttribute('data-type');
+          showDocumentModal(url, type);
+        });
+      });
+    }
+
+    // Renderizar galería de documentos
+    function renderDocumentGallery() {
+      const gallery = document.getElementById('imageGallery');
+      gallery.innerHTML = '';
+      
+      // Mostrar documentos existentes
+      userDocuments.forEach((doc, index) => {
+        const galleryItem = document.createElement('div');
+        galleryItem.className = 'gallery-item';
+        
+        if (doc.url.endsWith('.pdf')) {
+          galleryItem.innerHTML = `
+            <i class="fas fa-file-pdf file-icon"></i>
+            <button class="remove-btn" data-index="${index}">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+        } else {
+          galleryItem.innerHTML = `
+            <img src="${doc.url}" alt="Documento adjunto">
+            <button class="remove-btn" data-index="${index}">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+        }
+        
+        galleryItem.addEventListener('click', (e) => {
+          if (!e.target.closest('.remove-btn')) {
+            showDocumentModal(doc.url, doc.url.endsWith('.pdf') ? 'pdf' : 'image');
+          }
+        });
+        
+        // Configurar botón de eliminar
+        const removeBtn = galleryItem.querySelector('.remove-btn');
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeDocument(index);
+        });
+        
+        gallery.appendChild(galleryItem);
+      });
+      
+      // Agregar botón para añadir más documentos
+      const addButton = document.createElement('div');
+      addButton.className = 'gallery-item add-image-btn';
+      addButton.id = 'addImageBtn';
+      addButton.innerHTML = `
+        <i class="fas fa-plus-circle"></i>
+        <span>Agregar</span>
+      `;
+      addButton.addEventListener('click', openAddImageModal);
+      gallery.appendChild(addButton);
     }
 
     // Configurar listeners para campos editables
@@ -1330,41 +1598,34 @@
       });
     }
 
-    // Configurar listeners para documentos adjuntos
-    function setupDocumentLinks() {
-      const documentLinks = document.querySelectorAll('.document-link');
-      documentLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const url = this.getAttribute('data-url');
-          showDocumentModal(url);
-        });
-      });
-    }
-
     // Mostrar modal con documento adjunto
-    function showDocumentModal(url) {
+    function showDocumentModal(url, type) {
       const modal = document.getElementById('documentModal');
       const modalBody = document.getElementById('documentModalBody');
       
       // Limpiar contenido previo
       modalBody.innerHTML = '';
       
-      if (url.endsWith('.pdf')) {
-        // Mostrar PDF
+      if (type === 'pdf') {
+        // Mostrar PDF en ventana externa
         modalBody.innerHTML = `
-          <iframe src="${url}" class="document-pdf-container"></iframe>
-          <a href="${url}" class="document-download-btn" download>
-            <i class="fas fa-download"></i> Descargar PDF
-          </a>
+          <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-file-pdf" style="font-size: 50px; color: var(--cedula-blue); margin-bottom: 15px;"></i>
+            <p>Este documento es un archivo PDF.</p>
+            <button class="document-download-btn" id="openPdfBtn">
+              <i class="fas fa-external-link-alt"></i> Abrir PDF
+            </button>
+          </div>
         `;
+        
+        // Configurar botón para abrir PDF en nueva pestaña
+        document.getElementById('openPdfBtn').addEventListener('click', function() {
+          window.open(url, '_blank');
+        });
       } else {
-        // Mostrar imagen
+        // Mostrar imagen en modal
         modalBody.innerHTML = `
           <img src="${url}" class="document-image" alt="Documento adjunto">
-          <a href="${url}" class="document-download-btn" download>
-            <i class="fas fa-download"></i> Descargar Imagen
-          </a>
         `;
       }
       
@@ -1384,11 +1645,270 @@
       });
     }
 
+    // Función para abrir modal de reemplazar imagen
+    function openReplaceImageModal(userId) {
+      const modal = document.getElementById('replaceImageModal');
+      const imagePreview = document.getElementById('imagePreview');
+      
+      // Resetear el formulario
+      document.getElementById('imageUpload').value = '';
+      imagePreview.style.display = 'none';
+      selectedImageFile = null;
+      
+      // Configurar evento para vista previa de imagen
+      document.getElementById('imageUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          selectedImageFile = file;
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            imagePreview.src = event.target.result;
+            imagePreview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Configurar botón de confirmación
+      document.getElementById('replaceImageConfirmBtn').onclick = function() {
+        replaceImage(userId);
+      };
+      
+      // Configurar botón de cancelar
+      document.getElementById('replaceImageCancelBtn').onclick = function() {
+        modal.style.display = 'none';
+      };
+      
+      // Mostrar modal
+      modal.style.display = 'flex';
+    }
+
+    // Función para reemplazar imagen
+    async function replaceImage(userId) {
+      if (!selectedImageFile) {
+        showError('Por favor seleccione una imagen para reemplazar');
+        return;
+      }
+      
+      try {
+        // Subir la nueva imagen a Firebase Storage
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(`id_cards/${userId}_${new Date().getTime()}.png`);
+        
+        await fileRef.put(selectedImageFile);
+        const newImageUrl = await fileRef.getDownloadURL();
+        
+        // Actualizar en Firestore
+        await db.collection('FormularioDeSeguridad').doc(userId).update({
+          idCardImageUrl: newImageUrl
+        });
+        
+        // Actualizar localmente
+        currentUser.idCardImageUrl = newImageUrl;
+        
+        // Cerrar modal
+        document.getElementById('replaceImageModal').style.display = 'none';
+        
+        // Recargar datos del usuario
+        loadUserData(userId);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Imagen reemplazada',
+          text: 'La imagen se ha reemplazado correctamente',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      } catch (error) {
+        console.error('Error al reemplazar imagen:', error);
+        showError('No se pudo reemplazar la imagen');
+      }
+    }
+
+    // Abrir modal para agregar imágenes
+    function openAddImageModal() {
+      const modal = document.getElementById('addImageModal');
+      const filePreviewList = document.getElementById('filePreviewList');
+      
+      // Resetear el formulario
+      document.getElementById('fileUpload').value = '';
+      filePreviewList.innerHTML = '';
+      document.getElementById('filePreviewContainer').style.display = 'none';
+      selectedFiles = [];
+      
+      // Configurar evento para selección de archivos
+      document.getElementById('fileUpload').addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          selectedFiles = files;
+          filePreviewList.innerHTML = '';
+          
+          files.forEach(file => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            filePreviewList.appendChild(listItem);
+          });
+          
+          document.getElementById('filePreviewContainer').style.display = 'block';
+        } else {
+          document.getElementById('filePreviewContainer').style.display = 'none';
+        }
+      });
+      
+      // Configurar botón de confirmación
+      document.getElementById('addImageConfirmBtn').onclick = function() {
+        uploadDocuments();
+      };
+      
+      // Configurar botón de cancelar
+      document.getElementById('addImageCancelBtn').onclick = function() {
+        modal.style.display = 'none';
+      };
+      
+      // Mostrar modal
+      modal.style.display = 'flex';
+    }
+
+    // Subir documentos a Firebase Storage
+    async function uploadDocuments() {
+      if (selectedFiles.length === 0) {
+        showError('Por favor seleccione al menos un archivo');
+        return;
+      }
+      
+      try {
+        const modal = document.getElementById('addImageModal');
+        const storageRef = storage.ref();
+        const uploadPromises = [];
+        
+        // Mostrar carga
+        Swal.fire({
+          title: 'Subiendo archivos...',
+          html: 'Por favor espere mientras se suben los archivos',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Subir cada archivo
+        for (const file of selectedFiles) {
+          const fileRef = storageRef.child(`user_documents/${currentUser.id}/${Date.now()}_${file.name}`);
+          const uploadTask = fileRef.put(file);
+          
+          uploadPromises.push(
+            uploadTask.then(snapshot => snapshot.ref.getDownloadURL())
+          );
+        }
+        
+        // Obtener URLs de descarga
+        const urls = await Promise.all(uploadPromises);
+        
+        // Crear objetos de documentos
+        const newDocuments = urls.map((url, index) => ({
+          url: url,
+          name: selectedFiles[index].name,
+          type: selectedFiles[index].type,
+          size: selectedFiles[index].size,
+          uploadedAt: new Date()
+        }));
+        
+        // Actualizar en Firestore
+        await db.collection('FormularioDeSeguridad').doc(currentUser.id).update({
+          documents: firebase.firestore.FieldValue.arrayUnion(...newDocuments)
+        });
+        
+        // Actualizar localmente
+        userDocuments = [...userDocuments, ...newDocuments];
+        currentUser.documents = userDocuments;
+        
+        // Cerrar modal
+        modal.style.display = 'none';
+        
+        // Recargar galería
+        renderDocumentGallery();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Archivos subidos',
+          text: 'Los documentos se han agregado correctamente',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      } catch (error) {
+        console.error('Error al subir documentos:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron subir los documentos',
+          background: '#2c3e50',
+          color: '#fff',
+          confirmButtonColor: '#15a086'
+        });
+      }
+    }
+
+    // Eliminar documento
+    async function removeDocument(index) {
+      const confirmResult = await Swal.fire({
+        title: '¿Eliminar documento?',
+        text: '¿Está seguro que desea eliminar este documento? Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#15a086',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#2c3e50',
+        color: '#fff'
+      });
+
+      if (confirmResult.isConfirmed) {
+        try {
+          const docToRemove = userDocuments[index];
+          
+          // Eliminar de Firestore
+          await db.collection('FormularioDeSeguridad').doc(currentUser.id).update({
+            documents: firebase.firestore.FieldValue.arrayRemove(docToRemove)
+          });
+          
+          // Eliminar de Storage (opcional)
+          try {
+            const fileRef = storage.refFromURL(docToRemove.url);
+            await fileRef.delete();
+          } catch (storageError) {
+            console.warn('No se pudo eliminar el archivo de Storage:', storageError);
+          }
+          
+          // Actualizar localmente
+          userDocuments.splice(index, 1);
+          currentUser.documents = userDocuments;
+          
+          // Recargar galería
+          renderDocumentGallery();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Documento eliminado',
+            text: 'El documento se ha eliminado correctamente',
+            background: '#2c3e50',
+            color: '#fff',
+            confirmButtonColor: '#15a086'
+          });
+        } catch (error) {
+          console.error('Error al eliminar documento:', error);
+          showError('No se pudo eliminar el documento');
+        }
+      }
+    }
+
     // Función para actualizar la simulación de la cédula
     function updateCedula(userData) {
       document.getElementById('cedulaNumber').textContent = userData.idCard || '000-0000000-0';
       document.getElementById('userName').textContent = userData.fullName || '---------------------';
-      document.getElementById('userBirthdate').textContent = '--/--/----'; // No hay fecha de nacimiento en el formulario
+      document.getElementById('userBirthdate').textContent = userData.birthdate ? formatDate(userData.birthdate) : '--/--/----';
       document.getElementById('userLocation').textContent = userData.address || '---------------------';
       
       // Calcular fecha de vencimiento (10 años después de hoy)
@@ -1399,7 +1919,8 @@
       // Cargar foto de perfil
       const userPhoto = document.getElementById('userPhoto');
       if (userData.profileImageUrl) {
-        userPhoto.src = userData.profileImageUrl;
+        // Forzar recarga de la imagen
+        userPhoto.src = userData.profileImageUrl + '?t=' + new Date().getTime();
       } else {
         userPhoto.src = 'https://via.placeholder.com/120x150';
       }
@@ -1431,6 +1952,96 @@
       document.getElementById('qrCode').appendChild(qrImg);
     }
 
+    // Configurar botón de impresión
+    function setupPrintButton() {
+      document.getElementById('printBtn').addEventListener('click', async function() {
+        try {
+          // Crear un contenedor temporal para ambos lados de la cédula
+          const printContainer = document.createElement('div');
+          printContainer.style.position = 'fixed';
+          printContainer.style.left = '-9999px';
+          printContainer.style.display = 'flex';
+          printContainer.style.flexDirection = 'column';
+          printContainer.style.gap = '20px';
+          printContainer.style.backgroundColor = 'white';
+          printContainer.style.padding = '20px';
+          
+          // Clonar ambos lados de la cédula
+          const frontClone = document.querySelector('.cedula-front').cloneNode(true);
+          const backClone = document.querySelector('.cedula-back').cloneNode(true);
+          
+          // Ajustar estilos para la impresión
+          frontClone.style.transform = 'none';
+          frontClone.style.position = 'relative';
+          frontClone.style.width = '100%';
+          frontClone.style.height = 'auto';
+          frontClone.style.paddingBottom = '0';
+          
+          backClone.style.transform = 'none';
+          backClone.style.position = 'relative';
+          backClone.style.width = '100%';
+          backClone.style.height = 'auto';
+          backClone.style.paddingBottom = '0';
+          
+          // Agregar títulos a cada lado
+          const frontTitle = document.createElement('div');
+          frontTitle.textContent = 'FRENTE DE LA CÉDULA';
+          frontTitle.style.textAlign = 'center';
+          frontTitle.style.fontWeight = 'bold';
+          frontTitle.style.marginBottom = '10px';
+          frontTitle.style.color = 'var(--cedula-blue)';
+          
+          const backTitle = document.createElement('div');
+          backTitle.textContent = 'REVERSO DE LA CÉDULA';
+          backTitle.style.textAlign = 'center';
+          backTitle.style.fontWeight = 'bold';
+          backTitle.style.marginBottom = '10px';
+          backTitle.style.color = 'var(--cedula-blue)';
+          
+          printContainer.appendChild(frontTitle);
+          printContainer.appendChild(frontClone);
+          printContainer.appendChild(backTitle);
+          printContainer.appendChild(backClone);
+          document.body.appendChild(printContainer);
+          
+          // Configurar estilos de impresión
+          const style = document.createElement('style');
+          style.innerHTML = `
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-container, .print-container * {
+                visibility: visible;
+              }
+              .print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+              }
+            }
+          `;
+          document.head.appendChild(style);
+          
+          // Agregar clase para impresión
+          printContainer.classList.add('print-container');
+          
+          // Imprimir
+          window.print();
+          
+          // Limpiar
+          setTimeout(() => {
+            document.body.removeChild(printContainer);
+            document.head.removeChild(style);
+          }, 500);
+        } catch (error) {
+          console.error('Error al generar la impresión:', error);
+          showError('No se pudo generar la impresión de la cédula');
+        }
+      });
+    }
+
     // Función para buscar usuarios
     function setupSearch() {
       const searchInput = document.getElementById('searchInput');
@@ -1453,60 +2064,6 @@
         });
         
         renderUserList(filteredUsers);
-      });
-    }
-
-    // Función para descargar la cédula como imagen
-    function setupDownloadButton() {
-      document.getElementById('downloadBtn').addEventListener('click', function() {
-        downloadCedula();
-      });
-    }
-
-    // Función para descargar ambos lados de la cédula
-    function downloadCedula() {
-      // Cargar html2canvas dinámicamente
-      const script = document.createElement('script');
-      script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
-      script.onload = function() {
-        // Primero descargamos el frente
-        setTimeout(() => {
-          document.getElementById('cedulaCard').classList.remove('flipped');
-          setTimeout(() => {
-            html2canvas(document.querySelector('.cedula-front')).then(canvas => {
-              const link = document.createElement('a');
-              link.download = `cedula-${currentUser.idCard || 'user'}-frente.png`;
-              link.href = canvas.toDataURL('image/png');
-              link.click();
-              
-              // Luego descargamos el reverso
-              setTimeout(() => {
-                document.getElementById('cedulaCard').classList.add('flipped');
-                setTimeout(() => {
-                  html2canvas(document.querySelector('.cedula-back')).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `cedula-${currentUser.idCard || 'user'}-reverso.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    // Volvemos a la vista frontal
-                    setTimeout(() => {
-                      document.getElementById('cedulaCard').classList.remove('flipped');
-                    }, 500);
-                  });
-                }, 500);
-              }, 1000);
-            });
-          }, 500);
-        }, 500);
-      };
-      document.head.appendChild(script);
-    }
-
-    // Animación de giro al hacer clic
-    function setupCedulaFlip() {
-      document.getElementById('cedulaCard').addEventListener('click', function() {
-        this.classList.toggle('flipped');
       });
     }
 
@@ -1787,12 +2344,19 @@
       });
     }
 
+    // Animación de giro al hacer clic
+    function setupCedulaFlip() {
+      document.getElementById('cedulaCard').addEventListener('click', function() {
+        this.classList.toggle('flipped');
+      });
+    }
+
     // Inicializar la aplicación
     function initApp() {
       loadAllUsers();
       setupSearch();
       setupCedulaFlip();
-      setupDownloadButton();
+      setupPrintButton();
       setupSaveButton();
       setupCancelModal();
       setupReinstateModal();
@@ -1800,6 +2364,9 @@
 
     // Iniciar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', initApp);
+
+    // Hacer funciones accesibles globalmente
+    window.openReplaceImageModal = openReplaceImageModal;
   </script>
 </body>
 </html>
