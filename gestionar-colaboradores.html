@@ -512,11 +512,29 @@
       margin: 20px auto 0;
     }
 
-    .print-btn i {
-      margin-right: 8px;
+    .print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .print-btn:hover {
+    .print-all-btn {
+      margin-top: 15px;
+      padding: 10px 25px;
+      background: linear-gradient(to right, var(--cedula-blue2), var(--cedula-red));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto 0;
+    }
+
+    .print-all-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
@@ -888,6 +906,98 @@
       font-size: 24px;
     }
 
+    /* Estilos para impresión */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .print-container, .print-container * {
+        visibility: visible;
+      }
+      .print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: white;
+        padding: 20px;
+      }
+      .print-btn, .print-all-btn {
+        display: none !important;
+      }
+      .cedula-card {
+        transform: none !important;
+        height: auto !important;
+        padding-bottom: 0 !important;
+      }
+      .cedula-front, .cedula-back {
+        position: relative !important;
+        transform: none !important;
+        height: auto !important;
+        margin-bottom: 20px;
+      }
+    }
+
+    /* Estilos para impresión de todos los datos */
+    .print-all-container {
+      display: none;
+      background-color: white;
+      color: black;
+      padding: 20px;
+      font-family: 'Roboto', sans-serif;
+    }
+    .print-all-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--cedula-blue);
+      padding-bottom: 10px;
+    }
+    .print-all-title {
+      font-size: 24px;
+      color: var(--cedula-blue);
+      margin-bottom: 10px;
+    }
+    .print-all-subtitle {
+      font-size: 16px;
+      color: #555;
+    }
+    .print-all-section {
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    .print-all-section-title {
+      font-size: 18px;
+      color: var(--cedula-blue);
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    .print-all-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    .print-all-table th {
+      background-color: #f5f5f5;
+      text-align: left;
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .print-all-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .print-all-photo {
+      max-width: 150px;
+      max-height: 180px;
+      margin: 10px 0;
+    }
+    .print-all-qr {
+      width: 120px;
+      height: 120px;
+      margin: 10px auto;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
       .sidebar {
@@ -955,6 +1065,9 @@
   <div class="main-content">
     <div class="content-header">
       <div class="content-title">Detalles del Usuario</div>
+      <button class="print-all-btn" id="printAllBtn">
+        <i class="fas fa-print"></i> IMPRIMIR TODOS LOS DATOS
+      </button>
     </div>
 
     <!-- User Details -->
@@ -1085,6 +1198,73 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Contenedor para imprimir todos los datos (oculto) -->
+  <div class="print-all-container" id="printAllContainer">
+    <div class="print-all-header">
+      <div class="print-all-title">INFORME COMPLETO DEL COLABORADOR</div>
+      <div class="print-all-subtitle">Generado el <span id="printDate"></span></div>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-user"></i> INFORMACIÓN PERSONAL
+      </div>
+      <table class="print-all-table" id="printPersonalInfo">
+        <!-- Se llenará con JavaScript -->
+      </table>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-briefcase"></i> INFORMACIÓN LABORAL
+      </div>
+      <table class="print-all-table" id="printWorkInfo">
+        <!-- Se llenará con JavaScript -->
+      </table>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-envelope"></i> INFORMACIÓN DE CONTACTO
+      </div>
+      <table class="print-all-table" id="printContactInfo">
+        <!-- Se llenará con JavaScript -->
+      </table>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-info-circle"></i> INFORMACIÓN ADICIONAL
+      </div>
+      <table class="print-all-table" id="printAdditionalInfo">
+        <!-- Se llenará con JavaScript -->
+      </table>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-id-card"></i> CÉDULA DE IDENTIDAD
+      </div>
+      <div style="text-align: center;">
+        <div style="display: inline-block; text-align: center; margin: 0 20px;">
+          <div style="font-weight: bold; margin-bottom: 10px;">FRENTE</div>
+          <div id="printCedulaFront"></div>
+        </div>
+        <div style="display: inline-block; text-align: center; margin: 0 20px;">
+          <div style="font-weight: bold; margin-bottom: 10px;">REVERSO</div>
+          <div id="printCedulaBack"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="print-all-section">
+      <div class="print-all-section-title">
+        <i class="fas fa-images"></i> DOCUMENTOS ADJUNTOS
+      </div>
+      <div id="printDocumentsList"></div>
     </div>
   </div>
 
@@ -1952,7 +2132,7 @@
       document.getElementById('qrCode').appendChild(qrImg);
     }
 
-    // Configurar botón de impresión
+    // Configurar botón de impresión de la cédula
     function setupPrintButton() {
       document.getElementById('printBtn').addEventListener('click', async function() {
         try {
@@ -1969,6 +2149,12 @@
           // Clonar ambos lados de la cédula
           const frontClone = document.querySelector('.cedula-front').cloneNode(true);
           const backClone = document.querySelector('.cedula-back').cloneNode(true);
+          
+          // Eliminar el botón de impresión del reverso
+          const printBtn = backClone.querySelector('.print-btn');
+          if (printBtn) {
+            printBtn.remove();
+          }
           
           // Ajustar estilos para la impresión
           frontClone.style.transform = 'none';
@@ -2020,6 +2206,9 @@
                 top: 0;
                 width: 100%;
               }
+              .print-btn {
+                display: none !important;
+              }
             }
           `;
           document.head.appendChild(style);
@@ -2038,6 +2227,229 @@
         } catch (error) {
           console.error('Error al generar la impresión:', error);
           showError('No se pudo generar la impresión de la cédula');
+        }
+      });
+    }
+
+    // Configurar botón de impresión de todos los datos
+    function setupPrintAllButton() {
+      document.getElementById('printAllBtn').addEventListener('click', async function() {
+        if (!currentUser) {
+          showError('No hay ningún usuario seleccionado');
+          return;
+        }
+        
+        try {
+          // Actualizar fecha de impresión
+          const now = new Date();
+          document.getElementById('printDate').textContent = formatDate(now.toISOString());
+          
+          // Llenar información personal
+          const printPersonalInfo = document.getElementById('printPersonalInfo');
+          printPersonalInfo.innerHTML = `
+            <tr>
+              <th>Nombre Completo</th>
+              <td>${currentUser.fullName || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Cédula</th>
+              <td>${currentUser.idCard || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Fecha Nacimiento</th>
+              <td>${currentUser.birthdate ? formatDate(currentUser.birthdate) : 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Teléfono</th>
+              <td>${currentUser.phone || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Dirección</th>
+              <td>${currentUser.address || 'No disponible'}</td>
+            </tr>
+            ${currentUser.status === 'canceled' ? `
+            <tr>
+              <th>Estado</th>
+              <td style="color: var(--cancel-color); font-weight: bold;">CANCELADO</td>
+            </tr>
+            <tr>
+              <th>Motivo de cancelación</th>
+              <td>${currentUser.cancellationReason || 'No especificado'}</td>
+            </tr>
+            <tr>
+              <th>Fecha de cancelación</th>
+              <td>${currentUser.cancellationDate ? formatDate(currentUser.cancellationDate.toDate()) : 'No especificada'}</td>
+            </tr>
+            ` : ''}
+          `;
+          
+          // Llenar información laboral
+          const printWorkInfo = document.getElementById('printWorkInfo');
+          printWorkInfo.innerHTML = `
+            <tr>
+              <th>Departamento</th>
+              <td>${currentUser.department || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Área de Trabajo</th>
+              <td>${currentUser.workArea || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Posición</th>
+              <td>${currentUser.position || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Código Laboral</th>
+              <td>${currentUser.workCode || 'N/A'}</td>
+            </tr>
+          `;
+          
+          // Llenar información de contacto
+          const printContactInfo = document.getElementById('printContactInfo');
+          printContactInfo.innerHTML = `
+            <tr>
+              <th>Teléfono Móvil</th>
+              <td>${currentUser.phone || 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Dirección</th>
+              <td>${currentUser.address || 'No disponible'}</td>
+            </tr>
+          `;
+          
+          // Llenar información adicional
+          const printAdditionalInfo = document.getElementById('printAdditionalInfo');
+          printAdditionalInfo.innerHTML = `
+            <tr>
+              <th>Documento de Cédula</th>
+              <td>${currentUser.idCardImageUrl ? 'Adjunto' : 'No disponible'}</td>
+            </tr>
+            <tr>
+              <th>Documentos Adjuntos</th>
+              <td>${currentUser.documents && currentUser.documents.length > 0 ? 
+                `${currentUser.documents.length} documento(s) adjunto(s)` : 
+                'No hay documentos adjuntos'}
+              </td>
+            </tr>
+            ${currentUser.status === 'canceled' ? `
+            <tr>
+              <th>Descripción de cancelación</th>
+              <td>${currentUser.cancellationDescription || 'No especificada'}</td>
+            </tr>
+            ` : ''}
+          `;
+          
+          // Clonar la cédula para la impresión
+          const printCedulaFront = document.getElementById('printCedulaFront');
+          const printCedulaBack = document.getElementById('printCedulaBack');
+          
+          const frontClone = document.querySelector('.cedula-front').cloneNode(true);
+          const backClone = document.querySelector('.cedula-back').cloneNode(true);
+          
+          // Eliminar botones de impresión
+          const printBtn = backClone.querySelector('.print-btn');
+          if (printBtn) {
+            printBtn.remove();
+          }
+          
+          // Ajustar estilos para impresión
+          frontClone.style.transform = 'none';
+          frontClone.style.position = 'relative';
+          frontClone.style.width = '300px';
+          frontClone.style.height = 'auto';
+          frontClone.style.paddingBottom = '0';
+          frontClone.style.margin = '0 auto';
+          
+          backClone.style.transform = 'none';
+          backClone.style.position = 'relative';
+          backClone.style.width = '300px';
+          backClone.style.height = 'auto';
+          backClone.style.paddingBottom = '0';
+          backClone.style.margin = '0 auto';
+          
+          printCedulaFront.innerHTML = '';
+          printCedulaFront.appendChild(frontClone);
+          
+          printCedulaBack.innerHTML = '';
+          printCedulaBack.appendChild(backClone);
+          
+          // Listar documentos adjuntos
+          const printDocumentsList = document.getElementById('printDocumentsList');
+          printDocumentsList.innerHTML = '';
+          
+          if (currentUser.documents && currentUser.documents.length > 0) {
+            const docsTable = document.createElement('table');
+            docsTable.className = 'print-all-table';
+            
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Tamaño</th>
+                <th>Fecha</th>
+              </tr>
+            `;
+            docsTable.appendChild(thead);
+            
+            const tbody = document.createElement('tbody');
+            currentUser.documents.forEach(doc => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${doc.name || 'Documento'}</td>
+                <td>${doc.type || 'Desconocido'}</td>
+                <td>${(doc.size / 1024).toFixed(2)} KB</td>
+                <td>${doc.uploadedAt ? formatDate(doc.uploadedAt.toDate()) : 'Desconocida'}</td>
+              `;
+              tbody.appendChild(row);
+            });
+            
+            docsTable.appendChild(tbody);
+            printDocumentsList.appendChild(docsTable);
+          } else {
+            printDocumentsList.innerHTML = '<p>No hay documentos adjuntos</p>';
+          }
+          
+          // Mostrar el contenedor de impresión
+          const printAllContainer = document.getElementById('printAllContainer');
+          printAllContainer.style.display = 'block';
+          
+          // Configurar estilos de impresión
+          const style = document.createElement('style');
+          style.innerHTML = `
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-all-container, .print-all-container * {
+                visibility: visible;
+              }
+              .print-all-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+              }
+              .print-btn, .print-all-btn {
+                display: none !important;
+              }
+            }
+          `;
+          document.head.appendChild(style);
+          
+          // Imprimir
+          window.print();
+          
+          // Ocultar el contenedor después de imprimir
+          setTimeout(() => {
+            printAllContainer.style.display = 'none';
+            document.head.removeChild(style);
+          }, 500);
+          
+        } catch (error) {
+          console.error('Error al generar la impresión completa:', error);
+          showError('No se pudo generar la impresión completa');
         }
       });
     }
@@ -2357,6 +2769,7 @@
       setupSearch();
       setupCedulaFlip();
       setupPrintButton();
+      setupPrintAllButton();
       setupSaveButton();
       setupCancelModal();
       setupReinstateModal();
